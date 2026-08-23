@@ -94,7 +94,7 @@ interface HealthContextType {
 
 const HealthContext = createContext<HealthContextType | undefined>(undefined);
 
-const LOCAL_STORAGE_KEY = 'health_seelye_app_state_v5';
+const LOCAL_STORAGE_KEY = 'health_seelye_app_state_v6';
 
 export function HealthProvider({ children }: { children: React.ReactNode }) {
   const [profile, setProfile] = useState<UserProfile>(INITIAL_PROFILE);
@@ -131,6 +131,7 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
       try {
         const saved =
           localStorage.getItem(LOCAL_STORAGE_KEY) ||
+          localStorage.getItem('health_seelye_app_state_v5') ||
           localStorage.getItem('health_seelye_app_state_v4') ||
           localStorage.getItem('health_seelye_app_state_v3');
 
@@ -481,6 +482,7 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
         localStorage.removeItem('health_seelye_app_state_v3');
         localStorage.removeItem('health_seelye_app_state_v4');
         localStorage.removeItem('health_seelye_app_state_v5');
+        localStorage.removeItem('health_seelye_app_state_v6');
       } catch (e) {
         // ignore
       }

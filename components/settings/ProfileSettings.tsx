@@ -155,6 +155,16 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'Beta 0.10.0',
+      date: '2026-08-23',
+      title: 'Massive Food Catalog Expansion (1,250+ Verified Foods)',
+      changes: [
+        'Expanded entire nutrition catalog to 1,250+ authentic verified items across all 10 master categories (125+ items per category).',
+        'Added comprehensive preparation styles, cuts, wild/organic variants, and precise USDA macro profiles.',
+        'Upgraded state migration engine to v6 ensuring all 1,250 items load instantaneously.',
+      ],
+    },
+    {
       version: 'Beta 0.9.0',
       date: '2026-08-23',
       title: '3-Tier Progressive Food Browser & Expansive Sub-Categories',
@@ -537,7 +547,7 @@ export const ProfileSettings: React.FC = () => {
             <h2 className="text-base font-bold text-zinc-100">Version History & Changelog</h2>
           </div>
           <span className="px-3 py-1 rounded-full text-xs font-mono font-bold bg-brand-500/20 text-brand-300 border border-brand-500/30">
-            Active: Beta 0.9.0
+            Active: Beta 0.10.0
           </span>
         </div>
 
