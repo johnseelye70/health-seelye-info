@@ -37,6 +37,8 @@ import {
   Check,
   Copy,
   Code,
+  X,
+  ChevronRight,
 } from 'lucide-react';
 import { SUPABASE_SQL_SCHEMA } from '@/lib/supabase/schema-sql';
 import { NumberStepper } from '@/components/ui/NumberStepper';
@@ -208,6 +210,16 @@ export const ProfileSettings: React.FC = () => {
   };
 
   const changelogHistory = [
+    {
+      version: 'Beta 0.14.0',
+      date: '2026-08-23',
+      title: 'Layered Modal Window Architecture & Windows-Over-Windows Design System',
+      changes: [
+        'Transformed all dialogs, detail inspections, and viewers across the site into rich, layered modal windows with backdrop blurs and fluid animations.',
+        'Added dedicated modal windows for SQL Schema Inspector, Version Release Changelog, Food Nutrition & Bioavailability Breakdown, and Exercise Form Technique & Video Demonstrations.',
+        'Polished layered z-index hierarchy and touch-friendly close controls for seamless multi-window workflows.',
+      ],
+    },
     {
       version: 'Beta 0.13.2',
       date: '2026-08-23',
@@ -553,17 +565,59 @@ export const ProfileSettings: React.FC = () => {
             </button>
             <button
               type="button"
-              onClick={() => setShowSqlViewer((prev) => !prev)}
-              className="px-3 py-1.5 rounded-xl bg-surface-200/60 hover:bg-surface-200 border border-surface-border text-zinc-400 hover:text-zinc-200 text-xs font-medium cursor-pointer"
+              onClick={() => setShowSqlViewer(true)}
+              className="px-3 py-1.5 rounded-xl bg-surface-200/60 hover:bg-surface-200 border border-surface-border text-zinc-300 hover:text-white text-xs font-semibold cursor-pointer active:scale-95 transition-all"
             >
-              {showSqlViewer ? 'Hide SQL' : 'View SQL'}
+              Inspect SQL Modal
             </button>
           </div>
         </div>
 
+        {/* Modal Window: Supabase SQL Schema Inspector */}
         {showSqlViewer && (
-          <div className="p-4 rounded-2xl bg-surface-300/80 border border-surface-border font-mono text-[11px] text-zinc-300 max-h-60 overflow-y-auto space-y-2 select-all animate-fadeIn">
-            <pre className="whitespace-pre-wrap">{SUPABASE_SQL_SCHEMA}</pre>
+          <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 animate-fadeIn select-none">
+            <div className="w-full max-w-2xl max-h-[85vh] rounded-3xl bg-surface-100 border border-surface-border p-6 shadow-2xl flex flex-col space-y-4 animate-scaleUp">
+              <div className="flex items-center justify-between pb-3 border-b border-surface-border">
+                <div className="flex items-center gap-2">
+                  <Code className="w-5 h-5 text-brand-400" />
+                  <h3 className="text-base font-bold text-white">Supabase PostgreSQL Schema & Security Policies</h3>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowSqlViewer(false)}
+                  className="p-1 rounded-lg text-zinc-400 hover:text-white hover:bg-surface-200 cursor-pointer"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <p className="text-xs text-zinc-400">
+                Idempotent database migration script. Execute this in your Supabase SQL Editor to provision all 6 tables and row-level security (RLS) policies.
+              </p>
+
+              <div className="flex-1 overflow-y-auto p-4 rounded-2xl bg-surface-300/90 border border-surface-border font-mono text-[11px] text-zinc-300 select-all">
+                <pre className="whitespace-pre-wrap leading-relaxed">{SUPABASE_SQL_SCHEMA}</pre>
+              </div>
+
+              <div className="flex items-center justify-between pt-2 border-t border-surface-border text-xs">
+                <button
+                  type="button"
+                  onClick={handleCopySql}
+                  className="flex items-center gap-2 px-4 py-2 rounded-xl bg-brand-500 hover:bg-brand-600 text-zinc-950 font-bold shadow-glow active:scale-95 cursor-pointer"
+                >
+                  {sqlCopied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                  <span>{sqlCopied ? 'SQL Script Copied!' : 'Copy Entire SQL Script'}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setShowSqlViewer(false)}
+                  className="px-4 py-2 rounded-xl bg-surface-200 hover:bg-surface-300 text-zinc-200 font-semibold cursor-pointer"
+                >
+                  Close Window
+                </button>
+              </div>
+            </div>
           </div>
         )}
       </div>
@@ -831,7 +885,7 @@ export const ProfileSettings: React.FC = () => {
         </div>
       </form>
 
-      {/* Version History & Changelog Display (Required by standard - Hidden behind version button) */}
+      {/* Version History & Changelog Display (Modal Window Architecture) */}
       <div className="p-6 md:p-8 rounded-3xl bg-surface-100/90 border border-surface-border backdrop-blur-xl space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -839,54 +893,74 @@ export const ProfileSettings: React.FC = () => {
             <h2 className="text-base font-bold text-zinc-100">Application Version</h2>
           </div>
 
-          {/* Interactive Version Trigger Button */}
+          {/* Interactive Version Trigger Button - Opens Modal */}
           <button
             type="button"
             id="toggle-changelog-btn"
-            onClick={() => setShowChangelog((prev) => !prev)}
+            onClick={() => setShowChangelog(true)}
             className="group flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-mono font-bold bg-brand-500/20 hover:bg-brand-500/30 text-brand-300 border border-brand-500/40 transition-all cursor-pointer shadow-sm active:scale-95"
-            title="Click to view release changelog history"
+            title="Click to open release changelog modal window"
           >
             <span className="w-2 h-2 rounded-full bg-brand-400 animate-pulse"></span>
-            <span>Active: Beta 0.13.2</span>
-            {showChangelog ? (
-              <ChevronUp className="w-3.5 h-3.5 text-brand-400 group-hover:-translate-y-0.5 transition-transform" />
-            ) : (
-              <ChevronDown className="w-3.5 h-3.5 text-brand-400 group-hover:translate-y-0.5 transition-transform" />
-            )}
+            <span>Active: Beta 0.14.0</span>
+            <ChevronRight className="w-3.5 h-3.5 text-brand-400 group-hover:translate-x-0.5 transition-transform" />
           </button>
         </div>
 
-        {/* 100% Inline Collapsible Changelog Drawer */}
+        {/* Dedicated Modal Window: Version History & Changelog */}
         {showChangelog && (
-          <div className="pt-4 border-t border-surface-border space-y-6 animate-fadeIn">
-            <div className="flex items-center justify-between text-xs text-zinc-400">
-              <span className="font-semibold text-zinc-300">Release Changelog History</span>
-              <span className="text-[11px] text-zinc-500 flex items-center gap-1 font-mono">
-                <span>Admin Passcode Ready</span>
-              </span>
-            </div>
-
-            <div className="space-y-6">
-              {changelogHistory.map((release) => (
-                <div key={release.version} className="space-y-3">
-                  <div className="flex items-center gap-3">
-                    <GitCommit className="w-5 h-5 text-brand-400" />
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-bold font-mono text-zinc-100">{release.version}</span>
-                        <span className="text-xs text-zinc-400 font-mono">({release.date})</span>
-                      </div>
-                      <h3 className="text-xs font-semibold text-zinc-300 mt-0.5">{release.title}</h3>
-                    </div>
-                  </div>
-                  <ul className="pl-8 list-disc space-y-1.5 text-xs text-zinc-400">
-                    {release.changes.map((change, i) => (
-                      <li key={i} className="leading-relaxed">{change}</li>
-                    ))}
-                  </ul>
+          <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 animate-fadeIn select-none">
+            <div className="w-full max-w-2xl max-h-[85vh] rounded-3xl bg-surface-100 border border-surface-border p-6 shadow-2xl flex flex-col space-y-4 animate-scaleUp">
+              <div className="flex items-center justify-between pb-3 border-b border-surface-border">
+                <div className="flex items-center gap-2">
+                  <History className="w-5 h-5 text-accent-cyan" />
+                  <h3 className="text-base font-bold text-white">Application Version & Release Changelog</h3>
                 </div>
-              ))}
+                <button
+                  type="button"
+                  onClick={() => setShowChangelog(false)}
+                  className="p-1 rounded-lg text-zinc-400 hover:text-white hover:bg-surface-200 cursor-pointer"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="flex items-center justify-between text-xs text-zinc-400">
+                <span className="font-semibold text-zinc-300">Detailed Release Ledger</span>
+                <span className="text-[11px] font-mono text-zinc-500">Live Health.Seelye Architecture</span>
+              </div>
+
+              <div className="flex-1 overflow-y-auto space-y-6 pr-2">
+                {changelogHistory.map((release) => (
+                  <div key={release.version} className="p-4 rounded-2xl bg-surface-200/60 border border-surface-border space-y-3">
+                    <div className="flex items-center gap-3">
+                      <GitCommit className="w-5 h-5 text-brand-400 shrink-0" />
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-bold font-mono text-zinc-100">{release.version}</span>
+                          <span className="text-xs text-zinc-400 font-mono">({release.date})</span>
+                        </div>
+                        <h4 className="text-xs font-semibold text-zinc-300 mt-0.5">{release.title}</h4>
+                      </div>
+                    </div>
+                    <ul className="pl-8 list-disc space-y-1.5 text-xs text-zinc-400">
+                      {release.changes.map((change, i) => (
+                        <li key={i} className="leading-relaxed">{change}</li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+
+              <div className="flex justify-end pt-2 border-t border-surface-border">
+                <button
+                  type="button"
+                  onClick={() => setShowChangelog(false)}
+                  className="px-5 py-2 rounded-xl bg-brand-500 hover:bg-brand-600 text-zinc-950 font-bold text-xs shadow-glow active:scale-95 cursor-pointer"
+                >
+                  Done
+                </button>
+              </div>
             </div>
           </div>
         )}
