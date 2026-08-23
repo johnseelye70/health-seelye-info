@@ -211,6 +211,16 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'Beta 1.1.1',
+      date: '2026-08-23',
+      title: 'Dedicated Program Detail Modal Window & Layered Worksheet Architecture',
+      changes: [
+        'Updated program card interaction: Clicking any workout program immediately opens a dedicated Program Detail Modal Window with complete schedule metadata and required gear.',
+        'Engineered layered window-over-window workflow: Opening any worksheet now launches the Interactive & Printable Workout Sheet directly on top of the program modal with z-[60] backdrop.',
+        'Added backdrop dismiss and close controls to all program modals and tracking sheets.',
+      ],
+    },
+    {
       version: 'Beta 1.1.0',
       date: '2026-08-23',
       title: 'Full Complement of Workout Sheets & Dedicated CrossFit Benchmarks Catalog',
@@ -990,7 +1000,7 @@ export const ProfileSettings: React.FC = () => {
             title="Click to open release changelog modal window"
           >
             <span className="w-2 h-2 rounded-full bg-brand-400 animate-pulse"></span>
-            <span>Active: Beta 1.1.0</span>
+            <span>Active: Beta 1.1.1</span>
             <ChevronRight className="w-3.5 h-3.5 text-brand-400 group-hover:translate-x-0.5 transition-transform" />
           </button>
         </div>

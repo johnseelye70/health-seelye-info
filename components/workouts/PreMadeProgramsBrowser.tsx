@@ -21,15 +21,16 @@ import {
   Play,
   Award,
   Search,
+  X,
+  Boxes,
+  ExternalLink,
 } from 'lucide-react';
 
 export const PreMadeProgramsBrowser: React.FC = () => {
   const { profile, activeProgramId, setActiveProgramId } = useHealth();
 
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  const [selectedProgram, setSelectedProgram] = useState<PreMadeWorkoutProgram | null>(
-    PREMADE_WORKOUT_PROGRAMS[0]
-  );
+  const [activeProgramModal, setActiveProgramModal] = useState<PreMadeWorkoutProgram | null>(null);
   const [activeSheetDay, setActiveSheetDay] = useState<{
     program: PreMadeWorkoutProgram;
     day: WorkoutProgramDay;
@@ -52,6 +53,14 @@ export const PreMadeProgramsBrowser: React.FC = () => {
     });
   }, [selectedCategory, searchQuery]);
 
+  const handleOpenProgram = (prog: PreMadeWorkoutProgram) => {
+    setActiveProgramModal(prog);
+  };
+
+  const handleOpenSheet = (prog: PreMadeWorkoutProgram, day: WorkoutProgramDay) => {
+    setActiveSheetDay({ program: prog, day });
+  };
+
   return (
     <div className="space-y-6 animate-fadeIn">
       {/* Top Banner */}
@@ -60,35 +69,19 @@ export const PreMadeProgramsBrowser: React.FC = () => {
           <div>
             <div className="flex items-center gap-2 mb-1">
               <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-brand-500/20 text-brand-300 border border-brand-500/30">
-                🏆 RENOWNED TRAINING PROGRAMS & WORKOUT SHEETS
+                🏆 PRE-DONE WORKOUT PROGRAMS & WORKSHEET LIBRARY
+              </span>
+              <span className="text-xs text-zinc-500 font-mono">
+                {PREMADE_WORKOUT_PROGRAMS.length} Master Programs Available
               </span>
             </div>
             <h2 className="text-xl md:text-2xl font-black text-white">
-              Pre-Done Workout Programs & Printable Tracking Sheets
+              World-Class Pre-Made Workout Programs & Daily Tracking Sheets
             </h2>
-            <p className="text-xs text-zinc-400 mt-1 max-w-2xl">
-              Follow world-renowned workout protocols like <strong>P90X</strong>, <strong>P90X2</strong>, <strong>P90X3</strong>, <strong>StrongLifts 5x5</strong>, <strong>Tai Chi 24-Form</strong>, and <strong>Arnold Golden Six</strong>. Complete sheets online or print them out for manual logging.
+            <p className="text-xs text-zinc-400 mt-1 max-w-3xl">
+              Click on any training program below to open its complete schedule of daily routines, complete interactive worksheets online, save logs to your workout history, or generate clean high-contrast printable sheets.
             </p>
           </div>
-
-          {selectedProgram && (
-            <button
-              type="button"
-              onClick={() => setActiveProgramId(selectedProgram.id)}
-              className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-bold transition-all shadow-glow cursor-pointer active:scale-95 self-start md:self-auto ${
-                activeProgramId === selectedProgram.id
-                  ? 'bg-emerald-500 text-zinc-950 font-black'
-                  : 'bg-brand-500 hover:bg-brand-400 text-zinc-950'
-              }`}
-            >
-              <Check className="w-4 h-4" />
-              <span>
-                {activeProgramId === selectedProgram.id
-                  ? '✓ Active Training Program'
-                  : 'Set as Active Routine'}
-              </span>
-            </button>
-          )}
         </div>
 
         {/* Category Pills & Search */}
@@ -107,6 +100,7 @@ export const PreMadeProgramsBrowser: React.FC = () => {
               <button
                 key={cat.id}
                 type="button"
+                id={`cat-filter-${cat.id}`}
                 onClick={() => setSelectedCategory(cat.id)}
                 className={`px-3.5 py-1.5 rounded-xl font-bold transition-all cursor-pointer whitespace-nowrap ${
                   selectedCategory === cat.id
@@ -123,9 +117,10 @@ export const PreMadeProgramsBrowser: React.FC = () => {
             <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
             <input
               type="text"
+              id="search-programs-input"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search programs..."
+              placeholder="Search programs (P90X, Fran, Squat)..."
               className="w-full pl-9 pr-3 py-1.5 rounded-xl bg-surface-200 border border-surface-border text-xs text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-brand-500"
             />
           </div>
@@ -135,22 +130,17 @@ export const PreMadeProgramsBrowser: React.FC = () => {
       {/* Program Cards Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {filteredPrograms.map((prog) => {
-          const isSelected = selectedProgram?.id === prog.id;
           const isUserActive = activeProgramId === prog.id;
 
           return (
             <div
               key={prog.id}
-              onClick={() => setSelectedProgram(prog)}
-              className={`p-5 rounded-3xl border transition-all cursor-pointer flex flex-col justify-between space-y-4 hover:scale-[1.01] ${
-                isSelected
-                  ? 'bg-surface-100 border-brand-500 shadow-glow text-white'
-                  : 'bg-surface-100/70 border-surface-border hover:border-zinc-700 text-zinc-300'
-              }`}
+              onClick={() => handleOpenProgram(prog)}
+              className="p-5 rounded-3xl border border-surface-border bg-surface-100/80 hover:bg-surface-100 hover:border-brand-500/60 shadow-md hover:shadow-xl transition-all cursor-pointer flex flex-col justify-between space-y-4 hover:scale-[1.01] group relative"
             >
               <div>
                 <div className="flex items-center justify-between mb-3">
-                  <span className="text-3xl p-2.5 rounded-2xl bg-surface-200/90 border border-surface-border">
+                  <span className="text-3xl p-2.5 rounded-2xl bg-surface-200/90 border border-surface-border group-hover:scale-110 transition-transform">
                     {prog.icon}
                   </span>
                   <div className="flex items-center gap-1.5">
@@ -165,23 +155,25 @@ export const PreMadeProgramsBrowser: React.FC = () => {
                   </div>
                 </div>
 
-                <h3 className="text-base font-bold text-zinc-100">{prog.title}</h3>
-                <div className="text-xs text-brand-300 font-medium mt-0.5">{prog.subtitle}</div>
-                <div className="text-[11px] text-zinc-400 font-mono mt-0.5">By {prog.creator}</div>
+                <h3 className="text-base font-bold text-zinc-100 group-hover:text-brand-300 transition-colors">
+                  {prog.title}
+                </h3>
+                <div className="text-xs text-zinc-400 font-medium mt-0.5">{prog.subtitle}</div>
+                <div className="text-[11px] text-zinc-500 font-mono mt-0.5">By {prog.creator}</div>
 
                 <p className="text-xs text-zinc-400 mt-2.5 line-clamp-3 leading-relaxed">
                   {prog.description}
                 </p>
               </div>
 
-              <div className="pt-3 border-t border-surface-border/60 flex items-center justify-between text-xs text-zinc-400 font-mono">
-                <div className="flex items-center gap-2">
-                  <span>{prog.duration_weeks} Weeks</span>
+              <div className="pt-3 border-t border-surface-border/60 flex items-center justify-between text-xs font-mono">
+                <div className="flex items-center gap-2 text-zinc-400">
+                  <span>{prog.duration_weeks} Wks</span>
                   <span>•</span>
                   <span>{prog.days_per_week} Days/Wk</span>
                 </div>
-                <div className="text-brand-400 font-bold flex items-center gap-1">
-                  <span>{prog.schedule.length} Sheets</span>
+                <div className="text-brand-400 font-bold flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+                  <span>Open {prog.schedule.length} Sheets</span>
                   <ChevronRight className="w-3.5 h-3.5" />
                 </div>
               </div>
@@ -190,78 +182,172 @@ export const PreMadeProgramsBrowser: React.FC = () => {
         })}
       </div>
 
-      {/* Selected Program Detailed Schedule & Daily Workout Sheets */}
-      {selectedProgram && (
-        <div className="p-6 md:p-8 rounded-3xl bg-surface-100/90 border border-surface-border backdrop-blur-xl space-y-6 shadow-xl animate-fadeIn">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-surface-border">
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="text-2xl">{selectedProgram.icon}</span>
-                <h3 className="text-lg sm:text-xl font-black text-white">
-                  {selectedProgram.title} Schedule & Workout Sheets
-                </h3>
-              </div>
-              <p className="text-xs text-zinc-400 mt-1">
-                Click on any session below to open the <strong>Interactive Online Workout Sheet</strong> or generate a <strong>Clean Printable Sheet</strong>.
-              </p>
-            </div>
-
-            <div className="flex items-center gap-2 self-start sm:self-auto">
-              <span className="text-xs font-mono px-3 py-1 rounded-xl bg-surface-200 text-zinc-300 border border-surface-border">
-                {selectedProgram.schedule.length} Workout Sessions
-              </span>
-            </div>
-          </div>
-
-          {/* Daily Schedule List */}
-          <div className="space-y-3">
-            {selectedProgram.schedule.map((day) => (
-              <div
-                key={day.day_number}
-                className="p-4 sm:p-5 rounded-2xl bg-surface-200/50 hover:bg-surface-200/90 border border-surface-border hover:border-brand-500/40 transition-all flex flex-col md:flex-row md:items-center justify-between gap-4"
-              >
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <span className="px-2 py-0.5 rounded-md text-[10px] font-mono font-bold bg-brand-500/20 text-brand-300">
-                      Day {day.day_number}
-                    </span>
-                    <h4 className="text-sm font-bold text-white">{day.day_title}</h4>
-                  </div>
-                  <div className="text-xs text-zinc-400 font-mono">
-                    Focus: <span className="text-zinc-300">{day.focus}</span> • {day.duration_minutes} min •{' '}
-                    {day.exercises.length} Exercises
-                  </div>
-                </div>
-
+      {/* =========================================================================
+          MODAL WINDOW 1: PROGRAM SCHEDULE & WORKSHEETS MODAL
+          ========================================================================= */}
+      {activeProgramModal && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-md animate-fadeIn"
+          onClick={() => setActiveProgramModal(null)}
+        >
+          <div
+            className="w-full max-w-4xl max-h-[90vh] flex flex-col rounded-3xl bg-surface-100 border border-surface-border shadow-2xl overflow-hidden animate-scaleUp"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div className="p-5 sm:p-6 bg-surface-200/90 border-b border-surface-border flex flex-col sm:flex-row sm:items-center justify-between gap-4 select-none">
+              <div className="space-y-1">
                 <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setActiveSheetDay({ program: selectedProgram, day })}
-                    className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-brand-500 hover:bg-brand-400 text-zinc-950 text-xs font-bold shadow-glow transition-all cursor-pointer active:scale-95"
-                  >
-                    <FileText className="w-3.5 h-3.5" />
-                    <span>Open Workout Sheet</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setActiveSheetDay({ program: selectedProgram, day });
-                      setTimeout(() => window.print(), 300);
-                    }}
-                    className="p-2 rounded-xl bg-surface-300 hover:bg-surface-border text-zinc-300 hover:text-white transition-all cursor-pointer"
-                    title="Print this sheet"
-                  >
-                    <Printer className="w-4 h-4" />
-                  </button>
+                  <span className="text-2xl p-1.5 rounded-xl bg-surface-300 border border-surface-border">
+                    {activeProgramModal.icon}
+                  </span>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h2 className="text-lg sm:text-xl font-black text-white">
+                        {activeProgramModal.title}
+                      </h2>
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-surface-300 text-zinc-300 border border-surface-border uppercase">
+                        {activeProgramModal.difficulty}
+                      </span>
+                    </div>
+                    <p className="text-xs text-zinc-400 font-mono">
+                      By {activeProgramModal.creator} • {activeProgramModal.duration_weeks} Weeks •{' '}
+                      {activeProgramModal.days_per_week} Days/Wk
+                    </p>
+                  </div>
                 </div>
               </div>
-            ))}
+
+              {/* Header Action Buttons */}
+              <div className="flex items-center gap-2.5 self-start sm:self-auto">
+                <button
+                  type="button"
+                  onClick={() => setActiveProgramId(activeProgramModal.id)}
+                  className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-glow cursor-pointer active:scale-95 ${
+                    activeProgramId === activeProgramModal.id
+                      ? 'bg-emerald-500 text-zinc-950 font-black'
+                      : 'bg-brand-500 hover:bg-brand-400 text-zinc-950'
+                  }`}
+                >
+                  <Check className="w-4 h-4" />
+                  <span>
+                    {activeProgramId === activeProgramModal.id
+                      ? '✓ Active Routine'
+                      : 'Set as Active Routine'}
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setActiveProgramModal(null)}
+                  className="p-2 rounded-xl hover:bg-surface-300 text-zinc-400 hover:text-white cursor-pointer transition-all"
+                  title="Close window"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+
+            {/* Modal Body: Program Overview & Worksheets List */}
+            <div className="flex-1 overflow-y-auto p-5 sm:p-6 space-y-6">
+              {/* Program Description Box */}
+              <div className="p-4 rounded-2xl bg-surface-200/50 border border-surface-border text-xs text-zinc-300 leading-relaxed">
+                <p>{activeProgramModal.description}</p>
+                <div className="mt-3 flex items-center gap-2 flex-wrap">
+                  <span className="text-[10px] uppercase font-bold text-zinc-400">
+                    Required Equipment:
+                  </span>
+                  {activeProgramModal.equipment_needed.map((eq, i) => (
+                    <span
+                      key={i}
+                      className="px-2 py-0.5 rounded-lg bg-surface-300 text-zinc-200 text-[11px] font-mono capitalize border border-surface-border"
+                    >
+                      {eq.replace('_', ' ')}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              {/* Worksheets Header */}
+              <div className="flex items-center justify-between pb-2 border-b border-surface-border">
+                <div className="flex items-center gap-2">
+                  <FileText className="w-4 h-4 text-brand-400" />
+                  <h3 className="text-sm font-bold text-zinc-100 uppercase tracking-wider">
+                    Daily Worksheets ({activeProgramModal.schedule.length} Sessions)
+                  </h3>
+                </div>
+                <span className="text-xs text-zinc-400 font-mono">
+                  Click any sheet to log online or print
+                </span>
+              </div>
+
+              {/* Worksheets Grid List */}
+              <div className="grid grid-cols-1 gap-3">
+                {activeProgramModal.schedule.map((day) => (
+                  <div
+                    key={day.day_number}
+                    className="p-4 rounded-2xl bg-surface-200/60 hover:bg-surface-200 border border-surface-border hover:border-brand-500/40 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-sm"
+                  >
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <span className="px-2 py-0.5 rounded-md text-[10px] font-mono font-bold bg-brand-500/20 text-brand-300 border border-brand-500/30">
+                          Day {day.day_number}
+                        </span>
+                        <h4 className="text-sm font-bold text-white">{day.day_title}</h4>
+                      </div>
+                      <div className="text-xs text-zinc-400 font-mono">
+                        Focus: <span className="text-zinc-300">{day.focus}</span> •{' '}
+                        {day.duration_minutes} min • {day.exercises.length} Movements
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2 self-start sm:self-auto shrink-0">
+                      <button
+                        type="button"
+                        onClick={() => handleOpenSheet(activeProgramModal, day)}
+                        className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-brand-500 hover:bg-brand-400 text-zinc-950 text-xs font-black shadow-glow transition-all cursor-pointer active:scale-95"
+                      >
+                        <FileText className="w-3.5 h-3.5" />
+                        <span>Open Worksheet</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          handleOpenSheet(activeProgramModal, day);
+                          setTimeout(() => window.print(), 300);
+                        }}
+                        className="p-2 rounded-xl bg-surface-300 hover:bg-surface-border text-zinc-300 hover:text-white transition-all cursor-pointer"
+                        title="Print this sheet"
+                      >
+                        <Printer className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="p-4 sm:p-5 bg-surface-200/90 border-t border-surface-border flex items-center justify-between">
+              <span className="text-xs text-zinc-400 font-mono">
+                {activeProgramModal.schedule.length} workout sheets ready for logging
+              </span>
+              <button
+                type="button"
+                onClick={() => setActiveProgramModal(null)}
+                className="px-4 py-2 rounded-xl bg-surface-300 hover:bg-surface-border text-zinc-200 text-xs font-bold cursor-pointer transition-colors"
+              >
+                Close Window
+              </button>
+            </div>
           </div>
         </div>
       )}
 
-      {/* Active Workout Sheet Modal Window */}
+      {/* =========================================================================
+          MODAL WINDOW 2: INTERACTIVE & PRINTABLE WORKOUT SHEET (ON TOP OF PROGRAM MODAL)
+          ========================================================================= */}
       {activeSheetDay && (
         <WorkoutSheetModal
           program={activeSheetDay.program}

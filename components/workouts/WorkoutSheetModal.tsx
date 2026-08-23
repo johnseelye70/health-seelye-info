@@ -159,7 +159,10 @@ export const WorkoutSheetModal: React.FC<WorkoutSheetModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-md animate-fadeIn">
+    <div
+      className="fixed inset-0 z-[60] flex items-center justify-center p-3 sm:p-6 bg-black/85 backdrop-blur-md animate-fadeIn"
+      onClick={onClose}
+    >
       {/* Modal Container */}
       <div
         className="w-full max-w-4xl max-h-[92vh] flex flex-col rounded-3xl bg-surface-100 border border-surface-border shadow-2xl overflow-hidden animate-scaleUp print:m-0 print:p-0 print:border-none print:shadow-none print:max-w-none print:max-h-none print:bg-white print:text-black"
