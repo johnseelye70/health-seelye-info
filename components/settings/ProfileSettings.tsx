@@ -209,6 +209,16 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'Beta 0.13.1',
+      date: '2026-08-23',
+      title: 'Food Database Reactive Dietary Filtering & Live Count Integration',
+      changes: [
+        'Fixed dietary filter buttons (High Protein, Gluten-Free, Dairy-Free) to immediately trigger reactive view-switching and display matching foods instantly.',
+        'Added dynamic live count badges to dietary filters and categorized cards.',
+        'Added visual match indicators on all food cards and enhanced breadcrumb filter clearing.',
+      ],
+    },
+    {
       version: 'Beta 0.13.0',
       date: '2026-08-23',
       title: 'Fasting Time Dropdown & Ergonomic Accessible Universal Steppers (+/-)',
@@ -828,7 +838,7 @@ export const ProfileSettings: React.FC = () => {
             title="Click to view release changelog history"
           >
             <span className="w-2 h-2 rounded-full bg-brand-400 animate-pulse"></span>
-            <span>Active: Beta 0.13.0</span>
+            <span>Active: Beta 0.13.1</span>
             {showChangelog ? (
               <ChevronUp className="w-3.5 h-3.5 text-brand-400 group-hover:-translate-y-0.5 transition-transform" />
             ) : (

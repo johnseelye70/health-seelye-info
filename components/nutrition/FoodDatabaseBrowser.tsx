@@ -43,26 +43,42 @@ export const FoodDatabaseBrowser: React.FC<FoodDatabaseBrowserProps> = ({
   const [selectedSubCategory, setSelectedSubCategory] = useState<string | null>(null);
   const [dietaryFilter, setDietaryFilter] = useState<'all' | 'high_protein' | 'gluten_free' | 'dairy_free'>('all');
 
-  // Count items per category
+  // Dietary Total Counts across whole library
+  const dietaryCounts = useMemo(() => {
+    return {
+      all: foods.length,
+      high_protein: foods.filter((f) => f.protein_per_100g >= 15).length,
+      gluten_free: foods.filter((f) => f.is_gluten_free).length,
+      dairy_free: foods.filter((f) => f.is_dairy_free).length,
+    };
+  }, [foods]);
+
+  // Count items per category (respecting active dietary filter)
   const categoryCounts = useMemo(() => {
     const counts: Record<string, number> = {};
     foods.forEach((food) => {
+      if (dietaryFilter === 'gluten_free' && !food.is_gluten_free) return;
+      if (dietaryFilter === 'dairy_free' && !food.is_dairy_free) return;
+      if (dietaryFilter === 'high_protein' && food.protein_per_100g < 15) return;
       const cat = normalizeFoodCategory(food.category);
       counts[cat] = (counts[cat] || 0) + 1;
     });
     return counts;
-  }, [foods]);
+  }, [foods, dietaryFilter]);
 
-  // Count items per sub-category
+  // Count items per sub-category (respecting active dietary filter)
   const subCategoryCounts = useMemo(() => {
     const counts: Record<string, number> = {};
     foods.forEach((food) => {
+      if (dietaryFilter === 'gluten_free' && !food.is_gluten_free) return;
+      if (dietaryFilter === 'dairy_free' && !food.is_dairy_free) return;
+      if (dietaryFilter === 'high_protein' && food.protein_per_100g < 15) return;
       if (food.sub_category) {
         counts[food.sub_category] = (counts[food.sub_category] || 0) + 1;
       }
     });
     return counts;
-  }, [foods]);
+  }, [foods, dietaryFilter]);
 
   // Available sub-categories for selected parent category
   const currentSubCategories = useMemo(() => {
@@ -83,9 +99,9 @@ export const FoodDatabaseBrowser: React.FC<FoodDatabaseBrowserProps> = ({
         const matchesSub = item.sub_category ? item.sub_category.toLowerCase().includes(q) : false;
         if (!matchesName && !matchesCat && !matchesSub) return false;
       } else {
-        // 2. Hierarchical Category Filter
+        // 2. Hierarchical Category Filter (applied if category is selected)
         if (selectedCategory && itemCat !== selectedCategory) return false;
-        if (selectedSubCategory && item.sub_category !== selectedSubCategory) return false;
+        if (selectedSubCategory && selectedSubCategory !== 'all' && item.sub_category !== selectedSubCategory) return false;
       }
 
       // 3. Dietary Filter
@@ -99,6 +115,7 @@ export const FoodDatabaseBrowser: React.FC<FoodDatabaseBrowserProps> = ({
 
   const activeCategoryMeta = FOOD_CATEGORIES.find((c) => c.id === selectedCategory);
   const activeSubCategoryMeta = FOOD_SUB_CATEGORIES.find((s) => s.id === selectedSubCategory);
+  const shouldShowFoodList = dietaryFilter !== 'all' || searchQuery.trim().length > 0 || selectedSubCategory !== null;
 
   return (
     <div className="space-y-6">
@@ -116,21 +133,21 @@ export const FoodDatabaseBrowser: React.FC<FoodDatabaseBrowserProps> = ({
             </p>
           </div>
 
-          {/* Quick Dietary Filters */}
+          {/* Quick Dietary Filters with Live Counts */}
           <div className="flex flex-wrap items-center gap-1.5 self-start md:self-auto">
             {[
-              { id: 'all', label: 'All Items' },
-              { id: 'high_protein', label: '🥩 High Protein (15g+)' },
-              { id: 'gluten_free', label: '🌾 Gluten-Free' },
-              { id: 'dairy_free', label: '🥛 Dairy-Free' },
+              { id: 'all', label: `All Items (${dietaryCounts.all})` },
+              { id: 'high_protein', label: `🥩 High Protein (${dietaryCounts.high_protein})` },
+              { id: 'gluten_free', label: `🌾 Gluten-Free (${dietaryCounts.gluten_free})` },
+              { id: 'dairy_free', label: `🥛 Dairy-Free (${dietaryCounts.dairy_free})` },
             ].map((f) => (
               <button
                 key={f.id}
                 onClick={() => setDietaryFilter(f.id as any)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-medium transition-all ${
+                className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
                   dietaryFilter === f.id
                     ? 'bg-brand-500 text-zinc-950 font-bold shadow-glow border border-brand-400'
-                    : 'bg-surface-200 border border-surface-border text-zinc-400 hover:text-zinc-200'
+                    : 'bg-surface-200 border border-surface-border text-zinc-400 hover:text-zinc-100 hover:bg-surface-300'
                 }`}
               >
                 {f.label}
@@ -169,9 +186,9 @@ export const FoodDatabaseBrowser: React.FC<FoodDatabaseBrowserProps> = ({
       </div>
 
       {/* =========================================================================
-          TIER 1: MASTER CATEGORIES GRID (When no category is selected and search is empty)
+          TIER 1: MASTER CATEGORIES GRID (When no dietary filter, no search, no category)
           ========================================================================= */}
-      {!selectedCategory && !selectedSubCategory && searchQuery.trim().length === 0 && (
+      {!shouldShowFoodList && !selectedCategory && (
         <div className="space-y-4 animate-fadeIn">
           <div className="flex items-center justify-between px-1">
             <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-400 flex items-center gap-1.5">
@@ -225,9 +242,9 @@ export const FoodDatabaseBrowser: React.FC<FoodDatabaseBrowserProps> = ({
       )}
 
       {/* =========================================================================
-          TIER 2: SUB-CATEGORIES GRID (When a Master Category is chosen, but no specific subcategory is selected)
+          TIER 2: SUB-CATEGORIES GRID (When a Master Category is chosen, without direct subcategory or dietary filter)
           ========================================================================= */}
-      {selectedCategory && !selectedSubCategory && searchQuery.trim().length === 0 && (
+      {!shouldShowFoodList && selectedCategory && !selectedSubCategory && (
         <div className="space-y-4 animate-fadeIn">
           {/* Breadcrumb Navigation Bar */}
           <div className="flex items-center justify-between p-3 px-4 rounded-2xl bg-surface-100 border border-surface-border">
@@ -237,7 +254,7 @@ export const FoodDatabaseBrowser: React.FC<FoodDatabaseBrowserProps> = ({
                   setSelectedCategory(null);
                   setSelectedSubCategory(null);
                 }}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-surface-200 hover:bg-surface-300 border border-surface-border font-semibold text-zinc-200 hover:text-white transition-all active:scale-95"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-surface-200 hover:bg-surface-300 border border-surface-border font-semibold text-zinc-200 hover:text-white transition-all active:scale-95 cursor-pointer"
               >
                 <ArrowLeft className="w-3.5 h-3.5 text-brand-400" />
                 <span>All Categories</span>
@@ -251,7 +268,7 @@ export const FoodDatabaseBrowser: React.FC<FoodDatabaseBrowserProps> = ({
 
             <button
               onClick={() => setSelectedSubCategory('all')}
-              className="text-xs font-semibold text-brand-400 hover:underline flex items-center gap-1"
+              className="text-xs font-semibold text-brand-400 hover:underline flex items-center gap-1 cursor-pointer"
             >
               <span>View All {categoryCounts[selectedCategory] || 0} Foods in Category</span>
               <ChevronRight className="w-3.5 h-3.5" />
@@ -299,44 +316,56 @@ export const FoodDatabaseBrowser: React.FC<FoodDatabaseBrowserProps> = ({
       )}
 
       {/* =========================================================================
-          TIER 3: FOOD ITEMS LIST (When Sub-Category is active OR Global Search is typing)
+          TIER 3: FOOD ITEMS LIST (When Dietary Filter active, Sub-Category active, OR Global Search)
           ========================================================================= */}
-      {(selectedSubCategory || searchQuery.trim().length > 0) && (
+      {shouldShowFoodList && (
         <div className="space-y-4 animate-fadeIn">
           {/* Breadcrumb Bar */}
-          <div className="flex items-center justify-between p-3 px-4 rounded-2xl bg-surface-100 border border-surface-border">
+          <div className="flex items-center justify-between p-3 px-4 rounded-2xl bg-surface-100 border border-surface-border flex-wrap gap-3">
             <div className="flex items-center gap-2 text-xs flex-wrap">
               <button
                 onClick={() => {
                   setSelectedCategory(null);
                   setSelectedSubCategory(null);
                   setSearchQuery('');
+                  setDietaryFilter('all');
                 }}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-surface-200 hover:bg-surface-300 border border-surface-border font-semibold text-zinc-200 hover:text-white transition-all active:scale-95"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-surface-200 hover:bg-surface-300 border border-surface-border font-semibold text-zinc-200 hover:text-white transition-all active:scale-95 cursor-pointer"
               >
                 <ArrowLeft className="w-3.5 h-3.5 text-brand-400" />
                 <span>All Categories</span>
               </button>
 
-              {selectedCategory && (
+              {selectedCategory && activeCategoryMeta && (
                 <>
                   <span className="text-zinc-600">/</span>
                   <button
                     onClick={() => setSelectedSubCategory(null)}
-                    className="font-semibold text-zinc-300 hover:text-white hover:underline flex items-center gap-1"
+                    className="font-semibold text-zinc-300 hover:text-white hover:underline flex items-center gap-1 cursor-pointer"
                   >
-                    <span>{activeCategoryMeta?.icon}</span>
-                    <span>{activeCategoryMeta?.name}</span>
+                    <span>{activeCategoryMeta.icon}</span>
+                    <span>{activeCategoryMeta.name}</span>
                   </button>
                 </>
               )}
 
-              {selectedSubCategory && activeSubCategoryMeta && (
+              {selectedSubCategory && selectedSubCategory !== 'all' && activeSubCategoryMeta && (
                 <>
                   <span className="text-zinc-600">/</span>
                   <span className="font-bold text-brand-400 flex items-center gap-1">
                     <span>{activeSubCategoryMeta.icon}</span>
                     <span>{activeSubCategoryMeta.name}</span>
+                  </span>
+                </>
+              )}
+
+              {dietaryFilter !== 'all' && (
+                <>
+                  <span className="text-zinc-600">/</span>
+                  <span className="font-bold text-brand-300 px-2.5 py-1 rounded-lg bg-brand-500/15 border border-brand-500/30 flex items-center gap-1">
+                    {dietaryFilter === 'high_protein' && '🥩 High Protein (15g+)'}
+                    {dietaryFilter === 'gluten_free' && '🌾 Gluten-Free'}
+                    {dietaryFilter === 'dairy_free' && '🥛 Dairy-Free'}
                   </span>
                 </>
               )}
@@ -351,18 +380,29 @@ export const FoodDatabaseBrowser: React.FC<FoodDatabaseBrowserProps> = ({
               )}
             </div>
 
-            <span className="text-xs font-mono px-3 py-1 rounded-lg bg-surface-200 text-zinc-300 font-medium">
-              {filteredFoods.length} {filteredFoods.length === 1 ? 'item' : 'items'}
-            </span>
+            <div className="flex items-center gap-3">
+              {dietaryFilter !== 'all' && (
+                <button
+                  onClick={() => setDietaryFilter('all')}
+                  className="text-xs text-rose-400 hover:underline flex items-center gap-1 font-mono cursor-pointer"
+                >
+                  <X className="w-3.5 h-3.5" />
+                  <span>Clear Filter</span>
+                </button>
+              )}
+              <span className="text-xs font-mono px-3 py-1 rounded-lg bg-surface-200 text-zinc-300 font-medium">
+                {filteredFoods.length} {filteredFoods.length === 1 ? 'item' : 'items'}
+              </span>
+            </div>
           </div>
 
           {/* Empty State */}
           {filteredFoods.length === 0 && (
             <div className="p-12 text-center rounded-3xl bg-surface-100/90 border border-surface-border space-y-3">
               <div className="text-4xl">🔍</div>
-              <h4 className="text-base font-bold text-zinc-200">No foods found matching your query</h4>
+              <h4 className="text-base font-bold text-zinc-200">No foods found matching your filter</h4>
               <p className="text-xs text-zinc-400 max-w-md mx-auto">
-                Try a different keyword or reset your dietary filters.
+                Try resetting your dietary filter or searching for a different food.
               </p>
               <button
                 onClick={() => {
@@ -371,9 +411,9 @@ export const FoodDatabaseBrowser: React.FC<FoodDatabaseBrowserProps> = ({
                   setSelectedSubCategory(null);
                   setDietaryFilter('all');
                 }}
-                className="px-4 py-2 rounded-xl bg-brand-500 text-zinc-950 font-bold text-xs"
+                className="px-4 py-2 rounded-xl bg-brand-500 text-zinc-950 font-bold text-xs cursor-pointer shadow-glow"
               >
-                Reset Filters
+                Reset All Filters
               </button>
             </div>
           )}
@@ -399,7 +439,12 @@ export const FoodDatabaseBrowser: React.FC<FoodDatabaseBrowserProps> = ({
                       </p>
                     </div>
 
-                    <div className="flex items-center gap-1 flex-shrink-0">
+                    <div className="flex items-center gap-1 flex-wrap justify-end flex-shrink-0">
+                      {item.protein_per_100g >= 15 && (
+                        <span className="px-1.5 py-0.5 rounded text-[9px] font-mono bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 font-bold">
+                          PRO
+                        </span>
+                      )}
                       {item.is_gluten_free && (
                         <span className="px-1.5 py-0.5 rounded text-[9px] font-mono bg-amber-500/10 text-amber-300 border border-amber-500/30">
                           GF
