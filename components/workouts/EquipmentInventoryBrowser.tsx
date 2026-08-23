@@ -13,6 +13,7 @@ import {
   EQUIPMENT_PRESETS,
 } from '@/lib/equipment-database';
 import { MASTER_EXERCISE_DATABASE, COMPREHENSIVE_EXERCISE_DATABASE } from '@/lib/exercise-database';
+import { PlateInventoryCalculator } from './PlateInventoryCalculator';
 import {
   Search,
   ArrowLeft,
@@ -29,16 +30,19 @@ import {
   Flame,
   CheckCircle2,
   Trash2,
+  Scale,
 } from 'lucide-react';
 
 interface EquipmentInventoryBrowserProps {
   onSelectEquipment?: (eq: EquipmentItem) => void;
   onNavigateToExercises?: () => void;
+  onNavigateToPlateCalculator?: () => void;
 }
 
 export const EquipmentInventoryBrowser: React.FC<EquipmentInventoryBrowserProps> = ({
   onSelectEquipment,
   onNavigateToExercises,
+  onNavigateToPlateCalculator,
 }) => {
   const { profile, toggleEquipment, setEquipmentInventory, experienceMode } = useHealth();
   const isSimple = experienceMode === 'simple';
@@ -48,6 +52,7 @@ export const EquipmentInventoryBrowser: React.FC<EquipmentInventoryBrowserProps>
   const [selectedSubCategory, setSelectedSubCategory] = useState<string | null>(null);
   const [selectedEquipmentDetail, setSelectedEquipmentDetail] = useState<EquipmentItem | null>(null);
   const [onlyOwnedFilter, setOnlyOwnedFilter] = useState<boolean>(false);
+  const [showPlateCalculatorModal, setShowPlateCalculatorModal] = useState<boolean>(false);
 
   const ownedEquipmentIds = useMemo(() => {
     return new Set(profile.equipment_inventory || []);
@@ -210,6 +215,15 @@ export const EquipmentInventoryBrowser: React.FC<EquipmentInventoryBrowserProps>
                 <span>{preset.name}</span>
               </button>
             ))}
+
+            <button
+              type="button"
+              onClick={() => setShowPlateCalculatorModal(true)}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-brand-500/20 hover:bg-brand-500/30 border border-brand-500/40 text-brand-300 text-xs font-bold transition-all cursor-pointer active:scale-95"
+            >
+              <Scale className="w-3.5 h-3.5" />
+              <span>💿 Plate Inventory & Barbell Calculator</span>
+            </button>
 
             <button
               type="button"
@@ -656,6 +670,47 @@ export const EquipmentInventoryBrowser: React.FC<EquipmentInventoryBrowserProps>
                     <span>Add to My Gym</span>
                   </>
                 )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* DEDICATED MODAL WINDOW: PLATE INVENTORY & BARBELL CALCULATOR */}
+      {showPlateCalculatorModal && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn"
+          onClick={() => setShowPlateCalculatorModal(false)}
+        >
+          <div
+            className="w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-3xl bg-surface-100 border border-surface-border p-6 md:p-8 space-y-6 shadow-2xl animate-scaleUp"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between pb-3 border-b border-surface-border">
+              <div className="flex items-center gap-2">
+                <Scale className="w-6 h-6 text-brand-400" />
+                <h3 className="text-lg font-black text-white">
+                  Weight Plate Inventory & Barbell Load Engine
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowPlateCalculatorModal(false)}
+                className="p-2 rounded-full hover:bg-surface-200 text-zinc-400 hover:text-white transition-all cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <PlateInventoryCalculator onPlatesUpdated={() => {}} />
+
+            <div className="pt-4 border-t border-surface-border flex justify-end">
+              <button
+                type="button"
+                onClick={() => setShowPlateCalculatorModal(false)}
+                className="px-6 py-2.5 rounded-xl bg-brand-500 hover:bg-brand-400 text-zinc-950 text-xs font-bold shadow-glow cursor-pointer transition-all active:scale-95"
+              >
+                Done & Save Plate Inventory
               </button>
             </div>
           </div>

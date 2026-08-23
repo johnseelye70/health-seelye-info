@@ -11,7 +11,7 @@ import {
   EXERCISE_SUB_CATEGORIES,
   COMPREHENSIVE_EXERCISE_DATABASE,
 } from '@/lib/exercise-database';
-import { MASTER_EQUIPMENT_DATABASE } from '@/lib/equipment-database';
+import { MASTER_EQUIPMENT_DATABASE, calculateTotalPlateWeight } from '@/lib/equipment-database';
 import {
   Search,
   ArrowLeft,
@@ -30,6 +30,7 @@ import {
   AlertCircle,
   Play,
   Layers,
+  Scale,
 } from 'lucide-react';
 
 interface ExerciseDatabaseBrowserProps {
@@ -62,6 +63,10 @@ export const ExerciseDatabaseBrowser: React.FC<ExerciseDatabaseBrowserProps> = (
   const ownedEquipmentIds = useMemo(() => {
     return new Set(profile.equipment_inventory || []);
   }, [profile.equipment_inventory]);
+
+  const plateStats = useMemo(() => {
+    return calculateTotalPlateWeight(profile.plate_inventory);
+  }, [profile.plate_inventory]);
 
   // Symbiotic Helper: Checks if the user owns all required equipment for an exercise
   const isExerciseAvailable = (ex: ExerciseItem) => {
@@ -924,6 +929,38 @@ export const ExerciseDatabaseBrowser: React.FC<ExerciseDatabaseBrowserProps> = (
                 })}
               </div>
             </div>
+
+            {/* Barbell Plate Loading Capacity Indicator */}
+            {selectedExerciseDetail.is_barbell_plate_loaded && (
+              <div className="p-3.5 rounded-2xl bg-surface-200/90 border border-brand-500/30 flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2.5">
+                  <div className="p-2 rounded-xl bg-brand-500/20 text-brand-300">
+                    <Scale className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <div className="text-[11px] font-bold text-white uppercase tracking-wider">
+                      Barbell Plate Loading Capacity
+                    </div>
+                    <div className="text-xs font-mono text-brand-300">
+                      {plateStats.maxBarbellLbs} lbs Max Safe Load ({plateStats.plateWeightLbs} lbs plates + {plateStats.barWeightLbs} lbs bar)
+                    </div>
+                  </div>
+                </div>
+
+                {onNavigateToEquipment && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedExerciseDetail(null);
+                      onNavigateToEquipment();
+                    }}
+                    className="px-3 py-1.5 rounded-xl bg-brand-500 hover:bg-brand-400 text-zinc-950 text-xs font-bold shadow-glow cursor-pointer transition-all active:scale-95 whitespace-nowrap"
+                  >
+                    Adjust Plates
+                  </button>
+                )}
+              </div>
+            )}
 
             {/* Modal Actions */}
             <div className="pt-3 border-t border-surface-border flex items-center justify-between gap-3">

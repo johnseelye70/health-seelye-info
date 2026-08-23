@@ -211,6 +211,18 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'Beta 0.16.0',
+      date: '2026-08-23',
+      title: 'Olympic Weight Plate Inventory Engine & Max Barbell Capacity Calculator',
+      changes: [
+        'Engineered an interactive Olympic Weight Plate Inventory manager supporting pairs of 45lb, 35lb, 25lb, 10lb, 5lb, and 2.5lb micro-loading plates.',
+        'Added dynamic Barbell Selector (Olympic 45lb, Women 35lb, Trap Bar 60lb, EZ Curl Bar 20lb, Safety Squat Bar 65lb, Swiss Multi-Grip Bar 40lb).',
+        'Built a real-time Visual Barbell Plate Loading Simulator that calculates the exact per-side plate distribution for any target load and warns if target exceeds inventory.',
+        'Symbiotically integrated Max Barbell Capacity constraints across compound lifts (deadlifts, barbell squats, flat bench press, and hip thrusts).',
+        'Expanded equipment and exercise libraries with hundreds of new movements and biomechanical execution cues.',
+      ],
+    },
+    {
       version: 'Beta 0.15.0',
       date: '2026-08-23',
       title: 'Symbiotic Equipment Database & Complete Exercise Database Architecture',
@@ -932,7 +944,7 @@ export const ProfileSettings: React.FC = () => {
             title="Click to open release changelog modal window"
           >
             <span className="w-2 h-2 rounded-full bg-brand-400 animate-pulse"></span>
-            <span>Active: Beta 0.15.0</span>
+            <span>Active: Beta 0.16.0</span>
             <ChevronRight className="w-3.5 h-3.5 text-brand-400 group-hover:translate-x-0.5 transition-transform" />
           </button>
         </div>

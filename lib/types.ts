@@ -71,6 +71,16 @@ export interface ExerciseSubCategoryMeta {
   description: string;
 }
 
+export interface PlateInventory {
+  pairs_45lb: number;
+  pairs_35lb: number;
+  pairs_25lb: number;
+  pairs_10lb: number;
+  pairs_5lb: number;
+  pairs_2_5lb: number;
+  bar_weight_lbs: number; // default 45
+}
+
 export interface UserProfile {
   id: string;
   email: string;
@@ -93,6 +103,7 @@ export interface UserProfile {
   eating_window_duration_hours: number;
   meal_count: number; // 2, 3, 4
   equipment_inventory: string[];
+  plate_inventory?: PlateInventory;
   created_at?: string;
   updated_at?: string;
 }
@@ -184,6 +195,7 @@ export interface ExerciseItem {
   video_url_mock: string;
   suggested_sets_reps?: string;
   mechanics?: 'compound' | 'isolation' | 'isometric';
+  is_barbell_plate_loaded?: boolean;
 }
 
 export interface WorkoutPlanDay {

@@ -7,6 +7,7 @@ import { WorkoutPlayer } from './WorkoutPlayer';
 import { HiitTimer } from './HiitTimer';
 import { EquipmentInventoryBrowser } from './EquipmentInventoryBrowser';
 import { ExerciseDatabaseBrowser } from './ExerciseDatabaseBrowser';
+import { PlateInventoryCalculator } from './PlateInventoryCalculator';
 import {
   Dumbbell,
   CheckCircle2,
@@ -27,6 +28,7 @@ import {
   Library,
   Boxes,
   Timer,
+  Scale,
 } from 'lucide-react';
 
 export const WorkoutGenerator: React.FC = () => {
@@ -46,7 +48,7 @@ export const WorkoutGenerator: React.FC = () => {
   } = useHealth();
 
   const isSimple = experienceMode === 'simple';
-  const [activeSubTab, setActiveSubTab] = useState<'routine' | 'exercise_db' | 'equipment_db' | 'hiit'>('routine');
+  const [activeSubTab, setActiveSubTab] = useState<'routine' | 'exercise_db' | 'equipment_db' | 'plate_calc' | 'hiit'>('routine');
 
   // Find active day's plan
   const activeDayWorkout = workoutPlan.find(
@@ -114,6 +116,20 @@ export const WorkoutGenerator: React.FC = () => {
         >
           <Boxes className="w-4 h-4" />
           <span>Equipment Inventory {ownedCount > 0 ? `(${ownedCount})` : '(0)'}</span>
+        </button>
+
+        <button
+          type="button"
+          id="fitness-tab-plate-calc"
+          onClick={() => setActiveSubTab('plate_calc')}
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+            activeSubTab === 'plate_calc'
+              ? 'bg-brand-500 text-zinc-950 shadow-glow'
+              : 'text-zinc-300 hover:text-white hover:bg-surface-200'
+          }`}
+        >
+          <Scale className="w-4 h-4 text-accent-cyan" />
+          <span>Weight Plates & Max Load Calculator</span>
         </button>
 
         <button
@@ -321,7 +337,16 @@ export const WorkoutGenerator: React.FC = () => {
       )}
 
       {/* =====================================================================
-          VIEW 4: HIIT & TABATA INTERVAL TIMER
+          VIEW 4: WEIGHT PLATE INVENTORY & BARBELL MAX LOAD CALCULATOR
+          ===================================================================== */}
+      {activeSubTab === 'plate_calc' && (
+        <div className="animate-fadeIn">
+          <PlateInventoryCalculator onPlatesUpdated={() => {}} />
+        </div>
+      )}
+
+      {/* =====================================================================
+          VIEW 5: HIIT & TABATA INTERVAL TIMER
           ===================================================================== */}
       {activeSubTab === 'hiit' && (
         <div className="animate-fadeIn">
