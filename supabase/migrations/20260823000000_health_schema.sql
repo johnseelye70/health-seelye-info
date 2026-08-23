@@ -1,6 +1,6 @@
 -- ==============================================================================
 -- HEALTH.SEELYE.INFO - SUPABASE POSTGRESQL DATABASE SCHEMA & MIGRATION BLUEPRINT
--- Revision: Beta 0.1.0
+-- Revision: Beta 0.2.0 (Idempotent Migration)
 -- Includes: Relational Tables, Foreign Keys, RLS Policies, Indexes & Seed Data
 -- ==============================================================================
 
@@ -45,14 +45,17 @@ CREATE TABLE IF NOT EXISTS public.profiles (
 -- Row Level Security (RLS) for Profiles
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users can view their own profile" ON public.profiles;
 CREATE POLICY "Users can view their own profile"
     ON public.profiles FOR SELECT
     USING (auth.uid() = id);
 
+DROP POLICY IF EXISTS "Users can insert their own profile" ON public.profiles;
 CREATE POLICY "Users can insert their own profile"
     ON public.profiles FOR INSERT
     WITH CHECK (auth.uid() = id);
 
+DROP POLICY IF EXISTS "Users can update their own profile" ON public.profiles;
 CREATE POLICY "Users can update their own profile"
     ON public.profiles FOR UPDATE
     USING (auth.uid() = id);
@@ -74,18 +77,19 @@ CREATE TABLE IF NOT EXISTS public.food_database (
     serving_size_g NUMERIC(6, 2) NOT NULL DEFAULT 100,
     default_unit TEXT NOT NULL DEFAULT 'g',
     storage_type TEXT CHECK (storage_type IN ('fresh_weekly', 'pantry_monthly', 'freezer_monthly')) DEFAULT 'fresh_weekly',
-    swap_group TEXT, -- e.g., 'lean_protein_source', 'complex_carb_source'
+    swap_group TEXT,
     created_at TIMESTAMPTZ NOT NULL DEFAULT TIMEZONE('utc'::text, NOW())
 );
 
--- Row Level Security for Food Database (Public read, Admin manage)
 ALTER TABLE public.food_database ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Public food database is viewable by all authenticated users" ON public.food_database;
 CREATE POLICY "Public food database is viewable by all authenticated users"
     ON public.food_database FOR SELECT
     TO authenticated
     USING (true);
 
+DROP POLICY IF EXISTS "Allow anonymous read for demo and static exploration" ON public.food_database;
 CREATE POLICY "Allow anonymous read for demo and static exploration"
     ON public.food_database FOR SELECT
     TO anon
@@ -100,37 +104,38 @@ CREATE TABLE IF NOT EXISTS public.food_logs (
     food_id UUID REFERENCES public.food_database(id) ON DELETE SET NULL,
     food_name TEXT NOT NULL,
     grams_consumed NUMERIC(6, 2) NOT NULL CHECK (grams_consumed > 0),
-    meal_index INTEGER NOT NULL CHECK (meal_index BETWEEN 1 AND 6), -- Meal 1, Meal 2, Meal 3, etc.
+    meal_index INTEGER NOT NULL CHECK (meal_index BETWEEN 1 AND 6),
     logged_at DATE NOT NULL DEFAULT CURRENT_DATE,
     created_at TIMESTAMPTZ NOT NULL DEFAULT TIMEZONE('utc'::text, NOW()),
     
-    -- Cached snapshot of calculated macros at time of consumption
     calories NUMERIC(6, 2) NOT NULL,
     protein_g NUMERIC(5, 2) NOT NULL,
     carbs_g NUMERIC(5, 2) NOT NULL,
     fat_g NUMERIC(5, 2) NOT NULL
 );
 
--- RLS for Food Logs
 ALTER TABLE public.food_logs ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users can view their own food logs" ON public.food_logs;
 CREATE POLICY "Users can view their own food logs"
     ON public.food_logs FOR SELECT
     USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can insert their own food logs" ON public.food_logs;
 CREATE POLICY "Users can insert their own food logs"
     ON public.food_logs FOR INSERT
     WITH CHECK (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can update their own food logs" ON public.food_logs;
 CREATE POLICY "Users can update their own food logs"
     ON public.food_logs FOR UPDATE
     USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can delete their own food logs" ON public.food_logs;
 CREATE POLICY "Users can delete their own food logs"
     ON public.food_logs FOR DELETE
     USING (auth.uid() = user_id);
 
--- Index for speedy daily queries
 CREATE INDEX IF NOT EXISTS idx_food_logs_user_date ON public.food_logs (user_id, logged_at);
 
 -- ==============================================================================
@@ -150,6 +155,7 @@ CREATE TABLE IF NOT EXISTS public.exercises (
 
 ALTER TABLE public.exercises ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Exercises are viewable by all users" ON public.exercises;
 CREATE POLICY "Exercises are viewable by all users"
     ON public.exercises FOR SELECT
     TO authenticated, anon
@@ -162,8 +168,8 @@ CREATE TABLE IF NOT EXISTS public.workout_plans (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
     week_number INTEGER NOT NULL CHECK (week_number BETWEEN 1 AND 4) DEFAULT 1,
-    day_number INTEGER NOT NULL CHECK (day_number BETWEEN 1 AND 7), -- 1: Mon, 2: Tue, etc.
-    day_title TEXT NOT NULL, -- e.g., 'Push & Core Power', 'HIIT Conditioning Blitz'
+    day_number INTEGER NOT NULL CHECK (day_number BETWEEN 1 AND 7),
+    day_title TEXT NOT NULL,
     exercise_id UUID REFERENCES public.exercises(id) ON DELETE CASCADE,
     exercise_name TEXT NOT NULL,
     target_sets INTEGER NOT NULL DEFAULT 3,
@@ -171,7 +177,6 @@ CREATE TABLE IF NOT EXISTS public.workout_plans (
     rest_seconds INTEGER NOT NULL DEFAULT 60,
     order_index INTEGER NOT NULL DEFAULT 1,
     
-    -- Completion & Tracking
     completed BOOLEAN NOT NULL DEFAULT false,
     logged_weight_kg NUMERIC(5, 2),
     logged_reps INTEGER,
@@ -181,20 +186,9 @@ CREATE TABLE IF NOT EXISTS public.workout_plans (
 
 ALTER TABLE public.workout_plans ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "Users can view their own workout plans"
-    ON public.workout_plans FOR SELECT
-    USING (auth.uid() = user_id);
-
-CREATE POLICY "Users can insert their own workout plans"
-    ON public.workout_plans FOR INSERT
-    WITH CHECK (auth.uid() = user_id);
-
-CREATE POLICY "Users can update their own workout plans"
-    ON public.workout_plans FOR UPDATE
-    USING (auth.uid() = user_id);
-
-CREATE POLICY "Users can delete their own workout plans"
-    ON public.workout_plans FOR DELETE
+DROP POLICY IF EXISTS "Users can manage their workout plans" ON public.workout_plans;
+CREATE POLICY "Users can manage their workout plans"
+    ON public.workout_plans FOR ALL
     USING (auth.uid() = user_id);
 
 CREATE INDEX IF NOT EXISTS idx_workout_plans_user_week_day ON public.workout_plans (user_id, week_number, day_number);
@@ -216,6 +210,7 @@ CREATE TABLE IF NOT EXISTS public.grocery_items (
 
 ALTER TABLE public.grocery_items ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users can manage their own grocery list" ON public.grocery_items;
 CREATE POLICY "Users can manage their own grocery list"
     ON public.grocery_items FOR ALL
     USING (auth.uid() = user_id);
@@ -235,6 +230,7 @@ CREATE TABLE IF NOT EXISTS public.weight_logs (
 
 ALTER TABLE public.weight_logs ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users can manage their weight logs" ON public.weight_logs;
 CREATE POLICY "Users can manage their weight logs"
     ON public.weight_logs FOR ALL
     USING (auth.uid() = user_id);
@@ -274,7 +270,8 @@ BEGIN
         170,
         210,
         65
-    );
+    )
+    ON CONFLICT (id) DO NOTHING;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
@@ -301,7 +298,7 @@ VALUES
     
     ('Certified Gluten-Free Rolled Oats', 'carbohydrate', 379, 13.2, 67.7, 6.5, 10.1, true, true, 60, 'g', 'pantry_monthly', 'complex_carb'),
     ('Baked Sweet Potato (Flesh only)', 'carbohydrate', 90, 2.0, 20.7, 0.2, 3.3, true, true, 200, 'g', 'fresh_weekly', 'complex_carb'),
-    ('Steamed Jasmine White Rice', 'carbohydrate', 130, 2.7, 28.2, 0.3, 0.4, true, true, 180, 'g', 'pantry_monthly', 'complex_carb'),
+    ('Steamed Jasmine Rice', 'carbohydrate', 130, 2.7, 28.2, 0.3, 0.4, true, true, 180, 'g', 'pantry_monthly', 'complex_carb'),
     ('Organic Tri-Color Quinoa', 'carbohydrate', 120, 4.4, 21.3, 1.9, 2.8, true, true, 160, 'g', 'pantry_monthly', 'complex_carb'),
     ('Organic Blueberries', 'fruit', 57, 0.7, 14.5, 0.3, 2.4, true, true, 125, 'g', 'fresh_weekly', 'fruit_carb'),
     ('Honeycrisp Apple', 'fruit', 52, 0.3, 13.8, 0.2, 2.4, true, true, 180, 'g', 'fresh_weekly', 'fruit_carb'),

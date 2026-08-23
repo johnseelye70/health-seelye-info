@@ -1,19 +1,19 @@
 import { EquipmentType, ExerciseItem, FoodItem, FoodLogEntry, GroceryItem, UserProfile, WeightLog, WorkoutPlanDay } from './types';
 
 export const INITIAL_PROFILE: UserProfile = {
-  id: 'guest-athlete-01',
-  email: 'athlete@health.seelye.info',
-  full_name: 'Alex Vance',
-  age: 32,
+  id: 'athlete-01',
+  email: 'john@seelye.info',
+  full_name: 'John Seelye',
+  age: 35,
   height_cm: 178, // ~5'10"
-  current_weight_kg: 82.5, // ~182 lbs
-  target_weight_kg: 77.0, // ~170 lbs
+  current_weight_kg: 80.0, // ~176 lbs
+  target_weight_kg: 75.0, // ~165 lbs
   sex: 'male',
   activity_level: 'moderate',
   goal: 'cut_500',
   unit_preference: 'imperial',
   daily_calorie_target: 2150,
-  protein_target_g: 180,
+  protein_target_g: 176,
   carb_target_g: 210,
   fat_target_g: 60,
   fasting_protocol: '16_8',
@@ -551,101 +551,9 @@ export const DEFAULT_EXERCISES: ExerciseItem[] = [
   }
 ];
 
-export const INITIAL_FOOD_LOGS: FoodLogEntry[] = [
-  {
-    id: 'log-1',
-    user_id: 'guest-athlete-01',
-    food_id: 'f-1',
-    food_name: 'Boneless Skinless Chicken Breast',
-    grams_consumed: 180,
-    meal_index: 1,
-    logged_at: new Date().toISOString().split('T')[0],
-    calories: 297,
-    protein_g: 55.8,
-    carbs_g: 0,
-    fat_g: 6.5,
-    created_at: new Date().toISOString(),
-  },
-  {
-    id: 'log-2',
-    user_id: 'guest-athlete-01',
-    food_id: 'f-10',
-    food_name: 'Baked Sweet Potato (Skin Off)',
-    grams_consumed: 220,
-    meal_index: 1,
-    logged_at: new Date().toISOString().split('T')[0],
-    calories: 198,
-    protein_g: 4.4,
-    carbs_g: 45.5,
-    fat_g: 0.4,
-    created_at: new Date().toISOString(),
-  },
-  {
-    id: 'log-3',
-    user_id: 'guest-athlete-01',
-    food_id: 'f-17',
-    food_name: 'Steamed Broccoli Florets',
-    grams_consumed: 150,
-    meal_index: 1,
-    logged_at: new Date().toISOString().split('T')[0],
-    calories: 52,
-    protein_g: 3.6,
-    carbs_g: 10.8,
-    fat_g: 0.6,
-    created_at: new Date().toISOString(),
-  },
-  {
-    id: 'log-4',
-    user_id: 'guest-athlete-01',
-    food_id: 'f-7',
-    food_name: 'Non-Fat Plain Greek Yogurt (0%)',
-    grams_consumed: 250,
-    meal_index: 2,
-    logged_at: new Date().toISOString().split('T')[0],
-    calories: 147,
-    protein_g: 25.7,
-    carbs_g: 9.0,
-    fat_g: 1.0,
-    created_at: new Date().toISOString(),
-  },
-  {
-    id: 'log-5',
-    user_id: 'guest-athlete-01',
-    food_id: 'f-13',
-    food_name: 'Organic Fresh Blueberries',
-    grams_consumed: 120,
-    meal_index: 2,
-    logged_at: new Date().toISOString().split('T')[0],
-    calories: 68,
-    protein_g: 0.8,
-    carbs_g: 17.4,
-    fat_g: 0.4,
-    created_at: new Date().toISOString(),
-  },
-  {
-    id: 'log-6',
-    user_id: 'guest-athlete-01',
-    food_id: 'f-16',
-    food_name: 'Raw Whole Almonds',
-    grams_consumed: 30,
-    meal_index: 2,
-    logged_at: new Date().toISOString().split('T')[0],
-    calories: 174,
-    protein_g: 6.4,
-    carbs_g: 6.5,
-    fat_g: 15.0,
-    created_at: new Date().toISOString(),
-  }
-];
+export const INITIAL_FOOD_LOGS: FoodLogEntry[] = [];
 
-export const INITIAL_WEIGHT_LOGS: WeightLog[] = [
-  { id: 'w-1', weight_kg: 84.2, body_fat_percentage: 16.5, logged_at: '2026-08-01' },
-  { id: 'w-2', weight_kg: 83.8, body_fat_percentage: 16.2, logged_at: '2026-08-05' },
-  { id: 'w-3', weight_kg: 83.4, body_fat_percentage: 15.9, logged_at: '2026-08-09' },
-  { id: 'w-4', weight_kg: 83.0, body_fat_percentage: 15.7, logged_at: '2026-08-13' },
-  { id: 'w-5', weight_kg: 82.8, body_fat_percentage: 15.5, logged_at: '2026-08-17' },
-  { id: 'w-6', weight_kg: 82.5, body_fat_percentage: 15.3, logged_at: '2026-08-22' },
-];
+export const INITIAL_WEIGHT_LOGS: WeightLog[] = [];
 
 /**
  * Dynamic 4-Week Workout Split Generator filtered strictly by available equipment

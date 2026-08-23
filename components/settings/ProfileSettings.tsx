@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 
 export const ProfileSettings: React.FC = () => {
-  const { profile, updateProfile, recalculateMacros, setShowOnboardingModal } = useHealth();
+  const { profile, updateProfile, recalculateMacros, setShowOnboardingModal, resetAllData } = useHealth();
 
   const [form, setForm] = useState({
     full_name: profile.full_name,
@@ -35,6 +35,7 @@ export const ProfileSettings: React.FC = () => {
   });
 
   const [savedSuccess, setSavedSuccess] = useState<boolean>(false);
+  const [resetSuccess, setResetSuccess] = useState<boolean>(false);
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
@@ -57,7 +58,37 @@ export const ProfileSettings: React.FC = () => {
     setTimeout(() => setSavedSuccess(false), 3000);
   };
 
+  const handleReset = () => {
+    resetAllData();
+    setForm({
+      full_name: 'John Seelye',
+      email: 'john@seelye.info',
+      age: 35,
+      sex: 'male',
+      height_cm: 178,
+      current_weight_kg: 80.0,
+      target_weight_kg: 75.0,
+      activity_level: 'moderate',
+      goal: 'cut_500',
+      meal_count: 3,
+      fasting_protocol: '16_8',
+      fasting_start_time: '20:00',
+    });
+    setResetSuccess(true);
+    setTimeout(() => setResetSuccess(false), 3000);
+  };
+
   const changelogHistory = [
+    {
+      version: 'Beta 0.3.0',
+      date: '2026-08-23',
+      title: 'Production State Cleanse & Fresh Initialization',
+      changes: [
+        'Removed all placeholder athlete test personas (Alex Vance), dummy food logs, and simulated weigh-in histories.',
+        'Reset initial user profile to clean production defaults ready for personalization.',
+        'Added one-click database/storage purge and state reset engine in settings.',
+      ],
+    },
     {
       version: 'Beta 0.2.0',
       date: '2026-08-23',
@@ -236,7 +267,22 @@ export const ProfileSettings: React.FC = () => {
           </div>
         </div>
 
-        <div className="pt-4 border-t border-surface-border flex justify-end">
+        {resetSuccess && (
+          <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-semibold animate-fadeIn">
+            ✓ All local session cache and historical dummy data purged! Fresh state initialized.
+          </div>
+        )}
+
+        <div className="pt-4 border-t border-surface-border flex items-center justify-between">
+          <button
+            type="button"
+            onClick={handleReset}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-rose-950/40 hover:bg-rose-900/60 border border-rose-500/30 text-rose-300 text-xs font-semibold transition-all"
+          >
+            <RotateCcw className="w-4 h-4" />
+            <span>Purge Data & Reset to Clean State</span>
+          </button>
+
           <button
             type="submit"
             className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-brand-500 to-accent-teal hover:from-brand-600 text-zinc-950 text-xs font-bold shadow-glow"
@@ -255,7 +301,7 @@ export const ProfileSettings: React.FC = () => {
             <h2 className="text-base font-bold text-zinc-100">Version History & Changelog</h2>
           </div>
           <span className="px-3 py-1 rounded-full text-xs font-mono font-bold bg-brand-500/20 text-brand-300 border border-brand-500/30">
-            Active: Beta 0.2.0
+            Active: Beta 0.3.0
           </span>
         </div>
 

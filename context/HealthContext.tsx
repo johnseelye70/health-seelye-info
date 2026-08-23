@@ -83,11 +83,12 @@ interface HealthContextType {
   setActiveTab: (tab: 'dashboard' | 'nutrition' | 'fasting' | 'workouts' | 'grocery' | 'trends' | 'database' | 'settings') => void;
   showOnboardingModal: boolean;
   setShowOnboardingModal: (show: boolean) => void;
+  resetAllData: () => void;
 }
 
 const HealthContext = createContext<HealthContextType | undefined>(undefined);
 
-const LOCAL_STORAGE_KEY = 'health_seelye_app_state_v1';
+const LOCAL_STORAGE_KEY = 'health_seelye_app_state_v3';
 
 export function HealthProvider({ children }: { children: React.ReactNode }) {
   const [profile, setProfile] = useState<UserProfile>(INITIAL_PROFILE);
@@ -411,6 +412,25 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
     }));
   }, []);
 
+  // Reset all state to clean baseline
+  const resetAllData = useCallback(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.removeItem('health_seelye_app_state_v1');
+        localStorage.removeItem('health_seelye_app_state_v2');
+        localStorage.removeItem('health_seelye_app_state_v3');
+      } catch (e) {
+        // ignore
+      }
+    }
+    setProfile(INITIAL_PROFILE);
+    setFoods(DEFAULT_FOODS);
+    setFoodLogs([]);
+    setWorkoutPlan(generateWorkoutPlanSplit(INITIAL_PROFILE.equipment_inventory));
+    setGroceryList(compileGroceryList(DEFAULT_FOODS));
+    setWeightLogs([]);
+  }, []);
+
   return (
     <HealthContext.Provider
       value={{
@@ -454,6 +474,7 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
         setActiveTab,
         showOnboardingModal,
         setShowOnboardingModal,
+        resetAllData,
       }}
     >
       {children}
