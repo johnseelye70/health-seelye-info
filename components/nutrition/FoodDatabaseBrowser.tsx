@@ -2,7 +2,12 @@
 
 import React, { useState, useMemo } from 'react';
 import { FoodItem, FoodCategory } from '@/lib/types';
-import { FOOD_CATEGORIES, FoodCategoryMeta, normalizeFoodCategory } from '@/lib/food-database';
+import {
+  FOOD_CATEGORIES,
+  FOOD_SUB_CATEGORIES,
+  FoodCategoryMeta,
+  normalizeFoodCategory,
+} from '@/lib/food-database';
 import { useHealth } from '@/context/HealthContext';
 import {
   Search,
@@ -15,6 +20,7 @@ import {
   ChevronRight,
   Info,
   X,
+  Layers,
 } from 'lucide-react';
 
 interface FoodDatabaseBrowserProps {
@@ -34,9 +40,10 @@ export const FoodDatabaseBrowser: React.FC<FoodDatabaseBrowserProps> = ({
 
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [selectedCategory, setSelectedCategory] = useState<FoodCategory | null>(null);
+  const [selectedSubCategory, setSelectedSubCategory] = useState<string | null>(null);
   const [dietaryFilter, setDietaryFilter] = useState<'all' | 'high_protein' | 'gluten_free' | 'dairy_free'>('all');
 
-  // Count items per category (Normalized to prevent any stale state mismatch)
+  // Count items per category
   const categoryCounts = useMemo(() => {
     const counts: Record<string, number> = {};
     foods.forEach((food) => {
@@ -46,20 +53,39 @@ export const FoodDatabaseBrowser: React.FC<FoodDatabaseBrowserProps> = ({
     return counts;
   }, [foods]);
 
-  // Global Search or Filtered List
+  // Count items per sub-category
+  const subCategoryCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    foods.forEach((food) => {
+      if (food.sub_category) {
+        counts[food.sub_category] = (counts[food.sub_category] || 0) + 1;
+      }
+    });
+    return counts;
+  }, [foods]);
+
+  // Available sub-categories for selected parent category
+  const currentSubCategories = useMemo(() => {
+    if (!selectedCategory) return [];
+    return FOOD_SUB_CATEGORIES.filter((sub) => sub.parentId === selectedCategory);
+  }, [selectedCategory]);
+
+  // Filtered Foods List
   const filteredFoods = useMemo(() => {
     return foods.filter((item) => {
       const itemCat = normalizeFoodCategory(item.category);
 
-      // 1. Text Search (Matches anywhere in name or category)
+      // 1. Text Search (Matches globally across food name, category, or sub-category)
       if (searchQuery.trim().length > 0) {
         const q = searchQuery.toLowerCase().trim();
         const matchesName = item.name.toLowerCase().includes(q);
         const matchesCat = itemCat.toLowerCase().includes(q) || item.category.toLowerCase().includes(q);
-        if (!matchesName && !matchesCat) return false;
-      } else if (selectedCategory) {
-        // 2. Category Filter (When not searching globally)
-        if (itemCat !== selectedCategory) return false;
+        const matchesSub = item.sub_category ? item.sub_category.toLowerCase().includes(q) : false;
+        if (!matchesName && !matchesCat && !matchesSub) return false;
+      } else {
+        // 2. Hierarchical Category Filter
+        if (selectedCategory && itemCat !== selectedCategory) return false;
+        if (selectedSubCategory && item.sub_category !== selectedSubCategory) return false;
       }
 
       // 3. Dietary Filter
@@ -69,9 +95,10 @@ export const FoodDatabaseBrowser: React.FC<FoodDatabaseBrowserProps> = ({
 
       return true;
     });
-  }, [foods, searchQuery, selectedCategory, dietaryFilter]);
+  }, [foods, searchQuery, selectedCategory, selectedSubCategory, dietaryFilter]);
 
   const activeCategoryMeta = FOOD_CATEGORIES.find((c) => c.id === selectedCategory);
+  const activeSubCategoryMeta = FOOD_SUB_CATEGORIES.find((s) => s.id === selectedSubCategory);
 
   return (
     <div className="space-y-6">
@@ -84,8 +111,8 @@ export const FoodDatabaseBrowser: React.FC<FoodDatabaseBrowserProps> = ({
             </h2>
             <p className="text-xs text-zinc-400 mt-0.5">
               {isSimple
-                ? 'Explore fresh ingredients by category or search anything instantly by name.'
-                : '120+ verified whole foods with precise macronutrient densities and bioavailable proteins.'}
+                ? 'Explore fresh ingredients by category, sub-category, or search anything instantly by name.'
+                : 'Expansive verified nutrition library with tiered sub-categories and bioavailable macro profiles.'}
             </p>
           </div>
 
@@ -121,12 +148,13 @@ export const FoodDatabaseBrowser: React.FC<FoodDatabaseBrowserProps> = ({
             value={searchQuery}
             onChange={(e) => {
               setSearchQuery(e.target.value);
-              if (e.target.value.trim().length > 0 && selectedCategory) {
-                // Switch to global search view when typing
+              if (e.target.value.trim().length > 0) {
+                // Keep view clear for search results
                 setSelectedCategory(null);
+                setSelectedSubCategory(null);
               }
             }}
-            placeholder="Type any food to search instantly (e.g. salmon, Greek yogurt, oats, steak, avocado)..."
+            placeholder="Search any food globally (e.g. chicken breast, sirloin, salmon, oats, avocado)..."
             className="w-full pl-12 pr-10 py-3.5 rounded-2xl bg-surface-200/90 border border-surface-border text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 transition-all shadow-inner"
           />
           {searchQuery.length > 0 && (
@@ -141,17 +169,17 @@ export const FoodDatabaseBrowser: React.FC<FoodDatabaseBrowserProps> = ({
       </div>
 
       {/* =========================================================================
-          LAYER 1: CATEGORY BROWSER GRID (Shown when search is empty and no category chosen)
+          TIER 1: MASTER CATEGORIES GRID (When no category is selected and search is empty)
           ========================================================================= */}
-      {!selectedCategory && searchQuery.trim().length === 0 && (
+      {!selectedCategory && !selectedSubCategory && searchQuery.trim().length === 0 && (
         <div className="space-y-4 animate-fadeIn">
           <div className="flex items-center justify-between px-1">
             <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-400 flex items-center gap-1.5">
-              <span>Browse by Category</span>
+              <span>Main Categories</span>
               <span className="text-zinc-600">•</span>
-              <span className="text-brand-400 font-mono">{FOOD_CATEGORIES.length} Categories</span>
+              <span className="text-brand-400 font-mono">{FOOD_CATEGORIES.length} Groups</span>
             </h3>
-            <span className="text-xs text-zinc-500">Click any card to explore</span>
+            <span className="text-xs text-zinc-500">Click any group to explore</span>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3.5">
@@ -161,7 +189,10 @@ export const FoodDatabaseBrowser: React.FC<FoodDatabaseBrowserProps> = ({
                 <div
                   key={cat.id}
                   id={`category-card-${cat.id}`}
-                  onClick={() => setSelectedCategory(cat.id)}
+                  onClick={() => {
+                    setSelectedCategory(cat.id);
+                    setSelectedSubCategory(null);
+                  }}
                   className="group p-5 rounded-3xl bg-surface-100/90 hover:bg-surface-200/90 border border-surface-border hover:border-brand-500/40 cursor-pointer transition-all duration-200 hover:scale-[1.02] shadow-lg flex flex-col justify-between"
                 >
                   <div>
@@ -183,7 +214,7 @@ export const FoodDatabaseBrowser: React.FC<FoodDatabaseBrowserProps> = ({
                   </div>
 
                   <div className="mt-4 pt-3 border-t border-surface-border/50 flex items-center justify-between text-xs text-zinc-400 group-hover:text-brand-400 font-medium">
-                    <span>View {cat.shortLabel}</span>
+                    <span>Explore Sub-Categories</span>
                     <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                   </div>
                 </div>
@@ -194,41 +225,134 @@ export const FoodDatabaseBrowser: React.FC<FoodDatabaseBrowserProps> = ({
       )}
 
       {/* =========================================================================
-          LAYER 2: CATEGORY DETAIL VIEW OR GLOBAL SEARCH RESULTS
+          TIER 2: SUB-CATEGORIES GRID (When a Master Category is chosen, but no specific subcategory is selected)
           ========================================================================= */}
-      {(selectedCategory || searchQuery.trim().length > 0) && (
+      {selectedCategory && !selectedSubCategory && searchQuery.trim().length === 0 && (
         <div className="space-y-4 animate-fadeIn">
-          {/* Breadcrumb & Navigation Bar */}
+          {/* Breadcrumb Navigation Bar */}
           <div className="flex items-center justify-between p-3 px-4 rounded-2xl bg-surface-100 border border-surface-border">
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 text-xs">
               <button
                 onClick={() => {
                   setSelectedCategory(null);
+                  setSelectedSubCategory(null);
+                }}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-surface-200 hover:bg-surface-300 border border-surface-border font-semibold text-zinc-200 hover:text-white transition-all active:scale-95"
+              >
+                <ArrowLeft className="w-3.5 h-3.5 text-brand-400" />
+                <span>All Categories</span>
+              </button>
+              <span className="text-zinc-600">/</span>
+              <span className="font-bold text-zinc-100 flex items-center gap-1">
+                <span>{activeCategoryMeta?.icon}</span>
+                <span>{activeCategoryMeta?.name}</span>
+              </span>
+            </div>
+
+            <button
+              onClick={() => setSelectedSubCategory('all')}
+              className="text-xs font-semibold text-brand-400 hover:underline flex items-center gap-1"
+            >
+              <span>View All {categoryCounts[selectedCategory] || 0} Foods in Category</span>
+              <ChevronRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
+
+          {/* Sub-Category Cards Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3.5">
+            {currentSubCategories.map((sub) => {
+              const subCount = subCategoryCounts[sub.id] || 0;
+              return (
+                <div
+                  key={sub.id}
+                  id={`subcategory-card-${sub.id}`}
+                  onClick={() => setSelectedSubCategory(sub.id)}
+                  className="group p-5 rounded-3xl bg-surface-100/90 hover:bg-surface-200/90 border border-surface-border hover:border-brand-500/40 cursor-pointer transition-all duration-200 hover:scale-[1.02] shadow-md flex flex-col justify-between"
+                >
+                  <div>
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="text-2xl p-2 rounded-2xl bg-surface-200/80 border border-surface-border/60 group-hover:scale-110 transition-transform">
+                        {sub.icon}
+                      </span>
+                      <span className="text-xs font-mono px-2.5 py-1 rounded-full bg-surface-300/80 text-zinc-300 font-semibold border border-surface-border/60">
+                        {subCount} foods
+                      </span>
+                    </div>
+
+                    <h4 className="text-sm font-bold text-zinc-100 group-hover:text-brand-400 transition-colors">
+                      {sub.name}
+                    </h4>
+                    <p className="text-xs text-zinc-400 mt-1 leading-relaxed">
+                      {sub.description}
+                    </p>
+                  </div>
+
+                  <div className="mt-4 pt-3 border-t border-surface-border/50 flex items-center justify-between text-xs text-zinc-400 group-hover:text-brand-400 font-medium">
+                    <span>View Foods</span>
+                    <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* =========================================================================
+          TIER 3: FOOD ITEMS LIST (When Sub-Category is active OR Global Search is typing)
+          ========================================================================= */}
+      {(selectedSubCategory || searchQuery.trim().length > 0) && (
+        <div className="space-y-4 animate-fadeIn">
+          {/* Breadcrumb Bar */}
+          <div className="flex items-center justify-between p-3 px-4 rounded-2xl bg-surface-100 border border-surface-border">
+            <div className="flex items-center gap-2 text-xs flex-wrap">
+              <button
+                onClick={() => {
+                  setSelectedCategory(null);
+                  setSelectedSubCategory(null);
                   setSearchQuery('');
                 }}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-surface-200 hover:bg-surface-300 border border-surface-border text-xs font-semibold text-zinc-200 hover:text-white transition-all active:scale-95"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-surface-200 hover:bg-surface-300 border border-surface-border font-semibold text-zinc-200 hover:text-white transition-all active:scale-95"
               >
-                <ArrowLeft className="w-4 h-4 text-brand-400" />
+                <ArrowLeft className="w-3.5 h-3.5 text-brand-400" />
                 <span>All Categories</span>
               </button>
 
-              <div className="flex items-center gap-2">
-                <span className="text-zinc-600">/</span>
-                {selectedCategory && activeCategoryMeta ? (
-                  <span className="text-sm font-bold text-zinc-100 flex items-center gap-1.5">
-                    <span>{activeCategoryMeta.icon}</span>
-                    <span>{activeCategoryMeta.name}</span>
+              {selectedCategory && (
+                <>
+                  <span className="text-zinc-600">/</span>
+                  <button
+                    onClick={() => setSelectedSubCategory(null)}
+                    className="font-semibold text-zinc-300 hover:text-white hover:underline flex items-center gap-1"
+                  >
+                    <span>{activeCategoryMeta?.icon}</span>
+                    <span>{activeCategoryMeta?.name}</span>
+                  </button>
+                </>
+              )}
+
+              {selectedSubCategory && activeSubCategoryMeta && (
+                <>
+                  <span className="text-zinc-600">/</span>
+                  <span className="font-bold text-brand-400 flex items-center gap-1">
+                    <span>{activeSubCategoryMeta.icon}</span>
+                    <span>{activeSubCategoryMeta.name}</span>
                   </span>
-                ) : (
-                  <span className="text-sm font-bold text-brand-400">
-                    Search Results for &ldquo;{searchQuery}&rdquo;
+                </>
+              )}
+
+              {searchQuery.trim().length > 0 && (
+                <>
+                  <span className="text-zinc-600">/</span>
+                  <span className="font-bold text-brand-400">
+                    Results for &ldquo;{searchQuery}&rdquo;
                   </span>
-                )}
-              </div>
+                </>
+              )}
             </div>
 
             <span className="text-xs font-mono px-3 py-1 rounded-lg bg-surface-200 text-zinc-300 font-medium">
-              {filteredFoods.length} {filteredFoods.length === 1 ? 'food' : 'foods'} found
+              {filteredFoods.length} {filteredFoods.length === 1 ? 'item' : 'items'}
             </span>
           </div>
 
@@ -238,17 +362,18 @@ export const FoodDatabaseBrowser: React.FC<FoodDatabaseBrowserProps> = ({
               <div className="text-4xl">🔍</div>
               <h4 className="text-base font-bold text-zinc-200">No foods found matching your query</h4>
               <p className="text-xs text-zinc-400 max-w-md mx-auto">
-                Try a different search keyword, reset the dietary filters, or browse by category.
+                Try a different keyword or reset your dietary filters.
               </p>
               <button
                 onClick={() => {
                   setSearchQuery('');
                   setSelectedCategory(null);
+                  setSelectedSubCategory(null);
                   setDietaryFilter('all');
                 }}
                 className="px-4 py-2 rounded-xl bg-brand-500 text-zinc-950 font-bold text-xs"
               >
-                Reset All Filters
+                Reset Filters
               </button>
             </div>
           )}

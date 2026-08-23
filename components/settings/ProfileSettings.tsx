@@ -155,6 +155,17 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'Beta 0.9.0',
+      date: '2026-08-23',
+      title: '3-Tier Progressive Food Browser & Expansive Sub-Categories',
+      changes: [
+        'Added a second hierarchical layer with specific Sub-Categories (e.g. Chicken Cuts, Turkey, Steaks, Lean Ground Meats, Pork Cuts, Wild Salmon, White Fish, Whole Eggs, Greek Yogurts, Rolled Oats, Breads, Berries, etc.).',
+        'Engineered 3-Tier Progressive Disclosure architecture: Master Categories -> Sub-Categories -> Food Items.',
+        'Added dynamic breadcrumb navigation with one-click step-back links.',
+        'Omnipresent global instant search querying across food names, parent categories, and subcategories.',
+      ],
+    },
+    {
       version: 'Beta 0.8.0',
       date: '2026-08-23',
       title: 'Food Database State Migration & Category Normalization',
@@ -526,7 +537,7 @@ export const ProfileSettings: React.FC = () => {
             <h2 className="text-base font-bold text-zinc-100">Version History & Changelog</h2>
           </div>
           <span className="px-3 py-1 rounded-full text-xs font-mono font-bold bg-brand-500/20 text-brand-300 border border-brand-500/30">
-            Active: Beta 0.8.0
+            Active: Beta 0.9.0
           </span>
         </div>
 

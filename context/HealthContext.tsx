@@ -94,7 +94,7 @@ interface HealthContextType {
 
 const HealthContext = createContext<HealthContextType | undefined>(undefined);
 
-const LOCAL_STORAGE_KEY = 'health_seelye_app_state_v4';
+const LOCAL_STORAGE_KEY = 'health_seelye_app_state_v5';
 
 export function HealthProvider({ children }: { children: React.ReactNode }) {
   const [profile, setProfile] = useState<UserProfile>(INITIAL_PROFILE);
@@ -131,19 +131,24 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
       try {
         const saved =
           localStorage.getItem(LOCAL_STORAGE_KEY) ||
+          localStorage.getItem('health_seelye_app_state_v4') ||
           localStorage.getItem('health_seelye_app_state_v3');
 
         if (saved) {
           const parsed = JSON.parse(saved);
           if (parsed.profile) setProfile(parsed.profile);
 
-          // Always ensure comprehensive food catalog (120+ foods) is present and categories normalized
+          // Always ensure comprehensive food catalog with sub_categories is present
           if (parsed.foods && Array.isArray(parsed.foods) && parsed.foods.length >= DEFAULT_FOODS.length) {
             setFoods(
-              parsed.foods.map((f: FoodItem) => ({
-                ...f,
-                category: normalizeFoodCategory(f.category),
-              }))
+              parsed.foods.map((f: FoodItem) => {
+                const defaultMatch = DEFAULT_FOODS.find((df) => df.id === f.id);
+                return {
+                  ...f,
+                  category: normalizeFoodCategory(f.category),
+                  sub_category: f.sub_category || defaultMatch?.sub_category,
+                };
+              })
             );
           } else {
             // Merge defaults with any custom foods created by the user
@@ -475,6 +480,7 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
         localStorage.removeItem('health_seelye_app_state_v2');
         localStorage.removeItem('health_seelye_app_state_v3');
         localStorage.removeItem('health_seelye_app_state_v4');
+        localStorage.removeItem('health_seelye_app_state_v5');
       } catch (e) {
         // ignore
       }

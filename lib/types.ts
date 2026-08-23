@@ -52,10 +52,19 @@ export type FoodCategory =
   | 'pantry_staple'
   | 'beverage';
 
+export interface FoodSubCategoryMeta {
+  id: string;
+  parentId: FoodCategory;
+  name: string;
+  icon: string;
+  description: string;
+}
+
 export interface FoodItem {
   id: string;
   name: string;
   category: FoodCategory;
+  sub_category?: string;
   calories_per_100g: number;
   protein_per_100g: number;
   carbs_per_100g: number;
