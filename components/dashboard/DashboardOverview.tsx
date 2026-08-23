@@ -24,6 +24,8 @@ import {
   Sun,
 } from 'lucide-react';
 import { FASTING_CONFIGS } from '@/lib/macro-calculator';
+import { HydrationTracker } from '@/components/dashboard/HydrationTracker';
+import { StepTracker } from '@/components/dashboard/StepTracker';
 
 export const DashboardOverview: React.FC = () => {
   const {
@@ -39,26 +41,16 @@ export const DashboardOverview: React.FC = () => {
     currentDayFoodLogs,
     mealSplitTargets,
     experienceMode,
+    waterGoalOz,
+    todayWaterOz,
+    logWaterOz,
+    stepGoal,
+    todaySteps,
+    todayStepMiles,
+    todayStepCalories,
   } = useHealth();
 
   const isSimple = experienceMode === 'simple';
-
-  // Simple Water Tracker State (persisted per day, defaults to 0 each new day)
-  const todayDateStr = new Date().toISOString().split('T')[0];
-  const [waterGlasses, setWaterGlasses] = useState<number>(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem(`health_water_${todayDateStr}`);
-      return saved !== null ? Number(saved) : 0;
-    }
-    return 0;
-  });
-
-  const handleWaterClick = (count: number) => {
-    setWaterGlasses(count);
-    if (typeof window !== 'undefined') {
-      localStorage.setItem(`health_water_${todayDateStr}`, count.toString());
-    }
-  };
 
   // Find today's workout
   const todayWorkout = workoutPlan.find(
@@ -163,44 +155,42 @@ export const DashboardOverview: React.FC = () => {
             </div>
           </div>
 
-          {/* Water Tracker Card */}
-          <div className="p-6 rounded-3xl bg-surface-100/90 border border-surface-border backdrop-blur-xl">
-            <div className="flex items-center justify-between mb-2">
-              <div className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Hydration (Water)</div>
-              <span className="text-xs font-mono text-cyan-400 font-bold">{waterGlasses}/8 Glasses</span>
-            </div>
-            <div className="flex gap-1.5 mt-2">
-              {Array.from({ length: 8 }).map((_, i) => (
-                <button
-                  key={i}
-                  type="button"
-                  onClick={() => handleWaterClick(i + 1 === waterGlasses ? i : i + 1)}
-                  className={`flex-1 h-8 rounded-lg flex items-center justify-center transition-all cursor-pointer ${
-                    i < waterGlasses
-                      ? 'bg-cyan-500 text-zinc-950 shadow-glow'
-                      : 'bg-surface-200 border border-surface-border text-zinc-600 hover:border-cyan-500/40'
-                  }`}
-                >
-                  <Droplets className="w-3.5 h-3.5" />
-                </button>
-              ))}
-            </div>
-            <div className="text-[11px] text-zinc-400 mt-2">Aim for 8 cups of fresh water daily</div>
-          </div>
-
-          {/* Movement Goal Card */}
+          {/* Hydration Card */}
           <div className="p-6 rounded-3xl bg-surface-100/90 border border-surface-border backdrop-blur-xl flex items-center justify-between">
             <div>
-              <div className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Daily Movement</div>
-              <div className="text-3xl font-black font-mono text-accent-teal mt-1">
-                {workoutProgress}% <span className="text-sm font-normal text-zinc-400">done</span>
+              <div className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Hydration (Water)</div>
+              <div className="text-3xl font-black font-mono text-cyan-400 mt-1">
+                {todayWaterOz} <span className="text-sm font-normal text-zinc-400">/ {waterGoalOz} oz</span>
               </div>
-              <div className="text-xs text-zinc-400 mt-1">
-                {completedExercisesCount} of {totalExercisesCount} exercises completed
+              <div className="text-xs text-zinc-400 mt-1 flex items-center gap-2">
+                <span>{Math.min(200, Math.round((todayWaterOz / (waterGoalOz || 96)) * 100))}% of daily goal</span>
+                <button
+                  type="button"
+                  onClick={() => logWaterOz(8, 'Glass')}
+                  className="px-2 py-0.5 rounded-md bg-cyan-500/20 text-cyan-300 hover:bg-cyan-500/30 text-[10px] font-bold font-mono transition-colors"
+                >
+                  +8 oz
+                </button>
               </div>
             </div>
-            <div className="w-14 h-14 rounded-2xl bg-accent-teal/10 border border-accent-teal/20 flex items-center justify-center">
-              <Heart className="w-7 h-7 text-accent-teal" />
+            <div className="w-14 h-14 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
+              <Droplets className="w-7 h-7 text-cyan-400 fill-cyan-400/20" />
+            </div>
+          </div>
+
+          {/* Movement & Steps Goal Card */}
+          <div className="p-6 rounded-3xl bg-surface-100/90 border border-surface-border backdrop-blur-xl flex items-center justify-between">
+            <div>
+              <div className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Daily Steps</div>
+              <div className="text-3xl font-black font-mono text-emerald-400 mt-1">
+                {todaySteps.toLocaleString()} <span className="text-sm font-normal text-zinc-400">steps</span>
+              </div>
+              <div className="text-xs text-zinc-400 mt-1">
+                {todayStepMiles} mi • {todayStepCalories} kcal • {Math.min(100, Math.round((todaySteps / stepGoal) * 100))}%
+              </div>
+            </div>
+            <div className="w-14 h-14 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
+              <Heart className="w-7 h-7 text-emerald-400" />
             </div>
           </div>
         </div>
@@ -241,6 +231,12 @@ export const DashboardOverview: React.FC = () => {
           />
         </div>
       )}
+
+      {/* Hydration Engine & Step Tracker Suite */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <HydrationTracker />
+        <StepTracker />
+      </div>
 
       {/* Main Two-Column Dashboard Body */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

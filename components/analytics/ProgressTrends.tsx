@@ -15,11 +15,25 @@ import {
   Flame,
   CheckCircle2,
   X,
+  Droplets,
+  Footprints,
+  MapPin,
 } from 'lucide-react';
 import { NumberStepper } from '@/components/ui/NumberStepper';
 
 export const ProgressTrends: React.FC = () => {
-  const { profile, weightLogs, logWeight, experienceMode } = useHealth();
+  const {
+    profile,
+    weightLogs,
+    logWeight,
+    experienceMode,
+    waterGoalOz,
+    todayWaterOz,
+    stepGoal,
+    todaySteps,
+    todayStepMiles,
+    todayStepCalories,
+  } = useHealth();
   const [showLogModal, setShowLogModal] = useState<boolean>(false);
   
   const isSimple = experienceMode === 'simple';
@@ -161,6 +175,47 @@ export const ProgressTrends: React.FC = () => {
             {sortedLogs[sortedLogs.length - 1]?.body_fat_percentage || 15.3}%
           </div>
           <div className="text-xs text-zinc-400 mt-1">Lean Athletic Division</div>
+        </div>
+      </div>
+
+      {/* Daily Hydration & Step Movement Adherence Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Hydration Card */}
+        <div className="p-5 rounded-3xl bg-surface-100/90 border border-surface-border backdrop-blur-xl flex items-center justify-between">
+          <div className="space-y-1">
+            <div className="text-xs font-semibold text-zinc-400 uppercase tracking-wider flex items-center gap-1.5">
+              <Droplets className="w-4 h-4 text-cyan-400" />
+              <span>Today's Hydration Adherence</span>
+            </div>
+            <div className="text-2xl font-black font-mono text-cyan-400">
+              {todayWaterOz} <span className="text-sm font-normal text-zinc-400">/ {waterGoalOz} oz</span>
+            </div>
+            <div className="text-xs text-zinc-400 font-mono">
+              {Math.min(200, Math.round((todayWaterOz / (waterGoalOz || 96)) * 100))}% of daily fluid goal ({((todayWaterOz * 0.0295735)).toFixed(1)}L / {((waterGoalOz * 0.0295735)).toFixed(1)}L)
+            </div>
+          </div>
+          <div className="w-12 h-12 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
+            <Droplets className="w-6 h-6 text-cyan-400" />
+          </div>
+        </div>
+
+        {/* Steps Card */}
+        <div className="p-5 rounded-3xl bg-surface-100/90 border border-surface-border backdrop-blur-xl flex items-center justify-between">
+          <div className="space-y-1">
+            <div className="text-xs font-semibold text-zinc-400 uppercase tracking-wider flex items-center gap-1.5">
+              <Footprints className="w-4 h-4 text-emerald-400" />
+              <span>Today's Movement & Step Output</span>
+            </div>
+            <div className="text-2xl font-black font-mono text-emerald-400">
+              {todaySteps.toLocaleString()} <span className="text-sm font-normal text-zinc-400">/ {stepGoal.toLocaleString()} steps</span>
+            </div>
+            <div className="text-xs text-zinc-400 font-mono">
+              {todayStepMiles} mi distance • {todayStepCalories} kcal burned • {Math.min(100, Math.round((todaySteps / stepGoal) * 100))}%
+            </div>
+          </div>
+          <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
+            <Footprints className="w-6 h-6 text-emerald-400" />
+          </div>
         </div>
       </div>
 

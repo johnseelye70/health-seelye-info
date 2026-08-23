@@ -13,6 +13,8 @@ import {
   FastingProtocol,
   ExperienceMode,
   WorkoutSessionLog,
+  WaterLogEntry,
+  StepLogEntry,
 } from '@/lib/types';
 import {
   INITIAL_PROFILE,
@@ -100,6 +102,24 @@ interface HealthContextType {
   weightLogs: WeightLog[];
   logWeight: (weightKg: number, bodyFat?: number) => void;
   
+  // Hydration & Water Engine
+  waterGoalOz: number;
+  setWaterGoalOz: (goal: number) => void;
+  waterLogs: WaterLogEntry[];
+  todayWaterOz: number;
+  logWaterOz: (amountOz: number, container?: string) => void;
+  resetTodayWater: () => void;
+
+  // Step Tracker & Sensor Engine
+  stepGoal: number;
+  setStepGoal: (goal: number) => void;
+  stepLogs: StepLogEntry[];
+  todaySteps: number;
+  todayStepMiles: number;
+  todayStepCalories: number;
+  logSteps: (steps: number, source?: StepLogEntry['source'], distanceMiles?: number, caloriesBurned?: number) => void;
+  resetTodaySteps: () => void;
+  
   // App State & Modals
   isDemoMode: boolean;
   activeTab: 'dashboard' | 'nutrition' | 'fasting' | 'workouts' | 'grocery' | 'trends' | 'settings';
@@ -147,6 +167,11 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
   const [activeTab, setActiveTab] = useState<'dashboard' | 'nutrition' | 'fasting' | 'workouts' | 'grocery' | 'trends' | 'settings'>('dashboard');
   const [showOnboardingModal, setShowOnboardingModal] = useState<boolean>(false);
   const [notificationsEnabled, setNotificationsEnabled] = useState<boolean>(false);
+
+  const [waterGoalOz, setWaterGoalOz] = useState<number>(96);
+  const [waterLogs, setWaterLogs] = useState<WaterLogEntry[]>([]);
+  const [stepGoal, setStepGoal] = useState<number>(10000);
+  const [stepLogs, setStepLogs] = useState<StepLogEntry[]>([]);
 
   // Cloud Auth & Sync States
   const [authUser, setAuthUser] = useState<any | null>(null);
@@ -202,6 +227,10 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
           if (parsed.workoutLogs && Array.isArray(parsed.workoutLogs)) setWorkoutLogs(parsed.workoutLogs);
           if (parsed.activeProgramId) setActiveProgramId(parsed.activeProgramId);
           if (parsed.notificationsEnabled !== undefined) setNotificationsEnabled(parsed.notificationsEnabled);
+          if (parsed.waterGoalOz) setWaterGoalOz(parsed.waterGoalOz);
+          if (parsed.waterLogs && Array.isArray(parsed.waterLogs)) setWaterLogs(parsed.waterLogs);
+          if (parsed.stepGoal) setStepGoal(parsed.stepGoal);
+          if (parsed.stepLogs && Array.isArray(parsed.stepLogs)) setStepLogs(parsed.stepLogs);
         } else {
           setFoods(DEFAULT_FOODS);
           setWorkoutLogs(INITIAL_WORKOUT_LOGS);
@@ -227,13 +256,17 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
           workoutLogs,
           activeProgramId,
           notificationsEnabled,
+          waterGoalOz,
+          waterLogs,
+          stepGoal,
+          stepLogs,
         };
         localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(stateToPersist));
       } catch (err) {
         console.warn('Failed to persist state:', err);
       }
     }
-  }, [profile, foods, foodLogs, workoutPlan, groceryList, weightLogs, workoutLogs, activeProgramId, notificationsEnabled]);
+  }, [profile, foods, foodLogs, workoutPlan, groceryList, weightLogs, workoutLogs, activeProgramId, notificationsEnabled, waterGoalOz, waterLogs, stepGoal, stepLogs]);
 
   // 3. Supabase Cloud Sync Engine (Non-Destructive Reconciliation)
   const syncWithCloud = useCallback(async () => {
@@ -857,6 +890,63 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [authUser]);
 
+  // Hydration Engine
+  const todayWaterOz = useMemo(() => {
+    return waterLogs
+      .filter((w) => w.logged_at.startsWith(todayDate))
+      .reduce((sum, w) => sum + w.amount_oz, 0);
+  }, [waterLogs, todayDate]);
+
+  const logWaterOz = useCallback((amountOz: number, container?: string) => {
+    const entry: WaterLogEntry = {
+      id: `wtr-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
+      amount_oz: amountOz,
+      container,
+      logged_at: new Date().toISOString(),
+    };
+    setWaterLogs((prev) => [entry, ...prev]);
+  }, []);
+
+  const resetTodayWater = useCallback(() => {
+    setWaterLogs((prev) => prev.filter((w) => !w.logged_at.startsWith(todayDate)));
+  }, [todayDate]);
+
+  // Step Tracker Engine
+  const todaySteps = useMemo(() => {
+    return stepLogs
+      .filter((s) => s.logged_at.startsWith(todayDate))
+      .reduce((sum, s) => sum + s.steps, 0);
+  }, [stepLogs, todayDate]);
+
+  const todayStepMiles = useMemo(() => {
+    return Number((todaySteps * 0.00045).toFixed(2));
+  }, [todaySteps]);
+
+  const todayStepCalories = useMemo(() => {
+    return Math.round(todaySteps * 0.04);
+  }, [todaySteps]);
+
+  const logSteps = useCallback((steps: number, source: StepLogEntry['source'] = 'manual', distanceMiles?: number, caloriesBurned?: number) => {
+    const dist = distanceMiles ?? Number((steps * 0.00045).toFixed(2));
+    const cals = caloriesBurned ?? Math.round(steps * 0.04);
+    const entry: StepLogEntry = {
+      id: `stp-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
+      steps,
+      distance_miles: dist,
+      calories_burned: cals,
+      source,
+      logged_at: todayDate,
+    };
+    setStepLogs((prev) => {
+      const filtered = prev.filter((s) => s.logged_at !== todayDate);
+      return [entry, ...filtered];
+    });
+  }, [todayDate]);
+
+  const resetTodaySteps = useCallback(() => {
+    setStepLogs((prev) => prev.filter((s) => s.logged_at !== todayDate));
+  }, [todayDate]);
+
   const resetAllData = useCallback(() => {
     if (typeof window !== 'undefined') {
       try {
@@ -930,6 +1020,25 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
         syncGroceryFromMealPlan,
         weightLogs,
         logWeight,
+
+        // Hydration Engine
+        waterGoalOz,
+        setWaterGoalOz,
+        waterLogs,
+        todayWaterOz,
+        logWaterOz,
+        resetTodayWater,
+
+        // Step Tracker & Sensor Engine
+        stepGoal,
+        setStepGoal,
+        stepLogs,
+        todaySteps,
+        todayStepMiles,
+        todayStepCalories,
+        logSteps,
+        resetTodaySteps,
+
         isDemoMode: !authUser && !isSupabaseConfigured,
         activeTab,
         setActiveTab,

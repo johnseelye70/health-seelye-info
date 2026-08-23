@@ -403,3 +403,19 @@ export interface MealSplitTarget {
   fat_g: number;
   percentOfTotal: number;
 }
+
+export interface WaterLogEntry {
+  id: string;
+  amount_oz: number;
+  container?: string;
+  logged_at: string;
+}
+
+export interface StepLogEntry {
+  id: string;
+  steps: number;
+  distance_miles: number;
+  calories_burned: number;
+  source: 'phone_sensor' | 'apple_health' | 'garmin' | 'fitbit' | 'manual';
+  logged_at: string;
+}

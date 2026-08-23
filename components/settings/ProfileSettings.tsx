@@ -211,6 +211,17 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'Beta 1.4.0',
+      date: '2026-08-23',
+      title: 'Advanced Hydration Engine & Phone/Watch Step Tracking Suite',
+      changes: [
+        'Advanced Hydration Engine: Built dynamic water tracking beyond 8 glasses (64 oz, 96 oz, 128 oz / 1 Gallon, 160 oz / 1.25 Gallons, or custom oz/mL) with container presets (Glass, Mug, Bottle, Shaker, Hydro Flask, Half Gallon) and history logging.',
+        'Live Phone Accelerometer Pedometer: Added real-time step sensing using iOS Safari and Android CoreMotion DeviceMotionEvent with peak-detection cadence and active calorie calculation.',
+        'Phone & Watch Health Sync Hub: Integrated Apple Health, Garmin, Fitbit, and Bluetooth Smart (BLE) fitness watch pairing directly in the browser.',
+        'Trends & Analytics Integration: Added daily hydration adherence and step/movement output metrics to the progress trends dashboard.',
+      ],
+    },
+    {
       version: 'Beta 1.3.2',
       date: '2026-08-23',
       title: "Store Brand Product Catalogs & 1-Click Run Presets (Sam's Club, Aldi, Meijer)",
@@ -1041,7 +1052,7 @@ export const ProfileSettings: React.FC = () => {
             title="Click to open release changelog modal window"
           >
             <span className="w-2 h-2 rounded-full bg-brand-400 animate-pulse"></span>
-            <span>Active: Beta 1.3.2</span>
+            <span>Active: Beta 1.4.0</span>
             <ChevronRight className="w-3.5 h-3.5 text-brand-400 group-hover:translate-x-0.5 transition-transform" />
           </button>
         </div>
