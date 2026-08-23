@@ -346,6 +346,8 @@ export interface SmartGrocerySubstitute {
 export interface CatalogGroceryItem {
   id: string;
   name: string;
+  brand?: string;
+  package_size?: string;
   department: GroceryDepartment;
   shelf_life: 'fresh_weekly' | 'pantry_monthly' | 'freezer_monthly';
   default_unit: string;
@@ -369,6 +371,8 @@ export interface NamedGroceryList {
 export interface GroceryItem {
   id: string;
   item_name: string;
+  brand?: string;
+  package_size?: string;
   category: 'fresh_weekly' | 'pantry_monthly' | 'freezer_monthly';
   department?: GroceryDepartment;
   quantity: number;

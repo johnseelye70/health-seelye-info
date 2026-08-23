@@ -10,6 +10,12 @@ import {
 } from './types';
 import { FOOD_CATEGORIES } from './food-database';
 import { buildMasterFoodDatabase } from './foods/catalog-generator';
+import {
+  SAMS_CLUB_PRODUCTS,
+  ALDI_PRODUCTS,
+  MEIJER_PRODUCTS,
+  StoreBrandProduct,
+} from './store-products-database';
 
 export const GROCERY_DEPARTMENTS: {
   id: FoodCategory;
@@ -23,20 +29,20 @@ export const GROCERY_DEPARTMENTS: {
   description: cat.description,
 }));
 
-export const GROCERY_STORE_TAGS: { id: GroceryStoreTag; label: string; icon: string }[] = [
-  { id: 'all', label: 'All Stores', icon: '🏬' },
-  { id: 'sams_club', label: "Sam's Club", icon: '📦' },
-  { id: 'aldi', label: 'Aldi', icon: '🛒' },
-  { id: 'meijer', label: 'Meijer', icon: '🏷️' },
-  { id: 'supermarket', label: 'Local Supermarket', icon: '🏪' },
-  { id: 'farmers_market', label: 'Farmers Market', icon: '🌱' },
+export const GROCERY_STORE_TAGS: { id: GroceryStoreTag; label: string; icon: string; brandSummary: string }[] = [
+  { id: 'all', label: 'All Stores & Aisles', icon: '🏬', brandSummary: 'All whole foods and retail items' },
+  { id: 'sams_club', label: "Sam's Club", icon: '📦', brandSummary: "Member's Mark Wholesale & Bulk Packs" },
+  { id: 'aldi', label: 'Aldi', icon: '🛒', brandSummary: 'Simply Nature, Friendly Farms & Specially Selected' },
+  { id: 'meijer', label: 'Meijer', icon: '🏷️', brandSummary: "True Goodness & Frederik's by Meijer" },
+  { id: 'supermarket', label: 'Local Supermarket', icon: '🏪', brandSummary: 'Standard grocery staples' },
+  { id: 'farmers_market', label: 'Farmers Market', icon: '🌱', brandSummary: 'Fresh local organic produce' },
 ];
 
 export const DEFAULT_NAMED_LISTS: NamedGroceryList[] = [
   { id: 'main', name: 'Weekly Essentials', description: 'Primary 7-day grocery run for home meal preparation', icon: '🛒' },
-  { id: 'sams_club_bulk', name: "Sam's Club Bulk Run", description: 'Monthly bulk items (poultry, oats, eggs, rice, olive oil)', icon: '📦' },
-  { id: 'aldi_run', name: 'Aldi Smart Run', description: 'Staples, organic produce, dairy, and weekly specials', icon: '🛒' },
-  { id: 'meijer_run', name: 'Meijer Weekly Run', description: 'Fresh meats, pantry essentials, and produce selection', icon: '🏷️' },
+  { id: 'sams_club_bulk', name: "Sam's Club Bulk Run", description: "Member's Mark bulk chicken, beef, oats, eggs, rice, olive oil", icon: '📦' },
+  { id: 'aldi_run', name: 'Aldi Smart Run', description: 'Simply Nature organic grass-fed beef, Greek yogurt, spinach & staples', icon: '🛒' },
+  { id: 'meijer_run', name: 'Meijer Weekly Run', description: "True Goodness organics, fresh counter seafood & Frederik's artisan goods", icon: '🏷️' },
   { id: 'prep_day', name: 'Sunday Meal Prep Requisition', description: 'Batch ingredients needed for 3-4 days of pre-cooked macros', icon: '🍱' },
 ];
 
@@ -61,11 +67,12 @@ function assignStoreTags(food: FoodItem): GroceryStoreTag[] {
 }
 
 /**
- * Build Master Grocery Catalog directly from the complete master food database (1000+ foods)
+ * Build Master Grocery Catalog: Combines Authentic Store Brand Items (Sam's Club, Aldi, Meijer)
+ * and the complete master food database (1,000+ foods).
  */
 const ALL_FOODS_DATA: FoodItem[] = buildMasterFoodDatabase();
 
-export const MASTER_GROCERY_DATABASE: CatalogGroceryItem[] = ALL_FOODS_DATA.map((food) => {
+const GENERIC_FOOD_CATALOG: CatalogGroceryItem[] = ALL_FOODS_DATA.map((food) => {
   // Find up to 4 substitutes from the same category or swap_group
   const substitutes: SmartGrocerySubstitute[] = ALL_FOODS_DATA
     .filter((f) => f.id !== food.id && (f.swap_group === food.swap_group || f.category === food.category))
@@ -88,6 +95,8 @@ export const MASTER_GROCERY_DATABASE: CatalogGroceryItem[] = ALL_FOODS_DATA.map(
   return {
     id: `g_${food.id}`,
     name: food.name,
+    brand: undefined,
+    package_size: undefined,
     department: food.category as any,
     shelf_life: food.storage_type || 'fresh_weekly',
     default_unit: food.default_unit || 'g',
@@ -102,6 +111,14 @@ export const MASTER_GROCERY_DATABASE: CatalogGroceryItem[] = ALL_FOODS_DATA.map(
   };
 });
 
+// Primary Master Database: Store products first, followed by whole foods
+export const MASTER_GROCERY_DATABASE: CatalogGroceryItem[] = [
+  ...SAMS_CLUB_PRODUCTS,
+  ...ALDI_PRODUCTS,
+  ...MEIJER_PRODUCTS,
+  ...GENERIC_FOOD_CATALOG,
+];
+
 /**
  * Helper to get direct substitutes for any item name from the food database
  */
@@ -109,6 +126,14 @@ export function getSmartSubstitutesForItem(
   itemName: string,
   foodDatabase: FoodItem[] = ALL_FOODS_DATA
 ): SmartGrocerySubstitute[] {
+  // Check store brand products first
+  const storeMatch = [...SAMS_CLUB_PRODUCTS, ...ALDI_PRODUCTS, ...MEIJER_PRODUCTS].find(
+    (p) => p.name.toLowerCase().includes(itemName.toLowerCase()) || itemName.toLowerCase().includes(p.name.toLowerCase())
+  );
+  if (storeMatch && storeMatch.common_substitutes && storeMatch.common_substitutes.length > 0) {
+    return storeMatch.common_substitutes;
+  }
+
   const match = foodDatabase.find(
     (f) =>
       f.name.toLowerCase().includes(itemName.toLowerCase()) ||
@@ -138,32 +163,74 @@ export function getSmartSubstitutesForItem(
 
   // Fallback
   return [
-    { name: 'Boneless Skinless Chicken Breast', department: 'poultry_meat' as any, default_unit: 'lbs', conversion_ratio: 1.0, reason: 'Lean protein staple' },
-    { name: 'Plain Greek Yogurt', department: 'dairy_eggs' as any, default_unit: 'tubs', conversion_ratio: 1.0, reason: 'Probiotic protein staple' },
-    { name: 'Jasmine White Rice', department: 'grains_carbs' as any, default_unit: 'lbs', conversion_ratio: 1.0, reason: 'Complex carbohydrate staple' },
+    { name: "Member's Mark Boneless Skinless Chicken Breasts", department: 'poultry_meat' as any, default_unit: 'pack', conversion_ratio: 1.0, reason: "Sam's Club bulk lean protein" },
+    { name: 'Friendly Farms Plain Greek Yogurt', department: 'dairy_eggs' as any, default_unit: 'tub', conversion_ratio: 1.0, reason: 'Aldi probiotic protein' },
+    { name: 'True Goodness Organic Rolled Oats', department: 'grains_carbs' as any, default_unit: 'canister', conversion_ratio: 1.0, reason: 'Meijer whole grain carbs' },
   ];
 }
 
 /**
- * Generate a complete requisition list based on current active food database or daily targets
+ * Generate a complete store-specific requisition list based on Sam's Club, Aldi, or Meijer signature products
+ */
+export function generateStoreSpecificRequisition(
+  store: 'sams_club' | 'aldi' | 'meijer',
+  multiplier: number = 1
+): GroceryItem[] {
+  let products: StoreBrandProduct[] = [];
+  let listId = 'main';
+
+  if (store === 'sams_club') {
+    products = SAMS_CLUB_PRODUCTS;
+    listId = 'sams_club_bulk';
+  } else if (store === 'aldi') {
+    products = ALDI_PRODUCTS;
+    listId = 'aldi_run';
+  } else {
+    products = MEIJER_PRODUCTS;
+    listId = 'meijer_run';
+  }
+
+  return products.map((prod, idx) => ({
+    id: `gi-${store}-${Date.now()}-${idx + 1}`,
+    item_name: prod.name,
+    brand: prod.brand,
+    package_size: prod.package_size,
+    category: prod.shelf_life,
+    department: prod.department,
+    quantity: prod.default_quantity * multiplier,
+    unit: prod.default_unit,
+    is_checked: false,
+    in_pantry: false,
+    store_tag: store,
+    list_id: listId,
+    notes: `${prod.brand} • ${prod.package_size}`,
+  }));
+}
+
+/**
+ * Generate standard requisition list
  */
 export function generateSmartGroceryRequisition(
   multiplier: number = 1
 ): GroceryItem[] {
   const defaultItems: Omit<GroceryItem, 'id'>[] = [
     {
-      item_name: 'Boneless Skinless Chicken Breast',
+      item_name: "Member's Mark Boneless Skinless Chicken Breasts",
+      brand: "Member's Mark (Sam's Club)",
+      package_size: '6.5 lb Vacuum Pack',
       category: 'fresh_weekly',
       department: 'poultry_meat' as any,
-      quantity: 3 * multiplier,
-      unit: 'lbs',
+      quantity: 1 * multiplier,
+      unit: 'pack (6.5 lbs)',
       is_checked: false,
       in_pantry: false,
       store_tag: 'sams_club',
-      notes: 'Lean poultry base for weekly meal prep',
+      notes: "Sam's Club bulk lean poultry for weekly meal prep",
     },
     {
-      item_name: 'Wild Alaskan Salmon Fillets',
+      item_name: "Frederik's by Meijer Fresh Atlantic Salmon Fillet",
+      brand: "Frederik's by Meijer",
+      package_size: 'Fresh Seafood Counter',
       category: 'fresh_weekly',
       department: 'fish_seafood' as any,
       quantity: 1.5 * multiplier,
@@ -171,117 +238,124 @@ export function generateSmartGroceryRequisition(
       is_checked: false,
       in_pantry: false,
       store_tag: 'meijer',
-      notes: 'Omega-3 fatty acids for heart and recovery',
+      notes: 'Fresh salmon rich in EPA/DHA essential fatty acids',
     },
     {
-      item_name: 'Pasture-Raised Organic Eggs',
+      item_name: 'Simply Nature Organic Pasture-Raised Grade A Large Eggs',
+      brand: 'Simply Nature (Aldi)',
+      package_size: '12 count Carton',
       category: 'fresh_weekly',
       department: 'dairy_eggs' as any,
       quantity: 2 * multiplier,
-      unit: 'cartons',
+      unit: 'dozen',
       is_checked: false,
       in_pantry: false,
       store_tag: 'aldi',
-      notes: 'Whole bioavailable protein & choline',
+      notes: 'Aldi organic pasture-raised bioavailable protein',
     },
     {
-      item_name: 'Plain Non-Fat Greek Yogurt',
+      item_name: 'Friendly Farms Nonfat Plain Greek Yogurt (0% Fat)',
+      brand: 'Friendly Farms (Aldi)',
+      package_size: '32 oz Tub',
       category: 'fresh_weekly',
       department: 'dairy_eggs' as any,
       quantity: 2 * multiplier,
-      unit: 'tubs (32oz)',
+      unit: 'tub (32 oz)',
       is_checked: false,
       in_pantry: false,
       store_tag: 'aldi',
-      notes: 'Probiotic digestion and casein protein',
+      notes: 'Aldi high-protein probiotic snack base',
     },
     {
-      item_name: 'Organic Baby Spinach (Pre-Washed)',
+      item_name: 'True Goodness Organic Baby Spinach (Triple Washed)',
+      brand: 'True Goodness by Meijer',
+      package_size: '16 oz (1 lb) Clamshell',
       category: 'fresh_weekly',
       department: 'vegetables' as any,
       quantity: 1 * multiplier,
-      unit: 'clamshells (16oz)',
+      unit: 'clamshell (16 oz)',
       is_checked: false,
       in_pantry: false,
       store_tag: 'meijer',
-      notes: 'Micronutrients and minerals foundation',
+      notes: 'Meijer organic micronutrient foundation',
     },
     {
-      item_name: 'Organic Broccoli Crowns',
+      item_name: "Member's Mark Fresh Cut Broccoli Florets",
+      brand: "Member's Mark (Sam's Club)",
+      package_size: '3 lb Bag (48 oz)',
       category: 'fresh_weekly',
       department: 'vegetables' as any,
-      quantity: 2 * multiplier,
-      unit: 'lbs',
-      is_checked: false,
-      in_pantry: false,
-      store_tag: 'aldi',
-      notes: 'Cruciferous vegetable for dinner sides',
-    },
-    {
-      item_name: 'Hass Avocados (Ripe & Ready)',
-      category: 'fresh_weekly',
-      department: 'nuts_fats_oils' as any,
       quantity: 1 * multiplier,
-      unit: 'bag (5ct)',
+      unit: 'bag (3 lbs)',
+      is_checked: false,
+      in_pantry: false,
+      store_tag: 'sams_club',
+      notes: "Sam's Club bulk cruciferous vegetable florets",
+    },
+    {
+      item_name: 'Aldi Fresh Hass Avocados Bag',
+      brand: 'Aldi Fresh Produce',
+      package_size: '4 Count Bag',
+      category: 'fresh_weekly',
+      department: 'fruits' as any,
+      quantity: 1 * multiplier,
+      unit: 'bag (4 count)',
       is_checked: false,
       in_pantry: false,
       store_tag: 'aldi',
-      notes: 'Monounsaturated healthy fat source',
+      notes: 'Aldi heart-healthy monounsaturated fats',
     },
     {
-      item_name: 'Garnet Sweet Potatoes',
-      category: 'fresh_weekly',
+      item_name: 'True Goodness Organic Rolled Oats (100% Whole Grain)',
+      brand: 'True Goodness by Meijer',
+      package_size: '42 oz Canister',
+      category: 'pantry_monthly',
       department: 'grains_carbs' as any,
-      quantity: 3 * multiplier,
-      unit: 'lbs',
+      quantity: 1 * multiplier,
+      unit: 'canister (42 oz)',
       is_checked: false,
-      in_pantry: false,
+      in_pantry: true,
       store_tag: 'meijer',
-      notes: 'Slow-burning complex carbohydrate',
+      notes: 'Meijer organic whole grain breakfast carb',
     },
     {
-      item_name: 'Organic Rolled Oats',
+      item_name: "Member's Mark Thai Hom Mali Jasmine White Rice",
+      brand: "Member's Mark (Sam's Club)",
+      package_size: '25 lb Heavy Duty Sack',
       category: 'pantry_monthly',
       department: 'grains_carbs' as any,
-      quantity: 1 * multiplier,
-      unit: 'bags (32oz)',
+      quantity: 1,
+      unit: 'bag (25 lbs)',
       is_checked: false,
       in_pantry: true,
       store_tag: 'sams_club',
-      notes: 'Soluble fiber breakfast staple',
+      notes: "Sam's Club bulk clean post-workout glycogen fuel",
     },
     {
-      item_name: 'Thai Jasmine White Rice',
-      category: 'pantry_monthly',
-      department: 'grains_carbs' as any,
-      quantity: 1 * multiplier,
-      unit: 'bags (5lb)',
-      is_checked: false,
-      in_pantry: true,
-      store_tag: 'sams_club',
-      notes: 'Clean post-workout glycogen fuel',
-    },
-    {
-      item_name: 'Extra Virgin Olive Oil (Cold-Pressed)',
+      item_name: 'Simply Nature 100% Organic Extra Virgin Olive Oil',
+      brand: 'Simply Nature (Aldi)',
+      package_size: '16.9 fl oz Glass Bottle',
       category: 'pantry_monthly',
       department: 'nuts_fats_oils' as any,
       quantity: 1,
-      unit: 'bottles (750ml)',
+      unit: 'bottle (16.9 oz)',
       is_checked: false,
       in_pantry: true,
-      store_tag: 'meijer',
-      notes: 'High polyphenol finishing oil',
+      store_tag: 'aldi',
+      notes: 'Aldi high polyphenol finishing oil',
     },
     {
-      item_name: 'Frozen Wild Organic Blueberries',
-      category: 'pantry_monthly',
+      item_name: "Member's Mark Organic Frozen Wild Blueberries",
+      brand: "Member's Mark (Sam's Club)",
+      package_size: '3 lb Bag (48 oz)',
+      category: 'freezer_monthly',
       department: 'fruits' as any,
       quantity: 1 * multiplier,
-      unit: 'bags (3lb)',
+      unit: 'bag (3 lbs)',
       is_checked: false,
       in_pantry: false,
       store_tag: 'sams_club',
-      notes: 'Anthocyanin antioxidant powerhouse',
+      notes: "Sam's Club bulk anthocyanin antioxidant blueberries",
     },
   ];
 

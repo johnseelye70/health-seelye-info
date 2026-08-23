@@ -211,13 +211,22 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'Beta 1.3.2',
+      date: '2026-08-23',
+      title: "Store Brand Product Catalogs & 1-Click Run Presets (Sam's Club, Aldi, Meijer)",
+      changes: [
+        "Authentic Store Brand Products: Integrated 50+ actual signature items for Member's Mark (Sam's Club), Simply Nature / Friendly Farms / Earth Grown (Aldi), and True Goodness / Frederik's by Meijer (Meijer).",
+        "1-Click Store Run Presets: Added instant load buttons for Sam's Club Bulk Run, Aldi Organics Run, and Meijer Weekly Run with calibrated package sizes and units.",
+        "Store Catalog Tab Browser: Quick-Add modal now features dedicated store filter tabs displaying exact brand names, packaging sizes, and verified macronutrients.",
+      ],
+    },
+    {
       version: 'Beta 1.3.1',
       date: '2026-08-23',
       title: "Food Database Grocery Integration & Sam's Club, Aldi, Meijer Store Support",
       changes: [
         "Food Database Integration: Connected the Weekly Grocery & Pantry Manager directly to the comprehensive 1,000+ item master food database with verified macronutrient profiles (protein, calories, carbs, fat).",
         "Updated Store Routing: Replaced Costco with Sam's Club, replaced Trader Joe's with Aldi, and added Meijer across store filters, item tags, and named lists.",
-        "Dynamic Macro Substitutions: Smart swap engine now surfaces direct nutritional peer substitutes from the same food category and swap groups.",
       ],
     },
     {
@@ -1032,7 +1041,7 @@ export const ProfileSettings: React.FC = () => {
             title="Click to open release changelog modal window"
           >
             <span className="w-2 h-2 rounded-full bg-brand-400 animate-pulse"></span>
-            <span>Active: Beta 1.3.1</span>
+            <span>Active: Beta 1.3.2</span>
             <ChevronRight className="w-3.5 h-3.5 text-brand-400 group-hover:translate-x-0.5 transition-transform" />
           </button>
         </div>

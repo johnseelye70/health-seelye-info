@@ -16,7 +16,13 @@ import {
   DEFAULT_NAMED_LISTS,
   MASTER_GROCERY_DATABASE,
   getSmartSubstitutesForItem,
+  generateStoreSpecificRequisition,
 } from '@/lib/grocery-database';
+import {
+  SAMS_CLUB_PRODUCTS,
+  ALDI_PRODUCTS,
+  MEIJER_PRODUCTS,
+} from '@/lib/store-products-database';
 import {
   ShoppingCart,
   Printer,
@@ -46,6 +52,7 @@ import {
   Square,
   Tag,
   Share2,
+  Zap,
 } from 'lucide-react';
 import { NumberStepper } from '@/components/ui/NumberStepper';
 
@@ -82,11 +89,14 @@ export const GroceryManager: React.FC = () => {
   const [showCustomItemModal, setShowCustomItemModal] = useState<boolean>(false);
   const [itemToSwap, setItemToSwap] = useState<GroceryItem | null>(null);
   const [showCopyToast, setShowCopyToast] = useState<boolean>(false);
+  const [toastMessage, setToastMessage] = useState<string>('Copied to clipboard!');
 
   // Custom Item Form
   const [customItemForm, setCustomItemForm] = useState<{
     item_name: string;
-    category: 'fresh_weekly' | 'pantry_monthly';
+    brand: string;
+    package_size: string;
+    category: 'fresh_weekly' | 'pantry_monthly' | 'freezer_monthly';
     department: string;
     quantity: number;
     unit: string;
@@ -94,6 +104,8 @@ export const GroceryManager: React.FC = () => {
     notes: string;
   }>({
     item_name: '',
+    brand: '',
+    package_size: '',
     category: 'fresh_weekly',
     department: 'poultry_meat',
     quantity: 1,
@@ -128,8 +140,9 @@ export const GroceryManager: React.FC = () => {
       if (searchQuery.trim().length > 0) {
         const q = searchQuery.toLowerCase().trim();
         const matchesName = item.item_name.toLowerCase().includes(q);
+        const matchesBrand = item.brand?.toLowerCase().includes(q);
         const matchesNotes = item.notes?.toLowerCase().includes(q);
-        if (!matchesName && !matchesNotes) return false;
+        if (!matchesName && !matchesBrand && !matchesNotes) return false;
       }
 
       return true;
@@ -162,12 +175,20 @@ export const GroceryManager: React.FC = () => {
       if (catalogSearchQuery.trim().length > 0) {
         const q = catalogSearchQuery.toLowerCase().trim();
         const matchesName = item.name.toLowerCase().includes(q);
+        const matchesBrand = item.brand?.toLowerCase().includes(q);
         const matchesDept = (item.department as string).toLowerCase().includes(q);
-        if (!matchesName && !matchesDept) return false;
+        if (!matchesName && !matchesBrand && !matchesDept) return false;
       }
       return true;
     });
   }, [catalogCategoryFilter, catalogStoreFilter, catalogSearchQuery]);
+
+  // Store Brand Item Counts
+  const storeCounts = useMemo(() => ({
+    sams: SAMS_CLUB_PRODUCTS.length,
+    aldi: ALDI_PRODUCTS.length,
+    meijer: MEIJER_PRODUCTS.length,
+  }), []);
 
   // Actions
   const handlePrint = () => {
@@ -185,8 +206,9 @@ export const GroceryManager: React.FC = () => {
         lines.push(`${dept.icon} ${dept.label.toUpperCase()}:`);
         items.forEach((item) => {
           const checkMark = item.is_checked ? '[✓]' : '[ ]';
-          const store = item.store_tag ? ` (${item.store_tag.toUpperCase()})` : '';
-          lines.push(`  ${checkMark} ${item.item_name} — ${item.quantity} ${item.unit}${store}`);
+          const brandText = item.brand ? ` [${item.brand}]` : '';
+          const sizeText = item.package_size ? ` (${item.package_size})` : '';
+          lines.push(`  ${checkMark} ${item.item_name}${brandText} — ${item.quantity} ${item.unit}${sizeText}`);
         });
         lines.push('');
       }
@@ -194,14 +216,38 @@ export const GroceryManager: React.FC = () => {
 
     if (lines.length > 2) {
       navigator.clipboard.writeText(lines.join('\n'));
+      setToastMessage('Shopping list copied to clipboard! Ready to paste into Apple Reminders, Notes, or iMessage.');
       setShowCopyToast(true);
-      setTimeout(() => setShowCopyToast(false), 3000);
+      setTimeout(() => setShowCopyToast(false), 3500);
     }
+  };
+
+  const handleLoadStoreRun = (store: 'sams_club' | 'aldi' | 'meijer') => {
+    const items = generateStoreSpecificRequisition(store, groceryMultiplier);
+    const listId = store === 'sams_club' ? 'sams_club_bulk' : store === 'aldi' ? 'aldi_run' : 'meijer_run';
+    setActiveListId(listId);
+    setSelectedStoreTag(store);
+
+    items.forEach((newItem) => {
+      addGroceryItem(newItem);
+    });
+
+    const storeNames = {
+      sams_club: "Sam's Club Member's Mark Bulk",
+      aldi: "Aldi Simply Nature & Friendly Farms",
+      meijer: "Meijer True Goodness & Frederik's",
+    };
+
+    setToastMessage(`Loaded ${items.length} signature ${storeNames[store]} items into your list!`);
+    setShowCopyToast(true);
+    setTimeout(() => setShowCopyToast(false), 3500);
   };
 
   const handleAddCatalogItem = (catalogItem: CatalogGroceryItem, quantityMultiplier: number = 1) => {
     addGroceryItem({
       item_name: catalogItem.name,
+      brand: catalogItem.brand,
+      package_size: catalogItem.package_size,
       category: catalogItem.shelf_life,
       department: catalogItem.department as any,
       quantity: catalogItem.default_quantity * quantityMultiplier * groceryMultiplier,
@@ -210,7 +256,7 @@ export const GroceryManager: React.FC = () => {
       in_pantry: false,
       store_tag: catalogItem.store_tags[0] || 'meijer',
       list_id: activeListId,
-      notes: `${(catalogItem.department as string).replace('_', ' ')} food database item`,
+      notes: catalogItem.brand ? `${catalogItem.brand}${catalogItem.package_size ? ` • ${catalogItem.package_size}` : ''}` : `${(catalogItem.department as string).replace('_', ' ')} item`,
     });
   };
 
@@ -219,6 +265,8 @@ export const GroceryManager: React.FC = () => {
     if (!customItemForm.item_name) return;
     addGroceryItem({
       item_name: customItemForm.item_name,
+      brand: customItemForm.brand || undefined,
+      package_size: customItemForm.package_size || undefined,
       category: customItemForm.category,
       department: customItemForm.department as any,
       quantity: Number(customItemForm.quantity) * groceryMultiplier,
@@ -232,6 +280,8 @@ export const GroceryManager: React.FC = () => {
     setShowCustomItemModal(false);
     setCustomItemForm({
       item_name: '',
+      brand: '',
+      package_size: '',
       category: 'fresh_weekly',
       department: 'poultry_meat',
       quantity: 1,
@@ -259,27 +309,27 @@ export const GroceryManager: React.FC = () => {
       {showCopyToast && (
         <div className="fixed top-16 sm:top-20 left-4 right-4 sm:left-auto sm:right-6 sm:max-w-md z-50 p-4 rounded-2xl bg-emerald-500 text-zinc-950 font-bold text-xs shadow-2xl flex items-center gap-3 animate-slideIn">
           <CheckCircle2 className="w-5 h-5 shrink-0" />
-          <span>Shopping list copied to clipboard! Ready to paste into Apple Reminders, Notes, or iMessage.</span>
+          <span>{toastMessage}</span>
         </div>
       )}
 
       {/* Non-Printable Header Banner */}
-      <div className="no-print rounded-3xl bg-surface-100/90 border border-surface-border p-6 md:p-8 backdrop-blur-xl space-y-4">
+      <div className="no-print rounded-3xl bg-surface-100/90 border border-surface-border p-6 md:p-8 backdrop-blur-xl space-y-5">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 mb-1.5 flex-wrap">
               <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-brand-500/20 text-brand-300 border border-brand-500/30">
-                🛒 MASTER FOOD DATABASE REQUISITION ENGINE
+                🛒 SAM'S CLUB • ALDI • MEIJER GROCERY REQUISITION
               </span>
               <span className="text-xs text-zinc-400 font-mono">
-                {MASTER_GROCERY_DATABASE.length}+ Whole Food Ingredients & Macros Available
+                Real Store Brand Items & Whole Food Database
               </span>
             </div>
             <h1 className="text-2xl md:text-3xl font-black text-white tracking-tight">
               Weekly Grocery & Pantry Manager
             </h1>
             <p className="text-zinc-400 text-xs sm:text-sm mt-1 max-w-2xl">
-              1-tap quick add pulling directly from the 1,000+ item master food database with verified macronutrients, store filtering (Sam's Club, Aldi, Meijer), smart item swapping, pantry stock tracking, and instant export to Apple Reminders or printable physical sheets.
+              Add authentic signature products from <strong>Sam's Club (Member's Mark)</strong>, <strong>Aldi (Simply Nature / Friendly Farms)</strong>, and <strong>Meijer (True Goodness / Frederik's)</strong>, or pull from the 1,000+ item master food database with verified macronutrient ratios.
             </p>
           </div>
 
@@ -292,7 +342,7 @@ export const GroceryManager: React.FC = () => {
               className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-brand-500 hover:bg-brand-400 text-zinc-950 text-xs font-black shadow-glow transition-all active:scale-95 cursor-pointer"
             >
               <Plus className="w-4 h-4 stroke-[3]" />
-              <span>+ Quick Add from Food Database</span>
+              <span>+ Quick Add from Store Catalogs</span>
             </button>
 
             <button
@@ -318,8 +368,47 @@ export const GroceryManager: React.FC = () => {
           </div>
         </div>
 
+        {/* 1-Click Store Run Presets Bar */}
+        <div className="p-3.5 rounded-2xl bg-surface-200/60 border border-surface-border/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <Zap className="w-4 h-4 text-amber-400 shrink-0" />
+            <span className="text-xs font-bold text-zinc-200">
+              1-Click Store Run Presets:
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2 flex-wrap">
+            <button
+              type="button"
+              onClick={() => handleLoadStoreRun('sams_club')}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-surface-300 hover:bg-brand-500 hover:text-zinc-950 text-zinc-200 text-xs font-bold transition-all cursor-pointer border border-surface-border hover:border-brand-400 active:scale-95"
+            >
+              <span>📦</span>
+              <span>+ Sam's Club Bulk ({storeCounts.sams} items)</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => handleLoadStoreRun('aldi')}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-surface-300 hover:bg-brand-500 hover:text-zinc-950 text-zinc-200 text-xs font-bold transition-all cursor-pointer border border-surface-border hover:border-brand-400 active:scale-95"
+            >
+              <span>🛒</span>
+              <span>+ Aldi Organics ({storeCounts.aldi} items)</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => handleLoadStoreRun('meijer')}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-surface-300 hover:bg-brand-500 hover:text-zinc-950 text-zinc-200 text-xs font-bold transition-all cursor-pointer border border-surface-border hover:border-brand-400 active:scale-95"
+            >
+              <span>🏷️</span>
+              <span>+ Meijer Weekly ({storeCounts.meijer} items)</span>
+            </button>
+          </div>
+        </div>
+
         {/* Multi-List Selector Pills & Serving Multiplier */}
-        <div className="pt-3 border-t border-surface-border/60 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        <div className="pt-2 border-t border-surface-border/60 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           {/* Named Lists Selector */}
           <div className="flex items-center gap-2 overflow-x-auto pb-1 text-xs">
             <span className="text-[10px] uppercase font-bold text-zinc-500 whitespace-nowrap hidden sm:inline">
@@ -597,16 +686,21 @@ export const GroceryManager: React.FC = () => {
                             >
                               {item.item_name}
                             </span>
-                            {item.store_tag && item.store_tag !== 'all' && (
+                            {item.brand && (
+                              <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-brand-500/20 text-brand-300 border border-brand-500/30 print:text-black print:border-black">
+                                {item.brand}
+                              </span>
+                            )}
+                            {item.store_tag && item.store_tag !== 'all' && !item.brand && (
                               <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-surface-300 text-zinc-300 border border-surface-border print:text-black print:border-black uppercase">
                                 {item.store_tag === 'sams_club' ? "Sam's Club" : item.store_tag === 'aldi' ? 'Aldi' : item.store_tag === 'meijer' ? 'Meijer' : item.store_tag}
                               </span>
                             )}
                           </div>
 
-                          {item.notes && (
+                          {(item.package_size || item.notes) && (
                             <p className="text-xs text-zinc-400 font-mono mt-0.5 print:text-gray-700 truncate">
-                              {item.notes}
+                              {item.package_size ? `${item.package_size}${item.notes ? ` • ${item.notes}` : ''}` : item.notes}
                             </p>
                           )}
                         </div>
@@ -681,23 +775,30 @@ export const GroceryManager: React.FC = () => {
               <p className="text-xs text-zinc-400 mt-1 max-w-sm mx-auto">
                 {activeViewMode === 'pantry_inventory'
                   ? 'You currently have no items marked as stocked in your pantry.'
-                  : 'Your shopping list is empty. Click below to add items from the master food database or synchronize from your meal plan.'}
+                  : 'Your shopping list is empty. Click below to add signature store brand products or browse the master catalog.'}
               </p>
             </div>
-            <div className="flex items-center justify-center gap-3">
+            <div className="flex items-center justify-center gap-3 flex-wrap">
               <button
                 type="button"
-                onClick={() => setShowCatalogModal(true)}
-                className="px-4 py-2 rounded-xl bg-brand-500 text-zinc-950 font-bold text-xs shadow-glow cursor-pointer"
+                onClick={() => handleLoadStoreRun('sams_club')}
+                className="px-4 py-2 rounded-xl bg-surface-200 hover:bg-surface-300 text-zinc-200 font-bold text-xs border border-surface-border cursor-pointer"
               >
-                + Browse Food Database
+                📦 + Sam's Club Bulk
               </button>
               <button
                 type="button"
-                onClick={syncGroceryFromMealPlan}
-                className="px-4 py-2 rounded-xl bg-surface-200 text-zinc-200 font-bold text-xs border border-surface-border cursor-pointer hover:bg-surface-300"
+                onClick={() => handleLoadStoreRun('aldi')}
+                className="px-4 py-2 rounded-xl bg-surface-200 hover:bg-surface-300 text-zinc-200 font-bold text-xs border border-surface-border cursor-pointer"
               >
-                Sync from Meals
+                🛒 + Aldi Organics
+              </button>
+              <button
+                type="button"
+                onClick={() => handleLoadStoreRun('meijer')}
+                className="px-4 py-2 rounded-xl bg-surface-200 hover:bg-surface-300 text-zinc-200 font-bold text-xs border border-surface-border cursor-pointer"
+              >
+                🏷️ + Meijer Weekly
               </button>
             </div>
           </div>
@@ -705,7 +806,7 @@ export const GroceryManager: React.FC = () => {
       </div>
 
       {/* =========================================================================
-          MODAL 1: QUICK-ADD MASTER FOOD DATABASE MODAL
+          MODAL 1: QUICK-ADD MASTER STORE & FOOD DATABASE MODAL
           ========================================================================= */}
       {showCatalogModal && (
         <div
@@ -725,10 +826,10 @@ export const GroceryManager: React.FC = () => {
                   </span>
                   <div>
                     <h2 className="text-lg sm:text-xl font-black text-white">
-                      Master Food & Grocery Database
+                      Store Brand & Food Catalog
                     </h2>
                     <p className="text-xs text-zinc-400 font-mono">
-                      1-Tap Quick Add with verified macros to "{DEFAULT_NAMED_LISTS.find(l => l.id === activeListId)?.name}"
+                      Member's Mark (Sam's Club) • Simply Nature / Friendly Farms (Aldi) • True Goodness / Frederik's (Meijer)
                     </p>
                   </div>
                 </div>
@@ -743,29 +844,49 @@ export const GroceryManager: React.FC = () => {
               </button>
             </div>
 
-            {/* Filters: Category & Store Destination */}
+            {/* Filters: Store Selection & Category Tabs */}
             <div className="p-4 bg-surface-200/40 border-b border-surface-border space-y-3">
-              {/* Category Filter */}
+              {/* Store Tabs */}
               <div className="flex items-center gap-2 overflow-x-auto pb-1 text-xs">
+                <span className="text-[10px] uppercase font-bold text-zinc-500 whitespace-nowrap">Store:</span>
+                {GROCERY_STORE_TAGS.map((st) => (
+                  <button
+                    key={st.id}
+                    type="button"
+                    onClick={() => setCatalogStoreFilter(st.id)}
+                    className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl font-bold transition-all cursor-pointer whitespace-nowrap ${
+                      catalogStoreFilter === st.id
+                        ? 'bg-brand-500 text-zinc-950 shadow-glow'
+                        : 'bg-surface-200 text-zinc-400 hover:text-zinc-200'
+                    }`}
+                  >
+                    <span>{st.icon}</span>
+                    <span>{st.label}</span>
+                  </button>
+                ))}
+              </div>
+
+              {/* Department Pills */}
+              <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs">
                 <button
                   type="button"
                   onClick={() => setCatalogCategoryFilter('all')}
-                  className={`px-3.5 py-1.5 rounded-xl font-bold transition-all cursor-pointer whitespace-nowrap ${
+                  className={`px-3 py-1 rounded-xl font-bold transition-all cursor-pointer whitespace-nowrap ${
                     catalogCategoryFilter === 'all'
-                      ? 'bg-brand-500 text-zinc-950 shadow-glow'
+                      ? 'bg-surface-300 text-brand-400 border border-brand-500/40'
                       : 'bg-surface-200 text-zinc-400 hover:text-zinc-200'
                   }`}
                 >
-                  All Aisles ({MASTER_GROCERY_DATABASE.length})
+                  All Categories
                 </button>
                 {GROCERY_DEPARTMENTS.map((dept) => (
                   <button
                     key={dept.id}
                     type="button"
                     onClick={() => setCatalogCategoryFilter(dept.id)}
-                    className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl font-medium transition-all cursor-pointer whitespace-nowrap ${
+                    className={`flex items-center gap-1 px-3 py-1 rounded-xl font-medium transition-all cursor-pointer whitespace-nowrap ${
                       catalogCategoryFilter === dept.id
-                        ? 'bg-brand-500 text-zinc-950 font-bold shadow-glow'
+                        ? 'bg-surface-300 text-brand-400 border border-brand-500/40 font-bold'
                         : 'bg-surface-200 text-zinc-400 hover:text-zinc-200'
                     }`}
                   >
@@ -775,37 +896,16 @@ export const GroceryManager: React.FC = () => {
                 ))}
               </div>
 
-              {/* Store Filter & Search Bar */}
-              <div className="flex flex-col sm:flex-row items-center gap-3">
-                <div className="flex items-center gap-1.5 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0 text-xs">
-                  <span className="text-[10px] uppercase font-bold text-zinc-500 whitespace-nowrap">Store:</span>
-                  {GROCERY_STORE_TAGS.map((st) => (
-                    <button
-                      key={st.id}
-                      type="button"
-                      onClick={() => setCatalogStoreFilter(st.id)}
-                      className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs transition-all cursor-pointer whitespace-nowrap ${
-                        catalogStoreFilter === st.id
-                          ? 'bg-surface-300 text-brand-400 border border-brand-500/40 font-bold'
-                          : 'bg-surface-200 text-zinc-400 hover:text-zinc-200'
-                      }`}
-                    >
-                      <span>{st.icon}</span>
-                      <span>{st.label}</span>
-                    </button>
-                  ))}
-                </div>
-
-                <div className="relative flex-1 w-full">
-                  <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
-                  <input
-                    type="text"
-                    value={catalogSearchQuery}
-                    onChange={(e) => setCatalogSearchQuery(e.target.value)}
-                    placeholder="Search foods (Chicken, Salmon, Jasmine Rice, Spinach, Avocados, Whey)..."
-                    className="w-full pl-9 pr-3 py-1.5 rounded-xl bg-surface-200 border border-surface-border text-xs text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-brand-500"
-                  />
-                </div>
+              {/* Search Bar */}
+              <div className="relative w-full">
+                <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
+                <input
+                  type="text"
+                  value={catalogSearchQuery}
+                  onChange={(e) => setCatalogSearchQuery(e.target.value)}
+                  placeholder="Search products (Member's Mark Chicken, Simply Nature Beef, True Goodness Oats, Greek Yogurt)..."
+                  className="w-full pl-9 pr-3 py-2 rounded-xl bg-surface-200 border border-surface-border text-xs text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-brand-500"
+                />
               </div>
             </div>
 
@@ -821,11 +921,18 @@ export const GroceryManager: React.FC = () => {
                       {catItem.icon_emoji || '🛒'}
                     </span>
                     <div className="min-w-0 flex-1">
-                      <h4 className="text-xs sm:text-sm font-bold text-white group-hover:text-brand-300 transition-colors truncate">
+                      <h4 className="text-xs sm:text-sm font-bold text-white group-hover:text-brand-300 transition-colors">
                         {catItem.name}
                       </h4>
+                      {catItem.brand && (
+                        <div className="text-[10px] font-semibold text-brand-400 mt-0.5 truncate">
+                          {catItem.brand}
+                        </div>
+                      )}
                       <div className="text-[11px] text-zinc-400 font-mono mt-0.5">
-                        {catItem.protein_g !== undefined && catItem.calories_per_serving !== undefined ? (
+                        {catItem.package_size ? (
+                          <span>Pack: {catItem.package_size}</span>
+                        ) : catItem.protein_g !== undefined && catItem.calories_per_serving !== undefined ? (
                           <span>{catItem.protein_g}g P • {catItem.calories_per_serving} kcal/100g</span>
                         ) : (
                           <span>Standard: {catItem.default_quantity} {catItem.default_unit}</span>
@@ -835,7 +942,7 @@ export const GroceryManager: React.FC = () => {
                         {catItem.store_tags.map((t) => (
                           <span
                             key={t}
-                            className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-surface-300 text-zinc-300 uppercase"
+                            className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-surface-300 text-zinc-300 uppercase font-bold"
                           >
                             {t === 'sams_club' ? "Sam's Club" : t === 'aldi' ? 'Aldi' : t === 'meijer' ? 'Meijer' : t}
                           </span>
@@ -865,7 +972,7 @@ export const GroceryManager: React.FC = () => {
             {/* Modal Footer */}
             <div className="p-4 bg-surface-200/90 border-t border-surface-border flex items-center justify-between">
               <span className="text-xs text-zinc-400 font-mono">
-                Showing {Math.min(filteredCatalogItems.length, 150)} of {filteredCatalogItems.length} items from database
+                Showing {Math.min(filteredCatalogItems.length, 150)} of {filteredCatalogItems.length} products
               </span>
               <button
                 type="button"
@@ -919,7 +1026,7 @@ export const GroceryManager: React.FC = () => {
             {/* Recommended Smart Substitutes */}
             <div className="space-y-2.5">
               <label className="text-xs font-bold text-zinc-300 uppercase tracking-wider block">
-                Suggested Direct Food Database Substitutes:
+                Suggested Direct Store Brand & Macro Substitutes:
               </label>
 
               <div className="space-y-2 max-h-72 overflow-y-auto">
@@ -998,6 +1105,30 @@ export const GroceryManager: React.FC = () => {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
+                  <label className="font-semibold text-zinc-300">Brand Name</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Member's Mark"
+                    value={customItemForm.brand}
+                    onChange={(e) => setCustomItemForm({ ...customItemForm, brand: e.target.value })}
+                    className="w-full px-3 py-2 rounded-xl bg-surface-200 border border-surface-border text-zinc-100 mt-1"
+                  />
+                </div>
+
+                <div>
+                  <label className="font-semibold text-zinc-300">Package Size</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. 3 lb Bag"
+                    value={customItemForm.package_size}
+                    onChange={(e) => setCustomItemForm({ ...customItemForm, package_size: e.target.value })}
+                    className="w-full px-3 py-2 rounded-xl bg-surface-200 border border-surface-border text-zinc-100 mt-1"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
                   <label className="font-semibold text-zinc-300">Department / Aisle</label>
                   <select
                     value={customItemForm.department}
@@ -1042,7 +1173,7 @@ export const GroceryManager: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="font-semibold text-zinc-300">Unit (lbs, bags, cans, g)</label>
+                  <label className="font-semibold text-zinc-300">Unit (lbs, packs, bags)</label>
                   <input
                     type="text"
                     value={customItemForm.unit}
