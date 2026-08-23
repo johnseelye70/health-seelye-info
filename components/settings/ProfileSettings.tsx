@@ -80,6 +80,15 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'Beta 0.4.0',
+      date: '2026-08-23',
+      title: 'UI Streamlining & Production Navigation Polish',
+      changes: [
+        'Removed developer Database Blueprint tab from end-user navigation.',
+        'Preserved PostgreSQL schema migrations in repository root for developer deployment.',
+      ],
+    },
+    {
       version: 'Beta 0.3.0',
       date: '2026-08-23',
       title: 'Production State Cleanse & Fresh Initialization',
@@ -301,7 +310,7 @@ export const ProfileSettings: React.FC = () => {
             <h2 className="text-base font-bold text-zinc-100">Version History & Changelog</h2>
           </div>
           <span className="px-3 py-1 rounded-full text-xs font-mono font-bold bg-brand-500/20 text-brand-300 border border-brand-500/30">
-            Active: Beta 0.3.0
+            Active: Beta 0.4.0
           </span>
         </div>
 

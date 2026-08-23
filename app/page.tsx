@@ -11,7 +11,6 @@ import { FastingTracker } from '@/components/fasting/FastingTracker';
 import { WorkoutGenerator } from '@/components/workouts/WorkoutGenerator';
 import { GroceryManager } from '@/components/grocery/GroceryManager';
 import { ProgressTrends } from '@/components/analytics/ProgressTrends';
-import { DatabaseMigrationViewer } from '@/components/database/DatabaseMigrationViewer';
 import { ProfileSettings } from '@/components/settings/ProfileSettings';
 import { OnboardingModal } from '@/components/onboarding/OnboardingModal';
 
@@ -36,7 +35,6 @@ export default function HomePage() {
           {activeTab === 'workouts' && <WorkoutGenerator />}
           {activeTab === 'grocery' && <GroceryManager />}
           {activeTab === 'trends' && <ProgressTrends />}
-          {activeTab === 'database' && <DatabaseMigrationViewer />}
           {activeTab === 'settings' && <ProfileSettings />}
         </main>
       </div>

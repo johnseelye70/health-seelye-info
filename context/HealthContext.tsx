@@ -79,8 +79,8 @@ interface HealthContextType {
   
   // App & Sync State
   isDemoMode: boolean;
-  activeTab: 'dashboard' | 'nutrition' | 'fasting' | 'workouts' | 'grocery' | 'trends' | 'database' | 'settings';
-  setActiveTab: (tab: 'dashboard' | 'nutrition' | 'fasting' | 'workouts' | 'grocery' | 'trends' | 'database' | 'settings') => void;
+  activeTab: 'dashboard' | 'nutrition' | 'fasting' | 'workouts' | 'grocery' | 'trends' | 'settings';
+  setActiveTab: (tab: 'dashboard' | 'nutrition' | 'fasting' | 'workouts' | 'grocery' | 'trends' | 'settings') => void;
   showOnboardingModal: boolean;
   setShowOnboardingModal: (show: boolean) => void;
   resetAllData: () => void;
@@ -105,7 +105,7 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
     return day === 0 ? 7 : day;
   });
   
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'nutrition' | 'fasting' | 'workouts' | 'grocery' | 'trends' | 'database' | 'settings'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'nutrition' | 'fasting' | 'workouts' | 'grocery' | 'trends' | 'settings'>('dashboard');
   const [showOnboardingModal, setShowOnboardingModal] = useState<boolean>(false);
   const [notificationsEnabled, setNotificationsEnabled] = useState<boolean>(false);
   const [isDemoMode] = useState<boolean>(!isSupabaseConfigured);
