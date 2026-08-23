@@ -329,8 +329,9 @@ export type GroceryDepartment =
 
 export type GroceryStoreTag =
   | 'all'
-  | 'costco'
-  | 'trader_joes'
+  | 'sams_club'
+  | 'aldi'
+  | 'meijer'
   | 'supermarket'
   | 'farmers_market';
 
@@ -346,7 +347,7 @@ export interface CatalogGroceryItem {
   id: string;
   name: string;
   department: GroceryDepartment;
-  shelf_life: 'fresh_weekly' | 'pantry_monthly';
+  shelf_life: 'fresh_weekly' | 'pantry_monthly' | 'freezer_monthly';
   default_unit: string;
   default_quantity: number;
   store_tags: GroceryStoreTag[];
@@ -368,7 +369,7 @@ export interface NamedGroceryList {
 export interface GroceryItem {
   id: string;
   item_name: string;
-  category: 'fresh_weekly' | 'pantry_monthly';
+  category: 'fresh_weekly' | 'pantry_monthly' | 'freezer_monthly';
   department?: GroceryDepartment;
   quantity: number;
   unit: string;

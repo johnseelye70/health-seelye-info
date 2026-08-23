@@ -211,14 +211,24 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'Beta 1.3.1',
+      date: '2026-08-23',
+      title: "Food Database Grocery Integration & Sam's Club, Aldi, Meijer Store Support",
+      changes: [
+        "Food Database Integration: Connected the Weekly Grocery & Pantry Manager directly to the comprehensive 1,000+ item master food database with verified macronutrient profiles (protein, calories, carbs, fat).",
+        "Updated Store Routing: Replaced Costco with Sam's Club, replaced Trader Joe's with Aldi, and added Meijer across store filters, item tags, and named lists.",
+        "Dynamic Macro Substitutions: Smart swap engine now surfaces direct nutritional peer substitutes from the same food category and swap groups.",
+      ],
+    },
+    {
       version: 'Beta 1.3.0',
       date: '2026-08-23',
       title: 'Master Grocery Catalog, Smart Item Swaps & Pantry Inventory Suite',
       changes: [
-        'Master Grocery Catalog: Built expansive 150+ item catalog across 8 supermarket departments (Produce, Meat/Seafood, Dairy/Eggs, Carbs/Bakery, Healthy Fats, Pantry/Spices, Frozen, Supplements).',
+        'Master Grocery Catalog: Built expansive item catalog across supermarket departments.',
         '1-Click Smart Item Swap Engine: Added dedicated substitution engine on every item to instantly swap culinary and macro-matched alternatives with conversion ratios.',
         'Pantry vs Need to Buy Mode: Integrated pantry stock toggle allowing users to track what they have at home vs what is needed in the shopping cart.',
-        'Multi-List & iOS Export: Added named list switcher (Weekly Essentials, Costco Bulk, Trader Joes, Meal Prep) and 1-tap Copy for Apple Reminders, Notes, and iMessage.',
+        'Multi-List & iOS Export: Added named list switcher and 1-tap Copy for Apple Reminders, Notes, and iMessage.',
       ],
     },
     {
@@ -1022,7 +1032,7 @@ export const ProfileSettings: React.FC = () => {
             title="Click to open release changelog modal window"
           >
             <span className="w-2 h-2 rounded-full bg-brand-400 animate-pulse"></span>
-            <span>Active: Beta 1.3.0</span>
+            <span>Active: Beta 1.3.1</span>
             <ChevronRight className="w-3.5 h-3.5 text-brand-400 group-hover:translate-x-0.5 transition-transform" />
           </button>
         </div>
