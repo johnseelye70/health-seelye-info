@@ -211,6 +211,17 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'Beta 1.3.0',
+      date: '2026-08-23',
+      title: 'Master Grocery Catalog, Smart Item Swaps & Pantry Inventory Suite',
+      changes: [
+        'Master Grocery Catalog: Built expansive 150+ item catalog across 8 supermarket departments (Produce, Meat/Seafood, Dairy/Eggs, Carbs/Bakery, Healthy Fats, Pantry/Spices, Frozen, Supplements).',
+        '1-Click Smart Item Swap Engine: Added dedicated substitution engine on every item to instantly swap culinary and macro-matched alternatives with conversion ratios.',
+        'Pantry vs Need to Buy Mode: Integrated pantry stock toggle allowing users to track what they have at home vs what is needed in the shopping cart.',
+        'Multi-List & iOS Export: Added named list switcher (Weekly Essentials, Costco Bulk, Trader Joes, Meal Prep) and 1-tap Copy for Apple Reminders, Notes, and iMessage.',
+      ],
+    },
+    {
       version: 'Beta 1.2.0',
       date: '2026-08-23',
       title: 'Dedicated iPhone & iPad Mobile UI Enhancements & iOS Safari Constraints',
@@ -1011,7 +1022,7 @@ export const ProfileSettings: React.FC = () => {
             title="Click to open release changelog modal window"
           >
             <span className="w-2 h-2 rounded-full bg-brand-400 animate-pulse"></span>
-            <span>Active: Beta 1.2.0</span>
+            <span>Active: Beta 1.3.0</span>
             <ChevronRight className="w-3.5 h-3.5 text-brand-400 group-hover:translate-x-0.5 transition-transform" />
           </button>
         </div>

@@ -29,6 +29,7 @@ import {
   computeFastingStatus,
   FastingStatus,
 } from '@/lib/macro-calculator';
+import { generateSmartGroceryRequisition } from '@/lib/grocery-database';
 import { isSupabaseConfigured, supabase } from '@/lib/supabase/client';
 import { normalizeFoodCategory } from '@/lib/food-database';
 
@@ -87,9 +88,13 @@ interface HealthContextType {
   groceryMultiplier: number;
   setGroceryMultiplier: (mult: number) => void;
   toggleGroceryItem: (id: string) => void;
+  togglePantryStatus: (id: string) => void;
   addGroceryItem: (item: Omit<GroceryItem, 'id'>) => void;
+  updateGroceryItem: (id: string, updates: Partial<GroceryItem>) => void;
+  swapGroceryItem: (id: string, replacement: Partial<GroceryItem>) => void;
   deleteGroceryItem: (id: string) => void;
   clearCheckedGrocery: () => void;
+  syncGroceryFromMealPlan: () => void;
   
   // Weight & Analytics
   weightLogs: WeightLog[];
@@ -787,12 +792,30 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
     );
   }, []);
 
+  const togglePantryStatus = useCallback((id: string) => {
+    setGroceryList((prev) =>
+      prev.map((item) => (item.id === id ? { ...item, in_pantry: !item.in_pantry } : item))
+    );
+  }, []);
+
   const addGroceryItem = useCallback((itemData: Omit<GroceryItem, 'id'>) => {
     const newItem: GroceryItem = {
       ...itemData,
-      id: `gi-${Date.now()}`,
+      id: `gi-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
     };
     setGroceryList((prev) => [newItem, ...prev]);
+  }, []);
+
+  const updateGroceryItem = useCallback((id: string, updates: Partial<GroceryItem>) => {
+    setGroceryList((prev) =>
+      prev.map((item) => (item.id === id ? { ...item, ...updates } : item))
+    );
+  }, []);
+
+  const swapGroceryItem = useCallback((id: string, replacement: Partial<GroceryItem>) => {
+    setGroceryList((prev) =>
+      prev.map((item) => (item.id === id ? { ...item, ...replacement } : item))
+    );
   }, []);
 
   const deleteGroceryItem = useCallback((id: string) => {
@@ -802,6 +825,11 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
   const clearCheckedGrocery = useCallback(() => {
     setGroceryList((prev) => prev.filter((item) => !item.is_checked));
   }, []);
+
+  const syncGroceryFromMealPlan = useCallback(() => {
+    const generated = generateSmartGroceryRequisition(groceryMultiplier);
+    setGroceryList(generated);
+  }, [groceryMultiplier]);
 
   const logWeight = useCallback((weightKg: number, bodyFat?: number) => {
     const today = new Date().toISOString().split('T')[0];
@@ -893,9 +921,13 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
         groceryMultiplier,
         setGroceryMultiplier,
         toggleGroceryItem,
+        togglePantryStatus,
         addGroceryItem,
+        updateGroceryItem,
+        swapGroceryItem,
         deleteGroceryItem,
         clearCheckedGrocery,
+        syncGroceryFromMealPlan,
         weightLogs,
         logWeight,
         isDemoMode: !authUser && !isSupabaseConfigured,

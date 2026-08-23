@@ -316,15 +316,69 @@ export interface WorkoutExerciseSlot {
   logged_sets_data?: { set_num: number; reps: number; weight_kg: number; done: boolean }[];
 }
 
+export type GroceryDepartment =
+  | 'produce'
+  | 'meat_seafood'
+  | 'dairy_eggs'
+  | 'grains_bakery'
+  | 'healthy_fats'
+  | 'pantry_spices'
+  | 'frozen'
+  | 'supplements'
+  | 'other';
+
+export type GroceryStoreTag =
+  | 'all'
+  | 'costco'
+  | 'trader_joes'
+  | 'supermarket'
+  | 'farmers_market';
+
+export interface SmartGrocerySubstitute {
+  name: string;
+  department: GroceryDepartment;
+  default_unit: string;
+  conversion_ratio?: number;
+  reason?: string;
+}
+
+export interface CatalogGroceryItem {
+  id: string;
+  name: string;
+  department: GroceryDepartment;
+  shelf_life: 'fresh_weekly' | 'pantry_monthly';
+  default_unit: string;
+  default_quantity: number;
+  store_tags: GroceryStoreTag[];
+  calories_per_serving?: number;
+  protein_g?: number;
+  carbs_g?: number;
+  fat_g?: number;
+  common_substitutes: SmartGrocerySubstitute[];
+  icon_emoji?: string;
+}
+
+export interface NamedGroceryList {
+  id: string;
+  name: string;
+  description: string;
+  icon: string;
+}
+
 export interface GroceryItem {
   id: string;
   item_name: string;
   category: 'fresh_weekly' | 'pantry_monthly';
+  department?: GroceryDepartment;
   quantity: number;
   unit: string;
   is_checked: boolean;
+  in_pantry?: boolean;
   notes?: string;
   ingredient_type?: string;
+  store_tag?: GroceryStoreTag;
+  list_id?: string;
+  estimated_cost?: number;
 }
 
 export interface WeightLog {
