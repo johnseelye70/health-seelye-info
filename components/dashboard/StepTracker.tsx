@@ -47,10 +47,37 @@ export const StepTracker: React.FC = () => {
 
   const [showGoalModal, setShowGoalModal] = useState<boolean>(false);
   const [showSyncModal, setShowSyncModal] = useState<boolean>(false);
+  // Device Type Detection (Mobile Phone vs iPad / Laptop / Desktop)
+  const [deviceType, setDeviceType] = useState<'mobile' | 'tablet' | 'desktop'>('desktop');
+  const [forcePhoneMode, setForcePhoneMode] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const checkDevice = () => {
+        const width = window.innerWidth;
+        const isMobileAgent = /iPhone|Android|iPod/i.test(navigator.userAgent);
+        const hasTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+
+        if (isMobileAgent || (hasTouch && width < 640)) {
+          setDeviceType('mobile');
+        } else if (hasTouch && width <= 1024) {
+          setDeviceType('tablet');
+        } else {
+          setDeviceType('desktop');
+        }
+      };
+      checkDevice();
+      window.addEventListener('resize', checkDevice);
+      return () => window.removeEventListener('resize', checkDevice);
+    }
+  }, []);
+
+  const isMobile = deviceType === 'mobile' || forcePhoneMode;
+
   const [customGoalInput, setCustomGoalInput] = useState<number>(stepGoal);
-  const [quickStepInput, setQuickStepInput] = useState<number>(1000);
   const [syncPasteText, setSyncPasteText] = useState<string>('');
   const [syncStatusMsg, setSyncStatusMsg] = useState<string | null>(null);
+  const [inlineStepInput, setInlineStepInput] = useState<string>('');
 
   // Live Phone Accelerometer Sensor State
   const [isSensorActive, setIsSensorActive] = useState<boolean>(false);
@@ -302,57 +329,127 @@ export const StepTracker: React.FC = () => {
         </div>
       </div>
 
-      {/* Live Phone Accelerometer Sensor Pedometer Box */}
-      <div className="p-4 rounded-2xl bg-surface-200/60 border border-surface-border flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <div className={`w-10 h-10 rounded-2xl flex items-center justify-center border transition-all ${
-            isSensorActive
-              ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/40 animate-pulse'
-              : 'bg-surface-300 text-zinc-400 border-surface-border'
-          }`}>
-            <Smartphone className="w-5 h-5" />
-          </div>
-          <div>
-            <div className="text-xs font-bold text-zinc-100 flex items-center gap-2">
-              <span>Live Phone Accelerometer Pedometer</span>
-              {isSensorActive && (
-                <span className="px-2 py-0.2 rounded-full text-[9px] font-mono font-bold bg-emerald-500 text-zinc-950 animate-pulse">
-                  ACTIVE SENSING
-                </span>
-              )}
-            </div>
-            <p className="text-[11px] text-zinc-400 mt-0.5">
-              {isSensorActive
-                ? `Counting steps live in pocket • Cadence: ${sensorCadence} steps/min`
-                : 'Put your phone in your pocket and start walking to count steps automatically.'}
-            </p>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2 self-end sm:self-auto">
-          <button
-            type="button"
-            onClick={handleToggleSensor}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-black transition-all cursor-pointer active:scale-95 ${
+      {/* =========================================================================
+          DEVICE-AWARE ACTION MODULE: PHONE SENSOR vs DESKTOP/IPAD WATCH SYNC
+          ========================================================================= */}
+      {isMobile ? (
+        /* MOBILE PHONE VIEW: Live In-Pocket Accelerometer Sensor */
+        <div className="p-4 rounded-2xl bg-surface-200/60 border border-surface-border flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className={`w-10 h-10 rounded-2xl flex items-center justify-center border transition-all ${
               isSensorActive
-                ? 'bg-rose-500 hover:bg-rose-600 text-white shadow-glow'
-                : 'bg-emerald-500 hover:bg-emerald-400 text-zinc-950 shadow-glow'
-            }`}
-          >
-            {isSensorActive ? (
-              <>
-                <Pause className="w-3.5 h-3.5 fill-current" />
-                <span>Pause Sensor</span>
-              </>
-            ) : (
-              <>
-                <Play className="w-3.5 h-3.5 fill-current" />
-                <span>Start Phone Sensor</span>
-              </>
-            )}
-          </button>
+                ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/40 animate-pulse'
+                : 'bg-surface-300 text-zinc-400 border-surface-border'
+            }`}>
+              <Smartphone className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="text-xs font-bold text-zinc-100 flex items-center gap-2">
+                <span>Live Phone Accelerometer Pedometer</span>
+                {isSensorActive && (
+                  <span className="px-2 py-0.2 rounded-full text-[9px] font-mono font-bold bg-emerald-500 text-zinc-950 animate-pulse">
+                    ACTIVE SENSING
+                  </span>
+                )}
+              </div>
+              <p className="text-[11px] text-zinc-400 mt-0.5">
+                {isSensorActive
+                  ? `Counting steps live in pocket • Cadence: ${sensorCadence} steps/min`
+                  : 'Put your phone in your pocket and start walking to count steps automatically.'}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 self-end sm:self-auto">
+            <button
+              type="button"
+              onClick={handleToggleSensor}
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-black transition-all cursor-pointer active:scale-95 ${
+                isSensorActive
+                  ? 'bg-rose-500 hover:bg-rose-600 text-white shadow-glow'
+                  : 'bg-emerald-500 hover:bg-emerald-400 text-zinc-950 shadow-glow'
+              }`}
+            >
+              {isSensorActive ? (
+                <>
+                  <Pause className="w-3.5 h-3.5 fill-current" />
+                  <span>Pause Sensor</span>
+                </>
+              ) : (
+                <>
+                  <Play className="w-3.5 h-3.5 fill-current" />
+                  <span>Start Phone Sensor</span>
+                </>
+              )}
+            </button>
+          </div>
         </div>
-      </div>
+      ) : (
+        /* DESKTOP / LAPTOP / IPAD VIEW: Watch Sync & BLE Fitness Hub */
+        <div className="p-4 rounded-2xl bg-surface-200/60 border border-surface-border flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-accent-teal/20 text-accent-teal border border-accent-teal/30 flex items-center justify-center shrink-0">
+              <Watch className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="text-xs font-bold text-zinc-100 flex items-center gap-2">
+                <span>Watch & Multi-Device Sync Station</span>
+                <span className="px-2 py-0.2 rounded-full text-[9px] font-mono font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
+                  {deviceType === 'tablet' ? 'iPad Mode' : 'Desktop / Laptop Mode'}
+                </span>
+              </div>
+              <p className="text-[11px] text-zinc-400 mt-0.5">
+                Sync steps recorded from your Apple Watch, Garmin, Fitbit, or phone accelerometer.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2 self-start md:self-auto">
+            <div className="flex items-center gap-1.5">
+              <input
+                type="text"
+                placeholder="Log watch steps..."
+                value={inlineStepInput}
+                onChange={(e) => setInlineStepInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    const clean = inlineStepInput.replace(/,/g, '').trim();
+                    const parsed = parseInt(clean, 10);
+                    if (!isNaN(parsed) && parsed > 0) {
+                      logSteps(parsed, 'apple_health');
+                      setInlineStepInput('');
+                    }
+                  }
+                }}
+                className="w-36 px-3 py-1.5 rounded-xl bg-surface-300 border border-surface-border text-zinc-100 font-mono text-xs focus:outline-none focus:border-emerald-500"
+              />
+              <button
+                type="button"
+                onClick={() => {
+                  const clean = inlineStepInput.replace(/,/g, '').trim();
+                  const parsed = parseInt(clean, 10);
+                  if (!isNaN(parsed) && parsed > 0) {
+                    logSteps(parsed, 'apple_health');
+                    setInlineStepInput('');
+                  }
+                }}
+                className="px-3 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-zinc-950 text-xs font-black shadow-glow transition-all cursor-pointer active:scale-95"
+              >
+                Log Steps
+              </button>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setShowSyncModal(true)}
+              className="px-3 py-1.5 rounded-xl bg-surface-300 hover:bg-surface-400 text-zinc-300 hover:text-white border border-surface-border text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5"
+            >
+              <Bluetooth className="w-3.5 h-3.5 text-cyan-400" />
+              <span>BLE / Health Sync</span>
+            </button>
+          </div>
+        </div>
+      )}
 
       {sensorError && (
         <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs">

@@ -211,6 +211,16 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'Beta 1.4.1',
+      date: '2026-08-23',
+      title: 'Context-Aware Device Detection for Phone Pedometer & Desktop/iPad Sync Station',
+      changes: [
+        'Device-Aware Interface: Automatically tailors the step tracking suite based on active hardware (Mobile Phone vs iPad vs Desktop/Laptop).',
+        'Mobile Phone Mode: Prominently mounts the in-pocket Live Accelerometer Sensor Pedometer with live cadence oscillation tracking and tactile controls.',
+        'Desktop & iPad Mode: Mounts the Watch & Multi-Device Sync Station with inline watch step entry, Bluetooth BLE device pairing, and cloud synchronization.',
+      ],
+    },
+    {
       version: 'Beta 1.4.0',
       date: '2026-08-23',
       title: 'Advanced Hydration Engine & Phone/Watch Step Tracking Suite',
@@ -218,7 +228,6 @@ export const ProfileSettings: React.FC = () => {
         'Advanced Hydration Engine: Built dynamic water tracking beyond 8 glasses (64 oz, 96 oz, 128 oz / 1 Gallon, 160 oz / 1.25 Gallons, or custom oz/mL) with container presets (Glass, Mug, Bottle, Shaker, Hydro Flask, Half Gallon) and history logging.',
         'Live Phone Accelerometer Pedometer: Added real-time step sensing using iOS Safari and Android CoreMotion DeviceMotionEvent with peak-detection cadence and active calorie calculation.',
         'Phone & Watch Health Sync Hub: Integrated Apple Health, Garmin, Fitbit, and Bluetooth Smart (BLE) fitness watch pairing directly in the browser.',
-        'Trends & Analytics Integration: Added daily hydration adherence and step/movement output metrics to the progress trends dashboard.',
       ],
     },
     {
@@ -1052,7 +1061,7 @@ export const ProfileSettings: React.FC = () => {
             title="Click to open release changelog modal window"
           >
             <span className="w-2 h-2 rounded-full bg-brand-400 animate-pulse"></span>
-            <span>Active: Beta 1.4.0</span>
+            <span>Active: Beta 1.4.1</span>
             <ChevronRight className="w-3.5 h-3.5 text-brand-400 group-hover:translate-x-0.5 transition-transform" />
           </button>
         </div>
