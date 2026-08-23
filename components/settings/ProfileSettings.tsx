@@ -26,6 +26,9 @@ import {
   Scale,
   Sparkles,
   Zap,
+  ChevronDown,
+  ChevronUp,
+  Lock,
 } from 'lucide-react';
 
 export const ProfileSettings: React.FC = () => {
@@ -42,6 +45,7 @@ export const ProfileSettings: React.FC = () => {
   const isImperial = profile.unit_preference === 'imperial';
   const initialFtIn = cmToFtIn(profile.height_cm);
 
+  const [showChangelog, setShowChangelog] = useState<boolean>(false);
   const [form, setForm] = useState({
     full_name: profile.full_name,
     email: profile.email,
@@ -154,6 +158,15 @@ export const ProfileSettings: React.FC = () => {
   };
 
   const changelogHistory = [
+    {
+      version: 'Beta 0.11.0',
+      date: '2026-08-23',
+      title: 'Collapsible Changelog & Interactive Version Access Button',
+      changes: [
+        'Hidden verbose changelog history behind the active version trigger button to maintain an uncluttered Goals & Profile screen.',
+        'Engineered smooth inline collapsible disclosure (pre-architected for future Admin password gate).',
+      ],
+    },
     {
       version: 'Beta 0.10.1',
       date: '2026-08-23',
@@ -548,39 +561,65 @@ export const ProfileSettings: React.FC = () => {
         </div>
       </form>
 
-      {/* Version History & Changelog Display (Required by standard) */}
-      <div className="p-6 md:p-8 rounded-3xl bg-surface-100/90 border border-surface-border backdrop-blur-xl space-y-6">
-        <div className="flex items-center justify-between pb-4 border-b border-surface-border">
+      {/* Version History & Changelog Display (Required by standard - Hidden behind version button) */}
+      <div className="p-6 md:p-8 rounded-3xl bg-surface-100/90 border border-surface-border backdrop-blur-xl space-y-4">
+        <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <History className="w-5 h-5 text-accent-cyan" />
-            <h2 className="text-base font-bold text-zinc-100">Version History & Changelog</h2>
+            <h2 className="text-base font-bold text-zinc-100">Application Version</h2>
           </div>
-          <span className="px-3 py-1 rounded-full text-xs font-mono font-bold bg-brand-500/20 text-brand-300 border border-brand-500/30">
-            Active: Beta 0.10.1
-          </span>
+
+          {/* Interactive Version Trigger Button */}
+          <button
+            type="button"
+            id="toggle-changelog-btn"
+            onClick={() => setShowChangelog((prev) => !prev)}
+            className="group flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-mono font-bold bg-brand-500/20 hover:bg-brand-500/30 text-brand-300 border border-brand-500/40 transition-all cursor-pointer shadow-sm active:scale-95"
+            title="Click to view release changelog history"
+          >
+            <span className="w-2 h-2 rounded-full bg-brand-400 animate-pulse"></span>
+            <span>Active: Beta 0.11.0</span>
+            {showChangelog ? (
+              <ChevronUp className="w-3.5 h-3.5 text-brand-400 group-hover:-translate-y-0.5 transition-transform" />
+            ) : (
+              <ChevronDown className="w-3.5 h-3.5 text-brand-400 group-hover:translate-y-0.5 transition-transform" />
+            )}
+          </button>
         </div>
 
-        <div className="space-y-6">
-          {changelogHistory.map((release) => (
-            <div key={release.version} className="space-y-3">
-              <div className="flex items-center gap-3">
-                <GitCommit className="w-5 h-5 text-brand-400" />
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-bold font-mono text-zinc-100">{release.version}</span>
-                    <span className="text-xs text-zinc-400 font-mono">({release.date})</span>
-                  </div>
-                  <h3 className="text-xs font-semibold text-zinc-300 mt-0.5">{release.title}</h3>
-                </div>
-              </div>
-              <ul className="pl-8 list-disc space-y-1.5 text-xs text-zinc-400">
-                {release.changes.map((change, i) => (
-                  <li key={i} className="leading-relaxed">{change}</li>
-                ))}
-              </ul>
+        {/* 100% Inline Collapsible Changelog Drawer */}
+        {showChangelog && (
+          <div className="pt-4 border-t border-surface-border space-y-6 animate-fadeIn">
+            <div className="flex items-center justify-between text-xs text-zinc-400">
+              <span className="font-semibold text-zinc-300">Release Changelog History</span>
+              <span className="text-[11px] text-zinc-500 flex items-center gap-1 font-mono">
+                <span>Admin Passcode Ready</span>
+              </span>
             </div>
-          ))}
-        </div>
+
+            <div className="space-y-6">
+              {changelogHistory.map((release) => (
+                <div key={release.version} className="space-y-3">
+                  <div className="flex items-center gap-3">
+                    <GitCommit className="w-5 h-5 text-brand-400" />
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-bold font-mono text-zinc-100">{release.version}</span>
+                        <span className="text-xs text-zinc-400 font-mono">({release.date})</span>
+                      </div>
+                      <h3 className="text-xs font-semibold text-zinc-300 mt-0.5">{release.title}</h3>
+                    </div>
+                  </div>
+                  <ul className="pl-8 list-disc space-y-1.5 text-xs text-zinc-400">
+                    {release.changes.map((change, i) => (
+                      <li key={i} className="leading-relaxed">{change}</li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
