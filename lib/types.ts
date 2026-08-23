@@ -4,7 +4,72 @@ export type GoalType = 'cut_500' | 'cut_250' | 'maintain' | 'bulk_250' | 'bulk_5
 export type UnitPreference = 'imperial' | 'metric';
 export type ExperienceMode = 'simple' | 'advanced';
 export type FastingProtocol = '16_8' | '18_6' | '20_4' | '14_10' | '23_1_omad' | 'standard_3_meal';
-export type EquipmentType = 'bodyweight' | 'dumbbells' | 'barbells' | 'resistance_bands' | 'kettlebells' | 'cable_machine' | 'full_gym';
+export type EquipmentType = string;
+
+export type EquipmentCategory =
+  | 'free_weights'
+  | 'benches_racks'
+  | 'cable_machines'
+  | 'plate_machines'
+  | 'bodyweight_calisthenics'
+  | 'bands_accessories'
+  | 'cardio_conditioning';
+
+export interface EquipmentCategoryMeta {
+  id: EquipmentCategory;
+  name: string;
+  shortLabel: string;
+  icon: string;
+  description: string;
+  accentColor: string;
+}
+
+export interface EquipmentSubCategoryMeta {
+  id: string;
+  parentId: EquipmentCategory;
+  name: string;
+  icon: string;
+  description: string;
+}
+
+export interface EquipmentItem {
+  id: string;
+  name: string;
+  category: EquipmentCategory;
+  sub_category: string;
+  icon: string;
+  description: string;
+  footprint: 'compact' | 'medium' | 'commercial_heavy';
+  typical_exercises_unlocked: number;
+}
+
+export type ExerciseCategory =
+  | 'chest_pecs'
+  | 'back_lats'
+  | 'shoulders_delts'
+  | 'arms_biceps_triceps'
+  | 'legs_quads_hamstrings'
+  | 'glutes_hips'
+  | 'core_abdominals'
+  | 'hiit_conditioning'
+  | 'mobility_warmup';
+
+export interface ExerciseCategoryMeta {
+  id: ExerciseCategory;
+  name: string;
+  shortLabel: string;
+  icon: string;
+  description: string;
+  accentColor: string;
+}
+
+export interface ExerciseSubCategoryMeta {
+  id: string;
+  parentId: ExerciseCategory;
+  name: string;
+  icon: string;
+  description: string;
+}
 
 export interface UserProfile {
   id: string;
@@ -27,7 +92,7 @@ export interface UserProfile {
   fasting_start_time: string; // e.g. "20:00"
   eating_window_duration_hours: number;
   meal_count: number; // 2, 3, 4
-  equipment_inventory: EquipmentType[];
+  equipment_inventory: string[];
   created_at?: string;
   updated_at?: string;
 }
@@ -96,12 +161,29 @@ export interface FoodLogEntry {
 export interface ExerciseItem {
   id: string;
   name: string;
-  target_muscle: 'chest' | 'back' | 'quads' | 'hamstrings' | 'glutes' | 'shoulders' | 'biceps' | 'triceps' | 'core' | 'full_body_cardio';
-  equipment_required: EquipmentType;
-  difficulty: 'beginner' | 'intermediate' | 'advanced';
+  target_muscle:
+    | 'chest'
+    | 'back'
+    | 'quads'
+    | 'hamstrings'
+    | 'glutes'
+    | 'shoulders'
+    | 'biceps'
+    | 'triceps'
+    | 'core'
+    | 'calves'
+    | 'full_body_cardio';
+  secondary_muscles?: string[];
+  equipment_required: string; // Primary equipment tag for backward compatibility
+  required_equipment_ids?: string[]; // Multiple equipment IDs needed (e.g. ['dumbbells', 'adjustable_bench'])
   category: 'hypertrophy' | 'strength' | 'hiit_interval' | 'mobility' | 'warmup';
+  exercise_category?: ExerciseCategory;
+  sub_category?: string;
+  difficulty: 'beginner' | 'intermediate' | 'advanced';
   instructions?: string;
   video_url_mock: string;
+  suggested_sets_reps?: string;
+  mechanics?: 'compound' | 'isolation' | 'isometric';
 }
 
 export interface WorkoutPlanDay {

@@ -211,6 +211,17 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'Beta 0.15.0',
+      date: '2026-08-23',
+      title: 'Symbiotic Equipment Database & Complete Exercise Database Architecture',
+      changes: [
+        'Set equipment inventory to unselected (0 items) by default, leaving full custom equipment configuration to the logged-on user.',
+        'Engineered an expansive 7-category, 28-subcategory Equipment Database with 120+ pieces of gym gear, fast setup presets, and 1-tap inventory management.',
+        'Built a comprehensive 9-category, 36-subcategory Exercise Database with hundreds of verified movements, execution cues, video links, and biomechanics.',
+        'Created a symbiotic relationship where checking/unchecking equipment dynamically recalculates available exercises across both the Exercise Database and 4-Week Daily Split routines.',
+      ],
+    },
+    {
       version: 'Beta 0.14.2',
       date: '2026-08-23',
       title: 'Branding & Identity Customization (Seelye Family Health & Logged-on User Label)',
@@ -921,7 +932,7 @@ export const ProfileSettings: React.FC = () => {
             title="Click to open release changelog modal window"
           >
             <span className="w-2 h-2 rounded-full bg-brand-400 animate-pulse"></span>
-            <span>Active: Beta 0.14.2</span>
+            <span>Active: Beta 0.15.0</span>
             <ChevronRight className="w-3.5 h-3.5 text-brand-400 group-hover:translate-x-0.5 transition-transform" />
           </button>
         </div>

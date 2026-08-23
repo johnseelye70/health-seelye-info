@@ -71,6 +71,7 @@ interface HealthContextType {
   updateExerciseSetData: (dayId: string, slotId: string, reps: number, weightKg: number) => void;
   regenerateWorkouts: (equipment?: EquipmentType[]) => void;
   toggleEquipment: (eq: EquipmentType) => void;
+  setEquipmentInventory: (inventory: string[]) => void;
   
   // Grocery Manager
   groceryList: GroceryItem[];
@@ -703,6 +704,14 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
     });
   }, []);
 
+  const setEquipmentInventory = useCallback((inventory: string[]) => {
+    setProfile((prev) => {
+      const newProfile = { ...prev, equipment_inventory: inventory };
+      setWorkoutPlan(generateWorkoutPlanSplit(inventory));
+      return newProfile;
+    });
+  }, []);
+
   const regenerateWorkouts = useCallback((equipment?: EquipmentType[]) => {
     const eqList = equipment || profile.equipment_inventory;
     setWorkoutPlan(generateWorkoutPlanSplit(eqList));
@@ -845,6 +854,7 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
         updateExerciseSetData,
         regenerateWorkouts,
         toggleEquipment,
+        setEquipmentInventory,
         groceryList,
         groceryMultiplier,
         setGroceryMultiplier,

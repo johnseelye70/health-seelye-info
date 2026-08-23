@@ -1,9 +1,11 @@
 import { EquipmentType, ExerciseItem, FoodItem, FoodLogEntry, GroceryItem, UserProfile, WeightLog, WorkoutPlanDay } from './types';
+import { COMPREHENSIVE_EXERCISE_DATABASE } from './exercise-database';
+import { COMPREHENSIVE_FOOD_DATABASE } from './food-database';
 
 export const INITIAL_PROFILE: UserProfile = {
-  id: 'athlete-01',
+  id: 'user-01',
   email: '',
-  full_name: 'Athlete',
+  full_name: 'Logged-on User',
   age: 35,
   height_cm: 178, // ~5'10"
   current_weight_kg: 80.0, // ~176 lbs
@@ -21,217 +23,14 @@ export const INITIAL_PROFILE: UserProfile = {
   fasting_start_time: '20:00',
   eating_window_duration_hours: 8,
   meal_count: 3,
-  equipment_inventory: ['bodyweight', 'dumbbells', 'resistance_bands'],
+  equipment_inventory: [], // Empty by default per user requirement
   created_at: new Date().toISOString(),
   updated_at: new Date().toISOString(),
 };
 
-import { COMPREHENSIVE_FOOD_DATABASE } from './food-database';
-
 export const DEFAULT_FOODS: FoodItem[] = COMPREHENSIVE_FOOD_DATABASE;
 
-export const DEFAULT_EXERCISES: ExerciseItem[] = [
-  {
-    id: 'ex-1',
-    name: 'Push-Ups (Strict Form)',
-    target_muscle: 'chest',
-    equipment_required: 'bodyweight',
-    difficulty: 'beginner',
-    category: 'hypertrophy',
-    instructions: 'Maintain a tight hollow plank, lower chest until 1 inch above floor, flare elbows at 45 degrees, press back up.',
-    video_url_mock: 'https://images.unsplash.com/photo-1598971639058-fab3c3109a00?w=600&auto=format&fit=crop&q=80',
-  },
-  {
-    id: 'ex-2',
-    name: 'Dumbbell Flat Bench Press',
-    target_muscle: 'chest',
-    equipment_required: 'dumbbells',
-    difficulty: 'intermediate',
-    category: 'strength',
-    instructions: 'Retract shoulder blades, lower dumbbells with a 3-second eccentric phase, drive up squeezing pecs.',
-    video_url_mock: 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?w=600&auto=format&fit=crop&q=80',
-  },
-  {
-    id: 'ex-3',
-    name: 'Barbell Incline Bench Press',
-    target_muscle: 'chest',
-    equipment_required: 'barbells',
-    difficulty: 'advanced',
-    category: 'strength',
-    instructions: 'Set bench to 30 degrees. Touch upper clavicle line softly and press up in a controlled vertical path.',
-    video_url_mock: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=600&auto=format&fit=crop&q=80',
-  },
-  {
-    id: 'ex-4',
-    name: 'Bodyweight Pull-Ups (Overhand)',
-    target_muscle: 'back',
-    equipment_required: 'bodyweight',
-    difficulty: 'intermediate',
-    category: 'strength',
-    instructions: 'From full deadhang, depress scapulae and pull elbows down into ribcage until chin is clearly above bar.',
-    video_url_mock: 'https://images.unsplash.com/photo-1598971639058-fab3c3109a00?w=600&auto=format&fit=crop&q=80',
-  },
-  {
-    id: 'ex-5',
-    name: 'Dumbbell Single-Arm Row',
-    target_muscle: 'back',
-    equipment_required: 'dumbbells',
-    difficulty: 'beginner',
-    category: 'hypertrophy',
-    instructions: 'Support knee on bench, hinge at hips, pull dumbbell towards hip crease while squeezing lower lat.',
-    video_url_mock: 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?w=600&auto=format&fit=crop&q=80',
-  },
-  {
-    id: 'ex-6',
-    name: 'Barbell Deadlift (Conventional)',
-    target_muscle: 'hamstrings',
-    equipment_required: 'barbells',
-    difficulty: 'advanced',
-    category: 'strength',
-    instructions: 'Lock lats, brace abdominal wall, push floor away with midfoot, stand tall with glute contraction.',
-    video_url_mock: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=600&auto=format&fit=crop&q=80',
-  },
-  {
-    id: 'ex-7',
-    name: 'Bodyweight Air Squats',
-    target_muscle: 'quads',
-    equipment_required: 'bodyweight',
-    difficulty: 'beginner',
-    category: 'hypertrophy',
-    instructions: 'Feet shoulder-width apart, knees track over toes, sink hips below parallel while keeping chest proud.',
-    video_url_mock: 'https://images.unsplash.com/photo-1574680096145-d05b474e2155?w=600&auto=format&fit=crop&q=80',
-  },
-  {
-    id: 'ex-8',
-    name: 'Goblet Squat (Dumbbell / KB)',
-    target_muscle: 'quads',
-    equipment_required: 'dumbbells',
-    difficulty: 'beginner',
-    category: 'strength',
-    instructions: 'Hold dumbbell vertically against chest bone, squat between hips with neutral spine, drive out of the hole.',
-    video_url_mock: 'https://images.unsplash.com/photo-1574680096145-d05b474e2155?w=600&auto=format&fit=crop&q=80',
-  },
-  {
-    id: 'ex-9',
-    name: 'Barbell Back Squat',
-    target_muscle: 'quads',
-    equipment_required: 'barbells',
-    difficulty: 'advanced',
-    category: 'strength',
-    instructions: 'Bar resting firm across upper traps, take deep Valsalva breath, squat to full depth and explode up.',
-    video_url_mock: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=600&auto=format&fit=crop&q=80',
-  },
-  {
-    id: 'ex-10',
-    name: 'Dumbbell Romanian Deadlift (RDL)',
-    target_muscle: 'hamstrings',
-    equipment_required: 'dumbbells',
-    difficulty: 'intermediate',
-    category: 'hypertrophy',
-    instructions: 'Keep slight bend in knees, hinge hips back as if touching a wall behind you, feel deep hamstring stretch.',
-    video_url_mock: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=600&auto=format&fit=crop&q=80',
-  },
-  {
-    id: 'ex-11',
-    name: 'Resistance Band Lateral Pull-Aparts',
-    target_muscle: 'shoulders',
-    equipment_required: 'resistance_bands',
-    difficulty: 'beginner',
-    category: 'hypertrophy',
-    instructions: 'Hold band out straight at shoulder height, pull hands wide apart until band touches chest, pinch rear delts.',
-    video_url_mock: 'https://images.unsplash.com/photo-1598971639058-fab3c3109a00?w=600&auto=format&fit=crop&q=80',
-  },
-  {
-    id: 'ex-12',
-    name: 'Dumbbell Standing Overhead Press',
-    target_muscle: 'shoulders',
-    equipment_required: 'dumbbells',
-    difficulty: 'intermediate',
-    category: 'strength',
-    instructions: 'Brace core and glutes, press dumbbells vertically without hyperextending lumbar spine.',
-    video_url_mock: 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?w=600&auto=format&fit=crop&q=80',
-  },
-  {
-    id: 'ex-13',
-    name: 'Dumbbell Lateral Raises',
-    target_muscle: 'shoulders',
-    equipment_required: 'dumbbells',
-    difficulty: 'beginner',
-    category: 'hypertrophy',
-    instructions: 'Slight forward lean, raise arms to 90 degrees leading with elbows, pause 1 second at top.',
-    video_url_mock: 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?w=600&auto=format&fit=crop&q=80',
-  },
-  {
-    id: 'ex-14',
-    name: 'Resistance Band Bicep Curls',
-    target_muscle: 'biceps',
-    equipment_required: 'resistance_bands',
-    difficulty: 'beginner',
-    category: 'hypertrophy',
-    instructions: 'Anchor band with feet, curl upward keeping elbows pinned to side, peak contraction at top.',
-    video_url_mock: 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?w=600&auto=format&fit=crop&q=80',
-  },
-  {
-    id: 'ex-15',
-    name: 'Dips / Bench Dips',
-    target_muscle: 'triceps',
-    equipment_required: 'bodyweight',
-    difficulty: 'intermediate',
-    category: 'hypertrophy',
-    instructions: 'Lower until upper arms are parallel to floor, press through heels of hands to lockout triceps.',
-    video_url_mock: 'https://images.unsplash.com/photo-1598971639058-fab3c3109a00?w=600&auto=format&fit=crop&q=80',
-  },
-  {
-    id: 'ex-16',
-    name: 'High-Intensity Burpee Blitz',
-    target_muscle: 'full_body_cardio',
-    equipment_required: 'bodyweight',
-    difficulty: 'intermediate',
-    category: 'hiit_interval',
-    instructions: 'Drop chest to deck, snap feet forward under hips, jump explosively clapping overhead.',
-    video_url_mock: 'https://images.unsplash.com/photo-1574680096145-d05b474e2155?w=600&auto=format&fit=crop&q=80',
-  },
-  {
-    id: 'ex-17',
-    name: 'Kettlebell Russian Swings',
-    target_muscle: 'glutes',
-    equipment_required: 'kettlebells',
-    difficulty: 'intermediate',
-    category: 'hiit_interval',
-    instructions: 'Hinge deeply at hips, explode forward snapping glutes, let kettlebell float to eye level.',
-    video_url_mock: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=600&auto=format&fit=crop&q=80',
-  },
-  {
-    id: 'ex-18',
-    name: 'Dumbbell Renegade Plank Rows',
-    target_muscle: 'core',
-    equipment_required: 'dumbbells',
-    difficulty: 'advanced',
-    category: 'hiit_interval',
-    instructions: 'Hold pushup plank on dumbbells, row one side into ribs keeping hips parallel to ground.',
-    video_url_mock: 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?w=600&auto=format&fit=crop&q=80',
-  },
-  {
-    id: 'ex-19',
-    name: 'Cable Lat Pulldowns',
-    target_muscle: 'back',
-    equipment_required: 'cable_machine',
-    difficulty: 'intermediate',
-    category: 'hypertrophy',
-    instructions: 'Grip bar wide, pull down smoothly to upper collarbone squeezing shoulder blades together.',
-    video_url_mock: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=600&auto=format&fit=crop&q=80',
-  },
-  {
-    id: 'ex-20',
-    name: 'Cable Tricep Rope Pushdown',
-    target_muscle: 'triceps',
-    equipment_required: 'cable_machine',
-    difficulty: 'beginner',
-    category: 'hypertrophy',
-    instructions: 'Lock elbows at ribs, press rope down and flare ends outward at full extension.',
-    video_url_mock: 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?w=600&auto=format&fit=crop&q=80',
-  }
-];
+export const DEFAULT_EXERCISES: ExerciseItem[] = COMPREHENSIVE_EXERCISE_DATABASE;
 
 export const INITIAL_FOOD_LOGS: FoodLogEntry[] = [];
 
@@ -240,11 +39,27 @@ export const INITIAL_WEIGHT_LOGS: WeightLog[] = [];
 /**
  * Dynamic 4-Week Workout Split Generator filtered strictly by available equipment
  */
-export function generateWorkoutPlanSplit(availableEquipment: EquipmentType[]): WorkoutPlanDay[] {
-  const isAvailable = (eq: EquipmentType) => availableEquipment.includes(eq) || eq === 'bodyweight';
+export function generateWorkoutPlanSplit(availableEquipment: string[]): WorkoutPlanDay[] {
+  const isAvailable = (ex: ExerciseItem) => {
+    // If user has no equipment selected, only bodyweight exercises are available
+    if (!availableEquipment || availableEquipment.length === 0) {
+      return (
+        ex.equipment_required === 'bodyweight' ||
+        !ex.required_equipment_ids ||
+        ex.required_equipment_ids.every((id) => id === 'bodyweight')
+      );
+    }
+    // If specific required equipment IDs are specified, check if user has all of them (or if bodyweight)
+    if (ex.required_equipment_ids && ex.required_equipment_ids.length > 0) {
+      return ex.required_equipment_ids.every(
+        (eqId) => eqId === 'bodyweight' || availableEquipment.includes(eqId)
+      );
+    }
+    return ex.equipment_required === 'bodyweight' || availableEquipment.includes(ex.equipment_required);
+  };
 
-  // Candidate pool filtered by gear
-  const validExercises = DEFAULT_EXERCISES.filter((ex) => isAvailable(ex.equipment_required));
+  // Candidate pool filtered strictly by user's equipment inventory
+  const validExercises = DEFAULT_EXERCISES.filter(isAvailable);
 
   const findBestExercise = (
     muscle: ExerciseItem['target_muscle'],
