@@ -1,7 +1,9 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useHealth } from '@/context/HealthContext';
 import { WorkoutExerciseSlot } from '@/lib/types';
+import { kgToLbs, lbsToKg } from '@/lib/units';
 import {
   CheckCircle2,
   Circle,
@@ -29,8 +31,15 @@ export const WorkoutPlayer: React.FC<WorkoutPlayerProps> = ({
   onToggleComplete,
   onSaveSetData,
 }) => {
+  const { profile } = useHealth();
+  const isImperial = profile.unit_preference === 'imperial';
+
+  const defaultWeight = isImperial
+    ? kgToLbs(slot.logged_weight_kg || 20)
+    : slot.logged_weight_kg || 20;
+
   const [repsInput, setRepsInput] = useState<number>(slot.logged_reps || 10);
-  const [weightInput, setWeightInput] = useState<number>(slot.logged_weight_kg || 20);
+  const [weightInput, setWeightInput] = useState<number>(defaultWeight);
   const [showInstructions, setShowInstructions] = useState<boolean>(false);
 
   // Set-by-set state matrix
@@ -57,7 +66,8 @@ export const WorkoutPlayer: React.FC<WorkoutPlayerProps> = ({
   };
 
   const handleQuickSave = () => {
-    onSaveSetData(Number(repsInput), Number(weightInput));
+    const weightKg = isImperial ? lbsToKg(Number(weightInput)) : Number(weightInput);
+    onSaveSetData(Number(repsInput), weightKg);
   };
 
   return (
@@ -105,12 +115,12 @@ export const WorkoutPlayer: React.FC<WorkoutPlayerProps> = ({
         {/* Right: Quick Set Logger */}
         <div className="flex items-center gap-2 self-end sm:self-center">
           <div className="flex items-center gap-1.5 bg-surface-300 px-2.5 py-1.5 rounded-xl border border-surface-border text-xs">
-            <span className="text-zinc-400 font-mono">Kg:</span>
+            <span className="text-zinc-400 font-mono font-semibold">{isImperial ? 'Lbs:' : 'Kg:'}</span>
             <input
               type="number"
               value={weightInput}
               onChange={(e) => setWeightInput(Number(e.target.value))}
-              className="w-12 bg-transparent text-zinc-100 font-mono font-bold text-center focus:outline-none"
+              className="w-14 bg-transparent text-zinc-100 font-mono font-bold text-center focus:outline-none"
             />
             <span className="text-zinc-500">|</span>
             <span className="text-zinc-400 font-mono">Reps:</span>

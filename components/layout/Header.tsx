@@ -23,6 +23,7 @@ export const Header: React.FC = () => {
     setActiveTab,
     notificationsEnabled,
     setNotificationsEnabled,
+    toggleUnitPreference,
   } = useHealth();
 
   const formattedDate = new Intl.DateTimeFormat('en-US', {
@@ -101,6 +102,18 @@ export const Header: React.FC = () => {
         >
           <Bell className="w-4 h-4" />
           <span className="hidden xl:inline text-[11px]">{notificationsEnabled ? 'Alerts On' : 'Alerts'}</span>
+        </button>
+
+        {/* Unit Preference Toggle (Imperial vs Metric) */}
+        <button
+          id="btn-toggle-units"
+          onClick={toggleUnitPreference}
+          title={`Currently using ${profile.unit_preference.toUpperCase()} units (Click to toggle)`}
+          className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-surface-100 hover:bg-surface-50 border border-surface-border text-xs font-mono font-bold text-zinc-200 transition-all hover:border-brand-500/40"
+        >
+          <span className={profile.unit_preference === 'imperial' ? 'text-brand-400 font-bold' : 'text-zinc-500'}>LBS</span>
+          <span className="text-zinc-600">/</span>
+          <span className={profile.unit_preference === 'metric' ? 'text-accent-cyan font-bold' : 'text-zinc-500'}>KG</span>
         </button>
 
         {/* Macro Calculator & Onboarding trigger */}

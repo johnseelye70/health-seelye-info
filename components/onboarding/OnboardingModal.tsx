@@ -2,8 +2,9 @@
 
 import React, { useState } from 'react';
 import { useHealth } from '@/context/HealthContext';
-import { ActivityLevel, BiologicalSex, FastingProtocol, GoalType } from '@/lib/types';
+import { ActivityLevel, BiologicalSex, FastingProtocol, GoalType, UnitPreference } from '@/lib/types';
 import { calculateMacroTargets } from '@/lib/macro-calculator';
+import { kgToLbs, lbsToKg, cmToFtIn, ftInToCm } from '@/lib/units';
 import {
   Calculator,
   Flame,
@@ -26,16 +27,22 @@ export const OnboardingModal: React.FC = () => {
     regenerateWorkouts,
   } = useHealth();
 
+  const isImperial = profile.unit_preference === 'imperial';
+  const initialFtIn = cmToFtIn(profile.height_cm);
+
   const [step, setStep] = useState<number>(1);
 
   // Form State
+  const [unitPref, setUnitPref] = useState<UnitPreference>(profile.unit_preference);
   const [formData, setFormData] = useState({
     full_name: profile.full_name,
     age: profile.age,
     sex: profile.sex,
     height_cm: profile.height_cm,
-    current_weight_kg: profile.current_weight_kg,
-    target_weight_kg: profile.target_weight_kg,
+    height_ft: initialFtIn.feet,
+    height_in: initialFtIn.inches,
+    current_weight_input: isImperial ? kgToLbs(profile.current_weight_kg) : profile.current_weight_kg,
+    target_weight_input: isImperial ? kgToLbs(profile.target_weight_kg) : profile.target_weight_kg,
     activity_level: profile.activity_level,
     goal: profile.goal,
     meal_count: profile.meal_count,
@@ -44,10 +51,46 @@ export const OnboardingModal: React.FC = () => {
 
   if (!showOnboardingModal) return null;
 
+  const handleUnitToggle = (newUnit: UnitPreference) => {
+    if (newUnit === unitPref) return;
+    if (newUnit === 'imperial') {
+      const ftIn = cmToFtIn(formData.height_cm);
+      setUnitPref('imperial');
+      setFormData((prev) => ({
+        ...prev,
+        height_ft: ftIn.feet,
+        height_in: ftIn.inches,
+        current_weight_input: kgToLbs(prev.current_weight_input),
+        target_weight_input: kgToLbs(prev.target_weight_input),
+      }));
+    } else {
+      const cm = ftInToCm(formData.height_ft, formData.height_in);
+      setUnitPref('metric');
+      setFormData((prev) => ({
+        ...prev,
+        height_cm: cm,
+        current_weight_input: lbsToKg(prev.current_weight_input),
+        target_weight_input: lbsToKg(prev.target_weight_input),
+      }));
+    }
+  };
+
+  const normalizedWeightKg = unitPref === 'imperial'
+    ? lbsToKg(Number(formData.current_weight_input))
+    : Number(formData.current_weight_input);
+
+  const normalizedTargetWeightKg = unitPref === 'imperial'
+    ? lbsToKg(Number(formData.target_weight_input))
+    : Number(formData.target_weight_input);
+
+  const normalizedHeightCm = unitPref === 'imperial'
+    ? ftInToCm(Number(formData.height_ft), Number(formData.height_in))
+    : Number(formData.height_cm);
+
   // Real-time calculation preview
   const calculated = calculateMacroTargets({
-    weightKg: formData.current_weight_kg,
-    heightCm: formData.height_cm,
+    weightKg: normalizedWeightKg,
+    heightCm: normalizedHeightCm,
     age: formData.age,
     sex: formData.sex,
     activityLevel: formData.activity_level,
@@ -59,9 +102,10 @@ export const OnboardingModal: React.FC = () => {
       full_name: formData.full_name,
       age: Number(formData.age),
       sex: formData.sex,
-      height_cm: Number(formData.height_cm),
-      current_weight_kg: Number(formData.current_weight_kg),
-      target_weight_kg: Number(formData.target_weight_kg),
+      unit_preference: unitPref,
+      height_cm: normalizedHeightCm,
+      current_weight_kg: normalizedWeightKg,
+      target_weight_kg: normalizedTargetWeightKg,
       activity_level: formData.activity_level,
       goal: formData.goal,
       meal_count: Number(formData.meal_count),
@@ -100,6 +144,35 @@ export const OnboardingModal: React.FC = () => {
         {/* Step 1: Biometrics & Anthropometry */}
         {step === 1 && (
           <div className="space-y-4 text-xs">
+            {/* Unit Preference Selector */}
+            <div className="flex items-center justify-between bg-surface-200 p-2.5 rounded-2xl border border-surface-border">
+              <span className="text-xs font-semibold text-zinc-300">Measurement System:</span>
+              <div className="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => handleUnitToggle('imperial')}
+                  className={`px-3 py-1 rounded-lg text-xs font-semibold font-mono transition-all ${
+                    unitPref === 'imperial'
+                      ? 'bg-brand-500 text-zinc-950 font-bold shadow-glow'
+                      : 'text-zinc-400 hover:text-white'
+                  }`}
+                >
+                  Imperial (lbs / ft-in)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleUnitToggle('metric')}
+                  className={`px-3 py-1 rounded-lg text-xs font-semibold font-mono transition-all ${
+                    unitPref === 'metric'
+                      ? 'bg-accent-cyan text-zinc-950 font-bold'
+                      : 'text-zinc-400 hover:text-white'
+                  }`}
+                >
+                  Metric (kg / cm)
+                </button>
+              </div>
+            </div>
+
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="font-semibold text-zinc-300">Athlete Name</label>
@@ -125,7 +198,7 @@ export const OnboardingModal: React.FC = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div>
                 <label className="font-semibold text-zinc-300">Age (Years)</label>
                 <input
@@ -137,42 +210,78 @@ export const OnboardingModal: React.FC = () => {
                   className="w-full px-3 py-2.5 rounded-xl bg-surface-200 border border-surface-border text-zinc-100 mt-1 font-mono text-sm"
                 />
               </div>
+
+              {/* Height Input */}
+              {unitPref === 'imperial' ? (
+                <div>
+                  <label className="font-semibold text-zinc-300">Height (Feet & Inches)</label>
+                  <div className="flex gap-2 mt-1">
+                    <div className="flex-1 flex items-center bg-surface-200 border border-surface-border rounded-xl px-2 py-1.5">
+                      <input
+                        type="number"
+                        min="3"
+                        max="8"
+                        value={formData.height_ft}
+                        onChange={(e) => setFormData({ ...formData, height_ft: Number(e.target.value) })}
+                        className="w-full bg-transparent text-zinc-100 font-mono text-sm focus:outline-none"
+                      />
+                      <span className="text-zinc-500 text-xs font-mono">ft</span>
+                    </div>
+                    <div className="flex-1 flex items-center bg-surface-200 border border-surface-border rounded-xl px-2 py-1.5">
+                      <input
+                        type="number"
+                        min="0"
+                        max="11"
+                        value={formData.height_in}
+                        onChange={(e) => setFormData({ ...formData, height_in: Number(e.target.value) })}
+                        className="w-full bg-transparent text-zinc-100 font-mono text-sm focus:outline-none"
+                      />
+                      <span className="text-zinc-500 text-xs font-mono">in</span>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div>
+                  <label className="font-semibold text-zinc-300">Height (cm)</label>
+                  <input
+                    type="number"
+                    min="100"
+                    max="250"
+                    value={formData.height_cm}
+                    onChange={(e) => setFormData({ ...formData, height_cm: Number(e.target.value) })}
+                    className="w-full px-3 py-2.5 rounded-xl bg-surface-200 border border-surface-border text-zinc-100 mt-1 font-mono text-sm"
+                  />
+                </div>
+              )}
+
+              {/* Weight Input */}
               <div>
-                <label className="font-semibold text-zinc-300">Height (cm)</label>
-                <input
-                  type="number"
-                  min="100"
-                  max="250"
-                  value={formData.height_cm}
-                  onChange={(e) => setFormData({ ...formData, height_cm: Number(e.target.value) })}
-                  className="w-full px-3 py-2.5 rounded-xl bg-surface-200 border border-surface-border text-zinc-100 mt-1 font-mono text-sm"
-                />
-                <span className="text-[10px] text-zinc-500 font-mono">~{Math.floor(formData.height_cm / 30.48)}'{Math.round((formData.height_cm % 30.48) / 2.54)}"</span>
-              </div>
-              <div>
-                <label className="font-semibold text-zinc-300">Weight (kg)</label>
+                <label className="font-semibold text-zinc-300">
+                  Weight ({unitPref === 'imperial' ? 'lbs' : 'kg'})
+                </label>
                 <input
                   type="number"
                   step="0.5"
-                  min="30"
-                  max="300"
-                  value={formData.current_weight_kg}
-                  onChange={(e) => setFormData({ ...formData, current_weight_kg: Number(e.target.value) })}
+                  min={unitPref === 'imperial' ? '60' : '30'}
+                  max={unitPref === 'imperial' ? '600' : '300'}
+                  value={formData.current_weight_input}
+                  onChange={(e) => setFormData({ ...formData, current_weight_input: Number(e.target.value) })}
                   className="w-full px-3 py-2.5 rounded-xl bg-surface-200 border border-surface-border text-zinc-100 mt-1 font-mono text-sm"
                 />
-                <span className="text-[10px] text-zinc-500 font-mono">~{(formData.current_weight_kg * 2.20462).toFixed(1)} lbs</span>
               </div>
             </div>
 
             <div>
-              <label className="font-semibold text-zinc-300">Target Goal Weight (kg)</label>
+              <label className="font-semibold text-zinc-300">
+                Target Goal Weight ({unitPref === 'imperial' ? 'lbs' : 'kg'})
+              </label>
               <input
                 type="number"
                 step="0.5"
-                min="30"
-                max="300"
-                value={formData.target_weight_kg}
-                onChange={(e) => setFormData({ ...formData, target_weight_kg: Number(e.target.value) })}
+                min={unitPref === 'imperial' ? '60' : '30'}
+                max={unitPref === 'imperial' ? '600' : '300'}
+                value={formData.target_weight_input}
+                onChange={(e) => setFormData({ ...formData, target_weight_input: Number(e.target.value) })}
                 className="w-full px-3 py-2.5 rounded-xl bg-surface-200 border border-surface-border text-zinc-100 mt-1 font-mono text-sm"
               />
             </div>

@@ -2,31 +2,46 @@
 
 import React, { useState } from 'react';
 import { useHealth } from '@/context/HealthContext';
-import { ActivityLevel, BiologicalSex, FastingProtocol, GoalType } from '@/lib/types';
 import {
-  SlidersHorizontal,
-  Save,
-  RotateCcw,
-  Sparkles,
-  ShieldCheck,
-  Calculator,
+  ActivityLevel,
+  BiologicalSex,
+  FastingProtocol,
+  GoalType,
+  UnitPreference,
+} from '@/lib/types';
+import { kgToLbs, lbsToKg, cmToFtIn, ftInToCm } from '@/lib/units';
+import {
   User,
-  History,
-  GitCommit,
+  SlidersHorizontal,
+  Flame,
+  ShieldCheck,
+  RotateCcw,
   CheckCircle2,
+  Calendar,
+  Save,
+  Calculator,
+  GitCommit,
+  History,
+  Scale,
 } from 'lucide-react';
 
 export const ProfileSettings: React.FC = () => {
   const { profile, updateProfile, recalculateMacros, setShowOnboardingModal, resetAllData } = useHealth();
+
+  const isImperial = profile.unit_preference === 'imperial';
+  const initialFtIn = cmToFtIn(profile.height_cm);
 
   const [form, setForm] = useState({
     full_name: profile.full_name,
     email: profile.email,
     age: profile.age,
     sex: profile.sex,
+    unit_preference: profile.unit_preference,
     height_cm: profile.height_cm,
-    current_weight_kg: profile.current_weight_kg,
-    target_weight_kg: profile.target_weight_kg,
+    height_ft: initialFtIn.feet,
+    height_in: initialFtIn.inches,
+    current_weight_input: isImperial ? kgToLbs(profile.current_weight_kg) : profile.current_weight_kg,
+    target_weight_input: isImperial ? kgToLbs(profile.target_weight_kg) : profile.target_weight_kg,
     activity_level: profile.activity_level,
     goal: profile.goal,
     meal_count: profile.meal_count,
@@ -37,22 +52,64 @@ export const ProfileSettings: React.FC = () => {
   const [savedSuccess, setSavedSuccess] = useState<boolean>(false);
   const [resetSuccess, setResetSuccess] = useState<boolean>(false);
 
+  const handleUnitToggle = (newUnit: UnitPreference) => {
+    if (newUnit === form.unit_preference) return;
+
+    if (newUnit === 'imperial') {
+      // Metric to Imperial
+      const ftIn = cmToFtIn(form.height_cm);
+      setForm((prev) => ({
+        ...prev,
+        unit_preference: 'imperial',
+        height_ft: ftIn.feet,
+        height_in: ftIn.inches,
+        current_weight_input: kgToLbs(prev.current_weight_input),
+        target_weight_input: kgToLbs(prev.target_weight_input),
+      }));
+    } else {
+      // Imperial to Metric
+      const cm = ftInToCm(form.height_ft, form.height_in);
+      setForm((prev) => ({
+        ...prev,
+        unit_preference: 'metric',
+        height_cm: cm,
+        current_weight_input: lbsToKg(prev.current_weight_input),
+        target_weight_input: lbsToKg(prev.target_weight_input),
+      }));
+    }
+  };
+
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
+
+    const finalWeightKg = form.unit_preference === 'imperial'
+      ? lbsToKg(Number(form.current_weight_input))
+      : Number(form.current_weight_input);
+
+    const finalTargetWeightKg = form.unit_preference === 'imperial'
+      ? lbsToKg(Number(form.target_weight_input))
+      : Number(form.target_weight_input);
+
+    const finalHeightCm = form.unit_preference === 'imperial'
+      ? ftInToCm(Number(form.height_ft), Number(form.height_in))
+      : Number(form.height_cm);
+
     updateProfile({
       full_name: form.full_name,
       email: form.email,
       age: Number(form.age),
       sex: form.sex,
-      height_cm: Number(form.height_cm),
-      current_weight_kg: Number(form.current_weight_kg),
-      target_weight_kg: Number(form.target_weight_kg),
+      unit_preference: form.unit_preference,
+      height_cm: finalHeightCm,
+      current_weight_kg: finalWeightKg,
+      target_weight_kg: finalTargetWeightKg,
       activity_level: form.activity_level,
       goal: form.goal,
       meal_count: Number(form.meal_count),
       fasting_protocol: form.fasting_protocol,
       fasting_start_time: form.fasting_start_time,
     });
+
     recalculateMacros();
     setSavedSuccess(true);
     setTimeout(() => setSavedSuccess(false), 3000);
@@ -65,9 +122,12 @@ export const ProfileSettings: React.FC = () => {
       email: 'john@seelye.info',
       age: 35,
       sex: 'male',
+      unit_preference: 'imperial',
       height_cm: 178,
-      current_weight_kg: 80.0,
-      target_weight_kg: 75.0,
+      height_ft: 5,
+      height_in: 10,
+      current_weight_input: 176.0,
+      target_weight_input: 165.0,
       activity_level: 'moderate',
       goal: 'cut_500',
       meal_count: 3,
@@ -79,6 +139,16 @@ export const ProfileSettings: React.FC = () => {
   };
 
   const changelogHistory = [
+    {
+      version: 'Beta 0.5.0',
+      date: '2026-08-23',
+      title: 'Imperial & Metric System Customization',
+      changes: [
+        'Added global toggle for Imperial (lbs / ft-in) and Metric (kg / cm) measurement systems.',
+        'Integrated real-time unit switcher button in header, settings, and biometric logs.',
+        'Dynamic weight logger adapting in exercise sets and SVG trend curves.',
+      ],
+    },
     {
       version: 'Beta 0.4.0',
       date: '2026-08-23',
@@ -110,16 +180,11 @@ export const ProfileSettings: React.FC = () => {
     {
       version: 'Beta 0.1.0',
       date: '2026-08-23',
-      title: 'Initial Architecture & Blueprint Release',
+      title: 'Initial Architectural Release',
       changes: [
-        'Complete React/Next.js App Router frontend with Tailwind CSS and dark-mode first design tokens.',
-        'Dynamic Macro Calculator Engine supporting Mifflin-St Jeor BMR and activity level TDEE formulas with standard 500 kcal fat-oxidation deficit.',
-        'Dynamic Meal Splitter recalculating per-meal targets across 2, 3, or 4 meals per day in real-time.',
-        'Fasting & Feeding Window Manager supporting 16:8, 18:6, 20:4, 14:10, and OMAD protocols with live countdown clocks and biological milestones.',
-        'Real-time Food Swap engine calculating exact equivalent portion grams to match target protein and carbs.',
-        'Automated Grocery Requisition system categorizing fresh pickups vs pantry staples with serving scaler and monochrome print optimization.',
-        'Equipment-filtered 4-week periodized workout generator with interactive player and HIIT interval synthesizer timer.',
-        'Comprehensive Supabase PostgreSQL relational database migration script with RLS policies, triggers, and seed catalogs.',
+        'Complete precision fitness & nutrition application built with Next.js App Router and Tailwind CSS.',
+        'Dynamic Mifflin-St Jeor caloric expenditure engine with 500 kcal fat-oxidation deficit.',
+        'Interactive fasting tracker with biological milestones and Web Audio interval timer.',
       ],
     },
   ];
@@ -132,14 +197,18 @@ export const ProfileSettings: React.FC = () => {
           <div>
             <div className="flex items-center gap-2 mb-2">
               <span className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-brand-500/20 text-brand-300 border border-brand-500/30">
-                SYSTEM PREFERENCES & ATHLETE PROFILE
+                SYSTEM CONFIGURATION & BIOMETRICS
+              </span>
+              <span className="text-zinc-500 text-xs">•</span>
+              <span className="text-brand-400 font-mono text-xs font-bold uppercase">
+                {profile.unit_preference} System Active
               </span>
             </div>
             <h1 className="text-2xl md:text-3xl font-black text-white tracking-tight">
-              Settings & Version History
+              Macro Targets & Profile Settings
             </h1>
             <p className="text-zinc-400 text-sm mt-1 max-w-2xl">
-              Configure your biological metrics, fasting parameters, and review application revision release notes.
+              Configure your biological metrics, fasting parameters, unit preferences, and review application revision release notes.
             </p>
           </div>
 
@@ -157,19 +226,45 @@ export const ProfileSettings: React.FC = () => {
 
       {/* Main Settings Form */}
       <form onSubmit={handleSave} className="p-6 md:p-8 rounded-3xl bg-surface-100/90 border border-surface-border backdrop-blur-xl space-y-6">
-        <div className="flex items-center justify-between pb-4 border-b border-surface-border">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-surface-border gap-3">
           <div className="flex items-center gap-2">
             <User className="w-5 h-5 text-brand-400" />
             <h2 className="text-base font-bold text-zinc-100">Athlete Biometrics & Parameters</h2>
           </div>
 
-          {savedSuccess && (
-            <div className="flex items-center gap-1.5 text-xs text-brand-400 font-semibold animate-fadeIn">
-              <CheckCircle2 className="w-4 h-4" />
-              <span>Changes Saved & Macros Recalculated!</span>
-            </div>
-          )}
+          {/* Unit System Switcher */}
+          <div className="flex items-center gap-2 bg-surface-200 p-1 rounded-xl border border-surface-border self-start sm:self-auto">
+            <button
+              type="button"
+              onClick={() => handleUnitToggle('imperial')}
+              className={`px-3 py-1 rounded-lg text-xs font-semibold font-mono transition-all ${
+                form.unit_preference === 'imperial'
+                  ? 'bg-brand-500 text-zinc-950 shadow-glow font-bold'
+                  : 'text-zinc-400 hover:text-white'
+              }`}
+            >
+              Imperial (lbs / ft-in)
+            </button>
+            <button
+              type="button"
+              onClick={() => handleUnitToggle('metric')}
+              className={`px-3 py-1 rounded-lg text-xs font-semibold font-mono transition-all ${
+                form.unit_preference === 'metric'
+                  ? 'bg-accent-cyan text-zinc-950 font-bold'
+                  : 'text-zinc-400 hover:text-white'
+              }`}
+            >
+              Metric (kg / cm)
+            </button>
+          </div>
         </div>
+
+        {savedSuccess && (
+          <div className="flex items-center gap-1.5 p-3 rounded-xl bg-brand-500/10 border border-brand-500/30 text-xs text-brand-400 font-semibold animate-fadeIn">
+            <CheckCircle2 className="w-4 h-4" />
+            <span>Changes Saved & Macros Recalculated!</span>
+          </div>
+        )}
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 text-xs">
           <div>
@@ -215,34 +310,71 @@ export const ProfileSettings: React.FC = () => {
             />
           </div>
 
+          {/* Height Input (Conditional: ft/in or cm) */}
+          {form.unit_preference === 'imperial' ? (
+            <div>
+              <label className="font-semibold text-zinc-300">Height (Feet & Inches)</label>
+              <div className="flex gap-2 mt-1">
+                <div className="flex-1 flex items-center bg-surface-200 border border-surface-border rounded-xl px-3 py-2">
+                  <input
+                    type="number"
+                    min="3"
+                    max="8"
+                    value={form.height_ft}
+                    onChange={(e) => setForm({ ...form, height_ft: Number(e.target.value) })}
+                    className="w-full bg-transparent text-zinc-100 font-mono text-xs focus:outline-none"
+                  />
+                  <span className="text-zinc-500 font-mono text-xs">ft</span>
+                </div>
+                <div className="flex-1 flex items-center bg-surface-200 border border-surface-border rounded-xl px-3 py-2">
+                  <input
+                    type="number"
+                    min="0"
+                    max="11"
+                    value={form.height_in}
+                    onChange={(e) => setForm({ ...form, height_in: Number(e.target.value) })}
+                    className="w-full bg-transparent text-zinc-100 font-mono text-xs focus:outline-none"
+                  />
+                  <span className="text-zinc-500 font-mono text-xs">in</span>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div>
+              <label className="font-semibold text-zinc-300">Height (cm)</label>
+              <input
+                type="number"
+                value={form.height_cm}
+                onChange={(e) => setForm({ ...form, height_cm: Number(e.target.value) })}
+                className="w-full px-3 py-2 rounded-xl bg-surface-200 border border-surface-border text-zinc-100 mt-1 font-mono"
+              />
+            </div>
+          )}
+
+          {/* Weight Input (Conditional: lbs or kg) */}
           <div>
-            <label className="font-semibold text-zinc-300">Height (cm)</label>
+            <label className="font-semibold text-zinc-300">
+              Current Weight ({form.unit_preference === 'imperial' ? 'lbs' : 'kg'})
+            </label>
             <input
               type="number"
-              value={form.height_cm}
-              onChange={(e) => setForm({ ...form, height_cm: Number(e.target.value) })}
+              step="0.1"
+              value={form.current_weight_input}
+              onChange={(e) => setForm({ ...form, current_weight_input: Number(e.target.value) })}
               className="w-full px-3 py-2 rounded-xl bg-surface-200 border border-surface-border text-zinc-100 mt-1 font-mono"
             />
           </div>
 
+          {/* Target Weight Input (Conditional: lbs or kg) */}
           <div>
-            <label className="font-semibold text-zinc-300">Current Weight (kg)</label>
+            <label className="font-semibold text-zinc-300">
+              Target Goal Weight ({form.unit_preference === 'imperial' ? 'lbs' : 'kg'})
+            </label>
             <input
               type="number"
-              step="0.5"
-              value={form.current_weight_kg}
-              onChange={(e) => setForm({ ...form, current_weight_kg: Number(e.target.value) })}
-              className="w-full px-3 py-2 rounded-xl bg-surface-200 border border-surface-border text-zinc-100 mt-1 font-mono"
-            />
-          </div>
-
-          <div>
-            <label className="font-semibold text-zinc-300">Target Goal Weight (kg)</label>
-            <input
-              type="number"
-              step="0.5"
-              value={form.target_weight_kg}
-              onChange={(e) => setForm({ ...form, target_weight_kg: Number(e.target.value) })}
+              step="0.1"
+              value={form.target_weight_input}
+              onChange={(e) => setForm({ ...form, target_weight_input: Number(e.target.value) })}
               className="w-full px-3 py-2 rounded-xl bg-surface-200 border border-surface-border text-zinc-100 mt-1 font-mono"
             />
           </div>
@@ -310,7 +442,7 @@ export const ProfileSettings: React.FC = () => {
             <h2 className="text-base font-bold text-zinc-100">Version History & Changelog</h2>
           </div>
           <span className="px-3 py-1 rounded-full text-xs font-mono font-bold bg-brand-500/20 text-brand-300 border border-brand-500/30">
-            Active: Beta 0.4.0
+            Active: Beta 0.5.0
           </span>
         </div>
 
@@ -324,15 +456,12 @@ export const ProfileSettings: React.FC = () => {
                     <span className="text-sm font-bold font-mono text-zinc-100">{release.version}</span>
                     <span className="text-xs text-zinc-400 font-mono">({release.date})</span>
                   </div>
-                  <div className="text-xs font-semibold text-zinc-300">{release.title}</div>
+                  <h3 className="text-xs font-semibold text-zinc-300 mt-0.5">{release.title}</h3>
                 </div>
               </div>
-
-              <ul className="pl-8 space-y-1.5 text-xs text-zinc-400 list-disc">
-                {release.changes.map((change, idx) => (
-                  <li key={idx} className="leading-relaxed">
-                    {change}
-                  </li>
+              <ul className="pl-8 list-disc space-y-1.5 text-xs text-zinc-400">
+                {release.changes.map((change, i) => (
+                  <li key={i} className="leading-relaxed">{change}</li>
                 ))}
               </ul>
             </div>

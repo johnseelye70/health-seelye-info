@@ -32,6 +32,7 @@ interface HealthContextType {
   profile: UserProfile;
   updateProfile: (updates: Partial<UserProfile>) => void;
   recalculateMacros: () => void;
+  toggleUnitPreference: () => void;
   
   // Foods & Logs
   foods: FoodItem[];
@@ -217,6 +218,14 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
       fat: Math.max(0, profile.fat_target_g - todayMacros.fat),
     };
   }, [profile, todayMacros]);
+
+  const toggleUnitPreference = useCallback(() => {
+    setProfile((prev) => ({
+      ...prev,
+      unit_preference: prev.unit_preference === 'imperial' ? 'metric' : 'imperial',
+      updated_at: new Date().toISOString(),
+    }));
+  }, []);
 
   // Update profile and optionally recalculate macros
   const updateProfile = useCallback((updates: Partial<UserProfile>) => {
@@ -437,6 +446,7 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
         profile,
         updateProfile,
         recalculateMacros,
+        toggleUnitPreference,
         foods,
         addCustomFood,
         foodLogs,
