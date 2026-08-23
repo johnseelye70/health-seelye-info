@@ -17,6 +17,7 @@ import {
   RotateCcw,
   X,
 } from 'lucide-react';
+import { NumberStepper } from '@/components/ui/NumberStepper';
 
 export const GroceryManager: React.FC = () => {
   const {
@@ -376,14 +377,15 @@ export const GroceryManager: React.FC = () => {
               </div>
 
               <div>
-                <label className="font-semibold text-zinc-300">Base Quantity</label>
-                <input
-                  type="number"
-                  min="0.1"
-                  step="0.5"
+                <NumberStepper
+                  label="Base Quantity"
                   value={newItemForm.quantity}
-                  onChange={(e) => setNewItemForm({ ...newItemForm, quantity: Number(e.target.value) })}
-                  className="w-full px-3 py-2 rounded-xl bg-surface-200 border border-surface-border text-zinc-100 mt-1 font-mono"
+                  onChange={(val) => setNewItemForm({ ...newItemForm, quantity: val })}
+                  min={0.5}
+                  max={100}
+                  step={0.5}
+                  decimals={1}
+                  unit={newItemForm.unit}
                 />
               </div>
 

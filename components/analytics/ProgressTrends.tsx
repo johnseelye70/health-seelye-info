@@ -16,6 +16,7 @@ import {
   CheckCircle2,
   X,
 } from 'lucide-react';
+import { NumberStepper } from '@/components/ui/NumberStepper';
 
 export const ProgressTrends: React.FC = () => {
   const { profile, weightLogs, logWeight, experienceMode } = useHealth();
@@ -320,36 +321,33 @@ export const ProgressTrends: React.FC = () => {
               </button>
             </div>
 
-            <div className="space-y-3 text-xs">
+            <div className="space-y-4 text-xs">
               <div>
-                <label className="font-semibold text-zinc-300">
-                  Current Weight ({isImperial ? 'Pounds / lbs' : 'Kilograms / kg'})
-                </label>
-                <input
-                  type="number"
-                  step="0.1"
-                  min={isImperial ? '60' : '30'}
-                  max={isImperial ? '600' : '300'}
-                  required
+                <NumberStepper
+                  label={`Current Weight (${isImperial ? 'lbs' : 'kg'})`}
                   value={newWeightInput}
-                  onChange={(e) => setNewWeightInput(Number(e.target.value))}
-                  className="w-full px-3 py-2 rounded-xl bg-surface-200 border border-surface-border text-zinc-100 mt-1 font-mono text-sm focus:outline-none focus:border-brand-500"
+                  onChange={(val) => setNewWeightInput(val)}
+                  min={isImperial ? 60 : 30}
+                  max={isImperial ? 600 : 300}
+                  step={0.5}
+                  decimals={1}
+                  unit={isImperial ? 'lbs' : 'kg'}
                 />
-                <span className="text-[10px] text-zinc-400 font-mono">
-                  {isImperial ? `~${lbsToKg(newWeightInput)} kg` : `~${kgToLbs(newWeightInput)} lbs`}
+                <span className="text-[10px] text-zinc-400 font-mono block mt-1">
+                  {isImperial ? `~${lbsToKg(newWeightInput)} kg equivalent` : `~${kgToLbs(newWeightInput)} lbs equivalent`}
                 </span>
               </div>
 
               <div>
-                <label className="font-semibold text-zinc-300">Estimated Body Fat % (Optional)</label>
-                <input
-                  type="number"
-                  step="0.1"
-                  min="3"
-                  max="60"
+                <NumberStepper
+                  label="Estimated Body Fat % (Optional)"
                   value={newBodyFatInput}
-                  onChange={(e) => setNewBodyFatInput(Number(e.target.value))}
-                  className="w-full px-3 py-2 rounded-xl bg-surface-200 border border-surface-border text-zinc-100 mt-1 font-mono text-sm focus:outline-none focus:border-brand-500"
+                  onChange={(val) => setNewBodyFatInput(val)}
+                  min={3}
+                  max={60}
+                  step={0.5}
+                  decimals={1}
+                  unit="%"
                 />
               </div>
             </div>

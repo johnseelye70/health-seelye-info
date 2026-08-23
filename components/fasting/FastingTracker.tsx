@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { useHealth } from '@/context/HealthContext';
 import { FastingProtocol } from '@/lib/types';
 import { FASTING_CONFIGS } from '@/lib/macro-calculator';
+import { FastingTimePicker } from '@/components/ui/FastingTimePicker';
 import {
   Timer,
   Clock,
@@ -52,10 +53,9 @@ export const FastingTracker: React.FC = () => {
     updateFastingProtocol(proto, fastStartTimeInput);
   };
 
-  const handleTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value;
-    setFastStartTimeInput(val);
-    updateFastingProtocol(profile.fasting_protocol, val);
+  const handleTimeChange = (timeStr: string) => {
+    setFastStartTimeInput(timeStr);
+    updateFastingProtocol(profile.fasting_protocol, timeStr);
   };
 
   const testPushNotification = (type: string) => {
@@ -200,17 +200,14 @@ export const FastingTracker: React.FC = () => {
           </div>
 
           <div>
-            <label className="text-xs font-semibold text-zinc-300 block mb-1">
-              Fasting Starts Every Evening At:
-            </label>
-            <input
-              type="time"
+            <FastingTimePicker
               value={fastStartTimeInput}
               onChange={handleTimeChange}
-              className="w-full px-3 py-2 rounded-xl bg-surface-200 border border-surface-border text-zinc-100 font-mono text-sm focus:outline-none focus:border-brand-500"
+              label="Fasting Starts Every Evening At:"
+              id="fasting-tracker-start-time"
             />
             <p className="text-[11px] text-zinc-400 mt-1">
-              Example: Stop eating at 8:00 PM to begin the resting window.
+              Select or tap <strong>+ / -</strong> to set your daily digestion cutoff time.
             </p>
           </div>
 

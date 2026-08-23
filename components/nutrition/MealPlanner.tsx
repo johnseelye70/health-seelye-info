@@ -22,6 +22,7 @@ import {
   ChevronUp,
   X,
 } from 'lucide-react';
+import { NumberStepper } from '@/components/ui/NumberStepper';
 
 export const MealPlanner: React.FC = () => {
   const {
@@ -374,22 +375,16 @@ export const MealPlanner: React.FC = () => {
               </select>
             </div>
 
-            {/* Grams Input & Quick Presets */}
+            {/* Grams Input & Quick Presets with NumberStepper */}
             <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <label className="text-xs font-semibold text-zinc-300">Portion Size</label>
-                <span className="text-xs font-mono text-brand-400">
-                  {gramsToLog}g {isImperial && `(~${(gramsToLog * 0.03527).toFixed(1)} oz)`}
-                </span>
-              </div>
-              <input
-                type="number"
-                min="10"
-                max="1000"
-                step="10"
+              <NumberStepper
+                label={`Portion Size (${gramsToLog}g ${isImperial ? `~${(gramsToLog * 0.03527).toFixed(1)} oz` : ''})`}
                 value={gramsToLog}
-                onChange={(e) => setGramsToLog(Number(e.target.value))}
-                className="w-full px-3 py-2.5 rounded-xl bg-surface-200 border border-surface-border text-sm text-zinc-100 font-mono focus:outline-none focus:border-brand-500"
+                onChange={(val) => setGramsToLog(val)}
+                min={10}
+                max={1000}
+                step={25}
+                unit="g"
               />
 
               <div className="flex flex-wrap gap-1.5 pt-1">
@@ -528,12 +523,15 @@ export const MealPlanner: React.FC = () => {
                 </select>
 
                 <div>
-                  <label className="text-[11px] text-zinc-400">Current Grams</label>
-                  <input
-                    type="number"
+                  <NumberStepper
+                    label="Current Grams"
                     value={swapSourceGrams}
-                    onChange={(e) => setSwapSourceGrams(Number(e.target.value))}
-                    className="w-full px-3 py-1.5 rounded-xl bg-surface-300 border border-surface-border text-xs font-mono text-zinc-100 mt-1"
+                    onChange={(val) => setSwapSourceGrams(val)}
+                    min={10}
+                    max={1000}
+                    step={10}
+                    unit="g"
+                    size="sm"
                   />
                 </div>
 
@@ -635,41 +633,53 @@ export const MealPlanner: React.FC = () => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-4 gap-2 font-mono">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 font-mono">
                 <div>
-                  <label className="text-[10px] text-zinc-400">Calories/100g</label>
-                  <input
-                    type="number"
+                  <NumberStepper
+                    label="Calories"
                     value={customFoodForm.calories_per_100g}
-                    onChange={(e) => setCustomFoodForm({ ...customFoodForm, calories_per_100g: Number(e.target.value) })}
-                    className="w-full px-2 py-1.5 rounded-lg bg-surface-200 border border-surface-border text-zinc-100 mt-1"
+                    onChange={(val) => setCustomFoodForm({ ...customFoodForm, calories_per_100g: val })}
+                    min={0}
+                    max={1000}
+                    step={10}
+                    unit="kcal"
+                    size="sm"
                   />
                 </div>
                 <div>
-                  <label className="text-[10px] text-zinc-400">Protein (g)</label>
-                  <input
-                    type="number"
+                  <NumberStepper
+                    label="Protein"
                     value={customFoodForm.protein_per_100g}
-                    onChange={(e) => setCustomFoodForm({ ...customFoodForm, protein_per_100g: Number(e.target.value) })}
-                    className="w-full px-2 py-1.5 rounded-lg bg-surface-200 border border-surface-border text-zinc-100 mt-1"
+                    onChange={(val) => setCustomFoodForm({ ...customFoodForm, protein_per_100g: val })}
+                    min={0}
+                    max={100}
+                    step={1}
+                    unit="g"
+                    size="sm"
                   />
                 </div>
                 <div>
-                  <label className="text-[10px] text-zinc-400">Carbs (g)</label>
-                  <input
-                    type="number"
+                  <NumberStepper
+                    label="Carbs"
                     value={customFoodForm.carbs_per_100g}
-                    onChange={(e) => setCustomFoodForm({ ...customFoodForm, carbs_per_100g: Number(e.target.value) })}
-                    className="w-full px-2 py-1.5 rounded-lg bg-surface-200 border border-surface-border text-zinc-100 mt-1"
+                    onChange={(val) => setCustomFoodForm({ ...customFoodForm, carbs_per_100g: val })}
+                    min={0}
+                    max={100}
+                    step={1}
+                    unit="g"
+                    size="sm"
                   />
                 </div>
                 <div>
-                  <label className="text-[10px] text-zinc-400">Fat (g)</label>
-                  <input
-                    type="number"
+                  <NumberStepper
+                    label="Fat"
                     value={customFoodForm.fat_per_100g}
-                    onChange={(e) => setCustomFoodForm({ ...customFoodForm, fat_per_100g: Number(e.target.value) })}
-                    className="w-full px-2 py-1.5 rounded-lg bg-surface-200 border border-surface-border text-zinc-100 mt-1"
+                    onChange={(val) => setCustomFoodForm({ ...customFoodForm, fat_per_100g: val })}
+                    min={0}
+                    max={100}
+                    step={1}
+                    unit="g"
+                    size="sm"
                   />
                 </div>
               </div>

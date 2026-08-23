@@ -112,32 +112,67 @@ export const WorkoutPlayer: React.FC<WorkoutPlayerProps> = ({
           </div>
         </div>
 
-        {/* Right: Quick Set Logger */}
-        <div className="flex items-center gap-2 self-end sm:self-center">
-          <div className="flex items-center gap-1.5 bg-surface-300 px-2.5 py-1.5 rounded-xl border border-surface-border text-xs">
-            <span className="text-zinc-400 font-mono font-semibold">{isImperial ? 'Lbs:' : 'Kg:'}</span>
+        {/* Right: Quick Set Logger with Large Touch Buttons */}
+        <div className="flex flex-wrap items-center gap-2 self-end sm:self-center">
+          <div className="flex items-center gap-1.5 bg-surface-300/90 p-1.5 rounded-2xl border border-surface-border">
+            <span className="text-[11px] font-mono text-zinc-400 font-bold pl-1">{isImperial ? 'Lbs' : 'Kg'}</span>
+            <button
+              type="button"
+              onClick={() => setWeightInput((prev) => Math.max(0, Number((prev - (isImperial ? 5 : 2.5)).toFixed(1))))}
+              className="w-7 h-7 rounded-lg bg-surface-200 hover:bg-surface-400 text-zinc-200 font-bold flex items-center justify-center text-xs active:scale-95 transition-all cursor-pointer"
+              title="Decrease weight"
+            >
+              -
+            </button>
             <input
               type="number"
               value={weightInput}
               onChange={(e) => setWeightInput(Number(e.target.value))}
-              className="w-14 bg-transparent text-zinc-100 font-mono font-bold text-center focus:outline-none"
+              className="w-12 bg-transparent text-zinc-100 font-mono font-bold text-center text-xs focus:outline-none"
             />
-            <span className="text-zinc-500">|</span>
-            <span className="text-zinc-400 font-mono">Reps:</span>
+            <button
+              type="button"
+              onClick={() => setWeightInput((prev) => Number((prev + (isImperial ? 5 : 2.5)).toFixed(1)))}
+              className="w-7 h-7 rounded-lg bg-brand-500/20 hover:bg-brand-500 hover:text-zinc-950 text-brand-300 font-bold flex items-center justify-center text-xs active:scale-95 transition-all cursor-pointer"
+              title="Increase weight"
+            >
+              +
+            </button>
+          </div>
+
+          <div className="flex items-center gap-1.5 bg-surface-300/90 p-1.5 rounded-2xl border border-surface-border">
+            <span className="text-[11px] font-mono text-zinc-400 font-bold pl-1">Reps</span>
+            <button
+              type="button"
+              onClick={() => setRepsInput((prev) => Math.max(1, prev - 1))}
+              className="w-7 h-7 rounded-lg bg-surface-200 hover:bg-surface-400 text-zinc-200 font-bold flex items-center justify-center text-xs active:scale-95 transition-all cursor-pointer"
+              title="Decrease reps"
+            >
+              -
+            </button>
             <input
               type="number"
               value={repsInput}
               onChange={(e) => setRepsInput(Number(e.target.value))}
-              className="w-10 bg-transparent text-zinc-100 font-mono font-bold text-center focus:outline-none"
+              className="w-8 bg-transparent text-zinc-100 font-mono font-bold text-center text-xs focus:outline-none"
             />
+            <button
+              type="button"
+              onClick={() => setRepsInput((prev) => prev + 1)}
+              className="w-7 h-7 rounded-lg bg-brand-500/20 hover:bg-brand-500 hover:text-zinc-950 text-brand-300 font-bold flex items-center justify-center text-xs active:scale-95 transition-all cursor-pointer"
+              title="Increase reps"
+            >
+              +
+            </button>
           </div>
 
           <button
             onClick={handleQuickSave}
-            className="p-2 rounded-xl bg-surface-300 hover:bg-brand-500 hover:text-zinc-950 text-brand-400 transition-colors"
+            className="px-3 py-2 rounded-xl bg-gradient-to-r from-brand-500 to-accent-teal text-zinc-950 font-bold text-xs flex items-center gap-1.5 shadow-glow active:scale-95 cursor-pointer transition-all"
             title="Save set log"
           >
-            <Save className="w-4 h-4" />
+            <Save className="w-3.5 h-3.5" />
+            <span>Save</span>
           </button>
         </div>
       </div>

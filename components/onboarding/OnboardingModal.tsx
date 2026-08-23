@@ -17,6 +17,8 @@ import {
   X,
   Target,
 } from 'lucide-react';
+import { NumberStepper } from '@/components/ui/NumberStepper';
+import { FastingTimePicker } from '@/components/ui/FastingTimePicker';
 
 export const OnboardingModal: React.FC = () => {
   const {
@@ -200,89 +202,78 @@ export const OnboardingModal: React.FC = () => {
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div>
-                <label className="font-semibold text-zinc-300">Age (Years)</label>
-                <input
-                  type="number"
-                  min="16"
-                  max="100"
+                <NumberStepper
+                  label="Age (Years)"
                   value={formData.age}
-                  onChange={(e) => setFormData({ ...formData, age: Number(e.target.value) })}
-                  className="w-full px-3 py-2.5 rounded-xl bg-surface-200 border border-surface-border text-zinc-100 mt-1 font-mono text-sm"
+                  onChange={(val) => setFormData({ ...formData, age: val })}
+                  min={16}
+                  max={100}
+                  step={1}
+                  unit="yrs"
                 />
               </div>
 
               {/* Height Input */}
               {unitPref === 'imperial' ? (
-                <div>
-                  <label className="font-semibold text-zinc-300">Height (Feet & Inches)</label>
-                  <div className="flex gap-2 mt-1">
-                    <div className="flex-1 flex items-center bg-surface-200 border border-surface-border rounded-xl px-2 py-1.5">
-                      <input
-                        type="number"
-                        min="3"
-                        max="8"
-                        value={formData.height_ft}
-                        onChange={(e) => setFormData({ ...formData, height_ft: Number(e.target.value) })}
-                        className="w-full bg-transparent text-zinc-100 font-mono text-sm focus:outline-none"
-                      />
-                      <span className="text-zinc-500 text-xs font-mono">ft</span>
-                    </div>
-                    <div className="flex-1 flex items-center bg-surface-200 border border-surface-border rounded-xl px-2 py-1.5">
-                      <input
-                        type="number"
-                        min="0"
-                        max="11"
-                        value={formData.height_in}
-                        onChange={(e) => setFormData({ ...formData, height_in: Number(e.target.value) })}
-                        className="w-full bg-transparent text-zinc-100 font-mono text-sm focus:outline-none"
-                      />
-                      <span className="text-zinc-500 text-xs font-mono">in</span>
-                    </div>
-                  </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <NumberStepper
+                    label="Height (Feet)"
+                    value={formData.height_ft}
+                    onChange={(val) => setFormData({ ...formData, height_ft: val })}
+                    min={3}
+                    max={7}
+                    step={1}
+                    unit="ft"
+                  />
+                  <NumberStepper
+                    label="Height (Inches)"
+                    value={formData.height_in}
+                    onChange={(val) => setFormData({ ...formData, height_in: val })}
+                    min={0}
+                    max={11}
+                    step={1}
+                    unit="in"
+                  />
                 </div>
               ) : (
                 <div>
-                  <label className="font-semibold text-zinc-300">Height (cm)</label>
-                  <input
-                    type="number"
-                    min="100"
-                    max="250"
+                  <NumberStepper
+                    label="Height (cm)"
                     value={formData.height_cm}
-                    onChange={(e) => setFormData({ ...formData, height_cm: Number(e.target.value) })}
-                    className="w-full px-3 py-2.5 rounded-xl bg-surface-200 border border-surface-border text-zinc-100 mt-1 font-mono text-sm"
+                    onChange={(val) => setFormData({ ...formData, height_cm: val })}
+                    min={100}
+                    max={250}
+                    step={1}
+                    unit="cm"
                   />
                 </div>
               )}
 
               {/* Weight Input */}
               <div>
-                <label className="font-semibold text-zinc-300">
-                  Weight ({unitPref === 'imperial' ? 'lbs' : 'kg'})
-                </label>
-                <input
-                  type="number"
-                  step="0.5"
-                  min={unitPref === 'imperial' ? '60' : '30'}
-                  max={unitPref === 'imperial' ? '600' : '300'}
+                <NumberStepper
+                  label={`Weight (${unitPref === 'imperial' ? 'lbs' : 'kg'})`}
                   value={formData.current_weight_input}
-                  onChange={(e) => setFormData({ ...formData, current_weight_input: Number(e.target.value) })}
-                  className="w-full px-3 py-2.5 rounded-xl bg-surface-200 border border-surface-border text-zinc-100 mt-1 font-mono text-sm"
+                  onChange={(val) => setFormData({ ...formData, current_weight_input: val })}
+                  min={unitPref === 'imperial' ? 60 : 30}
+                  max={unitPref === 'imperial' ? 600 : 300}
+                  step={0.5}
+                  decimals={1}
+                  unit={unitPref === 'imperial' ? 'lbs' : 'kg'}
                 />
               </div>
             </div>
 
             <div>
-              <label className="font-semibold text-zinc-300">
-                Target Goal Weight ({unitPref === 'imperial' ? 'lbs' : 'kg'})
-              </label>
-              <input
-                type="number"
-                step="0.5"
-                min={unitPref === 'imperial' ? '60' : '30'}
-                max={unitPref === 'imperial' ? '600' : '300'}
+              <NumberStepper
+                label={`Target Goal Weight (${unitPref === 'imperial' ? 'lbs' : 'kg'})`}
                 value={formData.target_weight_input}
-                onChange={(e) => setFormData({ ...formData, target_weight_input: Number(e.target.value) })}
-                className="w-full px-3 py-2.5 rounded-xl bg-surface-200 border border-surface-border text-zinc-100 mt-1 font-mono text-sm"
+                onChange={(val) => setFormData({ ...formData, target_weight_input: val })}
+                min={unitPref === 'imperial' ? 60 : 30}
+                max={unitPref === 'imperial' ? 600 : 300}
+                step={0.5}
+                decimals={1}
+                unit={unitPref === 'imperial' ? 'lbs' : 'kg'}
               />
             </div>
           </div>

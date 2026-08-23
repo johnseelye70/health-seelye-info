@@ -39,6 +39,8 @@ import {
   Code,
 } from 'lucide-react';
 import { SUPABASE_SQL_SCHEMA } from '@/lib/supabase/schema-sql';
+import { NumberStepper } from '@/components/ui/NumberStepper';
+import { FastingTimePicker } from '@/components/ui/FastingTimePicker';
 
 export const ProfileSettings: React.FC = () => {
   const {
@@ -206,6 +208,16 @@ export const ProfileSettings: React.FC = () => {
   };
 
   const changelogHistory = [
+    {
+      version: 'Beta 0.13.0',
+      date: '2026-08-23',
+      title: 'Fasting Time Dropdown & Ergonomic Accessible Universal Steppers (+/-)',
+      changes: [
+        'Added rich 12-hour AM/PM formatted dropdown selector with quick 30-minute earlier/later steppers for fasting start times.',
+        'Replaced all small browser number spinners across Profile Settings, Food Logging, Workouts, HIIT Timer, and Requisitions with large, tactile touch-friendly NumberStepper (+ / -) controls.',
+        'Enhanced mobile and desktop precision with comfortable button touch-targets and direct numeric input support.',
+      ],
+    },
     {
       version: 'Beta 0.12.5',
       date: '2026-08-23',
@@ -648,11 +660,11 @@ export const ProfileSettings: React.FC = () => {
           </div>
 
           <div>
-            <label className="font-semibold text-zinc-300">Biological Sex</label>
+            <label className="font-semibold text-zinc-300 block mb-1">Biological Sex</label>
             <select
               value={form.sex}
               onChange={(e) => setForm({ ...form, sex: e.target.value as BiologicalSex })}
-              className="w-full px-3 py-2 rounded-xl bg-surface-200 border border-surface-border text-zinc-100 mt-1"
+              className="w-full h-[52px] px-3.5 rounded-2xl bg-surface-200/90 border border-surface-border text-zinc-100 font-semibold focus:outline-none focus:border-brand-500 cursor-pointer"
             >
               <option value="male">Male</option>
               <option value="female">Female</option>
@@ -661,90 +673,95 @@ export const ProfileSettings: React.FC = () => {
           </div>
 
           <div>
-            <label className="font-semibold text-zinc-300">Age</label>
-            <input
-              type="number"
+            <NumberStepper
+              label="Age"
               value={form.age}
-              onChange={(e) => setForm({ ...form, age: Number(e.target.value) })}
-              className="w-full px-3 py-2 rounded-xl bg-surface-200 border border-surface-border text-zinc-100 mt-1 font-mono"
+              onChange={(val) => setForm({ ...form, age: val })}
+              min={14}
+              max={100}
+              step={1}
+              unit="yrs"
             />
           </div>
 
           {/* Height Input (Conditional: ft/in or cm) */}
           {form.unit_preference === 'imperial' ? (
-            <div>
-              <label className="font-semibold text-zinc-300">Height (Feet & Inches)</label>
-              <div className="flex gap-2 mt-1">
-                <div className="flex-1 flex items-center bg-surface-200 border border-surface-border rounded-xl px-3 py-2">
-                  <input
-                    type="number"
-                    min="3"
-                    max="8"
-                    value={form.height_ft}
-                    onChange={(e) => setForm({ ...form, height_ft: Number(e.target.value) })}
-                    className="w-full bg-transparent text-zinc-100 font-mono text-xs focus:outline-none"
-                  />
-                  <span className="text-zinc-500 font-mono text-xs">ft</span>
-                </div>
-                <div className="flex-1 flex items-center bg-surface-200 border border-surface-border rounded-xl px-3 py-2">
-                  <input
-                    type="number"
-                    min="0"
-                    max="11"
-                    value={form.height_in}
-                    onChange={(e) => setForm({ ...form, height_in: Number(e.target.value) })}
-                    className="w-full bg-transparent text-zinc-100 font-mono text-xs focus:outline-none"
-                  />
-                  <span className="text-zinc-500 font-mono text-xs">in</span>
-                </div>
-              </div>
+            <div className="grid grid-cols-2 gap-2">
+              <NumberStepper
+                label="Height (Feet)"
+                value={form.height_ft}
+                onChange={(val) => setForm({ ...form, height_ft: val })}
+                min={3}
+                max={7}
+                step={1}
+                unit="ft"
+              />
+              <NumberStepper
+                label="Height (Inches)"
+                value={form.height_in}
+                onChange={(val) => setForm({ ...form, height_in: val })}
+                min={0}
+                max={11}
+                step={1}
+                unit="in"
+              />
             </div>
           ) : (
             <div>
-              <label className="font-semibold text-zinc-300">Height (cm)</label>
-              <input
-                type="number"
+              <NumberStepper
+                label="Height (cm)"
                 value={form.height_cm}
-                onChange={(e) => setForm({ ...form, height_cm: Number(e.target.value) })}
-                className="w-full px-3 py-2 rounded-xl bg-surface-200 border border-surface-border text-zinc-100 mt-1 font-mono"
+                onChange={(val) => setForm({ ...form, height_cm: val })}
+                min={100}
+                max={250}
+                step={1}
+                unit="cm"
               />
             </div>
           )}
 
           {/* Weight Input (Conditional: lbs or kg) */}
           <div>
-            <label className="font-semibold text-zinc-300">
-              Current Weight ({form.unit_preference === 'imperial' ? 'lbs' : 'kg'})
-            </label>
-            <input
-              type="number"
-              step="0.1"
+            <NumberStepper
+              label={`Current Weight (${form.unit_preference === 'imperial' ? 'lbs' : 'kg'})`}
               value={form.current_weight_input}
-              onChange={(e) => setForm({ ...form, current_weight_input: Number(e.target.value) })}
-              className="w-full px-3 py-2 rounded-xl bg-surface-200 border border-surface-border text-zinc-100 mt-1 font-mono"
+              onChange={(val) => setForm({ ...form, current_weight_input: val })}
+              min={form.unit_preference === 'imperial' ? 60 : 30}
+              max={form.unit_preference === 'imperial' ? 600 : 300}
+              step={0.5}
+              decimals={1}
+              unit={form.unit_preference === 'imperial' ? 'lbs' : 'kg'}
             />
           </div>
 
           {/* Target Weight Input (Conditional: lbs or kg) */}
           <div>
-            <label className="font-semibold text-zinc-300">
-              Target Goal Weight ({form.unit_preference === 'imperial' ? 'lbs' : 'kg'})
-            </label>
-            <input
-              type="number"
-              step="0.1"
+            <NumberStepper
+              label={`Target Goal Weight (${form.unit_preference === 'imperial' ? 'lbs' : 'kg'})`}
               value={form.target_weight_input}
-              onChange={(e) => setForm({ ...form, target_weight_input: Number(e.target.value) })}
-              className="w-full px-3 py-2 rounded-xl bg-surface-200 border border-surface-border text-zinc-100 mt-1 font-mono"
+              onChange={(val) => setForm({ ...form, target_weight_input: val })}
+              min={form.unit_preference === 'imperial' ? 60 : 30}
+              max={form.unit_preference === 'imperial' ? 600 : 300}
+              step={0.5}
+              decimals={1}
+              unit={form.unit_preference === 'imperial' ? 'lbs' : 'kg'}
             />
           </div>
 
           <div>
-            <label className="font-semibold text-zinc-300">Activity Level</label>
+            <FastingTimePicker
+              label="Fasting Starts Every Evening At:"
+              value={form.fasting_start_time}
+              onChange={(val) => setForm({ ...form, fasting_start_time: val })}
+            />
+          </div>
+
+          <div>
+            <label className="font-semibold text-zinc-300 block mb-1">Activity Level</label>
             <select
               value={form.activity_level}
               onChange={(e) => setForm({ ...form, activity_level: e.target.value as ActivityLevel })}
-              className="w-full px-3 py-2 rounded-xl bg-surface-200 border border-surface-border text-zinc-100 mt-1"
+              className="w-full h-[52px] px-3.5 rounded-2xl bg-surface-200/90 border border-surface-border text-zinc-100 font-semibold focus:outline-none focus:border-brand-500 cursor-pointer"
             >
               <option value="sedentary">Sedentary (Mostly desk work)</option>
               <option value="light">Light Activity (1-3 days walks/workouts)</option>
@@ -754,11 +771,11 @@ export const ProfileSettings: React.FC = () => {
           </div>
 
           <div>
-            <label className="font-semibold text-zinc-300">Primary Wellness Goal</label>
+            <label className="font-semibold text-zinc-300 block mb-1">Primary Wellness Goal</label>
             <select
               value={form.goal}
               onChange={(e) => setForm({ ...form, goal: e.target.value as GoalType })}
-              className="w-full px-3 py-2 rounded-xl bg-surface-200 border border-surface-border text-zinc-100 mt-1"
+              className="w-full h-[52px] px-3.5 rounded-2xl bg-surface-200/90 border border-surface-border text-zinc-100 font-semibold focus:outline-none focus:border-brand-500 cursor-pointer"
             >
               <option value="cut_500">Healthy Weight Loss (~1 lb/week)</option>
               <option value="cut_250">Gentle Weight Loss (~0.5 lb/week)</option>
@@ -811,7 +828,7 @@ export const ProfileSettings: React.FC = () => {
             title="Click to view release changelog history"
           >
             <span className="w-2 h-2 rounded-full bg-brand-400 animate-pulse"></span>
-            <span>Active: Beta 0.12.5</span>
+            <span>Active: Beta 0.13.0</span>
             {showChangelog ? (
               <ChevronUp className="w-3.5 h-3.5 text-brand-400 group-hover:-translate-y-0.5 transition-transform" />
             ) : (

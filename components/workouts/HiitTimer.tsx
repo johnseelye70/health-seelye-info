@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { Play, Pause, RotateCcw, Volume2, VolumeX, Sparkles, Flame, CheckCircle2 } from 'lucide-react';
+import { NumberStepper } from '@/components/ui/NumberStepper';
 
 interface HiitTimerProps {
   initialWorkSeconds?: number;
@@ -203,44 +204,44 @@ export const HiitTimer: React.FC<HiitTimerProps> = ({
 
       {/* Interval Setup Adjusters */}
       {!isActive && (
-        <div className="mt-6 pt-4 border-t border-surface-border/60 grid grid-cols-3 gap-3 text-center text-xs">
-          <div className="p-2.5 rounded-xl bg-surface-200">
-            <div className="text-[10px] text-zinc-400">Work (sec)</div>
-            <input
-              type="number"
-              min="10"
-              max="120"
-              step="5"
+        <div className="mt-6 pt-4 border-t border-surface-border/60 grid grid-cols-1 sm:grid-cols-3 gap-3 text-center text-xs">
+          <div>
+            <NumberStepper
+              label="Work Duration"
               value={workSeconds}
-              onChange={(e) => {
-                const val = Number(e.target.value);
+              onChange={(val) => {
                 setWorkSeconds(val);
                 if (!isActive && isWorkPhase) setSecondsRemaining(val);
               }}
-              className="w-full bg-transparent text-center font-mono font-bold text-zinc-100 text-sm focus:outline-none"
+              min={10}
+              max={120}
+              step={5}
+              unit="s"
+              size="sm"
             />
           </div>
-          <div className="p-2.5 rounded-xl bg-surface-200">
-            <div className="text-[10px] text-zinc-400">Rest (sec)</div>
-            <input
-              type="number"
-              min="5"
-              max="120"
-              step="5"
+          <div>
+            <NumberStepper
+              label="Rest Duration"
               value={restSeconds}
-              onChange={(e) => setRestSeconds(Number(e.target.value))}
-              className="w-full bg-transparent text-center font-mono font-bold text-zinc-100 text-sm focus:outline-none"
+              onChange={(val) => setRestSeconds(val)}
+              min={5}
+              max={120}
+              step={5}
+              unit="s"
+              size="sm"
             />
           </div>
-          <div className="p-2.5 rounded-xl bg-surface-200">
-            <div className="text-[10px] text-zinc-400">Rounds</div>
-            <input
-              type="number"
-              min="1"
-              max="30"
+          <div>
+            <NumberStepper
+              label="Total Rounds"
               value={totalRounds}
-              onChange={(e) => setTotalRounds(Number(e.target.value))}
-              className="w-full bg-transparent text-center font-mono font-bold text-zinc-100 text-sm focus:outline-none"
+              onChange={(val) => setTotalRounds(val)}
+              min={1}
+              max={30}
+              step={1}
+              unit="rds"
+              size="sm"
             />
           </div>
         </div>
