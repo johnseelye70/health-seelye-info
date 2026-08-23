@@ -408,11 +408,13 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
 
   const signUpWithPassword = async (email: string, password: string, fullName?: string) => {
     if (!supabase) return { error: { message: 'Cloud database not configured' } };
+    const emailRedirectTo = typeof window !== 'undefined' ? `${window.location.origin}/` : 'https://health.seelye.info/';
     const res = await supabase.auth.signUp({
       email,
       password,
       options: {
         data: { full_name: fullName || (profile.full_name === 'John Seelye' ? 'Athlete' : profile.full_name) || 'Athlete' },
+        emailRedirectTo,
       },
     });
     if (!res.error && res.data.user) {

@@ -207,6 +207,14 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'Beta 0.12.5',
+      date: '2026-08-23',
+      title: 'Explicit Origin-Aware Email Confirmation Redirect Routing',
+      changes: [
+        'Added dynamic emailRedirectTo during Supabase user registration ensuring confirmation links route directly to the active live production origin.',
+      ],
+    },
+    {
       version: 'Beta 0.12.4',
       date: '2026-08-23',
       title: 'Hydration 0-Default Daily Persistence & Generic Authentication Privacy Sanitization',
@@ -803,7 +811,7 @@ export const ProfileSettings: React.FC = () => {
             title="Click to view release changelog history"
           >
             <span className="w-2 h-2 rounded-full bg-brand-400 animate-pulse"></span>
-            <span>Active: Beta 0.12.4</span>
+            <span>Active: Beta 0.12.5</span>
             {showChangelog ? (
               <ChevronUp className="w-3.5 h-3.5 text-brand-400 group-hover:-translate-y-0.5 transition-transform" />
             ) : (
