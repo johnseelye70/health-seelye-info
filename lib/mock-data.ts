@@ -2,8 +2,8 @@ import { EquipmentType, ExerciseItem, FoodItem, FoodLogEntry, GroceryItem, UserP
 
 export const INITIAL_PROFILE: UserProfile = {
   id: 'athlete-01',
-  email: 'john@seelye.info',
-  full_name: 'John Seelye',
+  email: '',
+  full_name: 'Athlete',
   age: 35,
   height_cm: 178, // ~5'10"
   current_weight_kg: 80.0, // ~176 lbs

@@ -230,8 +230,8 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
         setProfile((prev) => ({
           ...prev,
           id: authUser.id,
-          email: authUser.email || prev.email,
-          full_name: cloudProfile.full_name || prev.full_name,
+          email: authUser.email || cloudProfile.email || prev.email,
+          full_name: cloudProfile.full_name || authUser.user_metadata?.full_name || (prev.full_name === 'John Seelye' ? 'Athlete' : prev.full_name) || 'Athlete',
           age: cloudProfile.age || prev.age,
           height_cm: Number(cloudProfile.height_cm) || prev.height_cm,
           current_weight_kg: Number(cloudProfile.current_weight_kg) || prev.current_weight_kg,
@@ -253,7 +253,7 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
         await (client.from('profiles') as any).upsert({
           id: authUser.id,
           email: authUser.email,
-          full_name: profile.full_name,
+          full_name: authUser.user_metadata?.full_name || (profile.full_name === 'John Seelye' ? 'Athlete' : profile.full_name) || 'Athlete',
           age: profile.age,
           height_cm: profile.height_cm,
           current_weight_kg: profile.current_weight_kg,
@@ -412,14 +412,12 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
       email,
       password,
       options: {
-        data: { full_name: fullName || profile.full_name },
+        data: { full_name: fullName || (profile.full_name === 'John Seelye' ? 'Athlete' : profile.full_name) || 'Athlete' },
       },
     });
     if (!res.error && res.data.user) {
       setAuthUser(res.data.user);
-      if (fullName) {
-        setProfile((prev) => ({ ...prev, full_name: fullName, email }));
-      }
+      setProfile((prev) => ({ ...prev, full_name: fullName || 'Athlete', email }));
     }
     return { error: res.error };
   };

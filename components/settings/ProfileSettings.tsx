@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useHealth } from '@/context/HealthContext';
 import {
   ActivityLevel,
@@ -79,6 +79,29 @@ export const ProfileSettings: React.FC = () => {
     fasting_protocol: profile.fasting_protocol,
     fasting_start_time: profile.fasting_start_time,
   });
+
+  // Keep form in sync when profile updates (e.g. on account login/sync)
+  useEffect(() => {
+    const ftIn = cmToFtIn(profile.height_cm);
+    setForm({
+      full_name: profile.full_name || '',
+      email: profile.email || '',
+      age: profile.age,
+      sex: profile.sex,
+      unit_preference: profile.unit_preference,
+      experience_mode: profile.experience_mode || 'simple',
+      height_cm: profile.height_cm,
+      height_ft: ftIn.feet,
+      height_in: ftIn.inches,
+      current_weight_input: profile.unit_preference === 'imperial' ? kgToLbs(profile.current_weight_kg) : profile.current_weight_kg,
+      target_weight_input: profile.unit_preference === 'imperial' ? kgToLbs(profile.target_weight_kg) : profile.target_weight_kg,
+      activity_level: profile.activity_level,
+      goal: profile.goal,
+      meal_count: profile.meal_count,
+      fasting_protocol: profile.fasting_protocol,
+      fasting_start_time: profile.fasting_start_time,
+    });
+  }, [profile]);
 
   const [savedSuccess, setSavedSuccess] = useState<boolean>(false);
   const [resetSuccess, setResetSuccess] = useState<boolean>(false);
@@ -161,8 +184,8 @@ export const ProfileSettings: React.FC = () => {
   const handleReset = () => {
     resetAllData();
     setForm({
-      full_name: 'John Seelye',
-      email: 'john@seelye.info',
+      full_name: 'Athlete',
+      email: '',
       age: 35,
       sex: 'male',
       unit_preference: 'imperial',
@@ -183,6 +206,16 @@ export const ProfileSettings: React.FC = () => {
   };
 
   const changelogHistory = [
+    {
+      version: 'Beta 0.12.4',
+      date: '2026-08-23',
+      title: 'Hydration 0-Default Daily Persistence & Generic Authentication Privacy Sanitization',
+      changes: [
+        'Fixed water tracker initialization to default to 0 glasses every new day with date-keyed local persistence.',
+        'Sanitized all default profile state, login placeholders, and account creation routines to remove personal demo information.',
+        'Added dynamic profile form synchronization on user authentication.',
+      ],
+    },
     {
       version: 'Beta 0.12.3',
       date: '2026-08-23',
@@ -770,7 +803,7 @@ export const ProfileSettings: React.FC = () => {
             title="Click to view release changelog history"
           >
             <span className="w-2 h-2 rounded-full bg-brand-400 animate-pulse"></span>
-            <span>Active: Beta 0.12.3</span>
+            <span>Active: Beta 0.12.4</span>
             {showChangelog ? (
               <ChevronUp className="w-3.5 h-3.5 text-brand-400 group-hover:-translate-y-0.5 transition-transform" />
             ) : (

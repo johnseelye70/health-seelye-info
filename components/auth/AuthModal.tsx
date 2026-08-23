@@ -239,7 +239,7 @@ export const AuthModal: React.FC = () => {
                       required
                       value={fullName}
                       onChange={(e) => setFullName(e.target.value)}
-                      placeholder="e.g. John Seelye"
+                      placeholder="e.g. Alex Morgan"
                       className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-surface-200 border border-surface-border text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-brand-500"
                     />
                   </div>
@@ -257,7 +257,7 @@ export const AuthModal: React.FC = () => {
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="john@seelye.info"
+                    placeholder="you@example.com"
                     className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-surface-200 border border-surface-border text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-brand-500"
                   />
                 </div>

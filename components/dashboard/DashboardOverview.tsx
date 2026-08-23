@@ -43,8 +43,22 @@ export const DashboardOverview: React.FC = () => {
 
   const isSimple = experienceMode === 'simple';
 
-  // Simple Water Tracker State (local session helper)
-  const [waterGlasses, setWaterGlasses] = useState<number>(4);
+  // Simple Water Tracker State (persisted per day, defaults to 0 each new day)
+  const todayDateStr = new Date().toISOString().split('T')[0];
+  const [waterGlasses, setWaterGlasses] = useState<number>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem(`health_water_${todayDateStr}`);
+      return saved !== null ? Number(saved) : 0;
+    }
+    return 0;
+  });
+
+  const handleWaterClick = (count: number) => {
+    setWaterGlasses(count);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(`health_water_${todayDateStr}`, count.toString());
+    }
+  };
 
   // Find today's workout
   const todayWorkout = workoutPlan.find(
@@ -160,8 +174,8 @@ export const DashboardOverview: React.FC = () => {
                 <button
                   key={i}
                   type="button"
-                  onClick={() => setWaterGlasses(i + 1 === waterGlasses ? i : i + 1)}
-                  className={`flex-1 h-8 rounded-lg flex items-center justify-center transition-all ${
+                  onClick={() => handleWaterClick(i + 1 === waterGlasses ? i : i + 1)}
+                  className={`flex-1 h-8 rounded-lg flex items-center justify-center transition-all cursor-pointer ${
                     i < waterGlasses
                       ? 'bg-cyan-500 text-zinc-950 shadow-glow'
                       : 'bg-surface-200 border border-surface-border text-zinc-600 hover:border-cyan-500/40'
