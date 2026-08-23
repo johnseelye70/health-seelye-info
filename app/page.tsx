@@ -13,6 +13,7 @@ import { GroceryManager } from '@/components/grocery/GroceryManager';
 import { ProgressTrends } from '@/components/analytics/ProgressTrends';
 import { ProfileSettings } from '@/components/settings/ProfileSettings';
 import { OnboardingModal } from '@/components/onboarding/OnboardingModal';
+import { AuthModal } from '@/components/auth/AuthModal';
 
 export default function HomePage() {
   const { activeTab } = useHealth();
@@ -44,6 +45,9 @@ export default function HomePage() {
 
       {/* Dynamic Macro Calculator & Profile Onboarding Modal */}
       <OnboardingModal />
+
+      {/* Cloud Account & Cross-Device Sync Modal */}
+      <AuthModal />
     </div>
   );
 }

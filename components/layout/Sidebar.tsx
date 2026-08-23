@@ -14,10 +14,21 @@ import {
   Flame,
   CheckCircle2,
   Sparkles,
+  Cloud,
+  UserCheck,
 } from 'lucide-react';
 
 export const Sidebar: React.FC = () => {
-  const { activeTab, setActiveTab, profile, fastingStatus, isDemoMode, experienceMode } = useHealth();
+  const {
+    activeTab,
+    setActiveTab,
+    profile,
+    fastingStatus,
+    isDemoMode,
+    experienceMode,
+    authUser,
+    setShowAuthModal,
+  } = useHealth();
 
   const isSimple = experienceMode === 'simple';
 
@@ -50,22 +61,31 @@ export const Sidebar: React.FC = () => {
         </div>
       </div>
 
-      {/* Athlete Status Pill */}
-      <div className="px-4 py-3 border-b border-surface-border/60 bg-surface-300/40">
+      {/* Athlete Status & Cloud Account Pill */}
+      <div className="px-4 py-3 border-b border-surface-border/60 bg-surface-300/40 space-y-2">
         <div className="flex items-center justify-between text-xs">
           <span className="text-zinc-400">Athlete:</span>
-          <span className="font-semibold text-zinc-200">{profile.full_name}</span>
+          <span className="font-semibold text-zinc-200 truncate max-w-[120px]">
+            {authUser ? (authUser.user_metadata?.full_name || profile.full_name) : profile.full_name}
+          </span>
         </div>
-        <div className="flex items-center justify-between text-[11px] mt-1">
-          <span className="text-zinc-400">Protocol:</span>
-          <span className="text-brand-400 font-mono font-medium">{profile.fasting_protocol.replace('_', ':').toUpperCase()}</span>
-        </div>
-        {isDemoMode && (
-          <div className="mt-2 text-[10px] px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/20 text-amber-300 flex items-center gap-1">
-            <Sparkles className="w-3 h-3 text-amber-400" />
-            <span>Active Demo State</span>
+
+        {/* Cloud Sync Status Indicator */}
+        <button
+          type="button"
+          onClick={() => setShowAuthModal(true)}
+          className="w-full flex items-center justify-between px-2 py-1.5 rounded-lg bg-surface-200/80 hover:bg-surface-200 border border-surface-border text-[11px] transition-colors"
+        >
+          <div className="flex items-center gap-1.5">
+            <span className={`w-1.5 h-1.5 rounded-full ${authUser ? 'bg-emerald-400 animate-pulse' : 'bg-zinc-500'}`}></span>
+            <span className={authUser ? 'text-emerald-300 font-mono font-medium' : 'text-zinc-400 font-medium'}>
+              {authUser ? 'Cloud Synced' : 'Guest / Local'}
+            </span>
           </div>
-        )}
+          <span className="text-brand-400 text-[10px] hover:underline font-semibold">
+            {authUser ? 'Manage' : 'Sign In'}
+          </span>
+        </button>
       </div>
 
       {/* Navigation Links */}
@@ -111,7 +131,7 @@ export const Sidebar: React.FC = () => {
       <div className="p-4 border-t border-surface-border text-xs text-zinc-400 bg-surface-300/30 flex items-center justify-between">
         <div className="flex items-center gap-1.5">
           <span className="w-2 h-2 rounded-full bg-brand-500 animate-pulse"></span>
-          <span className="font-mono text-[11px] text-zinc-300">Beta 0.11.0</span>
+          <span className="font-mono text-[11px] text-zinc-300">Beta 0.12.3</span>
         </div>
         <span className="text-[10px] text-zinc-400 font-mono">health.seelye.info</span>
       </div>

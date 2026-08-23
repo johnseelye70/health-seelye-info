@@ -30,6 +30,8 @@ import {
 import { isSupabaseConfigured, supabase } from '@/lib/supabase/client';
 import { normalizeFoodCategory } from '@/lib/food-database';
 
+export type SyncStatusType = 'synced' | 'syncing' | 'offline' | 'error' | 'local_only';
+
 interface HealthContextType {
   profile: UserProfile;
   updateProfile: (updates: Partial<UserProfile>) => void;
@@ -83,13 +85,27 @@ interface HealthContextType {
   weightLogs: WeightLog[];
   logWeight: (weightKg: number, bodyFat?: number) => void;
   
-  // App & Sync State
+  // App State & Modals
   isDemoMode: boolean;
   activeTab: 'dashboard' | 'nutrition' | 'fasting' | 'workouts' | 'grocery' | 'trends' | 'settings';
   setActiveTab: (tab: 'dashboard' | 'nutrition' | 'fasting' | 'workouts' | 'grocery' | 'trends' | 'settings') => void;
   showOnboardingModal: boolean;
   setShowOnboardingModal: (show: boolean) => void;
   resetAllData: () => void;
+
+  // Cloud Account & Cross-Device Authentication
+  authUser: any | null;
+  authLoading: boolean;
+  showAuthModal: boolean;
+  setShowAuthModal: (show: boolean) => void;
+  syncStatus: SyncStatusType;
+  lastSyncedAt: string | null;
+  signInWithPassword: (email: string, password: string) => Promise<{ error: any }>;
+  signUpWithPassword: (email: string, password: string, fullName?: string) => Promise<{ error: any }>;
+  signOut: () => Promise<void>;
+  resetPassword: (email: string) => Promise<{ error: any }>;
+  syncWithCloud: () => Promise<void>;
+  isSupabaseConfigured: boolean;
 }
 
 const HealthContext = createContext<HealthContextType | undefined>(undefined);
@@ -114,7 +130,13 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
   const [activeTab, setActiveTab] = useState<'dashboard' | 'nutrition' | 'fasting' | 'workouts' | 'grocery' | 'trends' | 'settings'>('dashboard');
   const [showOnboardingModal, setShowOnboardingModal] = useState<boolean>(false);
   const [notificationsEnabled, setNotificationsEnabled] = useState<boolean>(false);
-  const [isDemoMode] = useState<boolean>(!isSupabaseConfigured);
+
+  // Cloud Auth & Sync States
+  const [authUser, setAuthUser] = useState<any | null>(null);
+  const [authLoading, setAuthLoading] = useState<boolean>(true);
+  const [showAuthModal, setShowAuthModal] = useState<boolean>(false);
+  const [syncStatus, setSyncStatus] = useState<SyncStatusType>(isSupabaseConfigured ? 'synced' : 'local_only');
+  const [lastSyncedAt, setLastSyncedAt] = useState<string | null>(null);
   
   const todayDate = useMemo(() => new Date().toISOString().split('T')[0], []);
   
@@ -125,21 +147,19 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
     return () => clearInterval(timer);
   }, []);
 
-  // Load persisted state from localStorage on mount if available
+  // 1. Initial Load from LocalStorage
   useEffect(() => {
     if (typeof window !== 'undefined') {
       try {
         const saved =
           localStorage.getItem(LOCAL_STORAGE_KEY) ||
           localStorage.getItem('health_seelye_app_state_v5') ||
-          localStorage.getItem('health_seelye_app_state_v4') ||
-          localStorage.getItem('health_seelye_app_state_v3');
+          localStorage.getItem('health_seelye_app_state_v4');
 
         if (saved) {
           const parsed = JSON.parse(saved);
           if (parsed.profile) setProfile(parsed.profile);
 
-          // Always ensure comprehensive food catalog with sub_categories is present
           if (parsed.foods && Array.isArray(parsed.foods) && parsed.foods.length >= DEFAULT_FOODS.length) {
             setFoods(
               parsed.foods.map((f: FoodItem) => {
@@ -152,7 +172,6 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
               })
             );
           } else {
-            // Merge defaults with any custom foods created by the user
             const customFoods = (parsed.foods || []).filter(
               (f: FoodItem) => !DEFAULT_FOODS.some((df) => df.id === f.id)
             );
@@ -165,7 +184,6 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
           if (parsed.weightLogs) setWeightLogs(parsed.weightLogs);
           if (parsed.notificationsEnabled !== undefined) setNotificationsEnabled(parsed.notificationsEnabled);
         } else {
-          // Fresh initialization
           setFoods(DEFAULT_FOODS);
         }
       } catch (err) {
@@ -175,7 +193,7 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  // Save to localStorage when critical states update
+  // 2. Persist to LocalStorage
   useEffect(() => {
     if (typeof window !== 'undefined') {
       try {
@@ -195,9 +213,235 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [profile, foods, foodLogs, workoutPlan, groceryList, weightLogs, notificationsEnabled]);
 
+  // 3. Supabase Cloud Sync Engine (Non-Destructive Reconciliation)
+  const syncWithCloud = useCallback(async () => {
+    if (!isSupabaseConfigured || !supabase || !authUser) return;
+
+    const client = supabase;
+    setSyncStatus('syncing');
+    try {
+      // A. Profile Sync
+      const { data: cloudProfile, error: profileErr } = await (client.from('profiles') as any)
+        .select('*')
+        .eq('id', authUser.id)
+        .single();
+
+      if (cloudProfile && !profileErr) {
+        setProfile((prev) => ({
+          ...prev,
+          id: authUser.id,
+          email: authUser.email || prev.email,
+          full_name: cloudProfile.full_name || prev.full_name,
+          age: cloudProfile.age || prev.age,
+          height_cm: Number(cloudProfile.height_cm) || prev.height_cm,
+          current_weight_kg: Number(cloudProfile.current_weight_kg) || prev.current_weight_kg,
+          target_weight_kg: Number(cloudProfile.target_weight_kg) || prev.target_weight_kg,
+          sex: (cloudProfile.sex as any) || prev.sex,
+          activity_level: (cloudProfile.activity_level as any) || prev.activity_level,
+          goal: (cloudProfile.goal as any) || prev.goal,
+          unit_preference: (cloudProfile.unit_preference as any) || prev.unit_preference,
+          daily_calorie_target: cloudProfile.daily_calorie_target || prev.daily_calorie_target,
+          protein_target_g: cloudProfile.protein_target_g || prev.protein_target_g,
+          carb_target_g: cloudProfile.carb_target_g || prev.carb_target_g,
+          fat_target_g: cloudProfile.fat_target_g || prev.fat_target_g,
+          fasting_protocol: (cloudProfile.fasting_protocol as any) || prev.fasting_protocol,
+          fasting_start_time: cloudProfile.fasting_start_time || prev.fasting_start_time,
+          meal_count: cloudProfile.meal_count || prev.meal_count,
+        }));
+      } else {
+        // Push local baseline to cloud profile
+        await (client.from('profiles') as any).upsert({
+          id: authUser.id,
+          email: authUser.email,
+          full_name: profile.full_name,
+          age: profile.age,
+          height_cm: profile.height_cm,
+          current_weight_kg: profile.current_weight_kg,
+          target_weight_kg: profile.target_weight_kg,
+          sex: profile.sex,
+          activity_level: profile.activity_level,
+          goal: profile.goal,
+          unit_preference: profile.unit_preference,
+          daily_calorie_target: profile.daily_calorie_target,
+          protein_target_g: profile.protein_target_g,
+          carb_target_g: profile.carb_target_g,
+          fat_target_g: profile.fat_target_g,
+          fasting_protocol: profile.fasting_protocol,
+          fasting_start_time: profile.fasting_start_time,
+          meal_count: profile.meal_count,
+        });
+      }
+
+      // B. Food Logs Sync (Merge Cloud & Local Non-Destructively)
+      const { data: cloudFoodLogs } = await (client.from('food_logs') as any)
+        .select('*')
+        .eq('user_id', authUser.id);
+
+      if (cloudFoodLogs && Array.isArray(cloudFoodLogs)) {
+        setFoodLogs((prevLogs) => {
+          const cloudIds = new Set(cloudFoodLogs.map((c: any) => c.id));
+          const localOnlyLogs = prevLogs.filter((l) => !cloudIds.has(l.id));
+
+          // Asynchronously push local-only logs to cloud
+          if (localOnlyLogs.length > 0) {
+            const rowsToInsert = localOnlyLogs.map((l) => ({
+              id: l.id.startsWith('log-') ? undefined : l.id,
+              user_id: authUser.id,
+              food_id: l.food_id,
+              food_name: l.food_name,
+              grams_consumed: l.grams_consumed,
+              meal_index: l.meal_index,
+              logged_at: l.logged_at,
+              calories: l.calories,
+              protein_g: l.protein_g,
+              carbs_g: l.carbs_g,
+              fat_g: l.fat_g,
+            }));
+            (client.from('food_logs') as any).insert(rowsToInsert).then(() => {});
+          }
+
+          // Return merged logs
+          const merged: FoodLogEntry[] = [
+            ...cloudFoodLogs.map((c: any) => ({
+              id: c.id,
+              user_id: c.user_id,
+              food_id: c.food_id,
+              food_name: c.food_name,
+              grams_consumed: Number(c.grams_consumed),
+              meal_index: c.meal_index,
+              logged_at: c.logged_at,
+              calories: Number(c.calories),
+              protein_g: Number(c.protein_g),
+              carbs_g: Number(c.carbs_g),
+              fat_g: Number(c.fat_g),
+              created_at: c.created_at,
+            })),
+            ...localOnlyLogs,
+          ];
+
+          return merged;
+        });
+      }
+
+      // C. Weight Logs Sync
+      const { data: cloudWeightLogs } = await (client.from('weight_logs') as any)
+        .select('*')
+        .eq('user_id', authUser.id)
+        .order('logged_at', { ascending: false });
+
+      if (cloudWeightLogs && Array.isArray(cloudWeightLogs)) {
+        setWeightLogs((prev) => {
+          const cloudDates = new Set(cloudWeightLogs.map((c: any) => c.logged_at));
+          const localOnly = prev.filter((w) => !cloudDates.has(w.logged_at));
+
+          if (localOnly.length > 0) {
+            const weightRows = localOnly.map((w) => ({
+              user_id: authUser.id,
+              weight_kg: w.weight_kg,
+              body_fat_percentage: w.body_fat_percentage,
+              logged_at: w.logged_at,
+            }));
+            (client.from('weight_logs') as any).insert(weightRows).then(() => {});
+          }
+
+          return [
+            ...cloudWeightLogs.map((c: any) => ({
+              id: c.id,
+              weight_kg: Number(c.weight_kg),
+              body_fat_percentage: c.body_fat_percentage ? Number(c.body_fat_percentage) : undefined,
+              logged_at: c.logged_at,
+            })),
+            ...localOnly,
+          ];
+        });
+      }
+
+      setSyncStatus('synced');
+      setLastSyncedAt(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+    } catch (err) {
+      console.warn('Sync error:', err);
+      setSyncStatus('error');
+    }
+  }, [authUser, profile]);
+
+  // 4. Supabase Auth Session Listener
+  useEffect(() => {
+    if (!isSupabaseConfigured || !supabase) {
+      setAuthLoading(false);
+      return;
+    }
+
+    const client = supabase;
+
+    // Get current session on load
+    client.auth.getSession().then(({ data: { session } }) => {
+      setAuthUser(session?.user || null);
+      setAuthLoading(false);
+      if (session?.user) {
+        syncWithCloud();
+      }
+    });
+
+    const {
+      data: { subscription },
+    } = client.auth.onAuthStateChange((_event, session) => {
+      setAuthUser(session?.user || null);
+      if (session?.user) {
+        syncWithCloud();
+      } else {
+        setSyncStatus('local_only');
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [syncWithCloud]);
+
+  // Auth Methods
+  const signInWithPassword = async (email: string, password: string) => {
+    if (!supabase) return { error: { message: 'Cloud database not configured' } };
+    const res = await supabase.auth.signInWithPassword({ email, password });
+    if (!res.error && res.data.user) {
+      setAuthUser(res.data.user);
+    }
+    return { error: res.error };
+  };
+
+  const signUpWithPassword = async (email: string, password: string, fullName?: string) => {
+    if (!supabase) return { error: { message: 'Cloud database not configured' } };
+    const res = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: { full_name: fullName || profile.full_name },
+      },
+    });
+    if (!res.error && res.data.user) {
+      setAuthUser(res.data.user);
+      if (fullName) {
+        setProfile((prev) => ({ ...prev, full_name: fullName, email }));
+      }
+    }
+    return { error: res.error };
+  };
+
+  const signOut = async () => {
+    if (supabase) {
+      await supabase.auth.signOut();
+    }
+    setAuthUser(null);
+    setSyncStatus('local_only');
+  };
+
+  const resetPassword = async (email: string) => {
+    if (!supabase) return { error: { message: 'Cloud database not configured' } };
+    const res = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: typeof window !== 'undefined' ? `${window.location.origin}/` : undefined,
+    });
+    return { error: res.error };
+  };
+
   // Compute Fasting Status reactively
   const fastingStatus = useMemo(() => {
-    // nowTick referenced to trigger 1s update
     void nowTick;
     return computeFastingStatus(
       profile.fasting_protocol,
@@ -279,13 +523,42 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
 
   const experienceMode = profile.experience_mode || 'simple';
 
-  // Update profile and optionally recalculate macros
-  const updateProfile = useCallback((updates: Partial<UserProfile>) => {
-    setProfile((prev) => {
-      const updated = { ...prev, ...updates, updated_at: new Date().toISOString() };
-      return updated;
-    });
-  }, []);
+  // Update profile and optionally push to cloud
+  const updateProfile = useCallback(
+    (updates: Partial<UserProfile>) => {
+      setProfile((prev) => {
+        const updated = { ...prev, ...updates, updated_at: new Date().toISOString() };
+        
+        // Asynchronously update cloud profile if logged in
+        if (supabase && authUser) {
+          (supabase.from('profiles') as any)
+            .update({
+              full_name: updated.full_name,
+              age: updated.age,
+              height_cm: updated.height_cm,
+              current_weight_kg: updated.current_weight_kg,
+              target_weight_kg: updated.target_weight_kg,
+              sex: updated.sex,
+              activity_level: updated.activity_level,
+              goal: updated.goal,
+              unit_preference: updated.unit_preference,
+              daily_calorie_target: updated.daily_calorie_target,
+              protein_target_g: updated.protein_target_g,
+              carb_target_g: updated.carb_target_g,
+              fat_target_g: updated.fat_target_g,
+              fasting_protocol: updated.fasting_protocol,
+              fasting_start_time: updated.fasting_start_time,
+              meal_count: updated.meal_count,
+              updated_at: updated.updated_at,
+            })
+            .eq('id', authUser.id)
+            .then(() => {});
+        }
+        return updated;
+      });
+    },
+    [authUser]
+  );
 
   const recalculateMacros = useCallback(() => {
     setProfile((prev) => {
@@ -309,7 +582,6 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
     });
   }, []);
 
-  // Update Fasting Protocol
   const updateFastingProtocol = useCallback((protocol: FastingProtocol, startTime?: string) => {
     setProfile((prev) => {
       let eatDuration = 8;
@@ -330,16 +602,35 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
     });
   }, []);
 
-  // Add custom food to database
   const addCustomFood = useCallback((foodData: Omit<FoodItem, 'id'>) => {
     const newFood: FoodItem = {
       ...foodData,
       id: `cf-${Date.now()}`,
     };
     setFoods((prev) => [newFood, ...prev]);
-  }, []);
 
-  // Log food consumed
+    if (supabase && authUser) {
+      (supabase.from('food_database') as any)
+        .insert({
+          user_id: authUser.id,
+          name: newFood.name,
+          category: newFood.category,
+          calories_per_100g: newFood.calories_per_100g,
+          protein_per_100g: newFood.protein_per_100g,
+          carbs_per_100g: newFood.carbs_per_100g,
+          fat_per_100g: newFood.fat_per_100g,
+          fiber_per_100g: newFood.fiber_per_100g || 0,
+          is_gluten_free: newFood.is_gluten_free,
+          is_dairy_free: newFood.is_dairy_free,
+          serving_size_g: newFood.serving_size_g,
+          default_unit: newFood.default_unit,
+          storage_type: newFood.storage_type,
+          swap_group: newFood.swap_group || null,
+        })
+        .then(() => {});
+    }
+  }, [authUser]);
+
   const logFood = useCallback(
     ({
       user_id,
@@ -357,7 +648,7 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
 
       const newEntry: FoodLogEntry = {
         id: `log-${Date.now()}`,
-        user_id: user_id || profile.id,
+        user_id: user_id || authUser?.id || profile.id,
         food_id: food.id,
         food_name: food_name || food.name,
         grams_consumed,
@@ -371,15 +662,34 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
       };
 
       setFoodLogs((prev) => [newEntry, ...prev]);
+
+      if (supabase && authUser) {
+        (supabase.from('food_logs') as any)
+          .insert({
+            user_id: authUser.id,
+            food_id: food.id,
+            food_name: newEntry.food_name,
+            grams_consumed,
+            meal_index,
+            logged_at: newEntry.logged_at,
+            calories: calculatedCalories,
+            protein_g: calculatedProtein,
+            carbs_g: calculatedCarbs,
+            fat_g: calculatedFat,
+          })
+          .then(() => {});
+      }
     },
-    [profile.id, todayDate]
+    [profile.id, todayDate, authUser]
   );
 
   const deleteFoodLog = useCallback((id: string) => {
     setFoodLogs((prev) => prev.filter((log) => log.id !== id));
-  }, []);
+    if (supabase && authUser && !id.startsWith('log-')) {
+      (supabase.from('food_logs') as any).delete().eq('id', id).then(() => {});
+    }
+  }, [authUser]);
 
-  // Toggle Equipment in Inventory and regenerate workouts
   const toggleEquipment = useCallback((eq: EquipmentType) => {
     setProfile((prev) => {
       const exists = prev.equipment_inventory.includes(eq);
@@ -388,7 +698,6 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
         : [...prev.equipment_inventory, eq];
       
       const newProfile = { ...prev, equipment_inventory: updatedEq };
-      // Regenerate workouts immediately
       setWorkoutPlan(generateWorkoutPlanSplit(updatedEq));
       return newProfile;
     });
@@ -434,7 +743,6 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
     );
   }, []);
 
-  // Grocery Actions
   const toggleGroceryItem = useCallback((id: string) => {
     setGroceryList((prev) =>
       prev.map((item) => (item.id === id ? { ...item, is_checked: !item.is_checked } : item))
@@ -457,23 +765,32 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
     setGroceryList((prev) => prev.filter((item) => !item.is_checked));
   }, []);
 
-  // Weight Logging
   const logWeight = useCallback((weightKg: number, bodyFat?: number) => {
+    const today = new Date().toISOString().split('T')[0];
     const newLog: WeightLog = {
       id: `w-${Date.now()}`,
       weight_kg: weightKg,
       body_fat_percentage: bodyFat,
-      logged_at: new Date().toISOString().split('T')[0],
+      logged_at: today,
     };
     setWeightLogs((prev) => [newLog, ...prev]);
-    // Also update current profile weight and recalculate
     setProfile((prev) => ({
       ...prev,
       current_weight_kg: weightKg,
     }));
-  }, []);
 
-  // Reset all state to clean baseline
+    if (supabase && authUser) {
+      (supabase.from('weight_logs') as any)
+        .insert({
+          user_id: authUser.id,
+          weight_kg: weightKg,
+          body_fat_percentage: bodyFat || null,
+          logged_at: today,
+        })
+        .then(() => {});
+    }
+  }, [authUser]);
+
   const resetAllData = useCallback(() => {
     if (typeof window !== 'undefined') {
       try {
@@ -537,12 +854,26 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
         clearCheckedGrocery,
         weightLogs,
         logWeight,
-        isDemoMode,
+        isDemoMode: !authUser && !isSupabaseConfigured,
         activeTab,
         setActiveTab,
         showOnboardingModal,
         setShowOnboardingModal,
         resetAllData,
+
+        // Cloud Auth & Sync
+        authUser,
+        authLoading,
+        showAuthModal,
+        setShowAuthModal,
+        syncStatus,
+        lastSyncedAt,
+        signInWithPassword,
+        signUpWithPassword,
+        signOut,
+        resetPassword,
+        syncWithCloud,
+        isSupabaseConfigured,
       }}
     >
       {children}

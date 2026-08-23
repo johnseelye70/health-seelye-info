@@ -29,7 +29,16 @@ import {
   ChevronDown,
   ChevronUp,
   Lock,
+  Cloud,
+  Smartphone,
+  Laptop,
+  RefreshCw,
+  LogOut,
+  Check,
+  Copy,
+  Code,
 } from 'lucide-react';
+import { SUPABASE_SQL_SCHEMA } from '@/lib/supabase/schema-sql';
 
 export const ProfileSettings: React.FC = () => {
   const {
@@ -40,6 +49,12 @@ export const ProfileSettings: React.FC = () => {
     resetAllData,
     experienceMode,
     setExperienceMode,
+    authUser,
+    setShowAuthModal,
+    syncStatus,
+    syncWithCloud,
+    signOut,
+    lastSyncedAt,
   } = useHealth();
 
   const isImperial = profile.unit_preference === 'imperial';
@@ -67,6 +82,16 @@ export const ProfileSettings: React.FC = () => {
 
   const [savedSuccess, setSavedSuccess] = useState<boolean>(false);
   const [resetSuccess, setResetSuccess] = useState<boolean>(false);
+  const [sqlCopied, setSqlCopied] = useState<boolean>(false);
+  const [showSqlViewer, setShowSqlViewer] = useState<boolean>(false);
+
+  const handleCopySql = () => {
+    if (typeof navigator !== 'undefined') {
+      navigator.clipboard.writeText(SUPABASE_SQL_SCHEMA);
+      setSqlCopied(true);
+      setTimeout(() => setSqlCopied(false), 2500);
+    }
+  };
 
   const handleUnitToggle = (newUnit: UnitPreference) => {
     if (newUnit === form.unit_preference) return;
@@ -158,6 +183,43 @@ export const ProfileSettings: React.FC = () => {
   };
 
   const changelogHistory = [
+    {
+      version: 'Beta 0.12.3',
+      date: '2026-08-23',
+      title: 'Universal Schema Self-Healing & Column Auto-Provisioning (ADD COLUMN IF NOT EXISTS)',
+      changes: [
+        'Added ADD COLUMN IF NOT EXISTS for all table columns (including user_id) preventing 42703 column missing errors on existing databases.',
+        'Guaranteed 100% idempotent SQL execution regardless of prior schema state.',
+      ],
+    },
+    {
+      version: 'Beta 0.12.2',
+      date: '2026-08-23',
+      title: 'Idempotent Supabase SQL Schema Execution (DROP POLICY IF EXISTS)',
+      changes: [
+        'Added DROP POLICY IF EXISTS guards before all Row-Level Security policy definitions to prevent 42710 duplicate object errors on re-execution.',
+        'Updated in-app schema copy utility with safe idempotent script.',
+      ],
+    },
+    {
+      version: 'Beta 0.12.1',
+      date: '2026-08-23',
+      title: 'In-App 1-Click Supabase SQL Schema Copy & Live Script Viewer',
+      changes: [
+        'Added 1-click "Copy SQL Script" button with clipboard confirmation feedback inside the Goals & Profile cloud panel.',
+        'Added inline interactive Supabase SQL script inspector with full schema and RLS policies.',
+      ],
+    },
+    {
+      version: 'Beta 0.12.0',
+      date: '2026-08-23',
+      title: 'Multi-Device Account Creation & Bidirectional Cloud Sync',
+      changes: [
+        'Added hybrid offline-first cloud authentication allowing users to create accounts with email & password.',
+        'Engineered bidirectional non-destructive cloud sync carrying over meals, workouts, weights, and goals across desktop, laptop, tablet, and phone.',
+        'Integrated multi-device account management panel in Goals & Profile and persistent sync status indicators in Header and Sidebar.',
+      ],
+    },
     {
       version: 'Beta 0.11.0',
       date: '2026-08-23',
@@ -301,6 +363,136 @@ export const ProfileSettings: React.FC = () => {
             </button>
           </div>
         </div>
+      </div>
+
+      {/* Cloud Account & Cross-Device Sync Card */}
+      <div className="rounded-3xl bg-surface-100/90 border border-surface-border p-6 md:p-8 backdrop-blur-xl space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-surface-border">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-brand-500/10 border border-brand-500/20 flex items-center justify-center text-brand-400 shadow-glow">
+              <Cloud className="w-5 h-5" />
+            </div>
+            <div>
+              <h2 className="text-base font-bold text-zinc-100">Multi-Device Cloud Account</h2>
+              <p className="text-xs text-zinc-400">
+                {authUser
+                  ? `Connected as ${authUser.email}`
+                  : 'Sync meals, workouts, weights, and goals across your iPhone, iPad, and computer.'}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3">
+            {authUser ? (
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={syncWithCloud}
+                  disabled={syncStatus === 'syncing'}
+                  className="flex items-center gap-2 px-4 py-2 rounded-xl bg-surface-200 hover:bg-surface-300 border border-surface-border text-xs font-semibold text-zinc-200 transition-all active:scale-95 cursor-pointer"
+                >
+                  <RefreshCw className={`w-3.5 h-3.5 ${syncStatus === 'syncing' ? 'animate-spin text-brand-400' : ''}`} />
+                  <span>{syncStatus === 'syncing' ? 'Syncing...' : 'Sync Cloud Records'}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={signOut}
+                  className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-xs font-semibold text-red-300 transition-all active:scale-95 cursor-pointer"
+                >
+                  <LogOut className="w-3.5 h-3.5" />
+                  <span>Sign Out</span>
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setShowAuthModal(true)}
+                className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-brand-500 to-accent-teal hover:from-brand-600 text-zinc-950 font-bold text-xs shadow-glow transition-all active:scale-95 cursor-pointer"
+              >
+                <Cloud className="w-4 h-4" />
+                <span>Create Account / Sign In</span>
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Sync Status Info Bar */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1 text-xs">
+          <div className="p-3.5 rounded-2xl bg-surface-200/60 border border-surface-border flex items-center justify-between">
+            <span className="text-zinc-400">Account Status:</span>
+            <span className="font-semibold text-zinc-200">
+              {authUser ? (
+                <span className="text-emerald-400 flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                  <span>Authenticated</span>
+                </span>
+              ) : (
+                <span className="text-amber-400">Local Device Only</span>
+              )}
+            </span>
+          </div>
+
+          <div className="p-3.5 rounded-2xl bg-surface-200/60 border border-surface-border flex items-center justify-between">
+            <span className="text-zinc-400">Supported Devices:</span>
+            <span className="font-semibold text-zinc-200 flex items-center gap-2 font-mono text-[11px]">
+              <Smartphone className="w-3.5 h-3.5 text-brand-400" />
+              <span>iOS / Android / Mac / PC</span>
+            </span>
+          </div>
+
+          <div className="p-3.5 rounded-2xl bg-surface-200/60 border border-surface-border flex items-center justify-between">
+            <span className="text-zinc-400">Last Synced:</span>
+            <span className="font-mono text-zinc-300 text-[11px]">
+              {lastSyncedAt ? `${lastSyncedAt}` : (authUser ? 'Just now' : 'Local Storage')}
+            </span>
+          </div>
+        </div>
+
+        {/* Supabase SQL Database Setup Bar with 1-Click Copy */}
+        <div className="pt-3 border-t border-surface-border flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+          <div className="flex items-center gap-2 text-zinc-400">
+            <Code className="w-4 h-4 text-brand-400" />
+            <span>Supabase PostgreSQL Schema & Security Policies (RLS)</span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              id="btn-copy-sql-schema"
+              onClick={handleCopySql}
+              className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl border text-xs font-semibold transition-all cursor-pointer shadow-sm active:scale-95 ${
+                sqlCopied
+                  ? 'bg-emerald-500/20 border-emerald-500/40 text-emerald-300'
+                  : 'bg-surface-200 hover:bg-surface-300 border-surface-border text-zinc-200 hover:border-brand-500/40'
+              }`}
+            >
+              {sqlCopied ? (
+                <>
+                  <Check className="w-3.5 h-3.5 text-emerald-400" />
+                  <span>SQL Schema Copied!</span>
+                </>
+              ) : (
+                <>
+                  <Copy className="w-3.5 h-3.5 text-brand-400" />
+                  <span>Copy SQL Script</span>
+                </>
+              )}
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowSqlViewer((prev) => !prev)}
+              className="px-3 py-1.5 rounded-xl bg-surface-200/60 hover:bg-surface-200 border border-surface-border text-zinc-400 hover:text-zinc-200 text-xs font-medium cursor-pointer"
+            >
+              {showSqlViewer ? 'Hide SQL' : 'View SQL'}
+            </button>
+          </div>
+        </div>
+
+        {showSqlViewer && (
+          <div className="p-4 rounded-2xl bg-surface-300/80 border border-surface-border font-mono text-[11px] text-zinc-300 max-h-60 overflow-y-auto space-y-2 select-all animate-fadeIn">
+            <pre className="whitespace-pre-wrap">{SUPABASE_SQL_SCHEMA}</pre>
+          </div>
+        )}
       </div>
 
       {/* Main Settings Form */}
@@ -578,7 +770,7 @@ export const ProfileSettings: React.FC = () => {
             title="Click to view release changelog history"
           >
             <span className="w-2 h-2 rounded-full bg-brand-400 animate-pulse"></span>
-            <span>Active: Beta 0.11.0</span>
+            <span>Active: Beta 0.12.3</span>
             {showChangelog ? (
               <ChevronUp className="w-3.5 h-3.5 text-brand-400 group-hover:-translate-y-0.5 transition-transform" />
             ) : (

@@ -11,6 +11,9 @@ import {
   Bell,
   Clock,
   ShieldCheck,
+  Cloud,
+  User,
+  RefreshCw,
 } from 'lucide-react';
 
 export const Header: React.FC = () => {
@@ -26,6 +29,9 @@ export const Header: React.FC = () => {
     toggleUnitPreference,
     experienceMode,
     toggleExperienceMode,
+    authUser,
+    setShowAuthModal,
+    syncStatus,
   } = useHealth();
 
   const formattedDate = new Intl.DateTimeFormat('en-US', {
@@ -156,6 +162,35 @@ export const Header: React.FC = () => {
         >
           <Calculator className="w-4 h-4 text-accent-cyan" />
           <span className="hidden sm:inline">Macro Calc</span>
+        </button>
+
+        {/* Cloud Account & Cross-Device Sync Button */}
+        <button
+          id="btn-cloud-sync-header"
+          onClick={() => setShowAuthModal(true)}
+          title={
+            authUser
+              ? `Signed in as ${authUser.email} (Click to manage sync)`
+              : 'Sign in to sync your data across iPhone, iPad & Computer'
+          }
+          className={`flex items-center gap-1.5 px-3 py-2 rounded-xl border text-xs font-semibold transition-all ${
+            authUser
+              ? 'bg-emerald-950/40 border-emerald-500/40 text-emerald-300 hover:bg-emerald-900/50'
+              : 'bg-surface-100 hover:bg-surface-50 border-surface-border text-zinc-300 hover:border-brand-500/40'
+          }`}
+        >
+          {authUser ? (
+            <>
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+              <Cloud className="w-3.5 h-3.5 text-emerald-400" />
+              <span className="hidden md:inline font-mono text-[11px]">Synced</span>
+            </>
+          ) : (
+            <>
+              <Cloud className="w-3.5 h-3.5 text-brand-400" />
+              <span className="hidden sm:inline">Sync Cloud</span>
+            </>
+          )}
         </button>
 
         {/* Quick Log Meal */}
