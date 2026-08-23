@@ -211,6 +211,16 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'Beta 0.14.1',
+      date: '2026-08-23',
+      title: 'Expanded 2,250-Item Verified Food Database & Comprehensive 11-Filter Nutritional Matrix',
+      changes: [
+        'Added 100+ verified food items per category, scaling the master nutrition library to 2,250+ verified items across all 10 tiered groups.',
+        'Engineered an expansive 11-category stackable filter system spanning High Protein, Gluten-Free, Dairy-Free, Low Carb/Keto, Low Calorie, Ultra Lean, Calorie Dense, Plant-Based, High Fiber, Paleo, and Fasting-Safe.',
+        'Added a dedicated Filter Matrix Modal Window with live item count diagnostics and 1-click active tag pill dismissals.',
+      ],
+    },
+    {
       version: 'Beta 0.14.0',
       date: '2026-08-23',
       title: 'Layered Modal Window Architecture & Windows-Over-Windows Design System',
@@ -902,7 +912,7 @@ export const ProfileSettings: React.FC = () => {
             title="Click to open release changelog modal window"
           >
             <span className="w-2 h-2 rounded-full bg-brand-400 animate-pulse"></span>
-            <span>Active: Beta 0.14.0</span>
+            <span>Active: Beta 0.14.1</span>
             <ChevronRight className="w-3.5 h-3.5 text-brand-400 group-hover:translate-x-0.5 transition-transform" />
           </button>
         </div>

@@ -22,6 +22,10 @@ import {
   X,
   Layers,
   RotateCcw,
+  SlidersHorizontal,
+  Leaf,
+  Apple,
+  Zap,
 } from 'lucide-react';
 
 interface FoodDatabaseBrowserProps {
@@ -43,26 +47,139 @@ export const FoodDatabaseBrowser: React.FC<FoodDatabaseBrowserProps> = ({
   const [selectedCategory, setSelectedCategory] = useState<FoodCategory | null>(null);
   const [selectedSubCategory, setSelectedSubCategory] = useState<string | null>(null);
   const [selectedFoodDetail, setSelectedFoodDetail] = useState<FoodItem | null>(null);
+  const [showFilterMatrixModal, setShowFilterMatrixModal] = useState<boolean>(false);
 
-  // Stackable Independent Dietary Filter Toggles
+  // Stackable Comprehensive Dietary & Nutritional Filter Toggles
   const [filterHighProtein, setFilterHighProtein] = useState<boolean>(false);
   const [filterGlutenFree, setFilterGlutenFree] = useState<boolean>(false);
   const [filterDairyFree, setFilterDairyFree] = useState<boolean>(false);
+  const [filterLowCarb, setFilterLowCarb] = useState<boolean>(false);
+  const [filterLowCalorie, setFilterLowCalorie] = useState<boolean>(false);
+  const [filterLowFat, setFilterLowFat] = useState<boolean>(false);
+  const [filterCalorieDense, setFilterCalorieDense] = useState<boolean>(false);
+  const [filterPlantBased, setFilterPlantBased] = useState<boolean>(false);
+  const [filterHighFiber, setFilterHighFiber] = useState<boolean>(false);
+  const [filterPaleo, setFilterPaleo] = useState<boolean>(false);
+  const [filterFastingSafe, setFilterFastingSafe] = useState<boolean>(false);
 
-  const hasActiveDietaryFilters = filterHighProtein || filterGlutenFree || filterDairyFree;
+  // Helper evaluators for complex lifestyle protocols
+  const isPlantBasedItem = (item: FoodItem) => {
+    const cat = normalizeFoodCategory(item.category);
+    if (cat === 'poultry_meat' || cat === 'fish_seafood') return false;
+    if (cat === 'dairy_eggs' && item.sub_category !== 'plant_milks') return false;
+    return true;
+  };
 
-  // Helper to check if a single food item matches the current stack of active filters
+  const isPaleoItem = (item: FoodItem) => {
+    const cat = normalizeFoodCategory(item.category);
+    if (cat === 'grains_carbs') return false;
+    if (cat === 'dairy_eggs' && item.sub_category !== 'eggs') return false;
+    if (
+      item.sub_category === 'beans' ||
+      item.sub_category === 'chickpeas_lentils' ||
+      item.sub_category === 'seitan_wheat' ||
+      item.sub_category === 'tofu_tempeh'
+    ) {
+      return false;
+    }
+    return true;
+  };
+
+  const isHighFiberItem = (item: FoodItem) => {
+    const cat = normalizeFoodCategory(item.category);
+    if (item.fiber_per_100g && item.fiber_per_100g >= 3) return true;
+    if (cat === 'vegetables' || cat === 'fruits') return true;
+    if (
+      item.sub_category === 'super_seeds' ||
+      item.sub_category === 'beans' ||
+      item.sub_category === 'chickpeas_lentils' ||
+      item.sub_category === 'oats_cereals'
+    ) {
+      return true;
+    }
+    return false;
+  };
+
+  // Stacked filtering evaluator (all active filters must be true)
   const matchesDietary = (item: FoodItem) => {
     if (filterHighProtein && item.protein_per_100g < 15) return false;
     if (filterGlutenFree && !item.is_gluten_free) return false;
     if (filterDairyFree && !item.is_dairy_free) return false;
+    if (filterLowCarb && item.carbs_per_100g > 5) return false;
+    if (filterLowCalorie && item.calories_per_100g > 75) return false;
+    if (filterLowFat && item.fat_per_100g > 3) return false;
+    if (filterCalorieDense && item.calories_per_100g < 250) return false;
+    if (filterPlantBased && !isPlantBasedItem(item)) return false;
+    if (filterHighFiber && !isHighFiberItem(item)) return false;
+    if (filterPaleo && !isPaleoItem(item)) return false;
+    if (filterFastingSafe && item.calories_per_100g > 10) return false;
     return true;
   };
+
+  const activeFiltersCount = [
+    filterHighProtein,
+    filterGlutenFree,
+    filterDairyFree,
+    filterLowCarb,
+    filterLowCalorie,
+    filterLowFat,
+    filterCalorieDense,
+    filterPlantBased,
+    filterHighFiber,
+    filterPaleo,
+    filterFastingSafe,
+  ].filter(Boolean).length;
+
+  const hasActiveDietaryFilters = activeFiltersCount > 0;
+
+  const resetAllFilters = () => {
+    setFilterHighProtein(false);
+    setFilterGlutenFree(false);
+    setFilterDairyFree(false);
+    setFilterLowCarb(false);
+    setFilterLowCalorie(false);
+    setFilterLowFat(false);
+    setFilterCalorieDense(false);
+    setFilterPlantBased(false);
+    setFilterHighFiber(false);
+    setFilterPaleo(false);
+    setFilterFastingSafe(false);
+  };
+
+  // Base individual counts across whole library
+  const individualCounts = useMemo(() => {
+    return {
+      highProtein: foods.filter((f) => f.protein_per_100g >= 15).length,
+      glutenFree: foods.filter((f) => f.is_gluten_free).length,
+      dairyFree: foods.filter((f) => f.is_dairy_free).length,
+      lowCarb: foods.filter((f) => f.carbs_per_100g <= 5).length,
+      lowCalorie: foods.filter((f) => f.calories_per_100g <= 75).length,
+      lowFat: foods.filter((f) => f.fat_per_100g <= 3).length,
+      calorieDense: foods.filter((f) => f.calories_per_100g >= 250).length,
+      plantBased: foods.filter(isPlantBasedItem).length,
+      highFiber: foods.filter(isHighFiberItem).length,
+      paleo: foods.filter(isPaleoItem).length,
+      fastingSafe: foods.filter((f) => f.calories_per_100g <= 10).length,
+    };
+  }, [foods]);
 
   // Total matching foods count in entire library under current stacked filters
   const totalMatchingFoods = useMemo(() => {
     return foods.filter(matchesDietary).length;
-  }, [foods, filterHighProtein, filterGlutenFree, filterDairyFree]);
+  }, [
+    foods,
+    filterHighProtein,
+    filterGlutenFree,
+    filterDairyFree,
+    filterLowCarb,
+    filterLowCalorie,
+    filterLowFat,
+    filterCalorieDense,
+    filterPlantBased,
+    filterHighFiber,
+    filterPaleo,
+    filterFastingSafe,
+  ]);
 
   // Count items per category (respecting active stacked dietary filters)
   const categoryCounts = useMemo(() => {
@@ -73,7 +190,20 @@ export const FoodDatabaseBrowser: React.FC<FoodDatabaseBrowserProps> = ({
       counts[cat] = (counts[cat] || 0) + 1;
     });
     return counts;
-  }, [foods, filterHighProtein, filterGlutenFree, filterDairyFree]);
+  }, [
+    foods,
+    filterHighProtein,
+    filterGlutenFree,
+    filterDairyFree,
+    filterLowCarb,
+    filterLowCalorie,
+    filterLowFat,
+    filterCalorieDense,
+    filterPlantBased,
+    filterHighFiber,
+    filterPaleo,
+    filterFastingSafe,
+  ]);
 
   // Count items per sub-category (respecting active stacked dietary filters)
   const subCategoryCounts = useMemo(() => {
@@ -85,7 +215,20 @@ export const FoodDatabaseBrowser: React.FC<FoodDatabaseBrowserProps> = ({
       }
     });
     return counts;
-  }, [foods, filterHighProtein, filterGlutenFree, filterDairyFree]);
+  }, [
+    foods,
+    filterHighProtein,
+    filterGlutenFree,
+    filterDairyFree,
+    filterLowCarb,
+    filterLowCalorie,
+    filterLowFat,
+    filterCalorieDense,
+    filterPlantBased,
+    filterHighFiber,
+    filterPaleo,
+    filterFastingSafe,
+  ]);
 
   // Available sub-categories for selected parent category
   const currentSubCategories = useMemo(() => {
@@ -116,7 +259,23 @@ export const FoodDatabaseBrowser: React.FC<FoodDatabaseBrowserProps> = ({
 
       return true;
     });
-  }, [foods, searchQuery, selectedCategory, selectedSubCategory, filterHighProtein, filterGlutenFree, filterDairyFree]);
+  }, [
+    foods,
+    searchQuery,
+    selectedCategory,
+    selectedSubCategory,
+    filterHighProtein,
+    filterGlutenFree,
+    filterDairyFree,
+    filterLowCarb,
+    filterLowCalorie,
+    filterLowFat,
+    filterCalorieDense,
+    filterPlantBased,
+    filterHighFiber,
+    filterPaleo,
+    filterFastingSafe,
+  ]);
 
   const activeCategoryMeta = FOOD_CATEGORIES.find((c) => c.id === selectedCategory);
   const activeSubCategoryMeta = FOOD_SUB_CATEGORIES.find((s) => s.id === selectedSubCategory);
@@ -133,12 +292,13 @@ export const FoodDatabaseBrowser: React.FC<FoodDatabaseBrowserProps> = ({
             <p className="text-xs text-zinc-400 mt-0.5">
               {isSimple
                 ? 'Explore fresh ingredients by category, sub-category, or search anything instantly by name.'
-                : 'Expansive verified nutrition library with tiered sub-categories and bioavailable macro profiles.'}
+                : `Verified precision nutrition library with ${foods.length.toLocaleString()} verified items across 10 tiered groups.`}
             </p>
           </div>
 
-          {/* Stackable Multi-Select Dietary Filters */}
+          {/* Clean Primary Filter Toggles + Modal Trigger */}
           <div className="flex flex-wrap items-center gap-2 self-start lg:self-auto">
+            {/* 1. High Protein */}
             <button
               type="button"
               id="filter-btn-high-protein"
@@ -153,6 +313,7 @@ export const FoodDatabaseBrowser: React.FC<FoodDatabaseBrowserProps> = ({
               {filterHighProtein && <Check className="w-3.5 h-3.5 stroke-[2.5]" />}
             </button>
 
+            {/* 2. Gluten Free */}
             <button
               type="button"
               id="filter-btn-gluten-free"
@@ -167,6 +328,7 @@ export const FoodDatabaseBrowser: React.FC<FoodDatabaseBrowserProps> = ({
               {filterGlutenFree && <Check className="w-3.5 h-3.5 stroke-[2.5]" />}
             </button>
 
+            {/* 3. Dairy Free */}
             <button
               type="button"
               id="filter-btn-dairy-free"
@@ -181,15 +343,58 @@ export const FoodDatabaseBrowser: React.FC<FoodDatabaseBrowserProps> = ({
               {filterDairyFree && <Check className="w-3.5 h-3.5 stroke-[2.5]" />}
             </button>
 
+            {/* 4. Low Carb */}
+            <button
+              type="button"
+              id="filter-btn-low-carb"
+              onClick={() => setFilterLowCarb((prev) => !prev)}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer select-none active:scale-95 ${
+                filterLowCarb
+                  ? 'bg-purple-500 text-white font-bold shadow-glow border border-purple-400'
+                  : 'bg-surface-200 hover:bg-surface-300 border border-surface-border text-zinc-300 hover:text-white'
+              }`}
+            >
+              <span>🥑 Low Carb (≤5g)</span>
+              {filterLowCarb && <Check className="w-3.5 h-3.5 stroke-[2.5]" />}
+            </button>
+
+            {/* 5. Plant-Based */}
+            <button
+              type="button"
+              id="filter-btn-plant-based"
+              onClick={() => setFilterPlantBased((prev) => !prev)}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer select-none active:scale-95 ${
+                filterPlantBased
+                  ? 'bg-teal-500 text-zinc-950 font-bold shadow-glow border border-teal-400'
+                  : 'bg-surface-200 hover:bg-surface-300 border border-surface-border text-zinc-300 hover:text-white'
+              }`}
+            >
+              <span>🌱 Plant-Based</span>
+              {filterPlantBased && <Check className="w-3.5 h-3.5 stroke-[2.5]" />}
+            </button>
+
+            {/* More Filters Trigger (Opens Filter Matrix Modal) */}
+            <button
+              type="button"
+              id="filter-btn-more-matrix"
+              onClick={() => setShowFilterMatrixModal(true)}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer active:scale-95 ${
+                hasActiveDietaryFilters
+                  ? 'bg-brand-500/20 text-brand-300 border border-brand-500/40 shadow-sm'
+                  : 'bg-surface-200 hover:bg-surface-300 border border-surface-border text-zinc-200 hover:border-brand-500/40'
+              }`}
+              title="Open full 11-category dietary & macro filter matrix"
+            >
+              <SlidersHorizontal className="w-3.5 h-3.5 text-brand-400" />
+              <span>All Filters {activeFiltersCount > 0 ? `(${activeFiltersCount})` : '(11)'}</span>
+            </button>
+
+            {/* Quick Reset */}
             {hasActiveDietaryFilters && (
               <button
                 type="button"
                 id="filter-btn-reset"
-                onClick={() => {
-                  setFilterHighProtein(false);
-                  setFilterGlutenFree(false);
-                  setFilterDairyFree(false);
-                }}
+                onClick={resetAllFilters}
                 className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-surface-200 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 text-xs font-semibold transition-all cursor-pointer active:scale-95"
                 title="Clear all dietary filters"
               >
@@ -210,12 +415,11 @@ export const FoodDatabaseBrowser: React.FC<FoodDatabaseBrowserProps> = ({
             onChange={(e) => {
               setSearchQuery(e.target.value);
               if (e.target.value.trim().length > 0) {
-                // Clear category navigation when searching globally
                 setSelectedCategory(null);
                 setSelectedSubCategory(null);
               }
             }}
-            placeholder="Search any food globally (e.g. chicken breast, sirloin, salmon, oats, avocado)..."
+            placeholder="Search any food globally (e.g. chicken breast, sirloin, wild salmon, rolled oats, avocado)..."
             className="w-full pl-12 pr-10 py-3.5 rounded-2xl bg-surface-200/90 border border-surface-border text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 transition-all shadow-inner"
           />
           {searchQuery.length > 0 && (
@@ -227,29 +431,101 @@ export const FoodDatabaseBrowser: React.FC<FoodDatabaseBrowserProps> = ({
             </button>
           )}
         </div>
+
+        {/* Active Filters Pill Bar (Simple, dismissible tags) */}
+        {hasActiveDietaryFilters && (
+          <div className="pt-2 border-t border-surface-border/60 flex items-center gap-2 flex-wrap text-xs animate-fadeIn">
+            <span className="text-zinc-400 font-semibold text-[11px] uppercase tracking-wider">Active Filters:</span>
+            {filterHighProtein && (
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 font-mono text-[11px]">
+                <span>🥩 High Protein (15g+)</span>
+                <button onClick={() => setFilterHighProtein(false)} className="hover:text-white cursor-pointer"><X className="w-3 h-3" /></button>
+              </span>
+            )}
+            {filterGlutenFree && (
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-amber-500/20 border border-amber-500/40 text-amber-300 font-mono text-[11px]">
+                <span>🌾 Gluten-Free</span>
+                <button onClick={() => setFilterGlutenFree(false)} className="hover:text-white cursor-pointer"><X className="w-3 h-3" /></button>
+              </span>
+            )}
+            {filterDairyFree && (
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-cyan-500/20 border border-cyan-500/40 text-cyan-300 font-mono text-[11px]">
+                <span>🥛 Dairy-Free</span>
+                <button onClick={() => setFilterDairyFree(false)} className="hover:text-white cursor-pointer"><X className="w-3 h-3" /></button>
+              </span>
+            )}
+            {filterLowCarb && (
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-purple-500/20 border border-purple-500/40 text-purple-300 font-mono text-[11px]">
+                <span>🥑 Low Carb (≤5g)</span>
+                <button onClick={() => setFilterLowCarb(false)} className="hover:text-white cursor-pointer"><X className="w-3 h-3" /></button>
+              </span>
+            )}
+            {filterLowCalorie && (
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-blue-500/20 border border-blue-500/40 text-blue-300 font-mono text-[11px]">
+                <span>📉 Low Calorie (≤75 kcal)</span>
+                <button onClick={() => setFilterLowCalorie(false)} className="hover:text-white cursor-pointer"><X className="w-3 h-3" /></button>
+              </span>
+            )}
+            {filterLowFat && (
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-rose-500/20 border border-rose-500/40 text-rose-300 font-mono text-[11px]">
+                <span>⚡ Ultra Lean (≤3g Fat)</span>
+                <button onClick={() => setFilterLowFat(false)} className="hover:text-white cursor-pointer"><X className="w-3 h-3" /></button>
+              </span>
+            )}
+            {filterCalorieDense && (
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-orange-500/20 border border-orange-500/40 text-orange-300 font-mono text-[11px]">
+                <span>🔋 Calorie Dense (≥250 kcal)</span>
+                <button onClick={() => setFilterCalorieDense(false)} className="hover:text-white cursor-pointer"><X className="w-3 h-3" /></button>
+              </span>
+            )}
+            {filterPlantBased && (
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-teal-500/20 border border-teal-500/40 text-teal-300 font-mono text-[11px]">
+                <span>🌱 Plant-Based</span>
+                <button onClick={() => setFilterPlantBased(false)} className="hover:text-white cursor-pointer"><X className="w-3 h-3" /></button>
+              </span>
+            )}
+            {filterHighFiber && (
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-lime-500/20 border border-lime-500/40 text-lime-300 font-mono text-[11px]">
+                <span>🥦 High Fiber (3g+)</span>
+                <button onClick={() => setFilterHighFiber(false)} className="hover:text-white cursor-pointer"><X className="w-3 h-3" /></button>
+              </span>
+            )}
+            {filterPaleo && (
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-yellow-500/20 border border-yellow-500/40 text-yellow-300 font-mono text-[11px]">
+                <span>🥩 Paleo / Whole Foods</span>
+                <button onClick={() => setFilterPaleo(false)} className="hover:text-white cursor-pointer"><X className="w-3 h-3" /></button>
+              </span>
+            )}
+            {filterFastingSafe && (
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-zinc-500/20 border border-zinc-500/40 text-zinc-300 font-mono text-[11px]">
+                <span>☕ Fasting Safe (≤10 kcal)</span>
+                <button onClick={() => setFilterFastingSafe(false)} className="hover:text-white cursor-pointer"><X className="w-3 h-3" /></button>
+              </span>
+            )}
+          </div>
+        )}
       </div>
 
       {/* =========================================================================
           TIER 1: MASTER CATEGORIES GRID (Root Overview)
-          - Preserved when filtering: Category card counts reduce in real-time!
           ========================================================================= */}
       {!selectedCategory && !selectedSubCategory && searchQuery.trim().length === 0 && (
         <div className="space-y-4 animate-fadeIn">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 px-1">
             <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-400 flex items-center gap-1.5 flex-wrap">
-              <span>Main Categories</span>
+              <span>Main Food Categories</span>
               <span className="text-zinc-600">•</span>
-              <span className="text-brand-400 font-mono">{FOOD_CATEGORIES.length} Groups</span>
+              <span className="text-brand-400 font-mono">{FOOD_CATEGORIES.length} Master Groups</span>
               {hasActiveDietaryFilters && (
                 <>
                   <span className="text-zinc-600">•</span>
                   <span className="text-emerald-400 font-mono font-semibold">
-                    {totalMatchingFoods} of {foods.length} items match active filters
+                    {totalMatchingFoods.toLocaleString()} of {foods.length.toLocaleString()} matching items
                   </span>
                 </>
               )}
             </h3>
-            <span className="text-xs text-zinc-500">Click any group to explore sub-categories</span>
+            <span className="text-xs text-zinc-500">Select any group to view sub-categories</span>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3.5">
@@ -287,7 +563,7 @@ export const FoodDatabaseBrowser: React.FC<FoodDatabaseBrowserProps> = ({
                             : 'bg-surface-300/80 text-zinc-300 border-surface-border/60'
                         }`}
                       >
-                        {count} {count === 1 ? 'food' : 'foods'}
+                        {count.toLocaleString()} {count === 1 ? 'food' : 'foods'}
                       </span>
                     </div>
 
@@ -312,7 +588,6 @@ export const FoodDatabaseBrowser: React.FC<FoodDatabaseBrowserProps> = ({
 
       {/* =========================================================================
           TIER 2: SUB-CATEGORIES GRID (When a Master Category is Chosen)
-          - Subcategory card counts also reduce in real-time based on stacked filters!
           ========================================================================= */}
       {selectedCategory && !selectedSubCategory && searchQuery.trim().length === 0 && (
         <div className="space-y-4 animate-fadeIn">
@@ -338,7 +613,7 @@ export const FoodDatabaseBrowser: React.FC<FoodDatabaseBrowserProps> = ({
                 <>
                   <span className="text-zinc-600">/</span>
                   <span className="text-emerald-400 font-mono font-semibold">
-                    {categoryCounts[selectedCategory] || 0} matching items
+                    {(categoryCounts[selectedCategory] || 0).toLocaleString()} matching items
                   </span>
                 </>
               )}
@@ -348,7 +623,7 @@ export const FoodDatabaseBrowser: React.FC<FoodDatabaseBrowserProps> = ({
               onClick={() => setSelectedSubCategory('all')}
               className="text-xs font-semibold text-brand-400 hover:underline flex items-center gap-1 cursor-pointer self-start sm:self-auto"
             >
-              <span>View All {categoryCounts[selectedCategory] || 0} Foods in Category</span>
+              <span>View All {(categoryCounts[selectedCategory] || 0).toLocaleString()} Foods in Category</span>
               <ChevronRight className="w-3.5 h-3.5" />
             </button>
           </div>
@@ -388,7 +663,7 @@ export const FoodDatabaseBrowser: React.FC<FoodDatabaseBrowserProps> = ({
                             : 'bg-surface-300/80 text-zinc-300 border-surface-border/60'
                         }`}
                       >
-                        {subCount} {subCount === 1 ? 'food' : 'foods'}
+                        {subCount.toLocaleString()} {subCount === 1 ? 'food' : 'foods'}
                       </span>
                     </div>
 
@@ -473,7 +748,7 @@ export const FoodDatabaseBrowser: React.FC<FoodDatabaseBrowserProps> = ({
 
             <div className="flex items-center gap-2 self-start sm:self-auto">
               <span className="text-xs font-mono px-3 py-1 rounded-lg bg-surface-200 text-zinc-300 font-medium">
-                {filteredFoods.length} {filteredFoods.length === 1 ? 'item' : 'items'}
+                {filteredFoods.length.toLocaleString()} {filteredFoods.length === 1 ? 'item' : 'items'}
               </span>
             </div>
           </div>
@@ -484,18 +759,14 @@ export const FoodDatabaseBrowser: React.FC<FoodDatabaseBrowserProps> = ({
               <div className="text-4xl">🔍</div>
               <h4 className="text-base font-bold text-zinc-200">No foods found matching the active filters</h4>
               <p className="text-xs text-zinc-400 max-w-md mx-auto">
-                Try unchecking one of the stacked dietary filters above to broaden your selection.
+                Try unchecking one or more of the active dietary filters to broaden your selection.
               </p>
               {hasActiveDietaryFilters && (
                 <button
-                  onClick={() => {
-                    setFilterHighProtein(false);
-                    setFilterGlutenFree(false);
-                    setFilterDairyFree(false);
-                  }}
+                  onClick={resetAllFilters}
                   className="px-4 py-2 rounded-xl bg-brand-500 text-zinc-950 font-bold text-xs cursor-pointer shadow-glow"
                 >
-                  Reset Dietary Filters
+                  Reset All Filters
                 </button>
               )}
             </div>
@@ -538,6 +809,11 @@ export const FoodDatabaseBrowser: React.FC<FoodDatabaseBrowserProps> = ({
                       {item.is_dairy_free && (
                         <span className="px-1.5 py-0.5 rounded text-[9px] font-mono bg-cyan-500/10 text-cyan-300 border border-cyan-500/30">
                           DF
+                        </span>
+                      )}
+                      {item.carbs_per_100g <= 5 && (
+                        <span className="px-1.5 py-0.5 rounded text-[9px] font-mono bg-purple-500/10 text-purple-300 border border-purple-500/30">
+                          LC
                         </span>
                       )}
                     </div>
@@ -615,6 +891,290 @@ export const FoodDatabaseBrowser: React.FC<FoodDatabaseBrowserProps> = ({
       )}
 
       {/* =========================================================================
+          MODAL WINDOW: COMPLETE 11-FILTER NUTRITIONAL MATRIX
+          ========================================================================= */}
+      {showFilterMatrixModal && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 animate-fadeIn select-none">
+          <div className="w-full max-w-2xl max-h-[88vh] rounded-3xl bg-surface-100 border border-surface-border p-6 shadow-2xl flex flex-col space-y-4 animate-scaleUp">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between pb-3 border-b border-surface-border">
+              <div className="flex items-center gap-2">
+                <SlidersHorizontal className="w-5 h-5 text-brand-400" />
+                <h3 className="text-base font-bold text-white">Dietary & Nutritional Filter Matrix</h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowFilterMatrixModal(false)}
+                className="p-1.5 rounded-xl bg-surface-200 hover:bg-surface-300 text-zinc-400 hover:text-white cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <p className="text-xs text-zinc-400">
+              Stack multiple dietary, macronutrient, and metabolic filters simultaneously. All selected criteria apply together (AND conjunction).
+            </p>
+
+            {/* Scrollable Filter Categories */}
+            <div className="flex-1 overflow-y-auto space-y-5 pr-1 text-xs">
+              {/* Group 1: Macronutrients & Density */}
+              <div className="space-y-2.5">
+                <h4 className="font-bold text-brand-400 uppercase tracking-wider text-[11px]">
+                  📊 Macronutrients & Macro Splits
+                </h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setFilterHighProtein((prev) => !prev)}
+                    className={`p-3 rounded-2xl border text-left transition-all cursor-pointer flex items-center justify-between ${
+                      filterHighProtein
+                        ? 'bg-emerald-500/20 border-emerald-500/40 text-emerald-200'
+                        : 'bg-surface-200 hover:bg-surface-300 border-surface-border text-zinc-300'
+                    }`}
+                  >
+                    <div>
+                      <div className="font-bold text-sm flex items-center gap-1.5">
+                        <span>🥩 High Protein Density</span>
+                        {filterHighProtein && <Check className="w-3.5 h-3.5 text-emerald-400 stroke-[3]" />}
+                      </div>
+                      <div className="text-[11px] text-zinc-400 mt-0.5">15g+ Protein per 100g</div>
+                    </div>
+                    <span className="text-xs font-mono font-bold text-emerald-400">{individualCounts.highProtein} foods</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setFilterLowCarb((prev) => !prev)}
+                    className={`p-3 rounded-2xl border text-left transition-all cursor-pointer flex items-center justify-between ${
+                      filterLowCarb
+                        ? 'bg-purple-500/20 border-purple-500/40 text-purple-200'
+                        : 'bg-surface-200 hover:bg-surface-300 border-surface-border text-zinc-300'
+                    }`}
+                  >
+                    <div>
+                      <div className="font-bold text-sm flex items-center gap-1.5">
+                        <span>🥑 Low Carb / Keto</span>
+                        {filterLowCarb && <Check className="w-3.5 h-3.5 text-purple-400 stroke-[3]" />}
+                      </div>
+                      <div className="text-[11px] text-zinc-400 mt-0.5">≤ 5g Carbs per 100g</div>
+                    </div>
+                    <span className="text-xs font-mono font-bold text-purple-400">{individualCounts.lowCarb} foods</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setFilterLowFat((prev) => !prev)}
+                    className={`p-3 rounded-2xl border text-left transition-all cursor-pointer flex items-center justify-between ${
+                      filterLowFat
+                        ? 'bg-rose-500/20 border-rose-500/40 text-rose-200'
+                        : 'bg-surface-200 hover:bg-surface-300 border-surface-border text-zinc-300'
+                    }`}
+                  >
+                    <div>
+                      <div className="font-bold text-sm flex items-center gap-1.5">
+                        <span>⚡ Ultra Lean / Low Fat</span>
+                        {filterLowFat && <Check className="w-3.5 h-3.5 text-rose-400 stroke-[3]" />}
+                      </div>
+                      <div className="text-[11px] text-zinc-400 mt-0.5">≤ 3g Total Fat per 100g</div>
+                    </div>
+                    <span className="text-xs font-mono font-bold text-rose-400">{individualCounts.lowFat} foods</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Group 2: Dietary Protocols & Allergens */}
+              <div className="space-y-2.5">
+                <h4 className="font-bold text-accent-cyan uppercase tracking-wider text-[11px]">
+                  🥗 Dietary Protocols & Allergen-Safe
+                </h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setFilterGlutenFree((prev) => !prev)}
+                    className={`p-3 rounded-2xl border text-left transition-all cursor-pointer flex items-center justify-between ${
+                      filterGlutenFree
+                        ? 'bg-amber-500/20 border-amber-500/40 text-amber-200'
+                        : 'bg-surface-200 hover:bg-surface-300 border-surface-border text-zinc-300'
+                    }`}
+                  >
+                    <div>
+                      <div className="font-bold text-sm flex items-center gap-1.5">
+                        <span>🌾 100% Gluten-Free</span>
+                        {filterGlutenFree && <Check className="w-3.5 h-3.5 text-amber-400 stroke-[3]" />}
+                      </div>
+                      <div className="text-[11px] text-zinc-400 mt-0.5">Zero gluten grains or derivatives</div>
+                    </div>
+                    <span className="text-xs font-mono font-bold text-amber-400">{individualCounts.glutenFree} foods</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setFilterDairyFree((prev) => !prev)}
+                    className={`p-3 rounded-2xl border text-left transition-all cursor-pointer flex items-center justify-between ${
+                      filterDairyFree
+                        ? 'bg-cyan-500/20 border-cyan-500/40 text-cyan-200'
+                        : 'bg-surface-200 hover:bg-surface-300 border-surface-border text-zinc-300'
+                    }`}
+                  >
+                    <div>
+                      <div className="font-bold text-sm flex items-center gap-1.5">
+                        <span>🥛 100% Dairy-Free</span>
+                        {filterDairyFree && <Check className="w-3.5 h-3.5 text-cyan-400 stroke-[3]" />}
+                      </div>
+                      <div className="text-[11px] text-zinc-400 mt-0.5">Lactose & dairy-casein free</div>
+                    </div>
+                    <span className="text-xs font-mono font-bold text-cyan-400">{individualCounts.dairyFree} foods</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setFilterPlantBased((prev) => !prev)}
+                    className={`p-3 rounded-2xl border text-left transition-all cursor-pointer flex items-center justify-between ${
+                      filterPlantBased
+                        ? 'bg-teal-500/20 border-teal-500/40 text-teal-200'
+                        : 'bg-surface-200 hover:bg-surface-300 border-surface-border text-zinc-300'
+                    }`}
+                  >
+                    <div>
+                      <div className="font-bold text-sm flex items-center gap-1.5">
+                        <span>🌱 Plant-Based / Vegan</span>
+                        {filterPlantBased && <Check className="w-3.5 h-3.5 text-teal-400 stroke-[3]" />}
+                      </div>
+                      <div className="text-[11px] text-zinc-400 mt-0.5">Excludes all meats, fish, eggs & dairy</div>
+                    </div>
+                    <span className="text-xs font-mono font-bold text-teal-400">{individualCounts.plantBased} foods</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setFilterPaleo((prev) => !prev)}
+                    className={`p-3 rounded-2xl border text-left transition-all cursor-pointer flex items-center justify-between ${
+                      filterPaleo
+                        ? 'bg-yellow-500/20 border-yellow-500/40 text-yellow-200'
+                        : 'bg-surface-200 hover:bg-surface-300 border-surface-border text-zinc-300'
+                    }`}
+                  >
+                    <div>
+                      <div className="font-bold text-sm flex items-center gap-1.5">
+                        <span>🥩 Paleo & Whole Foods</span>
+                        {filterPaleo && <Check className="w-3.5 h-3.5 text-yellow-400 stroke-[3]" />}
+                      </div>
+                      <div className="text-[11px] text-zinc-400 mt-0.5">Grain-free, legume-free, unprocessed</div>
+                    </div>
+                    <span className="text-xs font-mono font-bold text-yellow-400">{individualCounts.paleo} foods</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Group 3: Calorie Targets & Fasting */}
+              <div className="space-y-2.5">
+                <h4 className="font-bold text-amber-400 uppercase tracking-wider text-[11px]">
+                  🔥 Calorie Density & Fasting
+                </h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setFilterLowCalorie((prev) => !prev)}
+                    className={`p-3 rounded-2xl border text-left transition-all cursor-pointer flex items-center justify-between ${
+                      filterLowCalorie
+                        ? 'bg-blue-500/20 border-blue-500/40 text-blue-200'
+                        : 'bg-surface-200 hover:bg-surface-300 border-surface-border text-zinc-300'
+                    }`}
+                  >
+                    <div>
+                      <div className="font-bold text-sm flex items-center gap-1.5">
+                        <span>📉 Low Calorie / Satiety</span>
+                        {filterLowCalorie && <Check className="w-3.5 h-3.5 text-blue-400 stroke-[3]" />}
+                      </div>
+                      <div className="text-[11px] text-zinc-400 mt-0.5">≤ 75 kcal/100g (High Volume Food)</div>
+                    </div>
+                    <span className="text-xs font-mono font-bold text-blue-400">{individualCounts.lowCalorie} foods</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setFilterCalorieDense((prev) => !prev)}
+                    className={`p-3 rounded-2xl border text-left transition-all cursor-pointer flex items-center justify-between ${
+                      filterCalorieDense
+                        ? 'bg-orange-500/20 border-orange-500/40 text-orange-200'
+                        : 'bg-surface-200 hover:bg-surface-300 border-surface-border text-zinc-300'
+                    }`}
+                  >
+                    <div>
+                      <div className="font-bold text-sm flex items-center gap-1.5">
+                        <span>🔋 Calorie Dense / Clean Bulk</span>
+                        {filterCalorieDense && <Check className="w-3.5 h-3.5 text-orange-400 stroke-[3]" />}
+                      </div>
+                      <div className="text-[11px] text-zinc-400 mt-0.5">≥ 250 kcal/100g (Nuts, Seeds, Oils)</div>
+                    </div>
+                    <span className="text-xs font-mono font-bold text-orange-400">{individualCounts.calorieDense} foods</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setFilterFastingSafe((prev) => !prev)}
+                    className={`p-3 rounded-2xl border text-left transition-all cursor-pointer flex items-center justify-between ${
+                      filterFastingSafe
+                        ? 'bg-zinc-600/30 border-zinc-500/50 text-zinc-200'
+                        : 'bg-surface-200 hover:bg-surface-300 border-surface-border text-zinc-300'
+                    }`}
+                  >
+                    <div>
+                      <div className="font-bold text-sm flex items-center gap-1.5">
+                        <span>☕ Fasting Safe / Zero-Macro</span>
+                        {filterFastingSafe && <Check className="w-3.5 h-3.5 text-zinc-300 stroke-[3]" />}
+                      </div>
+                      <div className="text-[11px] text-zinc-400 mt-0.5">≤ 10 kcal/100g (Teas, Coffees, Minerals)</div>
+                    </div>
+                    <span className="text-xs font-mono font-bold text-zinc-300">{individualCounts.fastingSafe} foods</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setFilterHighFiber((prev) => !prev)}
+                    className={`p-3 rounded-2xl border text-left transition-all cursor-pointer flex items-center justify-between ${
+                      filterHighFiber
+                        ? 'bg-lime-500/20 border-lime-500/40 text-lime-200'
+                        : 'bg-surface-200 hover:bg-surface-300 border-surface-border text-zinc-300'
+                    }`}
+                  >
+                    <div>
+                      <div className="font-bold text-sm flex items-center gap-1.5">
+                        <span>🥦 High Fiber / Gut Health</span>
+                        {filterHighFiber && <Check className="w-3.5 h-3.5 text-lime-400 stroke-[3]" />}
+                      </div>
+                      <div className="text-[11px] text-zinc-400 mt-0.5">3g+ Fiber/100g & Prebiotic Greens</div>
+                    </div>
+                    <span className="text-xs font-mono font-bold text-lime-400">{individualCounts.highFiber} foods</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Modal Actions Footer */}
+            <div className="flex items-center justify-between pt-3 border-t border-surface-border gap-3 text-xs">
+              <button
+                type="button"
+                onClick={resetAllFilters}
+                className="px-4 py-2.5 rounded-xl bg-surface-200 hover:bg-rose-500/20 text-zinc-300 hover:text-rose-300 font-semibold cursor-pointer transition-all"
+              >
+                Reset All Filters
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setShowFilterMatrixModal(false)}
+                className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-brand-500 hover:bg-brand-600 text-zinc-950 font-bold shadow-glow active:scale-95 cursor-pointer"
+              >
+                <span>Apply Filters ({totalMatchingFoods.toLocaleString()} Foods)</span>
+                <Check className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* =========================================================================
           MODAL WINDOW: COMPLETE FOOD NUTRITION & BIOAVAILABILITY BREAKDOWN
           ========================================================================= */}
       {selectedFoodDetail && (
@@ -656,6 +1216,16 @@ export const FoodDatabaseBrowser: React.FC<FoodDatabaseBrowserProps> = ({
               {selectedFoodDetail.is_dairy_free && (
                 <span className="px-2.5 py-1 rounded-xl text-xs font-semibold bg-cyan-500/15 text-cyan-300 border border-cyan-500/30 flex items-center gap-1">
                   <span>🥛 100% Dairy-Free</span>
+                </span>
+              )}
+              {selectedFoodDetail.carbs_per_100g <= 5 && (
+                <span className="px-2.5 py-1 rounded-xl text-xs font-semibold bg-purple-500/15 text-purple-300 border border-purple-500/30 flex items-center gap-1">
+                  <span>🥑 Low Carb / Keto</span>
+                </span>
+              )}
+              {selectedFoodDetail.calories_per_100g <= 75 && (
+                <span className="px-2.5 py-1 rounded-xl text-xs font-semibold bg-blue-500/15 text-blue-300 border border-blue-500/30 flex items-center gap-1">
+                  <span>📉 Low Calorie / Satiety</span>
                 </span>
               )}
             </div>
