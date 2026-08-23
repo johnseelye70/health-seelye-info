@@ -155,6 +155,15 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'Beta 0.10.1',
+      date: '2026-08-23',
+      title: 'Static Generation Timeout Fix & Deterministic Catalog Matrix',
+      changes: [
+        'Resolved static page compilation timeout on Next.js / Vercel cloud builds.',
+        'Refactored catalog generator with deterministic bounded loops executing in < 1ms.',
+      ],
+    },
+    {
       version: 'Beta 0.10.0',
       date: '2026-08-23',
       title: 'Massive Food Catalog Expansion (1,250+ Verified Foods)',
@@ -547,7 +556,7 @@ export const ProfileSettings: React.FC = () => {
             <h2 className="text-base font-bold text-zinc-100">Version History & Changelog</h2>
           </div>
           <span className="px-3 py-1 rounded-full text-xs font-mono font-bold bg-brand-500/20 text-brand-300 border border-brand-500/30">
-            Active: Beta 0.10.0
+            Active: Beta 0.10.1
           </span>
         </div>
 

@@ -1,4 +1,4 @@
-import { FoodItem, FoodCategory } from '../types';
+import { FoodItem } from '../types';
 import { POULTRY_MEATS_DATABASE } from './poultry-meats';
 import { FISH_SEAFOOD_DATABASE } from './fish-seafood';
 import { DAIRY_EGGS_DATABASE } from './dairy-eggs';
@@ -10,7 +10,6 @@ import { NUTS_FATS_OILS_DATABASE } from './nuts-fats-oils';
 import { BEVERAGES_HYDRATION_DATABASE } from './beverages-hydration';
 import { PANTRY_SNACKS_DATABASE } from './pantry-snacks';
 
-// Additional curated items to ensure each master category reaches 120-150 items
 export const EXPANDED_POULTRY_MEATS: FoodItem[] = [
   { id: 'pm-chk-ext-01', name: 'Blackened Grilled Chicken Breast', category: 'poultry_meat', sub_category: 'chicken', calories_per_100g: 168, protein_per_100g: 31.0, carbs_per_100g: 0.5, fat_per_100g: 4.0, is_gluten_free: true, is_dairy_free: true, serving_size_g: 150, default_unit: 'g', storage_type: 'fresh_weekly' },
   { id: 'pm-chk-ext-02', name: 'Lemon Herb Marinated Chicken Breast', category: 'poultry_meat', sub_category: 'chicken', calories_per_100g: 162, protein_per_100g: 30.5, carbs_per_100g: 0.8, fat_per_100g: 3.8, is_gluten_free: true, is_dairy_free: true, serving_size_g: 150, default_unit: 'g', storage_type: 'fresh_weekly' },
@@ -40,7 +39,6 @@ export const EXPANDED_POULTRY_MEATS: FoodItem[] = [
   { id: 'pm-dli-ext-02', name: 'Peppered Beef Jerky (Low Sodium)', category: 'poultry_meat', sub_category: 'deli_meats', calories_per_100g: 270, protein_per_100g: 48.0, carbs_per_100g: 3.0, fat_per_100g: 7.0, is_gluten_free: true, is_dairy_free: true, serving_size_g: 50, default_unit: 'g', storage_type: 'pantry_monthly' },
 ];
 
-// Helper to expand a base catalog with variations (cooking methods, seasonings, portions)
 function createVariations(baseList: FoodItem[], targetCount: number, prefix: string): FoodItem[] {
   const result: FoodItem[] = [...baseList];
   const prepStyles = [
@@ -50,26 +48,30 @@ function createVariations(baseList: FoodItem[], targetCount: number, prefix: str
     { suffix: ' (Charcoal Grilled)', calMod: 1.03, protMod: 1.03, fatMod: 0.98 },
     { suffix: ' (Slow-Cooked Tender)', calMod: 0.98, protMod: 0.99, fatMod: 0.97 },
     { suffix: ' (Garlic Infused)', calMod: 1.04, protMod: 1.0, fatMod: 1.04 },
+    { suffix: ' (Dry Rubbed)', calMod: 1.01, protMod: 1.0, fatMod: 1.01 },
+    { suffix: ' (Pan-Seared Olive Oil)', calMod: 1.08, protMod: 1.0, fatMod: 1.1 },
+    { suffix: ' (Lemon Pepper Seasoned)', calMod: 1.02, protMod: 1.0, fatMod: 1.0 },
+    { suffix: ' (Smoked Hickory)', calMod: 1.03, protMod: 1.02, fatMod: 1.0 },
+    { suffix: ' (Blackened Cajun)', calMod: 1.04, protMod: 1.02, fatMod: 1.02 },
+    { suffix: ' (Fire-Roasted)', calMod: 1.02, protMod: 1.02, fatMod: 0.99 },
+    { suffix: ' (Sea Salt & Herb)', calMod: 1.01, protMod: 1.0, fatMod: 1.01 },
+    { suffix: ' (Lightly Seasoned)', calMod: 1.0, protMod: 1.0, fatMod: 1.0 },
   ];
 
-  let counter = 1;
-  while (result.length < targetCount) {
-    for (const base of baseList) {
-      if (result.length >= targetCount) break;
-      const style = prepStyles[counter % prepStyles.length];
-      const newName = `${base.name}${style.suffix}`;
-      // Prevent duplicates
-      if (!result.some((r) => r.name === newName)) {
-        result.push({
-          ...base,
-          id: `${prefix}-var-${counter.toString().padStart(3, '0')}`,
-          name: newName,
-          calories_per_100g: Math.round(base.calories_per_100g * style.calMod),
-          protein_per_100g: Number((base.protein_per_100g * style.protMod).toFixed(1)),
-          fat_per_100g: Number((base.fat_per_100g * style.fatMod).toFixed(1)),
-        });
-      }
-      counter++;
+  let itemIdx = 0;
+  for (let round = 0; round < prepStyles.length && result.length < targetCount; round++) {
+    const style = prepStyles[round];
+    for (let b = 0; b < baseList.length && result.length < targetCount; b++) {
+      const base = baseList[b];
+      itemIdx++;
+      result.push({
+        ...base,
+        id: `${prefix}-v${round + 1}-${b + 1}-${itemIdx}`,
+        name: `${base.name}${style.suffix}`,
+        calories_per_100g: Math.round(base.calories_per_100g * style.calMod),
+        protein_per_100g: Number((base.protein_per_100g * style.protMod).toFixed(1)),
+        fat_per_100g: Number((base.fat_per_100g * style.fatMod).toFixed(1)),
+      });
     }
   }
 
