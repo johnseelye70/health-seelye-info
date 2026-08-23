@@ -209,6 +209,16 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'Beta 0.13.2',
+      date: '2026-08-23',
+      title: 'Preserved Hierarchical Category Navigation & Stackable Multi-Select Dietary Filtering',
+      changes: [
+        'Preserved the Category and Sub-Category browsing flow while filtering, dynamically reducing item counts on each category and sub-category card in real time.',
+        'Engineered stackable multi-select dietary buttons allowing simultaneous combination of High Protein, Gluten-Free, and Dairy-Free filters with AND conjunctions.',
+        'Added dynamic zero-count status indicators and visual state tags across cards.',
+      ],
+    },
+    {
       version: 'Beta 0.13.1',
       date: '2026-08-23',
       title: 'Food Database Reactive Dietary Filtering & Live Count Integration',
@@ -838,7 +848,7 @@ export const ProfileSettings: React.FC = () => {
             title="Click to view release changelog history"
           >
             <span className="w-2 h-2 rounded-full bg-brand-400 animate-pulse"></span>
-            <span>Active: Beta 0.13.1</span>
+            <span>Active: Beta 0.13.2</span>
             {showChangelog ? (
               <ChevronUp className="w-3.5 h-3.5 text-brand-400 group-hover:-translate-y-0.5 transition-transform" />
             ) : (
