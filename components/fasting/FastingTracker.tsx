@@ -91,7 +91,7 @@ export const FastingTracker: React.FC = () => {
     <div className="space-y-8 animate-fadeIn pb-12">
       {/* Toast Alert */}
       {notificationToast && (
-        <div className="fixed top-20 right-6 z-50 p-4 rounded-2xl bg-brand-500 text-zinc-950 font-bold text-xs shadow-2xl flex items-center gap-3 animate-slideIn">
+        <div className="fixed top-16 sm:top-20 left-4 right-4 sm:left-auto sm:right-6 sm:max-w-md z-50 p-4 rounded-2xl bg-brand-500 text-zinc-950 font-bold text-xs shadow-2xl flex items-center gap-3 animate-slideIn">
           <CheckCircle2 className="w-5 h-5 shrink-0" />
           <span>{notificationToast}</span>
         </div>

@@ -211,6 +211,17 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'Beta 1.2.0',
+      date: '2026-08-23',
+      title: 'Dedicated iPhone & iPad Mobile UI Enhancements & iOS Safari Constraints',
+      changes: [
+        'Optimized iOS Safe Areas: Added dynamic safe-area insets for iPhone notch, Dynamic Island, and bottom home swipe indicator across Header, BottomNav, and Modals.',
+        'Engineered Mobile Table Layout: Applied strict table-layout fixed, responsive percentage column widths, and compact input steppers to prevent iOS Safari horizontal blowout on iPhone SE & standard iPhones.',
+        'Responsive Mobile Navigation: Enhanced BottomNav to feature all 7 core modules with 44px+ touch targets and active glow states, paired with smooth horizontal sub-tab swiping in Daily Fitness.',
+        'Preserved High-End Desktop Layout: Maintained dark-mode obsidian aesthetics, multi-column analytics grids, full sidebar, and hover micro-animations on laptops and desktops.',
+      ],
+    },
+    {
       version: 'Beta 1.1.1',
       date: '2026-08-23',
       title: 'Dedicated Program Detail Modal Window & Layered Worksheet Architecture',
@@ -1000,7 +1011,7 @@ export const ProfileSettings: React.FC = () => {
             title="Click to open release changelog modal window"
           >
             <span className="w-2 h-2 rounded-full bg-brand-400 animate-pulse"></span>
-            <span>Active: Beta 1.1.1</span>
+            <span>Active: Beta 1.2.0</span>
             <ChevronRight className="w-3.5 h-3.5 text-brand-400 group-hover:translate-x-0.5 transition-transform" />
           </button>
         </div>

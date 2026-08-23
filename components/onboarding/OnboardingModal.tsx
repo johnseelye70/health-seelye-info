@@ -122,8 +122,14 @@ export const OnboardingModal: React.FC = () => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-lg flex items-center justify-center p-4 animate-fadeIn">
-      <div className="w-full max-w-2xl rounded-3xl bg-surface-100 border border-surface-border p-6 md:p-8 shadow-2xl space-y-6 max-h-[90vh] overflow-y-auto">
+    <div
+      className="fixed inset-0 z-50 bg-black/85 backdrop-blur-lg flex items-center justify-center p-3 sm:p-4 animate-fadeIn"
+      onClick={() => setShowOnboardingModal(false)}
+    >
+      <div
+        className="w-full max-w-2xl rounded-3xl bg-surface-100 border border-surface-border p-5 sm:p-6 md:p-8 shadow-2xl space-y-6 max-h-[92vh] overflow-y-auto"
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Header */}
         <div className="flex items-center justify-between pb-4 border-b border-surface-border">
           <div className="flex items-center gap-3">

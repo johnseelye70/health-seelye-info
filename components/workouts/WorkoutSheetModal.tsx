@@ -376,18 +376,18 @@ export const WorkoutSheetModal: React.FC<WorkoutSheetModalProps> = ({
                     </button>
                   </div>
 
-                  {/* Sets Grid */}
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-xs text-left border-collapse">
+                  {/* Sets Grid - Mobile Fixed Table */}
+                  <div className="w-full">
+                    <table className="mobile-fixed-table table-fixed w-full text-xs text-left border-collapse">
                       <thead>
-                        <tr className="border-b border-surface-border text-[10px] text-zinc-400 uppercase font-mono print:text-black print:border-black">
-                          <th className="py-2 px-2.5 w-16">Set #</th>
-                          <th className="py-2 px-2.5 w-28">Reps</th>
-                          <th className="py-2 px-2.5 w-32">Weight (lbs)</th>
-                          <th className="py-2 px-2.5 w-24">RPE (1-10)</th>
-                          <th className="py-2 px-2.5 w-24 text-center print:hidden">Done</th>
-                          <th className="py-2 px-2.5 w-12 print:hidden"></th>
-                          <th className="py-2 px-2.5 hidden print:table-cell w-32">Check (✓)</th>
+                        <tr className="border-b border-surface-border text-[9px] sm:text-[10px] text-zinc-400 uppercase font-mono print:text-black print:border-black">
+                          <th className="py-1.5 px-1 sm:py-2 sm:px-2.5 w-[18%] sm:w-16">Set</th>
+                          <th className="py-1.5 px-1 sm:py-2 sm:px-2.5 w-[26%] sm:w-24">Reps</th>
+                          <th className="py-1.5 px-1 sm:py-2 sm:px-2.5 w-[32%] sm:w-28">Weight</th>
+                          <th className="py-1.5 px-1 sm:py-2 sm:px-2.5 w-[14%] sm:w-20 hidden xs:table-cell">RPE</th>
+                          <th className="py-1.5 px-1 sm:py-2 sm:px-2.5 w-[14%] sm:w-16 text-center print:hidden">Done</th>
+                          <th className="py-1.5 px-1 sm:py-2 sm:px-2.5 w-[8%] sm:w-10 print:hidden"></th>
+                          <th className="py-1.5 px-1 sm:py-2 sm:px-2.5 hidden print:table-cell w-24">Check (✓)</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-surface-border/40 print:divide-gray-300">
@@ -400,25 +400,25 @@ export const WorkoutSheetModal: React.FC<WorkoutSheetModalProps> = ({
                                 : 'hover:bg-surface-200/40'
                             }`}
                           >
-                            <td className="py-2 px-2.5 font-mono font-bold text-zinc-300 print:text-black">
-                              Set {set.set_number}
+                            <td className="py-1.5 px-1 sm:py-2 sm:px-2.5 font-mono font-bold text-zinc-300 print:text-black text-[11px] sm:text-xs">
+                              #{set.set_number}
                             </td>
 
                             {/* Reps Input */}
-                            <td className="py-2 px-2.5">
+                            <td className="py-1.5 px-1 sm:py-2 sm:px-2.5">
                               <input
                                 type="number"
                                 value={set.reps}
                                 onChange={(e) =>
                                   updateSetField(exIdx, setIdx, 'reps', Number(e.target.value))
                                 }
-                                className="w-20 px-2.5 py-1 rounded-lg bg-surface-200 border border-surface-border text-zinc-100 font-mono font-bold focus:outline-none focus:border-brand-500 print:bg-white print:border-black print:text-black"
+                                className="w-full max-w-[4rem] sm:max-w-[5rem] px-1 sm:px-2 py-1 rounded-lg bg-surface-200 border border-surface-border text-zinc-100 font-mono font-bold text-center text-xs focus:outline-none focus:border-brand-500 print:bg-white print:border-black print:text-black"
                               />
                             </td>
 
                             {/* Weight Input */}
-                            <td className="py-2 px-2.5">
-                              <div className="flex items-center gap-1.5">
+                            <td className="py-1.5 px-1 sm:py-2 sm:px-2.5">
+                              <div className="flex items-center gap-1">
                                 <input
                                   type="number"
                                   value={set.weight_lbs}
@@ -430,16 +430,16 @@ export const WorkoutSheetModal: React.FC<WorkoutSheetModalProps> = ({
                                       Number(e.target.value)
                                     )
                                   }
-                                  className="w-24 px-2.5 py-1 rounded-lg bg-surface-200 border border-surface-border text-zinc-100 font-mono font-bold focus:outline-none focus:border-brand-500 print:bg-white print:border-black print:text-black"
+                                  className="w-full max-w-[3.8rem] sm:max-w-[4.8rem] px-1 sm:px-2 py-1 rounded-lg bg-surface-200 border border-surface-border text-zinc-100 font-mono font-bold text-center text-xs focus:outline-none focus:border-brand-500 print:bg-white print:border-black print:text-black"
                                 />
-                                <span className="text-[10px] text-zinc-400 font-mono print:text-black">
+                                <span className="text-[9px] sm:text-[10px] text-zinc-400 font-mono print:text-black">
                                   lbs
                                 </span>
                               </div>
                             </td>
 
                             {/* RPE Input */}
-                            <td className="py-2 px-2.5">
+                            <td className="py-1.5 px-1 sm:py-2 sm:px-2.5 hidden xs:table-cell">
                               <input
                                 type="number"
                                 min="1"
@@ -448,45 +448,45 @@ export const WorkoutSheetModal: React.FC<WorkoutSheetModalProps> = ({
                                 onChange={(e) =>
                                   updateSetField(exIdx, setIdx, 'rpe', Number(e.target.value))
                                 }
-                                className="w-16 px-2 py-1 rounded-lg bg-surface-200 border border-surface-border text-zinc-100 font-mono text-center focus:outline-none print:bg-white print:border-black print:text-black"
+                                className="w-full max-w-[3rem] px-1 py-1 rounded-lg bg-surface-200 border border-surface-border text-zinc-100 font-mono text-center text-xs focus:outline-none print:bg-white print:border-black print:text-black"
                               />
                             </td>
 
                             {/* Completed Toggle */}
-                            <td className="py-2 px-2.5 text-center print:hidden">
+                            <td className="py-1.5 px-1 sm:py-2 sm:px-2.5 text-center print:hidden">
                               <button
                                 type="button"
                                 onClick={() => toggleSetComplete(exIdx, setIdx)}
-                                className={`p-1.5 rounded-lg border transition-all cursor-pointer ${
+                                className={`p-1.5 rounded-lg border transition-all cursor-pointer min-w-[28px] min-h-[28px] flex items-center justify-center mx-auto ${
                                   set.completed
                                     ? 'bg-emerald-500 text-zinc-950 border-emerald-400 shadow-glow'
                                     : 'bg-surface-200 border-surface-border text-zinc-500 hover:text-zinc-300'
                                 }`}
                               >
                                 {set.completed ? (
-                                  <Check className="w-4 h-4 stroke-[3]" />
+                                  <Check className="w-3.5 h-3.5 stroke-[3]" />
                                 ) : (
-                                  <Circle className="w-4 h-4" />
+                                  <Circle className="w-3.5 h-3.5" />
                                 )}
                               </button>
                             </td>
 
                             {/* Delete Set */}
-                            <td className="py-2 px-2.5 text-right print:hidden">
+                            <td className="py-1.5 px-0.5 sm:py-2 sm:px-2.5 text-right print:hidden">
                               {ex.sets.length > 1 && (
                                 <button
                                   type="button"
                                   onClick={() => removeSetFromExercise(exIdx, setIdx)}
-                                  className="p-1 text-zinc-500 hover:text-rose-400 cursor-pointer"
+                                  className="p-1 text-zinc-500 hover:text-rose-400 cursor-pointer min-w-[24px] min-h-[24px] flex items-center justify-center ml-auto"
                                   title="Delete set"
                                 >
-                                  <Trash2 className="w-3.5 h-3.5" />
+                                  <Trash2 className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                                 </button>
                               )}
                             </td>
 
                             {/* Print-Only Check Box Column */}
-                            <td className="py-2 px-2.5 hidden print:table-cell border border-black text-center">
+                            <td className="py-1.5 px-2 hidden print:table-cell border border-black text-center">
                               [ ]
                             </td>
                           </tr>

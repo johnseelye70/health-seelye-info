@@ -84,12 +84,12 @@ export const WorkoutGenerator: React.FC = () => {
   return (
     <div className="space-y-6 animate-fadeIn pb-12">
       {/* Top Main Navigation Tabs for Daily Fitness Section */}
-      <div className="p-2 rounded-2xl bg-surface-100/90 border border-surface-border backdrop-blur-xl flex flex-wrap items-center gap-2 select-none shadow-md">
+      <div className="p-2 rounded-2xl bg-surface-100/90 border border-surface-border backdrop-blur-xl flex items-center gap-2 overflow-x-auto no-scrollbar sm:flex-wrap select-none shadow-md">
         <button
           type="button"
           id="fitness-tab-routine"
           onClick={() => setActiveSubTab('routine')}
-          className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+          className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0 ${
             activeSubTab === 'routine'
               ? 'bg-brand-500 text-zinc-950 shadow-glow'
               : 'text-zinc-300 hover:text-white hover:bg-surface-200'
@@ -103,21 +103,21 @@ export const WorkoutGenerator: React.FC = () => {
           type="button"
           id="fitness-tab-premade-programs"
           onClick={() => setActiveSubTab('premade_programs')}
-          className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+          className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0 ${
             activeSubTab === 'premade_programs'
               ? 'bg-brand-500 text-zinc-950 shadow-glow'
               : 'text-zinc-300 hover:text-white hover:bg-surface-200'
           }`}
         >
           <Award className="w-4 h-4 text-amber-400" />
-          <span>Pre-Made Programs (P90X, 5x5, Tai Chi)</span>
+          <span>Pre-Made Programs (P90X, CrossFit, 5x5)</span>
         </button>
 
         <button
           type="button"
           id="fitness-tab-workout-database"
           onClick={() => setActiveSubTab('workout_database')}
-          className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+          className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0 ${
             activeSubTab === 'workout_database'
               ? 'bg-brand-500 text-zinc-950 shadow-glow'
               : 'text-zinc-300 hover:text-white hover:bg-surface-200'
@@ -131,7 +131,7 @@ export const WorkoutGenerator: React.FC = () => {
           type="button"
           id="fitness-tab-exercise-db"
           onClick={() => setActiveSubTab('exercise_db')}
-          className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+          className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0 ${
             activeSubTab === 'exercise_db'
               ? 'bg-brand-500 text-zinc-950 shadow-glow'
               : 'text-zinc-300 hover:text-white hover:bg-surface-200'
@@ -145,7 +145,7 @@ export const WorkoutGenerator: React.FC = () => {
           type="button"
           id="fitness-tab-equipment-db"
           onClick={() => setActiveSubTab('equipment_db')}
-          className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+          className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0 ${
             activeSubTab === 'equipment_db'
               ? 'bg-brand-500 text-zinc-950 shadow-glow'
               : 'text-zinc-300 hover:text-white hover:bg-surface-200'
@@ -159,7 +159,7 @@ export const WorkoutGenerator: React.FC = () => {
           type="button"
           id="fitness-tab-plate-calc"
           onClick={() => setActiveSubTab('plate_calc')}
-          className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+          className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0 ${
             activeSubTab === 'plate_calc'
               ? 'bg-brand-500 text-zinc-950 shadow-glow'
               : 'text-zinc-300 hover:text-white hover:bg-surface-200'
@@ -173,7 +173,7 @@ export const WorkoutGenerator: React.FC = () => {
           type="button"
           id="fitness-tab-hiit"
           onClick={() => setActiveSubTab('hiit')}
-          className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+          className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0 ${
             activeSubTab === 'hiit'
               ? 'bg-brand-500 text-zinc-950 shadow-glow'
               : 'text-zinc-300 hover:text-white hover:bg-surface-200'

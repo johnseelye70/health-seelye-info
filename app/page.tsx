@@ -24,12 +24,12 @@ export default function HomePage() {
       <Sidebar />
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-w-0 pb-16 md:pb-0">
+      <div className="flex-1 flex flex-col min-w-0 pb-24 md:pb-0">
         {/* Persistent Top Header */}
         <Header />
 
         {/* Dynamic Screen View Content */}
-        <main className="flex-1 p-4 md:p-8 max-w-7xl w-full mx-auto">
+        <main className="flex-1 p-3.5 sm:p-5 md:p-8 max-w-7xl w-full mx-auto">
           {activeTab === 'dashboard' && <DashboardOverview />}
           {activeTab === 'nutrition' && <MealPlanner />}
           {activeTab === 'fasting' && <FastingTracker />}
