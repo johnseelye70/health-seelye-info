@@ -34,7 +34,11 @@ export const MealPlanner: React.FC = () => {
     logFood,
     deleteFoodLog,
     addCustomFood,
+    experienceMode,
   } = useHealth();
+
+  const isSimple = experienceMode === 'simple';
+  const isImperial = profile.unit_preference === 'imperial';
 
   // Search & Logging Modal State
   const [selectedMealIndex, setSelectedMealIndex] = useState<number | null>(null);
@@ -133,14 +137,16 @@ export const MealPlanner: React.FC = () => {
           <div>
             <div className="flex items-center gap-2 mb-2">
               <span className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-brand-500/20 text-brand-300 border border-brand-500/30">
-                PRECISION MACRONUTRIENT & MEAL SPLITTER
+                {isSimple ? 'HEALTHY NUTRITION & MEAL PLAN' : 'PRECISION MACRONUTRIENT & MEAL SPLITTER'}
               </span>
             </div>
             <h1 className="text-2xl md:text-3xl font-black text-white tracking-tight">
-              Daily Meal Plan & Food Database
+              {isSimple ? 'Daily Meals & Food Log' : 'Daily Meal Plan & Food Database'}
             </h1>
             <p className="text-zinc-400 text-sm mt-1 max-w-2xl">
-              Track macro splits, dynamically re-divide targets across 2, 3, or 4 meals, and swap equivalent protein/carb sources in real-time.
+              {isSimple
+                ? 'Enjoy nourishing balanced meals, log what you eat with easy portion sizes, and explore healthy food alternatives.'
+                : 'Track macro splits, dynamically re-divide targets across 2, 3, or 4 meals, and swap equivalent protein/carb sources in real-time.'}
             </p>
           </div>
 
@@ -150,7 +156,7 @@ export const MealPlanner: React.FC = () => {
               className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-surface-200 hover:bg-surface-300 border border-surface-border text-xs font-semibold text-zinc-200 transition-all hover:border-zinc-700"
             >
               <ArrowRightLeft className="w-4 h-4 text-accent-cyan" />
-              <span>Real-Time Food Swap</span>
+              <span>{isSimple ? 'Food Swaps & Alternatives' : 'Real-Time Food Swap'}</span>
             </button>
             <button
               onClick={() => setShowCustomFoodModal(true)}
@@ -456,8 +462,10 @@ export const MealPlanner: React.FC = () => {
             {/* Grams Input & Quick Presets */}
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <label className="text-xs font-semibold text-zinc-300">Portion Size (Grams)</label>
-                <span className="text-xs font-mono text-brand-400">{gramsToLog} grams</span>
+                <label className="text-xs font-semibold text-zinc-300">Portion Size</label>
+                <span className="text-xs font-mono text-brand-400">
+                  {gramsToLog}g {isImperial && `(~${(gramsToLog * 0.03527).toFixed(1)} oz)`}
+                </span>
               </div>
               <input
                 type="number"
@@ -469,15 +477,24 @@ export const MealPlanner: React.FC = () => {
                 className="w-full px-3 py-2.5 rounded-xl bg-surface-200 border border-surface-border text-sm text-zinc-100 font-mono focus:outline-none focus:border-brand-500"
               />
 
-              <div className="flex gap-2 pt-1">
-                {[50, 100, 150, 200, 250].map((preset) => (
+              <div className="flex flex-wrap gap-1.5 pt-1">
+                {[
+                  { label: 'Snack (75g)', grams: 75 },
+                  { label: 'Standard (150g)', grams: 150 },
+                  { label: 'Generous (225g)', grams: 225 },
+                  { label: 'Feast (300g)', grams: 300 },
+                ].map((preset) => (
                   <button
-                    key={preset}
+                    key={preset.grams}
                     type="button"
-                    onClick={() => setGramsToLog(preset)}
-                    className="flex-1 py-1 rounded-lg bg-surface-300 hover:bg-surface-200 text-xs font-mono text-zinc-300"
+                    onClick={() => setGramsToLog(preset.grams)}
+                    className={`flex-1 py-1.5 px-2 rounded-xl border text-xs font-medium transition-all ${
+                      gramsToLog === preset.grams
+                        ? 'bg-brand-500 text-zinc-950 font-bold border-brand-400 shadow-glow'
+                        : 'bg-surface-300 border-surface-border text-zinc-300 hover:bg-surface-200'
+                    }`}
                   >
-                    {preset}g
+                    {preset.label}
                   </button>
                 ))}
               </div>

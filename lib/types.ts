@@ -2,6 +2,7 @@ export type ActivityLevel = 'sedentary' | 'light' | 'moderate' | 'high' | 'extre
 export type BiologicalSex = 'male' | 'female' | 'other';
 export type GoalType = 'cut_500' | 'cut_250' | 'maintain' | 'bulk_250' | 'bulk_500';
 export type UnitPreference = 'imperial' | 'metric';
+export type ExperienceMode = 'simple' | 'advanced';
 export type FastingProtocol = '16_8' | '18_6' | '20_4' | '14_10' | '23_1_omad' | 'standard_3_meal';
 export type EquipmentType = 'bodyweight' | 'dumbbells' | 'barbells' | 'resistance_bands' | 'kettlebells' | 'cable_machine' | 'full_gym';
 
@@ -17,6 +18,7 @@ export interface UserProfile {
   activity_level: ActivityLevel;
   goal: GoalType;
   unit_preference: UnitPreference;
+  experience_mode: ExperienceMode;
   daily_calorie_target: number;
   protein_target_g: number;
   carb_target_g: number;

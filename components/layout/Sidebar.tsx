@@ -17,16 +17,18 @@ import {
 } from 'lucide-react';
 
 export const Sidebar: React.FC = () => {
-  const { activeTab, setActiveTab, profile, fastingStatus, isDemoMode } = useHealth();
+  const { activeTab, setActiveTab, profile, fastingStatus, isDemoMode, experienceMode } = useHealth();
+
+  const isSimple = experienceMode === 'simple';
 
   const navItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, badge: null },
-    { id: 'nutrition', label: 'Meal Plan & Food', icon: UtensilsCrossed, badge: `${profile.meal_count} Meals` },
-    { id: 'fasting', label: 'Fasting Tracker', icon: Timer, badge: fastingStatus.isFasting ? 'Fasting' : 'Eating' },
-    { id: 'workouts', label: 'Workout Split', icon: Dumbbell, badge: '4-Week' },
-    { id: 'grocery', label: 'Grocery Manager', icon: ShoppingCart, badge: 'Auto' },
-    { id: 'trends', label: 'Weight & Trends', icon: TrendingUp, badge: null },
-    { id: 'settings', label: 'Macro & Profile', icon: SlidersHorizontal, badge: null },
+    { id: 'dashboard', label: isSimple ? 'Home Overview' : 'Dashboard', icon: LayoutDashboard, badge: null },
+    { id: 'nutrition', label: isSimple ? 'Food & Meals' : 'Meal Plan & Food', icon: UtensilsCrossed, badge: `${profile.meal_count} Meals` },
+    { id: 'fasting', label: isSimple ? 'Eating & Fasting' : 'Fasting Tracker', icon: Timer, badge: fastingStatus.isFasting ? (isSimple ? 'Fasting' : 'Fasting') : (isSimple ? 'Eating' : 'Eating') },
+    { id: 'workouts', label: isSimple ? 'Daily Fitness' : 'Workout Split', icon: Dumbbell, badge: isSimple ? 'Active' : '4-Week' },
+    { id: 'grocery', label: isSimple ? 'Shopping List' : 'Grocery Manager', icon: ShoppingCart, badge: 'Auto' },
+    { id: 'trends', label: isSimple ? 'My Progress' : 'Weight & Trends', icon: TrendingUp, badge: null },
+    { id: 'settings', label: isSimple ? 'Goals & Profile' : 'Macro & Profile', icon: SlidersHorizontal, badge: null },
   ] as const;
 
   return (
@@ -109,7 +111,7 @@ export const Sidebar: React.FC = () => {
       <div className="p-4 border-t border-surface-border text-xs text-zinc-400 bg-surface-300/30 flex items-center justify-between">
         <div className="flex items-center gap-1.5">
           <span className="w-2 h-2 rounded-full bg-brand-500 animate-pulse"></span>
-          <span className="font-mono text-[11px] text-zinc-300">Beta 0.5.0</span>
+          <span className="font-mono text-[11px] text-zinc-300">Beta 0.6.0</span>
         </div>
         <span className="text-[10px] text-zinc-400 font-mono">health.seelye.info</span>
       </div>

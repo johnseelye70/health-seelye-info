@@ -11,6 +11,7 @@ import {
   MealSplitTarget,
   EquipmentType,
   FastingProtocol,
+  ExperienceMode,
 } from '@/lib/types';
 import {
   INITIAL_PROFILE,
@@ -33,6 +34,9 @@ interface HealthContextType {
   updateProfile: (updates: Partial<UserProfile>) => void;
   recalculateMacros: () => void;
   toggleUnitPreference: () => void;
+  experienceMode: ExperienceMode;
+  toggleExperienceMode: () => void;
+  setExperienceMode: (mode: ExperienceMode) => void;
   
   // Foods & Logs
   foods: FoodItem[];
@@ -226,6 +230,24 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
       updated_at: new Date().toISOString(),
     }));
   }, []);
+
+  const toggleExperienceMode = useCallback(() => {
+    setProfile((prev) => ({
+      ...prev,
+      experience_mode: prev.experience_mode === 'simple' ? 'advanced' : 'simple',
+      updated_at: new Date().toISOString(),
+    }));
+  }, []);
+
+  const setExperienceMode = useCallback((mode: ExperienceMode) => {
+    setProfile((prev) => ({
+      ...prev,
+      experience_mode: mode,
+      updated_at: new Date().toISOString(),
+    }));
+  }, []);
+
+  const experienceMode = profile.experience_mode || 'simple';
 
   // Update profile and optionally recalculate macros
   const updateProfile = useCallback((updates: Partial<UserProfile>) => {
@@ -447,6 +469,9 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
         updateProfile,
         recalculateMacros,
         toggleUnitPreference,
+        experienceMode,
+        toggleExperienceMode,
+        setExperienceMode,
         foods,
         addCustomFood,
         foodLogs,

@@ -18,9 +18,10 @@ import {
 } from 'lucide-react';
 
 export const ProgressTrends: React.FC = () => {
-  const { profile, weightLogs, logWeight } = useHealth();
+  const { profile, weightLogs, logWeight, experienceMode } = useHealth();
   const [showLogModal, setShowLogModal] = useState<boolean>(false);
   
+  const isSimple = experienceMode === 'simple';
   const isImperial = profile.unit_preference === 'imperial';
 
   const [newWeightInput, setNewWeightInput] = useState<number>(
@@ -86,7 +87,7 @@ export const ProgressTrends: React.FC = () => {
           <div>
             <div className="flex items-center gap-2 mb-2">
               <span className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-brand-500/20 text-brand-300 border border-brand-500/30">
-                BIOMETRIC PROGRESS & ADHERENCE MATRIX
+                {isSimple ? 'MY PROGRESS & HEALTH JOURNEY' : 'BIOMETRIC PROGRESS & ADHERENCE MATRIX'}
               </span>
               <span className="text-zinc-500 text-xs">•</span>
               <span className="text-brand-400 font-mono text-xs font-bold uppercase">
@@ -94,10 +95,12 @@ export const ProgressTrends: React.FC = () => {
               </span>
             </div>
             <h1 className="text-2xl md:text-3xl font-black text-white tracking-tight">
-              Weight Trends & Body Composition
+              {isSimple ? 'Weight & Wellness Progress' : 'Weight Trends & Body Composition'}
             </h1>
             <p className="text-zinc-400 text-sm mt-1 max-w-2xl">
-              Track your fat loss trajectory, weekly rate of loss against Mifflin-St Jeor 500 kcal deficit targets, and lean mass preservation.
+              {isSimple
+                ? 'Check in with your morning weight, celebrate your steady progress toward your goal, and track your long-term wellness trajectory.'
+                : 'Track your fat loss trajectory, weekly rate of loss against Mifflin-St Jeor 500 kcal deficit targets, and lean mass preservation.'}
             </p>
           </div>
 

@@ -18,6 +18,9 @@ import {
   Utensils,
   ChevronRight,
   Info,
+  Droplets,
+  Coffee,
+  Heart,
 } from 'lucide-react';
 
 export const FastingTracker: React.FC = () => {
@@ -28,18 +31,21 @@ export const FastingTracker: React.FC = () => {
     mealSplitTargets,
     notificationsEnabled,
     setNotificationsEnabled,
+    experienceMode,
   } = useHealth();
+
+  const isSimple = experienceMode === 'simple';
 
   const [notificationToast, setNotificationToast] = useState<string | null>(null);
   const [fastStartTimeInput, setFastStartTimeInput] = useState<string>(profile.fasting_start_time || '20:00');
 
-  const protocols: { id: FastingProtocol; label: string; ratio: string; tag: string }[] = [
-    { id: '16_8', label: 'LeanGains Classic', ratio: '16:8', tag: 'Most Popular' },
-    { id: '18_6', label: 'Deep Fasting', ratio: '18:6', tag: 'Enhanced Autophagy' },
-    { id: '20_4', label: 'Warrior Diet', ratio: '20:4', tag: 'Peak Fat Burn' },
-    { id: '14_10', label: 'Circadian Gentle', ratio: '14:10', tag: 'Beginner' },
-    { id: '23_1_omad', label: 'OMAD Feast', ratio: '23:1', tag: 'Extreme Focus' },
-    { id: 'standard_3_meal', label: 'Standard 3-Meal', ratio: '12:12', tag: 'Non-Restricted' },
+  const protocols: { id: FastingProtocol; label: string; simpleLabel: string; ratio: string; tag: string }[] = [
+    { id: '16_8', label: 'LeanGains Classic', simpleLabel: 'Classic Daily (16:8)', ratio: '16:8', tag: 'Most Popular' },
+    { id: '14_10', label: 'Circadian Gentle', simpleLabel: 'Gentle & Easy (14:10)', ratio: '14:10', tag: 'Great for Beginners' },
+    { id: '18_6', label: 'Deep Fasting', simpleLabel: 'Focused (18:6)', ratio: '18:6', tag: 'Deeper Fast' },
+    { id: 'standard_3_meal', label: 'Standard 3-Meal', simpleLabel: 'Natural 3 Meals (12:12)', ratio: '12:12', tag: 'No Skipping' },
+    { id: '20_4', label: 'Warrior Diet', simpleLabel: 'Evening Feast (20:4)', ratio: '20:4', tag: 'Advanced' },
+    { id: '23_1_omad', label: 'OMAD Feast', simpleLabel: 'One Meal A Day (23:1)', ratio: '23:1', tag: 'Expert' },
   ];
 
   const handleProtocolSelect = (proto: FastingProtocol) => {
@@ -55,8 +61,8 @@ export const FastingTracker: React.FC = () => {
   const testPushNotification = (type: string) => {
     const message =
       type === 'fast_start'
-        ? `🕒 Fasting Phase Initiated! Fast started at ${profile.fasting_start_time}. Target: ${FASTING_CONFIGS[profile.fasting_protocol].fastHours} hours.`
-        : `🍽️ Eating Window Open! Your ${profile.eating_window_duration_hours}-hour nutrient feeding window is now active.`;
+        ? `🕒 Fasting time started at ${profile.fasting_start_time}. Target: ${FASTING_CONFIGS[profile.fasting_protocol].fastHours} hours of rest.`
+        : `🍽️ Eating window is now open! Enjoy your wholesome meals.`;
 
     setNotificationToast(message);
     setTimeout(() => setNotificationToast(null), 5000);
@@ -72,22 +78,22 @@ export const FastingTracker: React.FC = () => {
 
   const currentConfig = FASTING_CONFIGS[profile.fasting_protocol];
 
-  // Biological Milestone Stages for Timeline
+  // Biological Milestone Stages for Timeline (Athlete Mode)
   const fastingStages = [
     { hour: '0 - 4h', name: 'Anabolic / Digestion', desc: 'Body digests recent meal; blood glucose and insulin levels peak then decline.', active: true },
     { hour: '4 - 8h', name: 'Blood Sugar Stabilization', desc: 'Insulin drops to baseline; liver glycogen breakdown initiates.', active: fastingStatus.isFasting && fastingStatus.elapsedSeconds >= 4 * 3600 },
     { hour: '8 - 12h', name: 'Glycogen Depletion & Lipolysis', desc: 'Liver glycogen nears depletion; cellular lipolysis accelerates fat burning.', active: fastingStatus.isFasting && fastingStatus.elapsedSeconds >= 8 * 3600 },
     { hour: '12 - 16h', name: 'Ketosis & Ketone Production', desc: 'Acetoacetate & Beta-hydroxybutyrate rise, mental clarity increases, GH surges.', active: fastingStatus.isFasting && fastingStatus.elapsedSeconds >= 12 * 3600 },
-    { hour: '16 - 24h', name: 'Autophagy Induction & Cellular Cleanup', desc: 'Lysosomes recycle misfolded proteins, damaged organelles, and senescent cells.', active: fastingStatus.isFasting && fastingStatus.elapsedSeconds >= 16 * 3600 },
+    { hour: '16h+', name: 'Autophagy & Cellular Repair', desc: 'Damaged proteins cleared; mitochondrial biogenesis and longevity pathways triggered.', active: fastingStatus.isFasting && fastingStatus.elapsedSeconds >= 16 * 3600 },
   ];
 
   return (
     <div className="space-y-8 animate-fadeIn pb-12">
-      {/* Notification Toast Alert */}
+      {/* Toast Alert */}
       {notificationToast && (
-        <div className="fixed top-20 right-6 z-50 p-4 rounded-2xl bg-zinc-900 border border-brand-500/50 shadow-2xl text-zinc-100 flex items-center gap-3 animate-slideIn">
-          <Sparkles className="w-5 h-5 text-brand-400 shrink-0" />
-          <span className="text-xs font-semibold">{notificationToast}</span>
+        <div className="fixed top-20 right-6 z-50 p-4 rounded-2xl bg-brand-500 text-zinc-950 font-bold text-xs shadow-2xl flex items-center gap-3 animate-slideIn">
+          <CheckCircle2 className="w-5 h-5 shrink-0" />
+          <span>{notificationToast}</span>
         </div>
       )}
 
@@ -97,211 +103,183 @@ export const FastingTracker: React.FC = () => {
           <div>
             <div className="flex items-center gap-2 mb-2">
               <span className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-purple-500/20 text-purple-300 border border-purple-500/30">
-                CIRCADIAN FASTING & FEEDING WINDOW MANAGER
+                {isSimple ? 'EATING & FASTING SCHEDULE' : 'CIRCADIAN FASTING CADENCE'}
               </span>
             </div>
             <h1 className="text-2xl md:text-3xl font-black text-white tracking-tight">
-              Fasting Protocol Engine
+              {isSimple ? 'Eating & Fasting Clock' : 'Fasting Tracker & Biological Milestones'}
             </h1>
             <p className="text-zinc-400 text-sm mt-1 max-w-2xl">
-              Synchronize your metabolic fasting and feeding cycles to optimize insulin sensitivity, fat oxidation, and cellular autophagy.
+              {isSimple
+                ? 'Give your digestion a healthy, rejuvenating rest between meals to boost natural energy, mental clarity, and fat metabolism.'
+                : 'Real-time circadian synchronization engine tracking metabolic shifts, ketosis state, and autophagy phases.'}
             </p>
           </div>
 
           <div className="flex items-center gap-3">
             <button
-              onClick={() => testPushNotification(fastingStatus.isFasting ? 'eat_start' : 'fast_start')}
-              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-surface-200 hover:bg-surface-300 border border-surface-border text-xs font-semibold text-zinc-300 transition-all"
+              onClick={() => testPushNotification(fastingStatus.isFasting ? 'fast_start' : 'eating_window')}
+              className="flex items-center gap-2 px-4 py-2 rounded-2xl bg-surface-200 hover:bg-surface-300 border border-surface-border text-xs font-semibold text-zinc-200 transition-colors"
             >
-              <Bell className="w-4 h-4 text-brand-400" />
-              <span>Simulate Notification</span>
+              <Bell className="w-4 h-4 text-accent-cyan" />
+              <span>Test Notification</span>
             </button>
           </div>
         </div>
       </div>
 
-      {/* Protocol Selection Carousel / Matrix */}
-      <div className="space-y-3">
-        <div className="flex items-center justify-between">
-          <h2 className="text-sm font-bold text-zinc-200 uppercase tracking-wider">
-            Select Fasting Protocol
-          </h2>
-          <span className="text-xs text-zinc-400">Current: <strong className="text-brand-400">{currentConfig.name}</strong></span>
-        </div>
+      {/* Live Main Clock Card */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Left 2 Columns: Live Countdown Ring */}
+        <div className="lg:col-span-2 rounded-3xl bg-surface-100/90 border border-surface-border p-6 md:p-8 backdrop-blur-xl flex flex-col items-center justify-center text-center relative overflow-hidden">
+          <div
+            className={`absolute -top-24 -right-24 w-72 h-72 rounded-full blur-3xl pointer-events-none ${
+              fastingStatus.isFasting ? 'bg-purple-600/10' : 'bg-brand-500/10'
+            }`}
+          />
 
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-          {protocols.map((proto) => {
-            const isSelected = profile.fasting_protocol === proto.id;
-            return (
-              <button
-                key={proto.id}
-                onClick={() => handleProtocolSelect(proto.id)}
-                className={`p-4 rounded-2xl border text-left transition-all relative overflow-hidden flex flex-col justify-between ${
-                  isSelected
-                    ? 'bg-gradient-to-b from-brand-500/15 to-accent-teal/5 border-brand-500/50 shadow-glow text-white'
-                    : 'bg-surface-100/70 border-surface-border hover:border-zinc-700 text-zinc-300'
-                }`}
-              >
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-surface-300 text-zinc-200">
-                      {proto.ratio}
-                    </span>
-                    {isSelected && <CheckCircle2 className="w-4 h-4 text-brand-400" />}
-                  </div>
-                  <div className="font-bold text-sm leading-tight text-zinc-100">{proto.label}</div>
-                </div>
-                <div className="mt-3 text-[10px] text-zinc-400 font-medium">
-                  {proto.tag}
-                </div>
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Main Fasting Clock & Parameters Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Left 7 Columns: Giant Fasting Clock & Biological Tracker */}
-        <div className="lg:col-span-7 rounded-3xl bg-surface-100/90 border border-surface-border p-6 md:p-8 backdrop-blur-xl flex flex-col items-center justify-center text-center relative overflow-hidden">
-          <div className="w-full flex items-center justify-between mb-6">
-            <div className="flex items-center gap-2 text-xs font-bold text-zinc-300 uppercase tracking-wider">
-              <Activity className="w-4 h-4 text-brand-400" />
-              <span>Active Cycle Status</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <label className="text-xs text-zinc-400 font-mono">Fast Starts:</label>
-              <input
-                type="time"
-                value={fastStartTimeInput}
-                onChange={handleTimeChange}
-                className="px-2.5 py-1 rounded-xl bg-surface-200 border border-surface-border text-zinc-100 text-xs font-mono focus:outline-none focus:border-brand-500"
-              />
-            </div>
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-mono mb-6 border bg-surface-200/80 border-surface-border">
+            <span
+              className={`w-2.5 h-2.5 rounded-full ${
+                fastingStatus.isFasting ? 'bg-purple-500 animate-ping' : 'bg-brand-500 animate-ping'
+              }`}
+            />
+            <span className="font-bold text-zinc-200">
+              {fastingStatus.isFasting
+                ? (isSimple ? 'Fasting Time • Resting & Digesting' : 'FASTING PHASE ACTIVE')
+                : (isSimple ? 'Eating Window • Time for Healthy Food' : 'EATING WINDOW ACTIVE')}
+            </span>
           </div>
 
-          {/* Large Circular Fasting Gauge */}
-          <div className="relative my-4 flex items-center justify-center">
-            <svg width="280" height="280" className="transform -rotate-90">
-              <circle
-                cx="140"
-                cy="140"
-                r="115"
-                stroke="#1c202c"
-                strokeWidth="16"
-                fill="transparent"
-              />
-              <circle
-                cx="140"
-                cy="140"
-                r="115"
-                stroke={fastingStatus.isFasting ? '#a855f7' : '#10b981'}
-                strokeWidth="16"
-                strokeDasharray={2 * Math.PI * 115}
-                strokeDashoffset={2 * Math.PI * 115 - (fastingStatus.progressPercent / 100) * (2 * Math.PI * 115)}
-                strokeLinecap="round"
-                fill="transparent"
-                className="transition-all duration-700 ease-out"
-              />
-            </svg>
-
-            <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <span
-                className={`px-3 py-1 rounded-full text-xs font-bold font-mono uppercase tracking-wider mb-2 ${
-                  fastingStatus.isFasting
-                    ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30'
-                    : 'bg-brand-500/20 text-brand-300 border border-brand-500/30'
-                }`}
-              >
-                {fastingStatus.isFasting ? 'Fasting Window' : 'Feeding Window'}
-              </span>
-
-              <div className="text-4xl md:text-5xl font-black font-mono text-white tracking-tight">
-                {remainingHours.toString().padStart(2, '0')}:
-                {remainingMins.toString().padStart(2, '0')}:
-                <span className="text-brand-400 text-3xl md:text-4xl">{remainingSecs.toString().padStart(2, '0')}</span>
-              </div>
-              <span className="text-xs text-zinc-400 mt-1 font-medium">Time Remaining</span>
-
-              <div className="text-xs font-mono text-zinc-400 mt-3">
-                {fastingStatus.progressPercent}% Elapsed
-              </div>
-            </div>
+          {/* Big Live Clock */}
+          <div className="text-5xl sm:text-7xl font-black font-mono tracking-tight text-white my-4 drop-shadow-md">
+            <span>{String(remainingHours).padStart(2, '0')}</span>
+            <span className="text-zinc-600 animate-pulse">:</span>
+            <span>{String(remainingMins).padStart(2, '0')}</span>
+            <span className="text-zinc-600 animate-pulse">:</span>
+            <span className="text-brand-400">{String(remainingSecs).padStart(2, '0')}</span>
           </div>
 
-          {/* Bottom Stage Banner */}
-          <div className="w-full mt-4 p-4 rounded-2xl bg-surface-200/80 border border-surface-border text-left">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-accent-cyan" />
-                <span className="text-xs font-bold text-zinc-200">Current Phase: {fastingStatus.stageName}</span>
-              </div>
-              <span className="text-[11px] font-mono text-zinc-400">{fastingStatus.nextMilestoneText}</span>
-            </div>
-            <p className="text-xs text-zinc-400 mt-1">{fastingStatus.stageDescription}</p>
+          <div className="text-sm font-semibold text-zinc-400 uppercase tracking-widest mt-1">
+            {fastingStatus.isFasting ? 'Remaining until eating window' : 'Remaining in eating window'}
           </div>
+
+          {/* Progress bar */}
+          <div className="w-full max-w-md h-3 bg-surface-300 rounded-full mt-6 overflow-hidden p-0.5 border border-surface-border">
+            <div
+              className={`h-full rounded-full transition-all duration-500 ${
+                fastingStatus.isFasting
+                  ? 'bg-gradient-to-r from-purple-500 to-indigo-500 shadow-glow'
+                  : 'bg-gradient-to-r from-brand-500 to-accent-teal shadow-glow'
+              }`}
+              style={{ width: `${Math.min(100, fastingStatus.progressPercent)}%` }}
+            />
+          </div>
+
+          <div className="flex justify-between w-full max-w-md text-xs font-mono text-zinc-400 mt-2">
+            <span>{fastingStatus.progressPercent.toFixed(1)}% Completed</span>
+            <span>{currentConfig.name}</span>
+          </div>
+
+          {/* Hydration / Simple Mode Reminder */}
+          {isSimple && (
+            <div className="mt-6 p-4 rounded-2xl bg-surface-200/70 border border-surface-border text-xs text-zinc-300 max-w-md text-left flex items-start gap-3">
+              <Droplets className="w-5 h-5 text-cyan-400 shrink-0 mt-0.5" />
+              <div>
+                <span className="font-bold text-zinc-100">Simple Fasting Tip:</span> During your fasting hours, water, sparkling water, and black coffee or tea are completely fine. They help you stay energized and hydrated!
+              </div>
+            </div>
+          )}
         </div>
 
-        {/* Right 5 Columns: Biological Milestones & Feeding Schedule */}
-        <div className="lg:col-span-5 space-y-6">
-          {/* Biological Stages Timeline */}
-          <div className="rounded-3xl bg-surface-100/90 border border-surface-border p-6 backdrop-blur-xl">
-            <div className="flex items-center gap-2 text-xs font-bold text-zinc-300 uppercase tracking-wider mb-4">
-              <Flame className="w-4 h-4 text-amber-400" />
-              <span>Metabolic Fasting Milestones</span>
-            </div>
+        {/* Right 1 Column: Schedule Settings */}
+        <div className="rounded-3xl bg-surface-100/90 border border-surface-border p-6 backdrop-blur-xl space-y-4">
+          <div className="flex items-center gap-2 pb-3 border-b border-surface-border">
+            <Clock className="w-5 h-5 text-accent-cyan" />
+            <h3 className="text-base font-bold text-white">Daily Schedule</h3>
+          </div>
 
-            <div className="space-y-3">
-              {fastingStages.map((stage, idx) => (
-                <div
-                  key={idx}
-                  className={`p-3.5 rounded-xl border text-xs transition-all ${
-                    stage.active
-                      ? 'bg-purple-950/30 border-purple-500/40 text-zinc-200'
-                      : 'bg-surface-200/40 border-surface-border/60 text-zinc-400 opacity-60'
+          <div>
+            <label className="text-xs font-semibold text-zinc-300 block mb-1">
+              Fasting Starts Every Evening At:
+            </label>
+            <input
+              type="time"
+              value={fastStartTimeInput}
+              onChange={handleTimeChange}
+              className="w-full px-3 py-2 rounded-xl bg-surface-200 border border-surface-border text-zinc-100 font-mono text-sm focus:outline-none focus:border-brand-500"
+            />
+            <p className="text-[11px] text-zinc-400 mt-1">
+              Example: Stop eating at 8:00 PM to begin the resting window.
+            </p>
+          </div>
+
+          <div className="pt-2">
+            <label className="text-xs font-semibold text-zinc-300 block mb-2">
+              Choose Fasting Cadence:
+            </label>
+            <div className="space-y-2">
+              {protocols.map((proto) => (
+                <button
+                  key={proto.id}
+                  onClick={() => handleProtocolSelect(proto.id)}
+                  className={`w-full p-3 rounded-2xl border text-left transition-all flex items-center justify-between ${
+                    profile.fasting_protocol === proto.id
+                      ? 'bg-brand-500/15 border-brand-500/50 text-white shadow-glow'
+                      : 'bg-surface-200/60 border-surface-border text-zinc-400 hover:border-zinc-700'
                   }`}
                 >
-                  <div className="flex items-center justify-between font-semibold">
-                    <span className={stage.active ? 'text-purple-300 font-bold' : 'text-zinc-400'}>
-                      {stage.name}
-                    </span>
-                    <span className="font-mono text-[11px] px-2 py-0.5 rounded bg-surface-300">
-                      {stage.hour}
-                    </span>
+                  <div>
+                    <div className="text-xs font-bold text-zinc-100">
+                      {isSimple ? proto.simpleLabel : proto.label}
+                    </div>
+                    <div className="text-[10px] text-zinc-400">{proto.tag}</div>
                   </div>
-                  <p className="text-[11px] text-zinc-400 mt-1 leading-relaxed">{stage.desc}</p>
-                </div>
+                  <span className="font-mono text-xs font-bold text-brand-300">
+                    {proto.ratio}
+                  </span>
+                </button>
               ))}
             </div>
           </div>
-
-          {/* Daily Feeding Window Times Card */}
-          <div className="rounded-3xl bg-surface-100/90 border border-surface-border p-6 backdrop-blur-xl">
-            <div className="flex items-center gap-2 text-xs font-bold text-zinc-300 uppercase tracking-wider mb-4">
-              <Utensils className="w-4 h-4 text-brand-400" />
-              <span>Eating Window Coordinates</span>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div className="p-3.5 rounded-xl bg-surface-200 border border-surface-border">
-                <div className="text-[11px] text-zinc-400">Eating Window Opens</div>
-                <div className="text-xl font-bold font-mono text-brand-400 mt-0.5">
-                  {fastingStatus.eatStartFormatted}
-                </div>
-                <div className="text-[10px] text-zinc-400 mt-1">Break-Fast Meal</div>
-              </div>
-
-              <div className="p-3.5 rounded-xl bg-surface-200 border border-surface-border">
-                <div className="text-[11px] text-zinc-400">Fasting Begins (Close)</div>
-                <div className="text-xl font-bold font-mono text-purple-400 mt-0.5">
-                  {fastingStatus.eatEndFormatted}
-                </div>
-                <div className="text-[10px] text-zinc-400 mt-1">Fast Starts</div>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
+
+      {/* Biological Milestones (Athlete Mode Only) */}
+      {!isSimple && (
+        <div className="rounded-3xl bg-surface-100/90 border border-surface-border p-6 md:p-8 backdrop-blur-xl space-y-6">
+          <div className="flex items-center gap-2">
+            <Activity className="w-5 h-5 text-brand-400" />
+            <h3 className="text-base font-bold text-zinc-100">Biological Metabolic Shifts & Milestones</h3>
+          </div>
+
+          <div className="relative pl-6 space-y-6 border-l-2 border-surface-border">
+            {fastingStages.map((stage, idx) => (
+              <div key={idx} className="relative group">
+                <div
+                  className={`absolute -left-[31px] top-1 w-4 h-4 rounded-full border-2 transition-all ${
+                    stage.active
+                      ? 'bg-brand-500 border-brand-300 shadow-glow'
+                      : 'bg-surface-300 border-surface-border'
+                  }`}
+                />
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-bold font-mono text-brand-300">{stage.hour}</span>
+                    <span className="text-xs font-bold text-zinc-200">— {stage.name}</span>
+                  </div>
+                  {stage.active && (
+                    <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-brand-500/20 text-brand-300 self-start sm:self-auto">
+                      Current Milestone State
+                    </span>
+                  )}
+                </div>
+                <p className="text-xs text-zinc-400 mt-1 leading-relaxed">{stage.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

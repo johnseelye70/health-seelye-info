@@ -31,18 +31,20 @@ export const WorkoutGenerator: React.FC = () => {
     toggleExerciseCompleted,
     updateExerciseSetData,
     regenerateWorkouts,
+    experienceMode,
   } = useHealth();
 
+  const isSimple = experienceMode === 'simple';
   const [showHiitModal, setShowHiitModal] = useState<boolean>(false);
 
   const equipmentList: { id: EquipmentType; label: string; desc: string }[] = [
-    { id: 'bodyweight', label: 'Bodyweight Only', desc: 'Calisthenics, pushups, pullups & plyometrics' },
-    { id: 'dumbbells', label: 'Adjustable Dumbbells', desc: 'Free weights, bench presses, rows & lunges' },
-    { id: 'barbells', label: 'Olympic Barbells', desc: 'Heavy compounds, back squats, deadlifts & bench' },
-    { id: 'resistance_bands', label: 'Resistance Bands', desc: 'Tension curves, bicep curls & pull-aparts' },
-    { id: 'kettlebells', label: 'Kettlebells', desc: 'Explosive hip hinges, swings & carries' },
-    { id: 'cable_machine', label: 'Cable Machine / Pulleys', desc: 'Constant tension isolation & lat pulldowns' },
-    { id: 'full_gym', label: 'Full Commercial Gym', desc: 'Complete arsenal of free weights & machines' },
+    { id: 'bodyweight', label: 'Bodyweight Only', desc: 'No equipment needed — pushups, squats & body movements' },
+    { id: 'dumbbells', label: 'Adjustable Dumbbells', desc: 'Free weights for home or gym strength' },
+    { id: 'barbells', label: 'Olympic Barbells', desc: 'Classic barbell compound movements' },
+    { id: 'resistance_bands', label: 'Resistance Bands', desc: 'Lightweight elastic bands for mobility & toning' },
+    { id: 'kettlebells', label: 'Kettlebells', desc: 'Dynamic functional strength & hip swings' },
+    { id: 'cable_machine', label: 'Cable Machine / Pulleys', desc: 'Gym pulley attachments & cable rows' },
+    { id: 'full_gym', label: 'Full Commercial Gym', desc: 'Complete gym setup with machines & free weights' },
   ];
 
   // Find active day's plan
@@ -56,13 +58,13 @@ export const WorkoutGenerator: React.FC = () => {
 
   // Days list (1: Mon -> 7: Sun)
   const daysOfWeek = [
-    { dayNum: 1, label: 'Mon', title: 'Push Power' },
-    { dayNum: 2, label: 'Tue', title: 'Pull Density' },
-    { dayNum: 3, label: 'Wed', title: 'Legs & Quads' },
-    { dayNum: 4, label: 'Thu', title: 'HIIT Blitz' },
-    { dayNum: 5, label: 'Fri', title: 'Upper Hypertrophy' },
-    { dayNum: 6, label: 'Sat', title: 'Active Recovery' },
-    { dayNum: 7, label: 'Sun', title: 'Rest & Mobility' },
+    { dayNum: 1, label: 'Mon', title: isSimple ? 'Chest & Arms' : 'Push Power' },
+    { dayNum: 2, label: 'Tue', title: isSimple ? 'Back & Posture' : 'Pull Density' },
+    { dayNum: 3, label: 'Wed', title: isSimple ? 'Legs & Core' : 'Legs & Quads' },
+    { dayNum: 4, label: 'Thu', title: isSimple ? 'Cardio Energy' : 'HIIT Blitz' },
+    { dayNum: 5, label: 'Fri', title: isSimple ? 'Upper Body' : 'Upper Hypertrophy' },
+    { dayNum: 6, label: 'Sat', title: isSimple ? 'Active Walk' : 'Active Recovery' },
+    { dayNum: 7, label: 'Sun', title: isSimple ? 'Rest & Stretch' : 'Rest & Mobility' },
   ];
 
   return (
@@ -73,14 +75,16 @@ export const WorkoutGenerator: React.FC = () => {
           <div>
             <div className="flex items-center gap-2 mb-2">
               <span className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-accent-teal/20 text-accent-teal border border-accent-teal/30">
-                EQUIPMENT-FILTERED 4-WEEK PERIODIZED SPLIT
+                {isSimple ? 'DAILY FITNESS & EXERCISES' : 'EQUIPMENT-FILTERED 4-WEEK PERIODIZED SPLIT'}
               </span>
             </div>
             <h1 className="text-2xl md:text-3xl font-black text-white tracking-tight">
-              Adaptive Workout Generator & Player
+              {isSimple ? 'Daily Fitness & Workout Routines' : 'Adaptive Workout Generator & Player'}
             </h1>
             <p className="text-zinc-400 text-sm mt-1 max-w-2xl">
-              Dynamically filters all exercises based on your checked equipment matrix. Follow set-by-set progressive overload tracking and integrated HIIT interval timers.
+              {isSimple
+                ? 'Follow simple, guided movements customized for the equipment you have at home or at the gym. Take each exercise at your own pace.'
+                : 'Dynamically filters all exercises based on your checked equipment matrix. Follow set-by-set progressive overload tracking and integrated HIIT interval timers.'}
             </p>
           </div>
 
@@ -90,14 +94,14 @@ export const WorkoutGenerator: React.FC = () => {
               className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-surface-200 hover:bg-surface-300 border border-surface-border text-xs font-semibold text-zinc-200 transition-all hover:border-zinc-700"
             >
               <Flame className="w-4 h-4 text-brand-400" />
-              <span>{showHiitModal ? 'Hide HIIT Timer' : 'Open HIIT Timer'}</span>
+              <span>{showHiitModal ? 'Hide Interval Timer' : 'Interval Timer'}</span>
             </button>
             <button
               onClick={() => regenerateWorkouts()}
               className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-gradient-to-r from-brand-500 to-accent-teal hover:from-brand-600 text-zinc-950 text-xs font-bold shadow-glow transition-all active:scale-95"
             >
               <RotateCcw className="w-4 h-4" />
-              <span>Regenerate Split</span>
+              <span>Refresh Routine</span>
             </button>
           </div>
         </div>
