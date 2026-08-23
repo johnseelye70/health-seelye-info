@@ -8,6 +8,8 @@ import { HiitTimer } from './HiitTimer';
 import { EquipmentInventoryBrowser } from './EquipmentInventoryBrowser';
 import { ExerciseDatabaseBrowser } from './ExerciseDatabaseBrowser';
 import { PlateInventoryCalculator } from './PlateInventoryCalculator';
+import { PreMadeProgramsBrowser } from './PreMadeProgramsBrowser';
+import { WorkoutHistoryAnalytics } from './WorkoutHistoryAnalytics';
 import {
   Dumbbell,
   CheckCircle2,
@@ -29,6 +31,9 @@ import {
   Boxes,
   Timer,
   Scale,
+  Award,
+  BarChart3,
+  FileText,
 } from 'lucide-react';
 
 export const WorkoutGenerator: React.FC = () => {
@@ -45,10 +50,13 @@ export const WorkoutGenerator: React.FC = () => {
     updateExerciseSetData,
     regenerateWorkouts,
     experienceMode,
+    workoutLogs,
   } = useHealth();
 
   const isSimple = experienceMode === 'simple';
-  const [activeSubTab, setActiveSubTab] = useState<'routine' | 'exercise_db' | 'equipment_db' | 'plate_calc' | 'hiit'>('routine');
+  const [activeSubTab, setActiveSubTab] = useState<
+    'routine' | 'premade_programs' | 'workout_database' | 'exercise_db' | 'equipment_db' | 'plate_calc' | 'hiit'
+  >('routine');
 
   // Find active day's plan
   const activeDayWorkout = workoutPlan.find(
@@ -71,6 +79,7 @@ export const WorkoutGenerator: React.FC = () => {
   ];
 
   const ownedCount = profile.equipment_inventory?.length || 0;
+  const logsCount = workoutLogs?.length || 0;
 
   return (
     <div className="space-y-6 animate-fadeIn pb-12">
@@ -80,21 +89,49 @@ export const WorkoutGenerator: React.FC = () => {
           type="button"
           id="fitness-tab-routine"
           onClick={() => setActiveSubTab('routine')}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+          className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
             activeSubTab === 'routine'
               ? 'bg-brand-500 text-zinc-950 shadow-glow'
               : 'text-zinc-300 hover:text-white hover:bg-surface-200'
           }`}
         >
           <Calendar className="w-4 h-4" />
-          <span>Daily Workout Split & Player</span>
+          <span>Daily Split & Player</span>
+        </button>
+
+        <button
+          type="button"
+          id="fitness-tab-premade-programs"
+          onClick={() => setActiveSubTab('premade_programs')}
+          className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+            activeSubTab === 'premade_programs'
+              ? 'bg-brand-500 text-zinc-950 shadow-glow'
+              : 'text-zinc-300 hover:text-white hover:bg-surface-200'
+          }`}
+        >
+          <Award className="w-4 h-4 text-amber-400" />
+          <span>Pre-Made Programs (P90X, 5x5, Tai Chi)</span>
+        </button>
+
+        <button
+          type="button"
+          id="fitness-tab-workout-database"
+          onClick={() => setActiveSubTab('workout_database')}
+          className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+            activeSubTab === 'workout_database'
+              ? 'bg-brand-500 text-zinc-950 shadow-glow'
+              : 'text-zinc-300 hover:text-white hover:bg-surface-200'
+          }`}
+        >
+          <BarChart3 className="w-4 h-4 text-emerald-400" />
+          <span>Workout Database {logsCount > 0 ? `(${logsCount})` : ''}</span>
         </button>
 
         <button
           type="button"
           id="fitness-tab-exercise-db"
           onClick={() => setActiveSubTab('exercise_db')}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+          className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
             activeSubTab === 'exercise_db'
               ? 'bg-brand-500 text-zinc-950 shadow-glow'
               : 'text-zinc-300 hover:text-white hover:bg-surface-200'
@@ -108,7 +145,7 @@ export const WorkoutGenerator: React.FC = () => {
           type="button"
           id="fitness-tab-equipment-db"
           onClick={() => setActiveSubTab('equipment_db')}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+          className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
             activeSubTab === 'equipment_db'
               ? 'bg-brand-500 text-zinc-950 shadow-glow'
               : 'text-zinc-300 hover:text-white hover:bg-surface-200'
@@ -122,28 +159,28 @@ export const WorkoutGenerator: React.FC = () => {
           type="button"
           id="fitness-tab-plate-calc"
           onClick={() => setActiveSubTab('plate_calc')}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+          className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
             activeSubTab === 'plate_calc'
               ? 'bg-brand-500 text-zinc-950 shadow-glow'
               : 'text-zinc-300 hover:text-white hover:bg-surface-200'
           }`}
         >
           <Scale className="w-4 h-4 text-accent-cyan" />
-          <span>Weight Plates & Max Load Calculator</span>
+          <span>Weight Plates & Barbell Loader</span>
         </button>
 
         <button
           type="button"
           id="fitness-tab-hiit"
           onClick={() => setActiveSubTab('hiit')}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+          className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
             activeSubTab === 'hiit'
               ? 'bg-brand-500 text-zinc-950 shadow-glow'
               : 'text-zinc-300 hover:text-white hover:bg-surface-200'
           }`}
         >
           <Flame className="w-4 h-4 text-amber-400" />
-          <span>HIIT & Tabata Timer</span>
+          <span>HIIT Timer</span>
         </button>
       </div>
 
@@ -193,7 +230,7 @@ export const WorkoutGenerator: React.FC = () => {
                 <div>
                   <h4 className="text-sm font-bold text-amber-200">No Equipment Currently Selected</h4>
                   <p className="text-xs text-zinc-400 mt-0.5">
-                    Your routines are currently defaulting to pure bodyweight exercises. Check off your gym gear to unlock hundreds of barbell, dumbbell, and cable exercises.
+                    Your routines are currently defaulting to pure bodyweight exercises. Check off your gym gear or choose a pre-made program (like P90X or StrongLifts) above.
                   </p>
                 </div>
               </div>
@@ -319,7 +356,17 @@ export const WorkoutGenerator: React.FC = () => {
       )}
 
       {/* =====================================================================
-          VIEW 2: COMPLETE EXERCISE DATABASE BROWSER (3-Tier Hierarchical View)
+          VIEW 2: PRE-MADE WORKOUT PROGRAMS (P90X, STRONGLIFTS 5X5, TAI CHI)
+          ===================================================================== */}
+      {activeSubTab === 'premade_programs' && <PreMadeProgramsBrowser />}
+
+      {/* =====================================================================
+          VIEW 3: ONGOING WORKOUT DATABASE & ANALYTICS QUERY ENGINE
+          ===================================================================== */}
+      {activeSubTab === 'workout_database' && <WorkoutHistoryAnalytics />}
+
+      {/* =====================================================================
+          VIEW 4: COMPLETE EXERCISE DATABASE BROWSER (3-Tier Hierarchical View)
           ===================================================================== */}
       {activeSubTab === 'exercise_db' && (
         <ExerciseDatabaseBrowser
@@ -328,16 +375,17 @@ export const WorkoutGenerator: React.FC = () => {
       )}
 
       {/* =====================================================================
-          VIEW 3: COMPLETE EQUIPMENT INVENTORY BROWSER (3-Tier Hierarchical View)
+          VIEW 5: COMPLETE EQUIPMENT INVENTORY BROWSER (3-Tier Hierarchical View)
           ===================================================================== */}
       {activeSubTab === 'equipment_db' && (
         <EquipmentInventoryBrowser
           onNavigateToExercises={() => setActiveSubTab('exercise_db')}
+          onNavigateToPlateCalculator={() => setActiveSubTab('plate_calc')}
         />
       )}
 
       {/* =====================================================================
-          VIEW 4: WEIGHT PLATE INVENTORY & BARBELL MAX LOAD CALCULATOR
+          VIEW 6: WEIGHT PLATE INVENTORY & BARBELL MAX LOAD CALCULATOR
           ===================================================================== */}
       {activeSubTab === 'plate_calc' && (
         <div className="animate-fadeIn">
@@ -346,7 +394,7 @@ export const WorkoutGenerator: React.FC = () => {
       )}
 
       {/* =====================================================================
-          VIEW 5: HIIT & TABATA INTERVAL TIMER
+          VIEW 7: HIIT & TABATA INTERVAL TIMER
           ===================================================================== */}
       {activeSubTab === 'hiit' && (
         <div className="animate-fadeIn">

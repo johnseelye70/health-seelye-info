@@ -1,12 +1,18 @@
 import { EquipmentCategoryMeta, EquipmentSubCategoryMeta, EquipmentItem, EquipmentCategory, PlateInventory } from './types';
 
 export const DEFAULT_PLATE_INVENTORY: PlateInventory = {
-  pairs_45lb: 0,
-  pairs_35lb: 0,
-  pairs_25lb: 0,
-  pairs_10lb: 0,
-  pairs_5lb: 0,
-  pairs_2_5lb: 0,
+  plates_100lb: 0,
+  plates_55lb: 0,
+  plates_45lb: 0,
+  plates_35lb: 0,
+  plates_25lb: 0,
+  plates_15lb: 0,
+  plates_10lb: 0,
+  plates_5lb: 0,
+  plates_2_5lb: 0,
+  plates_1_25lb: 0,
+  plates_1lb: 0,
+  plates_0_5lb: 0,
   bar_weight_lbs: 45,
 };
 
@@ -19,47 +25,74 @@ export const BARBELL_TYPES = [
   { id: 'swiss_multigrip_40', name: 'Swiss Multi-Grip Neutral Bar', weightLbs: 40, weightKg: 18 },
 ];
 
-export const PLATE_DENOMINATIONS = [
-  { weightLbs: 45, weightKg: 20.4, color: '#3b82f6', label: '45 lb / 20.4 kg', standardColorName: 'Olympic Blue' },
-  { weightLbs: 35, weightKg: 15.9, color: '#eab308', label: '35 lb / 15.9 kg', standardColorName: 'Olympic Yellow' },
-  { weightLbs: 25, weightKg: 11.3, color: '#10b981', label: '25 lb / 11.3 kg', standardColorName: 'Olympic Green' },
-  { weightLbs: 10, weightKg: 4.5, color: '#f97316', label: '10 lb / 4.5 kg', standardColorName: 'Olympic Orange/White' },
-  { weightLbs: 5, weightKg: 2.3, color: '#ec4899', label: '5 lb / 2.3 kg', standardColorName: 'Olympic Red/Grey' },
-  { weightLbs: 2.5, weightKg: 1.1, color: '#8b5cf6', label: '2.5 lb / 1.1 kg', standardColorName: 'Fractional Micro' },
+export const INDIVIDUAL_PLATE_DENOMINATIONS = [
+  { key: 'plates_100lb' as const, weightLbs: 100, weightKg: 45.4, color: '#1e293b', label: '100 lb / 45.4 kg', standardColorName: 'Heavy Black' },
+  { key: 'plates_55lb' as const, weightLbs: 55, weightKg: 25.0, color: '#ef4444', label: '55 lb / 25.0 kg', standardColorName: 'Olympic Red' },
+  { key: 'plates_45lb' as const, weightLbs: 45, weightKg: 20.4, color: '#3b82f6', label: '45 lb / 20.4 kg', standardColorName: 'Olympic Blue' },
+  { key: 'plates_35lb' as const, weightLbs: 35, weightKg: 15.9, color: '#eab308', label: '35 lb / 15.9 kg', standardColorName: 'Olympic Yellow' },
+  { key: 'plates_25lb' as const, weightLbs: 25, weightKg: 11.3, color: '#10b981', label: '25 lb / 11.3 kg', standardColorName: 'Olympic Green' },
+  { key: 'plates_15lb' as const, weightLbs: 15, weightKg: 6.8, color: '#6366f1', label: '15 lb / 6.8 kg', standardColorName: 'Technique Indigo' },
+  { key: 'plates_10lb' as const, weightLbs: 10, weightKg: 4.5, color: '#f97316', label: '10 lb / 4.5 kg', standardColorName: 'Olympic White/Orange' },
+  { key: 'plates_5lb' as const, weightLbs: 5, weightKg: 2.3, color: '#ec4899', label: '5 lb / 2.3 kg', standardColorName: 'Olympic Grey/Pink' },
+  { key: 'plates_2_5lb' as const, weightLbs: 2.5, weightKg: 1.1, color: '#8b5cf6', label: '2.5 lb / 1.1 kg', standardColorName: 'Fractional Micro' },
+  { key: 'plates_1_25lb' as const, weightLbs: 1.25, weightKg: 0.57, color: '#14b8a6', label: '1.25 lb / 0.57 kg', standardColorName: 'Micro Teal' },
+  { key: 'plates_1lb' as const, weightLbs: 1.0, weightKg: 0.45, color: '#a855f7', label: '1.0 lb / 0.45 kg', standardColorName: 'Micro Purple' },
+  { key: 'plates_0_5lb' as const, weightLbs: 0.5, weightKg: 0.23, color: '#94a3b8', label: '0.5 lb / 0.23 kg', standardColorName: 'Micro Silver' },
 ];
+
+export const PLATE_DENOMINATIONS = INDIVIDUAL_PLATE_DENOMINATIONS;
+
+/**
+ * Extracts exact count for each plate denomination, normalizing pairs and individual inputs
+ */
+export function getNormalizedPlateCounts(plates: PlateInventory = DEFAULT_PLATE_INVENTORY): Record<string, number> {
+  return {
+    plates_100lb: plates.plates_100lb || 0,
+    plates_55lb: plates.plates_55lb || 0,
+    plates_45lb: plates.plates_45lb ?? (plates.pairs_45lb ? plates.pairs_45lb * 2 : 0),
+    plates_35lb: plates.plates_35lb ?? (plates.pairs_35lb ? plates.pairs_35lb * 2 : 0),
+    plates_25lb: plates.plates_25lb ?? (plates.pairs_25lb ? plates.pairs_25lb * 2 : 0),
+    plates_15lb: plates.plates_15lb || 0,
+    plates_10lb: plates.plates_10lb ?? (plates.pairs_10lb ? plates.pairs_10lb * 2 : 0),
+    plates_5lb: plates.plates_5lb ?? (plates.pairs_5lb ? plates.pairs_5lb * 2 : 0),
+    plates_2_5lb: plates.plates_2_5lb ?? (plates.pairs_2_5lb ? plates.pairs_2_5lb * 2 : 0),
+    plates_1_25lb: plates.plates_1_25lb || 0,
+    plates_1lb: plates.plates_1lb || 0,
+    plates_0_5lb: plates.plates_0_5lb || 0,
+  };
+}
 
 /**
  * Calculates total available plate weight and maximum safe barbell load
  */
 export function calculateTotalPlateWeight(plates: PlateInventory = DEFAULT_PLATE_INVENTORY) {
-  const plateWeightLbs =
-    plates.pairs_45lb * 2 * 45 +
-    plates.pairs_35lb * 2 * 35 +
-    plates.pairs_25lb * 2 * 25 +
-    plates.pairs_10lb * 2 * 10 +
-    plates.pairs_5lb * 2 * 5 +
-    plates.pairs_2_5lb * 2 * 2.5;
+  const counts = getNormalizedPlateCounts(plates);
+  let totalPlateWeightLbs = 0;
+  let totalPlatesCount = 0;
+  let evenPairsPlateWeightLbs = 0;
+
+  for (const denom of INDIVIDUAL_PLATE_DENOMINATIONS) {
+    const count = counts[denom.key] || 0;
+    totalPlateWeightLbs += count * denom.weightLbs;
+    totalPlatesCount += count;
+    // For even loading on barbell (both sides matching):
+    const pairsCount = Math.floor(count / 2);
+    evenPairsPlateWeightLbs += pairsCount * 2 * denom.weightLbs;
+  }
 
   const barWeightLbs = plates.bar_weight_lbs || 45;
-  const maxBarbellLbs = plateWeightLbs + barWeightLbs;
-  const totalPlateKg = Number((plateWeightLbs * 0.45359237).toFixed(1));
+  const maxBarbellLbs = evenPairsPlateWeightLbs + barWeightLbs;
+  const totalPlateKg = Number((totalPlateWeightLbs * 0.45359237).toFixed(1));
   const maxBarbellKg = Number((maxBarbellLbs * 0.45359237).toFixed(1));
 
-  const countPlates =
-    plates.pairs_45lb * 2 +
-    plates.pairs_35lb * 2 +
-    plates.pairs_25lb * 2 +
-    plates.pairs_10lb * 2 +
-    plates.pairs_5lb * 2 +
-    plates.pairs_2_5lb * 2;
-
   return {
-    plateWeightLbs,
+    plateWeightLbs: totalPlateWeightLbs,
+    evenPairsPlateWeightLbs,
     totalPlateKg,
     barWeightLbs,
     maxBarbellLbs,
     maxBarbellKg,
-    totalPlatesCount: countPlates,
+    totalPlatesCount,
   };
 }
 
@@ -74,46 +107,43 @@ export function calculateBarbellPlateLoading(
   if (targetWeightLbs < barWeight) {
     return {
       possible: false,
+      isExact: false,
       actualWeightLbs: barWeight,
+      targetWeightLbs,
       platesPerSide: [],
       remainingLbs: targetWeightLbs - barWeight,
       message: `Target weight (${targetWeightLbs} lbs) is less than the bar weight (${barWeight} lbs).`,
     };
   }
 
+  const counts = getNormalizedPlateCounts(plates);
   let weightNeededPerSide = (targetWeightLbs - barWeight) / 2;
   const platesPerSide: { weightLbs: number; count: number; color: string; label: string }[] = [];
 
-  const availablePairs = [
-    { weight: 45, maxCount: plates.pairs_45lb, color: '#3b82f6', label: '45 lb' },
-    { weight: 35, maxCount: plates.pairs_35lb, color: '#eab308', label: '35 lb' },
-    { weight: 25, maxCount: plates.pairs_25lb, color: '#10b981', label: '25 lb' },
-    { weight: 10, maxCount: plates.pairs_10lb, color: '#f97316', label: '10 lb' },
-    { weight: 5, maxCount: plates.pairs_5lb, color: '#ec4899', label: '5 lb' },
-    { weight: 2.5, maxCount: plates.pairs_2_5lb, color: '#8b5cf6', label: '2.5 lb' },
-  ];
-
   let actualPerSide = 0;
 
-  for (const denom of availablePairs) {
-    if (weightNeededPerSide >= denom.weight && denom.maxCount > 0) {
-      const neededCount = Math.floor(weightNeededPerSide / denom.weight);
-      const usedCount = Math.min(neededCount, denom.maxCount);
+  for (const denom of INDIVIDUAL_PLATE_DENOMINATIONS) {
+    const totalOwned = counts[denom.key] || 0;
+    const availablePairs = Math.floor(totalOwned / 2);
+
+    if (weightNeededPerSide >= denom.weightLbs && availablePairs > 0) {
+      const neededCount = Math.floor(weightNeededPerSide / denom.weightLbs);
+      const usedCount = Math.min(neededCount, availablePairs);
       if (usedCount > 0) {
         platesPerSide.push({
-          weightLbs: denom.weight,
+          weightLbs: denom.weightLbs,
           count: usedCount,
           color: denom.color,
-          label: denom.label,
+          label: `${denom.weightLbs} lb`,
         });
-        weightNeededPerSide -= usedCount * denom.weight;
-        actualPerSide += usedCount * denom.weight;
+        weightNeededPerSide -= usedCount * denom.weightLbs;
+        actualPerSide += usedCount * denom.weightLbs;
       }
     }
   }
 
   const actualTotalLbs = barWeight + actualPerSide * 2;
-  const isExact = actualTotalLbs === targetWeightLbs;
+  const isExact = Math.abs(actualTotalLbs - targetWeightLbs) < 0.1;
 
   return {
     possible: true,

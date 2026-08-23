@@ -12,12 +12,14 @@ import {
   EquipmentType,
   FastingProtocol,
   ExperienceMode,
+  WorkoutSessionLog,
 } from '@/lib/types';
 import {
   INITIAL_PROFILE,
   DEFAULT_FOODS,
   INITIAL_FOOD_LOGS,
   INITIAL_WEIGHT_LOGS,
+  INITIAL_WORKOUT_LOGS,
   generateWorkoutPlanSplit,
   compileGroceryList,
 } from '@/lib/mock-data';
@@ -61,7 +63,7 @@ interface HealthContextType {
   notificationsEnabled: boolean;
   setNotificationsEnabled: (enabled: boolean) => void;
   
-  // Workouts
+  // Workouts & Routines
   workoutPlan: WorkoutPlanDay[];
   activeWeek: number;
   setActiveWeek: (week: number) => void;
@@ -72,6 +74,13 @@ interface HealthContextType {
   regenerateWorkouts: (equipment?: EquipmentType[]) => void;
   toggleEquipment: (eq: EquipmentType) => void;
   setEquipmentInventory: (inventory: string[]) => void;
+
+  // Pre-Made Programs & Workout Database Query Engine
+  workoutLogs: WorkoutSessionLog[];
+  saveWorkoutSessionLog: (log: Omit<WorkoutSessionLog, 'id' | 'created_at'>) => void;
+  deleteWorkoutSessionLog: (id: string) => void;
+  activeProgramId: string | null;
+  setActiveProgramId: (id: string | null) => void;
   
   // Grocery Manager
   groceryList: GroceryItem[];
@@ -121,6 +130,8 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
   const [groceryList, setGroceryList] = useState<GroceryItem[]>(() => compileGroceryList(DEFAULT_FOODS));
   const [groceryMultiplier, setGroceryMultiplier] = useState<number>(1);
   const [weightLogs, setWeightLogs] = useState<WeightLog[]>(INITIAL_WEIGHT_LOGS);
+  const [workoutLogs, setWorkoutLogs] = useState<WorkoutSessionLog[]>(INITIAL_WORKOUT_LOGS);
+  const [activeProgramId, setActiveProgramId] = useState<string | null>(null);
   
   const [activeWeek, setActiveWeek] = useState<number>(1);
   const [activeDay, setActiveDay] = useState<number>(() => {
@@ -183,9 +194,12 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
           if (parsed.workoutPlan) setWorkoutPlan(parsed.workoutPlan);
           if (parsed.groceryList) setGroceryList(parsed.groceryList);
           if (parsed.weightLogs) setWeightLogs(parsed.weightLogs);
+          if (parsed.workoutLogs && Array.isArray(parsed.workoutLogs)) setWorkoutLogs(parsed.workoutLogs);
+          if (parsed.activeProgramId) setActiveProgramId(parsed.activeProgramId);
           if (parsed.notificationsEnabled !== undefined) setNotificationsEnabled(parsed.notificationsEnabled);
         } else {
           setFoods(DEFAULT_FOODS);
+          setWorkoutLogs(INITIAL_WORKOUT_LOGS);
         }
       } catch (err) {
         console.warn('Failed to load local state:', err);
@@ -205,6 +219,8 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
           workoutPlan,
           groceryList,
           weightLogs,
+          workoutLogs,
+          activeProgramId,
           notificationsEnabled,
         };
         localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(stateToPersist));
@@ -212,7 +228,7 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
         console.warn('Failed to persist state:', err);
       }
     }
-  }, [profile, foods, foodLogs, workoutPlan, groceryList, weightLogs, notificationsEnabled]);
+  }, [profile, foods, foodLogs, workoutPlan, groceryList, weightLogs, workoutLogs, activeProgramId, notificationsEnabled]);
 
   // 3. Supabase Cloud Sync Engine (Non-Destructive Reconciliation)
   const syncWithCloud = useCallback(async () => {
@@ -752,6 +768,19 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
     );
   }, []);
 
+  const saveWorkoutSessionLog = useCallback((logData: Omit<WorkoutSessionLog, 'id' | 'created_at'>) => {
+    const newLog: WorkoutSessionLog = {
+      ...logData,
+      id: `wlog-${Date.now()}`,
+      created_at: new Date().toISOString(),
+    };
+    setWorkoutLogs((prev) => [newLog, ...prev]);
+  }, []);
+
+  const deleteWorkoutSessionLog = useCallback((id: string) => {
+    setWorkoutLogs((prev) => prev.filter((log) => log.id !== id));
+  }, []);
+
   const toggleGroceryItem = useCallback((id: string) => {
     setGroceryList((prev) =>
       prev.map((item) => (item.id === id ? { ...item, is_checked: !item.is_checked } : item))
@@ -855,6 +884,11 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
         regenerateWorkouts,
         toggleEquipment,
         setEquipmentInventory,
+        workoutLogs,
+        saveWorkoutSessionLog,
+        deleteWorkoutSessionLog,
+        activeProgramId,
+        setActiveProgramId,
         groceryList,
         groceryMultiplier,
         setGroceryMultiplier,

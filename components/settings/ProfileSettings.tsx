@@ -211,6 +211,17 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'Beta 0.17.0',
+      date: '2026-08-23',
+      title: 'Individual Weight Plate Ledger, Pre-Made Programs (P90X, 5x5, Tai Chi) & Ongoing Workout Database Query Engine',
+      changes: [
+        'Added exact individual weight plate quantity ledger supporting custom counts across 100lb, 55lb, 45lb, 35lb, 25lb, 15lb, 10lb, 5lb, 2.5lb, 1.25lb, 1lb, and 0.5lb plates.',
+        'Integrated renowned pre-made training programs including P90X Classic, P90X2, P90X3, StrongLifts 5x5, Starting Strength, Tai Chi 24-Form Yang Style, and Arnold Golden Six.',
+        'Engineered interactive online workout sheets that can be logged and saved into a local/cloud database, plus high-contrast printable manual sheets.',
+        'Built an Ongoing Workout Database & Analytics Query Engine to search and query historical training sessions, total volume lifted, and estimated 1RM personal records.',
+      ],
+    },
+    {
       version: 'Beta 0.16.0',
       date: '2026-08-23',
       title: 'Olympic Weight Plate Inventory Engine & Max Barbell Capacity Calculator',
@@ -944,7 +955,7 @@ export const ProfileSettings: React.FC = () => {
             title="Click to open release changelog modal window"
           >
             <span className="w-2 h-2 rounded-full bg-brand-400 animate-pulse"></span>
-            <span>Active: Beta 0.16.0</span>
+            <span>Active: Beta 0.17.0</span>
             <ChevronRight className="w-3.5 h-3.5 text-brand-400 group-hover:translate-x-0.5 transition-transform" />
           </button>
         </div>

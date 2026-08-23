@@ -5,8 +5,9 @@ import { useHealth } from '@/context/HealthContext';
 import { PlateInventory } from '@/lib/types';
 import {
   DEFAULT_PLATE_INVENTORY,
-  PLATE_DENOMINATIONS,
+  INDIVIDUAL_PLATE_DENOMINATIONS,
   BARBELL_TYPES,
+  getNormalizedPlateCounts,
   calculateTotalPlateWeight,
   calculateBarbellPlateLoading,
 } from '@/lib/equipment-database';
@@ -23,6 +24,7 @@ import {
   CheckCircle2,
   Sliders,
   Scale,
+  Boxes,
 } from 'lucide-react';
 
 interface PlateInventoryCalculatorProps {
@@ -37,6 +39,7 @@ export const PlateInventoryCalculator: React.FC<PlateInventoryCalculatorProps> =
   const isSimple = experienceMode === 'simple';
 
   const currentPlates: PlateInventory = profile.plate_inventory || DEFAULT_PLATE_INVENTORY;
+  const counts = useMemo(() => getNormalizedPlateCounts(currentPlates), [currentPlates]);
 
   const [testTargetWeight, setTestTargetWeight] = useState<number>(225);
 
@@ -48,9 +51,19 @@ export const PlateInventoryCalculator: React.FC<PlateInventoryCalculatorProps> =
     return calculateBarbellPlateLoading(testTargetWeight, currentPlates);
   }, [testTargetWeight, currentPlates]);
 
-  const updatePlatePair = (key: keyof PlateInventory, delta: number) => {
-    const currentVal = (currentPlates[key] as number) || 0;
+  const updateIndividualPlate = (key: string, delta: number) => {
+    const currentVal = counts[key] || 0;
     const newVal = Math.max(0, currentVal + delta);
+    const updated: PlateInventory = {
+      ...currentPlates,
+      [key]: newVal,
+    };
+    updateProfile({ plate_inventory: updated });
+    if (onPlatesUpdated) onPlatesUpdated(updated);
+  };
+
+  const setIndividualPlateCount = (key: string, count: number) => {
+    const newVal = Math.max(0, Math.floor(count));
     const updated: PlateInventory = {
       ...currentPlates,
       [key]: newVal,
@@ -85,7 +98,7 @@ export const PlateInventoryCalculator: React.FC<PlateInventoryCalculatorProps> =
           <div>
             <div className="flex items-center gap-2">
               <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-brand-500/20 text-brand-300 border border-brand-500/30">
-                💿 FREE WEIGHT PLATE INVENTORY & BARBELL CALCULATOR
+                💿 INDIVIDUAL WEIGHT PLATE INVENTORY & BARBELL CALCULATOR
               </span>
             </div>
             <h2 className="text-xl font-black text-white mt-1">
@@ -93,8 +106,8 @@ export const PlateInventoryCalculator: React.FC<PlateInventoryCalculatorProps> =
             </h2>
             <p className="text-xs text-zinc-400 mt-0.5 max-w-2xl">
               {isSimple
-                ? 'Specify the pairs of weight plates you own. This calculates the maximum safe barbell weight available for squats, deadlifts, and bench presses.'
-                : 'Olympic plate inventory manager with visual barbell loading engine. Enforces maximum capacity boundaries on periodized strength progression.'}
+                ? 'Specify the exact quantity of each individual plate you own. Automatically calculates your total plate weight and maximum safe balanced barbell load.'
+                : 'Exact individual plate quantity ledger. Computes bilateral even-pair barbell distribution and enforces load boundaries for Deadlifts, Squats, and Bench Press.'}
             </p>
           </div>
 
@@ -104,74 +117,77 @@ export const PlateInventoryCalculator: React.FC<PlateInventoryCalculatorProps> =
               <Scale className="w-6 h-6 stroke-[2.5]" />
             </div>
             <div>
-              <div className="text-[10px] uppercase font-bold text-zinc-400">Max Barbell Capacity</div>
+              <div className="text-[10px] uppercase font-bold text-zinc-400">Max Barbell Load Capacity</div>
               <div className="text-xl font-black text-white font-mono">
                 {stats.maxBarbellLbs} lbs{' '}
                 <span className="text-xs text-zinc-400 font-normal">({stats.maxBarbellKg} kg)</span>
               </div>
               <div className="text-[10px] text-brand-300 font-mono">
-                {stats.plateWeightLbs} lbs plates + {stats.barWeightLbs} lbs bar ({stats.totalPlatesCount} plates total)
+                {stats.plateWeightLbs} lbs total ({stats.totalPlatesCount} plates) • Bar: {stats.barWeightLbs} lbs
               </div>
             </div>
           </div>
         </div>
 
-        {/* Plate Package Presets */}
+        {/* Quick Packages */}
         <div className="pt-3 border-t border-surface-border/60 flex items-center gap-2 flex-wrap text-xs">
           <span className="text-zinc-400 font-bold uppercase tracking-wider text-[10px]">
-            ⚡ Quick Plate Sets:
+            ⚡ Quick Sets:
           </span>
           <button
             type="button"
             onClick={() =>
               applyPlatePreset({
-                pairs_45lb: 2,
-                pairs_35lb: 1,
-                pairs_25lb: 1,
-                pairs_10lb: 2,
-                pairs_5lb: 2,
-                pairs_2_5lb: 1,
+                plates_45lb: 4,
+                plates_35lb: 2,
+                plates_25lb: 2,
+                plates_10lb: 4,
+                plates_5lb: 4,
+                plates_2_5lb: 2,
                 bar_weight_lbs: 45,
               })
             }
             className="px-3 py-1.5 rounded-xl bg-surface-200 hover:bg-surface-300 border border-surface-border text-zinc-200 hover:text-white font-semibold transition-all cursor-pointer"
           >
-            Standard 300 lb Olympic Set
+            Standard 300 lb Olympic Set (18 plates)
           </button>
 
           <button
             type="button"
             onClick={() =>
               applyPlatePreset({
-                pairs_45lb: 6,
-                pairs_35lb: 2,
-                pairs_25lb: 2,
-                pairs_10lb: 4,
-                pairs_5lb: 4,
-                pairs_2_5lb: 2,
+                plates_100lb: 2,
+                plates_55lb: 2,
+                plates_45lb: 10,
+                plates_35lb: 4,
+                plates_25lb: 4,
+                plates_10lb: 8,
+                plates_5lb: 8,
+                plates_2_5lb: 4,
+                plates_1_25lb: 2,
                 bar_weight_lbs: 45,
               })
             }
             className="px-3 py-1.5 rounded-xl bg-surface-200 hover:bg-surface-300 border border-surface-border text-zinc-200 hover:text-white font-semibold transition-all cursor-pointer"
           >
-            Heavy Powerlifting Tree (800+ lbs)
+            Commercial Powerlifting Gym (1,000+ lbs)
           </button>
 
           <button
             type="button"
             onClick={() =>
               applyPlatePreset({
-                pairs_45lb: 1,
-                pairs_25lb: 1,
-                pairs_10lb: 1,
-                pairs_5lb: 1,
-                pairs_2_5lb: 1,
+                plates_45lb: 2,
+                plates_25lb: 2,
+                plates_10lb: 2,
+                plates_5lb: 2,
+                plates_2_5lb: 2,
                 bar_weight_lbs: 45,
               })
             }
             className="px-3 py-1.5 rounded-xl bg-surface-200 hover:bg-surface-300 border border-surface-border text-zinc-200 hover:text-white font-semibold transition-all cursor-pointer"
           >
-            Minimalist Home 160 lb Set
+            Minimalist Home 160 lb Set (10 plates)
           </button>
 
           <button
@@ -213,229 +229,78 @@ export const PlateInventoryCalculator: React.FC<PlateInventoryCalculatorProps> =
           </div>
         </div>
 
-        {/* Plate Denominations Pairs Steppers */}
+        {/* Individual Plate Denominations Grid */}
         <div className="space-y-3">
-          <label className="text-xs font-bold text-zinc-300 uppercase tracking-wider flex items-center gap-1.5">
-            <Layers className="w-3.5 h-3.5 text-accent-cyan" />
-            <span>Select Pairs of Weight Plates Owned (Each Pair = 2 Matching Plates):</span>
+          <label className="text-xs font-bold text-zinc-300 uppercase tracking-wider flex items-center justify-between">
+            <span className="flex items-center gap-1.5">
+              <Boxes className="w-3.5 h-3.5 text-accent-cyan" />
+              <span>Exact Individual Plate Inventory (Input how many of each plate you own):</span>
+            </span>
+            <span className="text-[11px] text-zinc-400 font-mono">
+              Total: {stats.totalPlatesCount} Plates ({stats.plateWeightLbs} lbs)
+            </span>
           </label>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
-            {/* 45 lb */}
-            <div className="p-4 rounded-2xl bg-surface-200/80 border border-surface-border flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-blue-500 text-white font-black text-xs flex items-center justify-center shadow-md">
-                  45
-                </div>
-                <div>
-                  <div className="text-sm font-bold text-zinc-100">45 lb (20.4 kg)</div>
-                  <div className="text-[11px] font-mono text-zinc-400">
-                    {currentPlates.pairs_45lb * 2} plates ({currentPlates.pairs_45lb * 90} lbs)
+            {INDIVIDUAL_PLATE_DENOMINATIONS.map((denom) => {
+              const count = counts[denom.key] || 0;
+              const weightTotal = count * denom.weightLbs;
+              const hasOddPlate = count % 2 !== 0;
+
+              return (
+                <div
+                  key={denom.key}
+                  className="p-4 rounded-2xl bg-surface-200/80 border border-surface-border flex items-center justify-between gap-3 shadow-sm hover:border-zinc-700 transition-colors"
+                >
+                  <div className="flex items-center gap-3">
+                    <div
+                      style={{ backgroundColor: denom.color }}
+                      className="w-11 h-11 rounded-full text-white font-black text-xs flex items-center justify-center shadow-md shrink-0 border border-white/20"
+                    >
+                      <span className="text-[11px] font-mono drop-shadow">{denom.weightLbs}</span>
+                    </div>
+                    <div>
+                      <div className="text-xs font-bold text-zinc-100">{denom.label}</div>
+                      <div className="text-[11px] font-mono text-zinc-400">
+                        {count} owned ({weightTotal} lbs)
+                      </div>
+                      {hasOddPlate && (
+                        <div className="text-[10px] text-amber-400 font-mono">
+                          ⚠️ {Math.floor(count / 2)} pairs ({count % 2} odd)
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => updateIndividualPlate(denom.key, -1)}
+                      disabled={count <= 0}
+                      className="w-8 h-8 rounded-xl bg-surface-300 hover:bg-surface-border disabled:opacity-30 text-white flex items-center justify-center font-bold cursor-pointer active:scale-95 transition-all"
+                    >
+                      <Minus className="w-3.5 h-3.5" />
+                    </button>
+
+                    <input
+                      type="number"
+                      min="0"
+                      value={count}
+                      onChange={(e) => setIndividualPlateCount(denom.key, Number(e.target.value))}
+                      className="w-12 py-1 text-center font-mono font-bold text-xs text-brand-300 bg-surface-300/80 rounded-xl border border-surface-border focus:outline-none focus:border-brand-500"
+                    />
+
+                    <button
+                      type="button"
+                      onClick={() => updateIndividualPlate(denom.key, 1)}
+                      className="w-8 h-8 rounded-xl bg-surface-300 hover:bg-surface-border text-white flex items-center justify-center font-bold cursor-pointer active:scale-95 transition-all"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                    </button>
                   </div>
                 </div>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => updatePlatePair('pairs_45lb', -1)}
-                  disabled={currentPlates.pairs_45lb <= 0}
-                  className="w-8 h-8 rounded-xl bg-surface-300 hover:bg-surface-border disabled:opacity-40 text-white flex items-center justify-center font-bold cursor-pointer active:scale-95"
-                >
-                  <Minus className="w-3.5 h-3.5" />
-                </button>
-                <span className="w-8 text-center font-mono font-bold text-sm text-brand-300">
-                  {currentPlates.pairs_45lb}p
-                </span>
-                <button
-                  type="button"
-                  onClick={() => updatePlatePair('pairs_45lb', 1)}
-                  className="w-8 h-8 rounded-xl bg-surface-300 hover:bg-surface-border text-white flex items-center justify-center font-bold cursor-pointer active:scale-95"
-                >
-                  <Plus className="w-3.5 h-3.5" />
-                </button>
-              </div>
-            </div>
-
-            {/* 35 lb */}
-            <div className="p-4 rounded-2xl bg-surface-200/80 border border-surface-border flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-yellow-500 text-zinc-950 font-black text-xs flex items-center justify-center shadow-md">
-                  35
-                </div>
-                <div>
-                  <div className="text-sm font-bold text-zinc-100">35 lb (15.9 kg)</div>
-                  <div className="text-[11px] font-mono text-zinc-400">
-                    {currentPlates.pairs_35lb * 2} plates ({currentPlates.pairs_35lb * 70} lbs)
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => updatePlatePair('pairs_35lb', -1)}
-                  disabled={currentPlates.pairs_35lb <= 0}
-                  className="w-8 h-8 rounded-xl bg-surface-300 hover:bg-surface-border disabled:opacity-40 text-white flex items-center justify-center font-bold cursor-pointer active:scale-95"
-                >
-                  <Minus className="w-3.5 h-3.5" />
-                </button>
-                <span className="w-8 text-center font-mono font-bold text-sm text-brand-300">
-                  {currentPlates.pairs_35lb}p
-                </span>
-                <button
-                  type="button"
-                  onClick={() => updatePlatePair('pairs_35lb', 1)}
-                  className="w-8 h-8 rounded-xl bg-surface-300 hover:bg-surface-border text-white flex items-center justify-center font-bold cursor-pointer active:scale-95"
-                >
-                  <Plus className="w-3.5 h-3.5" />
-                </button>
-              </div>
-            </div>
-
-            {/* 25 lb */}
-            <div className="p-4 rounded-2xl bg-surface-200/80 border border-surface-border flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-emerald-500 text-zinc-950 font-black text-xs flex items-center justify-center shadow-md">
-                  25
-                </div>
-                <div>
-                  <div className="text-sm font-bold text-zinc-100">25 lb (11.3 kg)</div>
-                  <div className="text-[11px] font-mono text-zinc-400">
-                    {currentPlates.pairs_25lb * 2} plates ({currentPlates.pairs_25lb * 50} lbs)
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => updatePlatePair('pairs_25lb', -1)}
-                  disabled={currentPlates.pairs_25lb <= 0}
-                  className="w-8 h-8 rounded-xl bg-surface-300 hover:bg-surface-border disabled:opacity-40 text-white flex items-center justify-center font-bold cursor-pointer active:scale-95"
-                >
-                  <Minus className="w-3.5 h-3.5" />
-                </button>
-                <span className="w-8 text-center font-mono font-bold text-sm text-brand-300">
-                  {currentPlates.pairs_25lb}p
-                </span>
-                <button
-                  type="button"
-                  onClick={() => updatePlatePair('pairs_25lb', 1)}
-                  className="w-8 h-8 rounded-xl bg-surface-300 hover:bg-surface-border text-white flex items-center justify-center font-bold cursor-pointer active:scale-95"
-                >
-                  <Plus className="w-3.5 h-3.5" />
-                </button>
-              </div>
-            </div>
-
-            {/* 10 lb */}
-            <div className="p-4 rounded-2xl bg-surface-200/80 border border-surface-border flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-orange-500 text-white font-black text-xs flex items-center justify-center shadow-md">
-                  10
-                </div>
-                <div>
-                  <div className="text-sm font-bold text-zinc-100">10 lb (4.5 kg)</div>
-                  <div className="text-[11px] font-mono text-zinc-400">
-                    {currentPlates.pairs_10lb * 2} plates ({currentPlates.pairs_10lb * 20} lbs)
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => updatePlatePair('pairs_10lb', -1)}
-                  disabled={currentPlates.pairs_10lb <= 0}
-                  className="w-8 h-8 rounded-xl bg-surface-300 hover:bg-surface-border disabled:opacity-40 text-white flex items-center justify-center font-bold cursor-pointer active:scale-95"
-                >
-                  <Minus className="w-3.5 h-3.5" />
-                </button>
-                <span className="w-8 text-center font-mono font-bold text-sm text-brand-300">
-                  {currentPlates.pairs_10lb}p
-                </span>
-                <button
-                  type="button"
-                  onClick={() => updatePlatePair('pairs_10lb', 1)}
-                  className="w-8 h-8 rounded-xl bg-surface-300 hover:bg-surface-border text-white flex items-center justify-center font-bold cursor-pointer active:scale-95"
-                >
-                  <Plus className="w-3.5 h-3.5" />
-                </button>
-              </div>
-            </div>
-
-            {/* 5 lb */}
-            <div className="p-4 rounded-2xl bg-surface-200/80 border border-surface-border flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-pink-500 text-white font-black text-xs flex items-center justify-center shadow-md">
-                  5
-                </div>
-                <div>
-                  <div className="text-sm font-bold text-zinc-100">5 lb (2.3 kg)</div>
-                  <div className="text-[11px] font-mono text-zinc-400">
-                    {currentPlates.pairs_5lb * 2} plates ({currentPlates.pairs_5lb * 10} lbs)
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => updatePlatePair('pairs_5lb', -1)}
-                  disabled={currentPlates.pairs_5lb <= 0}
-                  className="w-8 h-8 rounded-xl bg-surface-300 hover:bg-surface-border disabled:opacity-40 text-white flex items-center justify-center font-bold cursor-pointer active:scale-95"
-                >
-                  <Minus className="w-3.5 h-3.5" />
-                </button>
-                <span className="w-8 text-center font-mono font-bold text-sm text-brand-300">
-                  {currentPlates.pairs_5lb}p
-                </span>
-                <button
-                  type="button"
-                  onClick={() => updatePlatePair('pairs_5lb', 1)}
-                  className="w-8 h-8 rounded-xl bg-surface-300 hover:bg-surface-border text-white flex items-center justify-center font-bold cursor-pointer active:scale-95"
-                >
-                  <Plus className="w-3.5 h-3.5" />
-                </button>
-              </div>
-            </div>
-
-            {/* 2.5 lb Fractional */}
-            <div className="p-4 rounded-2xl bg-surface-200/80 border border-surface-border flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-purple-500 text-white font-black text-[10px] flex items-center justify-center shadow-md">
-                  2.5
-                </div>
-                <div>
-                  <div className="text-sm font-bold text-zinc-100">2.5 lb (1.1 kg)</div>
-                  <div className="text-[11px] font-mono text-zinc-400">
-                    {currentPlates.pairs_2_5lb * 2} plates ({currentPlates.pairs_2_5lb * 5} lbs)
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => updatePlatePair('pairs_2_5lb', -1)}
-                  disabled={currentPlates.pairs_2_5lb <= 0}
-                  className="w-8 h-8 rounded-xl bg-surface-300 hover:bg-surface-border disabled:opacity-40 text-white flex items-center justify-center font-bold cursor-pointer active:scale-95"
-                >
-                  <Minus className="w-3.5 h-3.5" />
-                </button>
-                <span className="w-8 text-center font-mono font-bold text-sm text-brand-300">
-                  {currentPlates.pairs_2_5lb}p
-                </span>
-                <button
-                  type="button"
-                  onClick={() => updatePlatePair('pairs_2_5lb', 1)}
-                  className="w-8 h-8 rounded-xl bg-surface-300 hover:bg-surface-border text-white flex items-center justify-center font-bold cursor-pointer active:scale-95"
-                >
-                  <Plus className="w-3.5 h-3.5" />
-                </button>
-              </div>
-            </div>
+              );
+            })}
           </div>
         </div>
       </div>
@@ -450,14 +315,14 @@ export const PlateInventoryCalculator: React.FC<PlateInventoryCalculatorProps> =
             <h3 className="text-base font-bold text-white">Visual Barbell Plate Loading Simulator</h3>
           </div>
           <span className="text-xs font-mono text-zinc-400">
-            Calculates exact loading per side from your inventory
+            Calculates exact symmetrical plate distribution from your inventory
           </span>
         </div>
 
         {/* Target Weight Selector */}
         <div className="flex flex-wrap items-center gap-3">
           <span className="text-xs text-zinc-400 font-bold uppercase">Test Target Weight:</span>
-          {[135, 185, 225, 275, 315, 365, 405].map((w) => (
+          {[135, 185, 225, 275, 315, 365, 405, 495].map((w) => (
             <button
               key={w}
               type="button"
@@ -513,10 +378,10 @@ export const PlateInventoryCalculator: React.FC<PlateInventoryCalculatorProps> =
                       key={`l-${idx}-${i}`}
                       style={{
                         backgroundColor: p.color,
-                        height: `${Math.min(90, Math.max(45, p.weightLbs * 1.8))}px`,
+                        height: `${Math.min(95, Math.max(45, p.weightLbs * 1.6))}px`,
                         width: '14px',
                       }}
-                      className="rounded-sm shadow-md flex items-center justify-center text-[9px] font-black text-zinc-950 writing-mode-vertical"
+                      className="rounded-sm shadow-md flex items-center justify-center text-[9px] font-black text-white"
                       title={`Left side: ${p.label}`}
                     ></div>
                   ))
@@ -542,10 +407,10 @@ export const PlateInventoryCalculator: React.FC<PlateInventoryCalculatorProps> =
                       key={`r-${idx}-${i}`}
                       style={{
                         backgroundColor: p.color,
-                        height: `${Math.min(90, Math.max(45, p.weightLbs * 1.8))}px`,
+                        height: `${Math.min(95, Math.max(45, p.weightLbs * 1.6))}px`,
                         width: '14px',
                       }}
-                      className="rounded-sm shadow-md flex items-center justify-center text-[9px] font-black text-zinc-950"
+                      className="rounded-sm shadow-md flex items-center justify-center text-[9px] font-black text-white"
                       title={`Right side: ${p.label}`}
                     ></div>
                   ))

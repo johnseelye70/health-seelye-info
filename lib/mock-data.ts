@@ -1,4 +1,4 @@
-import { EquipmentType, ExerciseItem, FoodItem, FoodLogEntry, GroceryItem, UserProfile, WeightLog, WorkoutPlanDay } from './types';
+import { EquipmentType, ExerciseItem, FoodItem, FoodLogEntry, GroceryItem, UserProfile, WeightLog, WorkoutPlanDay, WorkoutSessionLog } from './types';
 import { COMPREHENSIVE_EXERCISE_DATABASE } from './exercise-database';
 import { COMPREHENSIVE_FOOD_DATABASE } from './food-database';
 
@@ -35,6 +35,95 @@ export const DEFAULT_EXERCISES: ExerciseItem[] = COMPREHENSIVE_EXERCISE_DATABASE
 export const INITIAL_FOOD_LOGS: FoodLogEntry[] = [];
 
 export const INITIAL_WEIGHT_LOGS: WeightLog[] = [];
+
+export const INITIAL_WORKOUT_LOGS: WorkoutSessionLog[] = [
+  {
+    id: 'log-001',
+    program_id: 'stronglifts_5x5',
+    program_title: 'StrongLifts 5×5 Strength Program',
+    day_title: 'Workout A (Squat, Bench, Row)',
+    logged_date: '2026-08-20',
+    duration_minutes: 52,
+    total_volume_lbs: 9875,
+    total_sets_completed: 15,
+    energy_rating: 5,
+    notes: 'Hit all 5x5 reps cleanly with 90s rest intervals. Felt strong on bench press.',
+    exercises: [
+      {
+        exercise_id: 'sl-sq-1',
+        exercise_name: 'Barbell Back Squat',
+        target_muscle: 'quads',
+        sets: [
+          { set_number: 1, reps: 5, weight_lbs: 185, rpe: 7, completed: true },
+          { set_number: 2, reps: 5, weight_lbs: 185, rpe: 7, completed: true },
+          { set_number: 3, reps: 5, weight_lbs: 185, rpe: 8, completed: true },
+          { set_number: 4, reps: 5, weight_lbs: 185, rpe: 8, completed: true },
+          { set_number: 5, reps: 5, weight_lbs: 185, rpe: 8.5, completed: true },
+        ],
+      },
+      {
+        exercise_id: 'sl-bp-1',
+        exercise_name: 'Barbell Flat Bench Press',
+        target_muscle: 'chest',
+        sets: [
+          { set_number: 1, reps: 5, weight_lbs: 145, rpe: 7, completed: true },
+          { set_number: 2, reps: 5, weight_lbs: 145, rpe: 7.5, completed: true },
+          { set_number: 3, reps: 5, weight_lbs: 145, rpe: 8, completed: true },
+          { set_number: 4, reps: 5, weight_lbs: 145, rpe: 8, completed: true },
+          { set_number: 5, reps: 5, weight_lbs: 145, rpe: 8.5, completed: true },
+        ],
+      },
+      {
+        exercise_id: 'sl-br-1',
+        exercise_name: 'Barbell Pendlay Row',
+        target_muscle: 'back',
+        sets: [
+          { set_number: 1, reps: 5, weight_lbs: 135, rpe: 7, completed: true },
+          { set_number: 2, reps: 5, weight_lbs: 135, rpe: 7, completed: true },
+          { set_number: 3, reps: 5, weight_lbs: 135, rpe: 7.5, completed: true },
+          { set_number: 4, reps: 5, weight_lbs: 135, rpe: 8, completed: true },
+          { set_number: 5, reps: 5, weight_lbs: 135, rpe: 8, completed: true },
+        ],
+      },
+    ],
+    created_at: '2026-08-20T17:30:00Z',
+  },
+  {
+    id: 'log-002',
+    program_id: 'p90x_classic',
+    program_title: 'P90X® Classic 90-Day Extreme',
+    day_title: 'Chest & Back + Ab Ripper X',
+    logged_date: '2026-08-22',
+    duration_minutes: 65,
+    total_volume_lbs: 4200,
+    total_sets_completed: 18,
+    energy_rating: 4,
+    notes: 'Intense pump! Push-up volume was challenging on the last superset.',
+    exercises: [
+      {
+        exercise_id: 'p90x-cb-1',
+        exercise_name: 'Standard Push-Ups (Max Reps)',
+        target_muscle: 'chest',
+        sets: [
+          { set_number: 1, reps: 30, weight_lbs: 0, rpe: 8, completed: true },
+          { set_number: 2, reps: 25, weight_lbs: 0, rpe: 8.5, completed: true },
+          { set_number: 3, reps: 22, weight_lbs: 0, rpe: 9, completed: true },
+        ],
+      },
+      {
+        exercise_id: 'p90x-cb-2',
+        exercise_name: 'Wide Front Pull-Ups',
+        target_muscle: 'back',
+        sets: [
+          { set_number: 1, reps: 10, weight_lbs: 0, rpe: 8, completed: true },
+          { set_number: 2, reps: 8, weight_lbs: 0, rpe: 8.5, completed: true },
+          { set_number: 3, reps: 7, weight_lbs: 0, rpe: 9.5, completed: true },
+        ],
+      },
+    ],
+    created_at: '2026-08-22T08:15:00Z',
+  },
+];
 
 /**
  * Dynamic 4-Week Workout Split Generator filtered strictly by available equipment

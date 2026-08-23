@@ -72,13 +72,95 @@ export interface ExerciseSubCategoryMeta {
 }
 
 export interface PlateInventory {
-  pairs_45lb: number;
-  pairs_35lb: number;
-  pairs_25lb: number;
-  pairs_10lb: number;
-  pairs_5lb: number;
-  pairs_2_5lb: number;
+  plates_100lb?: number;
+  plates_55lb?: number;
+  plates_45lb?: number;
+  plates_35lb?: number;
+  plates_25lb?: number;
+  plates_15lb?: number;
+  plates_10lb?: number;
+  plates_5lb?: number;
+  plates_2_5lb?: number;
+  plates_1_25lb?: number;
+  plates_1lb?: number;
+  plates_0_5lb?: number;
   bar_weight_lbs: number; // default 45
+  // Backward compatibility pairs aliases
+  pairs_45lb?: number;
+  pairs_35lb?: number;
+  pairs_25lb?: number;
+  pairs_10lb?: number;
+  pairs_5lb?: number;
+  pairs_2_5lb?: number;
+}
+
+export interface ProgramExerciseTemplate {
+  id: string;
+  name: string;
+  target_muscle: string;
+  suggested_sets: number;
+  suggested_reps: string;
+  suggested_weight_guide?: string;
+  equipment_needed?: string;
+  instructions?: string;
+  notes?: string;
+}
+
+export interface WorkoutProgramDay {
+  day_number: number;
+  day_title: string;
+  focus: string;
+  duration_minutes: number;
+  exercises: ProgramExerciseTemplate[];
+  notes?: string;
+}
+
+export interface PreMadeWorkoutProgram {
+  id: string;
+  title: string;
+  subtitle: string;
+  creator: string;
+  category: 'p90x_series' | 'strength_powerlifting' | 'bodybuilding_splits' | 'mind_body_longevity' | 'hiit_cardio';
+  difficulty: 'beginner' | 'intermediate' | 'advanced' | 'all_levels';
+  equipment_needed: string[];
+  duration_weeks: number;
+  days_per_week: number;
+  description: string;
+  icon: string;
+  accent_color: string;
+  schedule: WorkoutProgramDay[];
+}
+
+export interface CompletedSetLog {
+  set_number: number;
+  reps: number;
+  weight_lbs: number;
+  rpe?: number; // Rate of Perceived Exertion (1-10)
+  completed: boolean;
+}
+
+export interface CompletedExerciseLog {
+  exercise_id: string;
+  exercise_name: string;
+  target_muscle: string;
+  sets: CompletedSetLog[];
+  notes?: string;
+}
+
+export interface WorkoutSessionLog {
+  id: string;
+  user_id?: string;
+  program_id?: string;
+  program_title: string;
+  day_title: string;
+  logged_date: string; // YYYY-MM-DD
+  duration_minutes: number;
+  total_volume_lbs: number;
+  total_sets_completed: number;
+  exercises: CompletedExerciseLog[];
+  notes?: string;
+  energy_rating?: number; // 1-5
+  created_at: string;
 }
 
 export interface UserProfile {
@@ -104,6 +186,8 @@ export interface UserProfile {
   meal_count: number; // 2, 3, 4
   equipment_inventory: string[];
   plate_inventory?: PlateInventory;
+  workout_logs?: WorkoutSessionLog[];
+  active_program_id?: string;
   created_at?: string;
   updated_at?: string;
 }
