@@ -5,6 +5,7 @@ import { useHealth } from '@/context/HealthContext';
 import { MacroProgressRing } from './MacroProgressRing';
 import { FoodItem } from '@/lib/types';
 import { calculateSwapEquivalentGrams } from '@/lib/macro-calculator';
+import { FoodDatabaseBrowser } from './FoodDatabaseBrowser';
 import {
   UtensilsCrossed,
   Search,
@@ -325,100 +326,14 @@ export const MealPlanner: React.FC = () => {
         </div>
       </div>
 
-      {/* Searchable Food Database Catalog Section */}
-      <div className="p-6 rounded-3xl bg-surface-100/90 border border-surface-border backdrop-blur-xl">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-          <div>
-            <h2 className="text-base font-bold text-zinc-100 flex items-center gap-2">
-              <Search className="w-4 h-4 text-accent-cyan" />
-              <span>Nutritional Food Database Catalog</span>
-            </h2>
-            <p className="text-xs text-zinc-400 mt-0.5">
-              Verified nutritional values per 100g serving. High-protein staples, clean complex carbs, and essential fats.
-            </p>
-          </div>
-
-          {/* Search & Category Filter */}
-          <div className="flex flex-wrap items-center gap-3">
-            <div className="relative">
-              <Search className="w-4 h-4 text-zinc-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
-              <input
-                type="text"
-                placeholder="Search food staples..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9 pr-4 py-2 rounded-xl bg-surface-200 border border-surface-border text-xs text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-brand-500 w-56"
-              />
-            </div>
-
-            <select
-              value={selectedCategoryFilter}
-              onChange={(e) => setSelectedCategoryFilter(e.target.value)}
-              className="px-3 py-2 rounded-xl bg-surface-200 border border-surface-border text-xs text-zinc-200 focus:outline-none focus:border-brand-500"
-            >
-              <option value="all">All Categories</option>
-              <option value="protein">Proteins</option>
-              <option value="carbohydrate">Carbohydrates</option>
-              <option value="healthy_fat">Healthy Fats</option>
-              <option value="vegetable">Vegetables</option>
-              <option value="fruit">Fruits</option>
-            </select>
-          </div>
-        </div>
-
-        {/* Food Items Table / Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-          {filteredFoods.map((item) => (
-            <div
-              key={item.id}
-              className="p-4 rounded-2xl bg-surface-200/60 border border-surface-border hover:border-zinc-700 transition-all flex flex-col justify-between"
-            >
-              <div>
-                <div className="flex items-start justify-between gap-2">
-                  <span className="text-xs font-bold text-zinc-100 leading-snug">{item.name}</span>
-                  <span className="text-[10px] uppercase font-mono px-2 py-0.5 rounded bg-surface-300 text-zinc-400 shrink-0">
-                    {item.category.replace('_', ' ')}
-                  </span>
-                </div>
-
-                <div className="mt-2.5 grid grid-cols-4 gap-1 text-center font-mono">
-                  <div className="p-1 rounded bg-surface-300/60 text-[10px]">
-                    <div className="text-zinc-400">Calories</div>
-                    <div className="font-bold text-zinc-200">{item.calories_per_100g}</div>
-                  </div>
-                  <div className="p-1 rounded bg-surface-300/60 text-[10px]">
-                    <div className="text-zinc-400">Protein</div>
-                    <div className="font-bold text-brand-400">{item.protein_per_100g}g</div>
-                  </div>
-                  <div className="p-1 rounded bg-surface-300/60 text-[10px]">
-                    <div className="text-zinc-400">Carbs</div>
-                    <div className="font-bold text-accent-cyan">{item.carbs_per_100g}g</div>
-                  </div>
-                  <div className="p-1 rounded bg-surface-300/60 text-[10px]">
-                    <div className="text-zinc-400">Fats</div>
-                    <div className="font-bold text-amber-400">{item.fat_per_100g}g</div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="mt-3 pt-2.5 border-t border-surface-border/60 flex items-center justify-between text-[11px]">
-                <span className="text-zinc-400">Per 100{item.default_unit}</span>
-                <button
-                  onClick={() => {
-                    setSelectedFoodForLog(item);
-                    setGramsToLog(item.serving_size_g);
-                    setSelectedMealIndex(1);
-                  }}
-                  className="text-brand-400 font-semibold hover:underline flex items-center gap-1"
-                >
-                  <Plus className="w-3.5 h-3.5" />
-                  <span>Log To Meal</span>
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
+      {/* Layered & Searchable Complete Food Database Section */}
+      <FoodDatabaseBrowser
+        onLogToMeal={(item, mealIdx) => {
+          setSelectedFoodForLog(item);
+          setGramsToLog(item.serving_size_g);
+          setSelectedMealIndex(mealIdx || 1);
+        }}
+      />
 
       {/* Modal: Quick Food Logger */}
       {selectedMealIndex !== null && (

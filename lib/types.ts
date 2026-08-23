@@ -32,10 +32,30 @@ export interface UserProfile {
   updated_at?: string;
 }
 
+export type FoodCategory =
+  | 'poultry_meat'
+  | 'fish_seafood'
+  | 'plant_protein'
+  | 'dairy_eggs'
+  | 'grains_carbs'
+  | 'fruits'
+  | 'vegetables'
+  | 'nuts_fats_oils'
+  | 'beverages_hydration'
+  | 'snacks_pantry'
+  | 'protein'
+  | 'carbohydrate'
+  | 'healthy_fat'
+  | 'vegetable'
+  | 'fruit'
+  | 'dairy_alternative'
+  | 'pantry_staple'
+  | 'beverage';
+
 export interface FoodItem {
   id: string;
   name: string;
-  category: 'protein' | 'carbohydrate' | 'healthy_fat' | 'vegetable' | 'fruit' | 'dairy_alternative' | 'pantry_staple' | 'beverage';
+  category: FoodCategory;
   calories_per_100g: number;
   protein_per_100g: number;
   carbs_per_100g: number;

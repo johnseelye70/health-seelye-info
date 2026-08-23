@@ -155,6 +155,17 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'Beta 0.7.0',
+      date: '2026-08-23',
+      title: 'Comprehensive Layered Food Database & Instant Search',
+      changes: [
+        'Expanded food database to 120+ authentic ingredients across 10 clean, visual categories.',
+        'Engineered 2-layer progressive exploration: Category cards drill down seamlessly to prevent visual clutter.',
+        'Added global instant search bar to find any food across all categories in real-time with zero lag.',
+        'Added quick dietary filter pills (🥩 High Protein, 🌾 Gluten-Free, 🥛 Dairy-Free).',
+      ],
+    },
+    {
       version: 'Beta 0.6.0',
       date: '2026-08-23',
       title: 'Dual Experience Modes (Casual Friendly vs Athlete Pro)',
@@ -505,7 +516,7 @@ export const ProfileSettings: React.FC = () => {
             <h2 className="text-base font-bold text-zinc-100">Version History & Changelog</h2>
           </div>
           <span className="px-3 py-1 rounded-full text-xs font-mono font-bold bg-brand-500/20 text-brand-300 border border-brand-500/30">
-            Active: Beta 0.6.0
+            Active: Beta 0.7.0
           </span>
         </div>
 
