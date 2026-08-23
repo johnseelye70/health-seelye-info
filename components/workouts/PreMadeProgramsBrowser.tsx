@@ -96,12 +96,12 @@ export const PreMadeProgramsBrowser: React.FC = () => {
           <div className="flex items-center gap-2 overflow-x-auto pb-1 text-xs">
             {[
               { id: 'all', label: 'All Programs' },
-              { id: 'p90x_series', label: 'P90X Series' },
+              { id: 'crossfit_benchmarks', label: 'CrossFit® (The Girls & Heroes)' },
+              { id: 'p90x_series', label: 'P90X Series (1/2/3)' },
               { id: 'beachbody_classic', label: 'Insanity & Beachbody' },
               { id: 'strength_powerlifting', label: 'Strength & 5x5 / Barbell' },
               { id: 'bodybuilding_splits', label: 'Hypertrophy & PPL' },
               { id: 'mind_body_longevity', label: 'Tai Chi & Mobility' },
-              { id: 'functional_tactical', label: 'Kettlebells & Tactical' },
               { id: 'hybrid_endurance', label: 'Rowing & Hybrid (HYROX)' },
             ].map((cat) => (
               <button

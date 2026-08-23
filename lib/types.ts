@@ -118,6 +118,7 @@ export interface WorkoutProgramDay {
 export type ProgramCategory =
   | 'p90x_series'
   | 'beachbody_classic'
+  | 'crossfit_benchmarks'
   | 'strength_powerlifting'
   | 'bodybuilding_splits'
   | 'mind_body_longevity'

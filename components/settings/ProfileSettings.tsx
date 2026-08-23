@@ -211,6 +211,17 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'Beta 1.1.0',
+      date: '2026-08-23',
+      title: 'Full Complement of Workout Sheets & Dedicated CrossFit Benchmarks Catalog',
+      changes: [
+        'Added full complement of 12 workout sheets for P90X Classic (Chest & Back, Plyo, Shoulders/Arms, Yoga X, Legs/Back, Kenpo X, X Stretch, Core Synergistics, Chest/Shoulders/Tris, Back/Bis, Cardio X, Ab Ripper X).',
+        'Added complete 12 sheets for P90X2 (X2 Core, Plyocide, Recovery/Mobility, Total Body, Yoga, Balance & Power, Chest/Back/Balance, Shoulders/Arms, Base/Back, P.A.P. Lower, P.A.P. Upper, X2 Ab Ripper).',
+        'Added complete 19 sheets for P90X3 (Total Synergistics, Agility X, The Challenge, X3 Yoga, CVX, The Warrior, Isometrix, Dynamix, Accelerator, Decelerator, Incinerator, Triometrics, MMX, Eccentric Upper/Lower, Complex Upper/Lower, Ab Ripper).',
+        'Added dedicated CrossFit® category featuring all 18 "The Girls" benchmarks (Fran, Cindy, Helen, Grace, Isabel, Diane, Elizabeth, Karen, Annie, Jackie, Mary, Chelsea, Nancy, Eva, Kelly, Angie, Barbara, Linda) and 10 Hero WODs (Murph, DT, Chad 1000X, Nate, Badger, The Seven, Lumberjack 20).',
+      ],
+    },
+    {
       version: 'Beta 1.0.0',
       date: '2026-08-23',
       title: 'Milestone Release: Complete Health, Nutrition & Strength Ecosystem',
@@ -979,7 +990,7 @@ export const ProfileSettings: React.FC = () => {
             title="Click to open release changelog modal window"
           >
             <span className="w-2 h-2 rounded-full bg-brand-400 animate-pulse"></span>
-            <span>Active: Beta 1.0.0</span>
+            <span>Active: Beta 1.1.0</span>
             <ChevronRight className="w-3.5 h-3.5 text-brand-400 group-hover:translate-x-0.5 transition-transform" />
           </button>
         </div>
