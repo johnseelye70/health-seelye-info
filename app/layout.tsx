@@ -3,10 +3,10 @@ import './globals.css';
 import { HealthProvider } from '@/context/HealthContext';
 
 export const metadata: Metadata = {
-  title: 'Health.Seelye | Precision Nutrition & Adaptive Fitness Engine',
+  title: 'Seelye Family Health | Precision Nutrition & Adaptive Fitness Engine',
   description:
     'High-end athletic performance platform featuring Mifflin-St Jeor TDEE macro calculation, intermittent fasting window timers, equipment-filtered 4-week workout periodization, and automated grocery requisitions.',
-  applicationName: 'Health.Seelye',
+  applicationName: 'Seelye Family Health',
   authors: [{ name: 'Seelye Health Engineering' }],
   keywords: [
     'fitness',

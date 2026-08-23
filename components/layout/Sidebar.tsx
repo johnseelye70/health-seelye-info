@@ -52,8 +52,8 @@ export const Sidebar: React.FC = () => {
           </div>
           <div>
             <div className="flex items-center gap-1.5">
-              <span className="font-black text-lg tracking-tight text-white font-sans">
-                HEALTH<span className="text-brand-400">.SEELYE</span>
+              <span className="font-black text-base tracking-tight text-white font-sans">
+                SEELYE FAMILY <span className="text-brand-400">HEALTH</span>
               </span>
             </div>
             <p className="text-[11px] text-zinc-400 font-medium">Precision Nutrition & Fit</p>
@@ -61,10 +61,10 @@ export const Sidebar: React.FC = () => {
         </div>
       </div>
 
-      {/* Athlete Status & Cloud Account Pill */}
+      {/* Logged-on User Status & Cloud Account Pill */}
       <div className="px-4 py-3 border-b border-surface-border/60 bg-surface-300/40 space-y-2">
         <div className="flex items-center justify-between text-xs">
-          <span className="text-zinc-400">Athlete:</span>
+          <span className="text-zinc-400">Logged-on User:</span>
           <span className="font-semibold text-zinc-200 truncate max-w-[120px]">
             {authUser ? (authUser.user_metadata?.full_name || profile.full_name) : profile.full_name}
           </span>
@@ -131,7 +131,7 @@ export const Sidebar: React.FC = () => {
       <div className="p-4 border-t border-surface-border text-xs text-zinc-400 bg-surface-300/30 flex items-center justify-between">
         <div className="flex items-center gap-1.5">
           <span className="w-2 h-2 rounded-full bg-brand-500 animate-pulse"></span>
-          <span className="font-mono text-[11px] text-zinc-300">Beta 0.14.1</span>
+          <span className="font-mono text-[11px] text-zinc-300">Beta 0.14.2</span>
         </div>
         <span className="text-[10px] text-zinc-400 font-mono">health.seelye.info</span>
       </div>

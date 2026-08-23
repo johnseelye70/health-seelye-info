@@ -165,14 +165,14 @@ export const GroceryManager: React.FC = () => {
         <div className="hidden print:block border-b-2 border-black pb-4 mb-6">
           <div className="flex justify-between items-baseline">
             <h1 className="text-2xl font-black tracking-tight text-black font-sans">
-              HEALTH.SEELYE.INFO — GROCERY CHECKLIST
+              SEELYE FAMILY HEALTH — GROCERY CHECKLIST
             </h1>
             <span className="text-xs text-zinc-600 font-mono">
               Generated: {new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}
             </span>
           </div>
           <div className="text-xs text-zinc-700 mt-1">
-            Weekly Athlete Requisition • Serving Multiplier: {groceryMultiplier}x • Target Calories: {useHealth().profile.daily_calorie_target} kcal
+            Weekly Requisition • Serving Multiplier: {groceryMultiplier}x • Target Calories: {useHealth().profile.daily_calorie_target} kcal
           </div>
         </div>
 

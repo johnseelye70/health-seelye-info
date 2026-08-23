@@ -211,6 +211,15 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'Beta 0.14.2',
+      date: '2026-08-23',
+      title: 'Branding & Identity Customization (Seelye Family Health & Logged-on User Label)',
+      changes: [
+        'Updated brand title in top-left sidebar header and application metadata to "Seelye Family Health".',
+        'Renamed profile identifier from "Athlete:" to "Logged-on User:".',
+      ],
+    },
+    {
       version: 'Beta 0.14.1',
       date: '2026-08-23',
       title: 'Expanded 2,250-Item Verified Food Database & Comprehensive 11-Filter Nutritional Matrix',
@@ -912,7 +921,7 @@ export const ProfileSettings: React.FC = () => {
             title="Click to open release changelog modal window"
           >
             <span className="w-2 h-2 rounded-full bg-brand-400 animate-pulse"></span>
-            <span>Active: Beta 0.14.1</span>
+            <span>Active: Beta 0.14.2</span>
             <ChevronRight className="w-3.5 h-3.5 text-brand-400 group-hover:translate-x-0.5 transition-transform" />
           </button>
         </div>
