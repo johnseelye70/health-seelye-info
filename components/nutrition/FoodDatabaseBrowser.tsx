@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { FoodItem, FoodCategory } from '@/lib/types';
-import { FOOD_CATEGORIES, FoodCategoryMeta } from '@/lib/food-database';
+import { FOOD_CATEGORIES, FoodCategoryMeta, normalizeFoodCategory } from '@/lib/food-database';
 import { useHealth } from '@/context/HealthContext';
 import {
   Search,
@@ -36,11 +36,12 @@ export const FoodDatabaseBrowser: React.FC<FoodDatabaseBrowserProps> = ({
   const [selectedCategory, setSelectedCategory] = useState<FoodCategory | null>(null);
   const [dietaryFilter, setDietaryFilter] = useState<'all' | 'high_protein' | 'gluten_free' | 'dairy_free'>('all');
 
-  // Count items per category
+  // Count items per category (Normalized to prevent any stale state mismatch)
   const categoryCounts = useMemo(() => {
     const counts: Record<string, number> = {};
     foods.forEach((food) => {
-      counts[food.category] = (counts[food.category] || 0) + 1;
+      const cat = normalizeFoodCategory(food.category);
+      counts[cat] = (counts[cat] || 0) + 1;
     });
     return counts;
   }, [foods]);
@@ -48,15 +49,17 @@ export const FoodDatabaseBrowser: React.FC<FoodDatabaseBrowserProps> = ({
   // Global Search or Filtered List
   const filteredFoods = useMemo(() => {
     return foods.filter((item) => {
+      const itemCat = normalizeFoodCategory(item.category);
+
       // 1. Text Search (Matches anywhere in name or category)
       if (searchQuery.trim().length > 0) {
         const q = searchQuery.toLowerCase().trim();
         const matchesName = item.name.toLowerCase().includes(q);
-        const matchesCat = item.category.toLowerCase().includes(q);
+        const matchesCat = itemCat.toLowerCase().includes(q) || item.category.toLowerCase().includes(q);
         if (!matchesName && !matchesCat) return false;
       } else if (selectedCategory) {
         // 2. Category Filter (When not searching globally)
-        if (item.category !== selectedCategory) return false;
+        if (itemCat !== selectedCategory) return false;
       }
 
       // 3. Dietary Filter

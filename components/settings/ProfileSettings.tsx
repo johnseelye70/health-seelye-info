@@ -155,6 +155,16 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'Beta 0.8.0',
+      date: '2026-08-23',
+      title: 'Food Database State Migration & Category Normalization',
+      changes: [
+        'Added automated state migration (v4) to guarantee full 120+ food database loads across all user sessions.',
+        'Implemented bidirectional category normalizer ensuring all items populate their respective visual categories without manual cache resets.',
+        'Integrated multi-attribute keyword matching across food names and normalized category tags.',
+      ],
+    },
+    {
       version: 'Beta 0.7.0',
       date: '2026-08-23',
       title: 'Comprehensive Layered Food Database & Instant Search',
@@ -516,7 +526,7 @@ export const ProfileSettings: React.FC = () => {
             <h2 className="text-base font-bold text-zinc-100">Version History & Changelog</h2>
           </div>
           <span className="px-3 py-1 rounded-full text-xs font-mono font-bold bg-brand-500/20 text-brand-300 border border-brand-500/30">
-            Active: Beta 0.7.0
+            Active: Beta 0.8.0
           </span>
         </div>
 

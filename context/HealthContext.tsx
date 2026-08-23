@@ -28,6 +28,7 @@ import {
   FastingStatus,
 } from '@/lib/macro-calculator';
 import { isSupabaseConfigured, supabase } from '@/lib/supabase/client';
+import { normalizeFoodCategory } from '@/lib/food-database';
 
 interface HealthContextType {
   profile: UserProfile;
@@ -93,7 +94,7 @@ interface HealthContextType {
 
 const HealthContext = createContext<HealthContextType | undefined>(undefined);
 
-const LOCAL_STORAGE_KEY = 'health_seelye_app_state_v3';
+const LOCAL_STORAGE_KEY = 'health_seelye_app_state_v4';
 
 export function HealthProvider({ children }: { children: React.ReactNode }) {
   const [profile, setProfile] = useState<UserProfile>(INITIAL_PROFILE);
@@ -128,19 +129,42 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (typeof window !== 'undefined') {
       try {
-        const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
+        const saved =
+          localStorage.getItem(LOCAL_STORAGE_KEY) ||
+          localStorage.getItem('health_seelye_app_state_v3');
+
         if (saved) {
           const parsed = JSON.parse(saved);
           if (parsed.profile) setProfile(parsed.profile);
-          if (parsed.foods) setFoods(parsed.foods);
+
+          // Always ensure comprehensive food catalog (120+ foods) is present and categories normalized
+          if (parsed.foods && Array.isArray(parsed.foods) && parsed.foods.length >= DEFAULT_FOODS.length) {
+            setFoods(
+              parsed.foods.map((f: FoodItem) => ({
+                ...f,
+                category: normalizeFoodCategory(f.category),
+              }))
+            );
+          } else {
+            // Merge defaults with any custom foods created by the user
+            const customFoods = (parsed.foods || []).filter(
+              (f: FoodItem) => !DEFAULT_FOODS.some((df) => df.id === f.id)
+            );
+            setFoods([...DEFAULT_FOODS, ...customFoods]);
+          }
+
           if (parsed.foodLogs) setFoodLogs(parsed.foodLogs);
           if (parsed.workoutPlan) setWorkoutPlan(parsed.workoutPlan);
           if (parsed.groceryList) setGroceryList(parsed.groceryList);
           if (parsed.weightLogs) setWeightLogs(parsed.weightLogs);
           if (parsed.notificationsEnabled !== undefined) setNotificationsEnabled(parsed.notificationsEnabled);
+        } else {
+          // Fresh initialization
+          setFoods(DEFAULT_FOODS);
         }
       } catch (err) {
         console.warn('Failed to load local state:', err);
+        setFoods(DEFAULT_FOODS);
       }
     }
   }, []);
@@ -450,6 +474,7 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
         localStorage.removeItem('health_seelye_app_state_v1');
         localStorage.removeItem('health_seelye_app_state_v2');
         localStorage.removeItem('health_seelye_app_state_v3');
+        localStorage.removeItem('health_seelye_app_state_v4');
       } catch (e) {
         // ignore
       }

@@ -9,6 +9,29 @@ export interface FoodCategoryMeta {
   accentColor: string;
 }
 
+export function normalizeFoodCategory(category: string): FoodCategory {
+  switch (category) {
+    case 'protein':
+      return 'poultry_meat';
+    case 'carbohydrate':
+      return 'grains_carbs';
+    case 'fruit':
+      return 'fruits';
+    case 'vegetable':
+      return 'vegetables';
+    case 'healthy_fat':
+      return 'nuts_fats_oils';
+    case 'dairy_alternative':
+      return 'dairy_eggs';
+    case 'beverage':
+      return 'beverages_hydration';
+    case 'pantry_staple':
+      return 'snacks_pantry';
+    default:
+      return (category as FoodCategory) || 'snacks_pantry';
+  }
+}
+
 export const FOOD_CATEGORIES: FoodCategoryMeta[] = [
   {
     id: 'poultry_meat',
