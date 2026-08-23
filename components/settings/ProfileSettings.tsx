@@ -211,6 +211,30 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'Beta 1.0.0',
+      date: '2026-08-23',
+      title: 'Milestone Release: Complete Health, Nutrition & Strength Ecosystem',
+      changes: [
+        'Complete precision nutrition suite: Multi-category food database with stacked macro/allergen filters, 4-tier daily calorie & macro targets, fasting tracker, and smart grocery list.',
+        'Equipment & Exercise Matrix: Symbiotic 120+ piece equipment database and hundreds of verified exercises filtered by owned gym gear with 0-equipment pure bodyweight fallback.',
+        'Custom Weight Plate Ledger: Exact individual plate count inventory (100lb down to 0.5lb micro-plates) with real-time symmetrical barbell loading calculator and safety capacity enforcement.',
+        'Pre-Done Training Programs: 40+ iconic protocols across 6 categories (P90X series, StrongLifts 5x5, Starting Strength, Body Beast, Insanity, PPL, Arnold Golden Six, Tai Chi 24-Form, Qigong, and HYROX).',
+        'Interactive & Printable Workout Sheets: Online session logging with auto-computed volume and 1-click database saves, plus clean high-contrast black & white print layouts.',
+        'Workout Database & Analytics Engine: Searchable historical workout database with date range queries, volume progression charts, and estimated 1RM personal record metrics.',
+      ],
+    },
+    {
+      version: 'Beta 0.18.0',
+      date: '2026-08-23',
+      title: 'Expanded Pre-Made Training Programs Catalog (40+ Legendary Protocols)',
+      changes: [
+        'Added full multi-week day-by-day programs for Insanity Max Interval Training, Body Beast, LIIFT4, Starting Strength, Wendler 5/3/1 BBB, and Texas Method.',
+        'Integrated Push/Pull/Legs (PPL 6-Day Hypertrophy), PHUL 4-Day Power/Hypertrophy, Dorian Yates Blood & Guts HIT, and German Volume Training (GVT 10x10).',
+        'Added mind-body and longevity sequences: Baduanjin Qigong (8 Pieces of Brocade), Ashtanga Primary Series Yoga, and Dr. Kelly Starrett Mobility WODs.',
+        'Integrated tactical and hybrid race protocols: Simple & Sinister Kettlebell, CrossFit "The Girls" Benchmarks, 300 Spartan Challenge, HYROX Race Simulation, and Concept2 Pete Plan Rowing.',
+      ],
+    },
+    {
       version: 'Beta 0.17.0',
       date: '2026-08-23',
       title: 'Individual Weight Plate Ledger, Pre-Made Programs (P90X, 5x5, Tai Chi) & Ongoing Workout Database Query Engine',
@@ -955,7 +979,7 @@ export const ProfileSettings: React.FC = () => {
             title="Click to open release changelog modal window"
           >
             <span className="w-2 h-2 rounded-full bg-brand-400 animate-pulse"></span>
-            <span>Active: Beta 0.17.0</span>
+            <span>Active: Beta 1.0.0</span>
             <ChevronRight className="w-3.5 h-3.5 text-brand-400 group-hover:translate-x-0.5 transition-transform" />
           </button>
         </div>

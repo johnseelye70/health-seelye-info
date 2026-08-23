@@ -2,7 +2,7 @@ import { PreMadeWorkoutProgram } from './types';
 
 export const PREMADE_WORKOUT_PROGRAMS: PreMadeWorkoutProgram[] = [
   // =========================================================================
-  // 1. P90X (CLASSIC 90-DAY EXTREME HOME FITNESS) — TONY HORTON
+  // 1. P90X & BEACHBODY CLASSIC SERIES
   // =========================================================================
   {
     id: 'p90x_classic',
@@ -11,11 +11,11 @@ export const PREMADE_WORKOUT_PROGRAMS: PreMadeWorkoutProgram[] = [
     creator: 'Tony Horton & Beachbody',
     category: 'p90x_series',
     difficulty: 'advanced',
-    equipment_needed: ['dumbbells', 'pull_up_bar', 'resistance_bands', 'yoga_mat'],
+    equipment_needed: ['dumbbells', 'pull_up_bar', 'resistance_bands'],
     duration_weeks: 12,
     days_per_week: 6,
     description:
-      'The legendary 90-day extreme fitness program that pioneered Muscle Confusion. Rotates heavy calisthenics, free weight supersets, high-velocity plyometrics, and traditional isometric yoga to shatter plateaus.',
+      'The legendary 90-day extreme fitness program that pioneered Muscle Confusion. Rotates heavy calisthenics, free weight supersets, high-velocity plyometrics, and traditional yoga.',
     icon: '⚡',
     accent_color: '#3b82f6',
     schedule: [
@@ -30,11 +30,9 @@ export const PREMADE_WORKOUT_PROGRAMS: PreMadeWorkoutProgram[] = [
           { id: 'p90x-cb-3', name: 'Military Push-Ups (Elbows Tucked)', target_muscle: 'chest', suggested_sets: 3, suggested_reps: '15–25 reps', instructions: 'Elbows scraping ribcage, tricep emphasis.' },
           { id: 'p90x-cb-4', name: 'Reverse Grip Chin-Ups', target_muscle: 'back', suggested_sets: 3, suggested_reps: '8–12 reps', instructions: 'Underhand grip, squeeze lower lats and biceps.' },
           { id: 'p90x-cb-5', name: 'Wide Fly Push-Ups', target_muscle: 'chest', suggested_sets: 3, suggested_reps: '12–20 reps', instructions: 'Hands placed wider than shoulder width.' },
-          { id: 'p90x-cb-6', name: 'Closed Grip Overhand Pull-Ups', target_muscle: 'back', suggested_sets: 3, suggested_reps: '6–10 reps', instructions: 'Hands 6-8 inches apart on bar.' },
-          { id: 'p90x-cb-7', name: 'Heavy Lawnmower Dumbbell Rows', target_muscle: 'back', suggested_sets: 3, suggested_reps: '10–12 reps/side', instructions: 'Staggered stance, pull dumbbell back into hip.' },
-          { id: 'p90x-cb-8', name: 'Diamond Push-Ups', target_muscle: 'chest', suggested_sets: 3, suggested_reps: '10–15 reps', instructions: 'Index fingers and thumbs touching under chest.' },
-          { id: 'p90x-cb-9', name: 'Ab Ripper X: In & Outs + Seated Bicycles', target_muscle: 'core', suggested_sets: 1, suggested_reps: '25 reps each', instructions: 'Balance on sit bones, knees to chest.' },
-          { id: 'p90x-cb-10', name: 'Ab Ripper X: Fifer Scissor Kicks', target_muscle: 'core', suggested_sets: 1, suggested_reps: '25 reps', instructions: 'Alternate straight leg raises off floor.' },
+          { id: 'p90x-cb-6', name: 'Heavy Lawnmower Dumbbell Rows', target_muscle: 'back', suggested_sets: 3, suggested_reps: '10–12 reps/side', instructions: 'Staggered stance, pull dumbbell back into hip.' },
+          { id: 'p90x-cb-7', name: 'Diamond Push-Ups', target_muscle: 'chest', suggested_sets: 3, suggested_reps: '10–15 reps', instructions: 'Index fingers and thumbs touching under chest.' },
+          { id: 'p90x-cb-8', name: 'Ab Ripper X: In & Outs + Seated Bicycles', target_muscle: 'core', suggested_sets: 1, suggested_reps: '25 reps each', instructions: 'Balance on sit bones, knees to chest.' },
         ],
       },
       {
@@ -45,10 +43,8 @@ export const PREMADE_WORKOUT_PROGRAMS: PreMadeWorkoutProgram[] = [
         exercises: [
           { id: 'p90x-plyo-1', name: 'Jump Squats (Explosive Reach)', target_muscle: 'quads', suggested_sets: 3, suggested_reps: '30 seconds', instructions: 'Deep squat into vertical jump with overhead reach.' },
           { id: 'p90x-plyo-2', name: 'Airborne Heismans', target_muscle: 'glutes', suggested_sets: 3, suggested_reps: '30 seconds', instructions: 'Lateral high-knee bounding with torso twist.' },
-          { id: 'p90x-plyo-3', name: 'Swing Kicks into 180° Jump Turns', target_muscle: 'hamstrings', suggested_sets: 3, suggested_reps: '30 seconds', instructions: 'Front kick, step back, explosive 180 spin jump.' },
-          { id: 'p90x-plyo-4', name: 'Squat X-Jumps', target_muscle: 'quads', suggested_sets: 3, suggested_reps: '30 seconds', instructions: 'Touch floor in deep squat, explode into mid-air X.' },
-          { id: 'p90x-plyo-5', name: 'Rock Star Hops', target_muscle: 'calves', suggested_sets: 3, suggested_reps: '30 seconds', instructions: 'Jump kicking both heels back to glutes.' },
-          { id: 'p90x-plyo-6', name: 'Mary Katherine Jump Lunges', target_muscle: 'quads', suggested_sets: 3, suggested_reps: '30 seconds', instructions: 'Scissor jump switching legs in deep lunge.' },
+          { id: 'p90x-plyo-3', name: 'Squat X-Jumps', target_muscle: 'quads', suggested_sets: 3, suggested_reps: '30 seconds', instructions: 'Touch floor in deep squat, explode into mid-air X.' },
+          { id: 'p90x-plyo-4', name: 'Mary Katherine Jump Lunges', target_muscle: 'quads', suggested_sets: 3, suggested_reps: '30 seconds', instructions: 'Scissor jump switching legs in deep lunge.' },
         ],
       },
       {
@@ -61,20 +57,17 @@ export const PREMADE_WORKOUT_PROGRAMS: PreMadeWorkoutProgram[] = [
           { id: 'p90x-sa-2', name: 'In-and-Out Bicep Curls', target_muscle: 'biceps', suggested_sets: 3, suggested_reps: '12 reps', instructions: 'Alternate front curl and wide lateral curl.' },
           { id: 'p90x-sa-3', name: 'Two-Arm Overhead Tricep Extension', target_muscle: 'triceps', suggested_sets: 3, suggested_reps: '12 reps', instructions: 'Lower dumbbell behind head, extend elbows.' },
           { id: 'p90x-sa-4', name: 'Deep Pike Presses (Chair or Floor)', target_muscle: 'shoulders', suggested_sets: 3, suggested_reps: '12–15 reps', instructions: 'Elevated hips, lower crown of head to floor.' },
-          { id: 'p90x-sa-5', name: 'Seated Static Hammer Curls', target_muscle: 'biceps', suggested_sets: 3, suggested_reps: '10 reps/side', instructions: 'Hold one arm at 90° while other completes reps.' },
-          { id: 'p90x-sa-6', name: 'Side Tri-Rises', target_muscle: 'triceps', suggested_sets: 3, suggested_reps: '12 reps/side', instructions: 'Lie on side, press upper body up using top arm.' },
         ],
       },
       {
         day_number: 4,
         day_title: 'Yoga X',
-        focus: 'Vinyasa Flow, Hip Openers & Core Balance',
+        focus: 'Vinyasa Flow, Hip Openers & Balance',
         duration_minutes: 90,
         exercises: [
-          { id: 'p90x-yoga-1', name: 'Sun Salutations (Surya Namaskar A & B)', target_muscle: 'full_body_cardio', suggested_sets: 4, suggested_reps: 'Continuous Flow', instructions: 'Chaturanga Dandasana to Upward Dog to Downward Dog.' },
-          { id: 'p90x-yoga-2', name: 'Warrior Sequence (Warrior 1, 2, Reverse, Side Angle)', target_muscle: 'quads', suggested_sets: 2, suggested_reps: '60s hold/side', instructions: 'Deep 90-degree front knee lunge, arms extended.' },
+          { id: 'p90x-yoga-1', name: 'Sun Salutations (Surya Namaskar A & B)', target_muscle: 'full_body_cardio', suggested_sets: 4, suggested_reps: 'Continuous Flow', instructions: 'Chaturanga to Upward Dog to Downward Dog.' },
+          { id: 'p90x-yoga-2', name: 'Warrior Sequence (Warrior 1, 2, Reverse)', target_muscle: 'quads', suggested_sets: 2, suggested_reps: '60s hold/side', instructions: 'Deep 90-degree front knee lunge, arms extended.' },
           { id: 'p90x-yoga-3', name: 'Half Moon Balance (Ardha Chandrasana)', target_muscle: 'glutes', suggested_sets: 2, suggested_reps: '45s hold/side', instructions: 'Single-leg balance with open chest and raised leg.' },
-          { id: 'p90x-yoga-4', name: 'Yoga Belly 7 (Core Flow & Navasana Boat Pose)', target_muscle: 'core', suggested_sets: 1, suggested_reps: '10 minutes', instructions: 'Static boat pose holds and scissor leg pulses.' },
         ],
       },
       {
@@ -86,9 +79,6 @@ export const PREMADE_WORKOUT_PROGRAMS: PreMadeWorkoutProgram[] = [
           { id: 'p90x-lb-1', name: 'Weighted Step-Back Lunges', target_muscle: 'quads', suggested_sets: 3, suggested_reps: '12–15 reps/side', instructions: 'Dumbbells at side, step back into 90° lunge.' },
           { id: 'p90x-lb-2', name: 'Underhand Chin-Ups', target_muscle: 'back', suggested_sets: 3, suggested_reps: '10–12 reps', instructions: 'Full extension at bottom to sternum touch at bar.' },
           { id: 'p90x-lb-3', name: 'Super Skater Single-Leg Squats', target_muscle: 'quads', suggested_sets: 3, suggested_reps: '15 reps/side', instructions: 'Single-leg balance squat reaching rear toe back.' },
-          { id: 'p90x-lb-4', name: 'Wide Front Overhand Pull-Ups', target_muscle: 'back', suggested_sets: 3, suggested_reps: '8–12 reps', instructions: 'Squeeze upper lats and shoulder blades.' },
-          { id: 'p90x-lb-5', name: 'Wall Squat Isometric Iso-Hold', target_muscle: 'quads', suggested_sets: 2, suggested_reps: '60–90 seconds', instructions: 'Back flat against wall, thighs parallel to floor.' },
-          { id: 'p90x-lb-6', name: 'Deadlift Romanian Hinges', target_muscle: 'hamstrings', suggested_sets: 3, suggested_reps: '12 reps', instructions: 'Flat back, push hips back for deep hamstring stretch.' },
         ],
       },
       {
@@ -99,16 +89,10 @@ export const PREMADE_WORKOUT_PROGRAMS: PreMadeWorkoutProgram[] = [
         exercises: [
           { id: 'p90x-kenpo-1', name: 'Jab, Cross, Hook, Uppercut Combinations', target_muscle: 'shoulders', suggested_sets: 3, suggested_reps: '45 seconds', instructions: 'Pivot on balls of feet, snap punches with hip torque.' },
           { id: 'p90x-kenpo-2', name: 'Step-Behind Side Kicks', target_muscle: 'glutes', suggested_sets: 3, suggested_reps: '20 kicks/side', instructions: 'Chamber knee, strike with heel, re-chamber.' },
-          { id: 'p90x-kenpo-3', name: 'Front Kick into Back Kick Flow', target_muscle: 'hamstrings', suggested_sets: 3, suggested_reps: '15 combos/side', instructions: 'Snap front ball of foot, drive back heel.' },
-          { id: 'p90x-kenpo-4', name: 'Horse Stance Punching Flurry', target_muscle: 'quads', suggested_sets: 2, suggested_reps: '60 seconds', instructions: 'Deep wide squat stance, continuous alternating punches.' },
         ],
       },
     ],
   },
-
-  // =========================================================================
-  // 2. P90X2 (POST-ACTIVATION POTENTIATION & FUNCTIONAL INSTABILITY)
-  // =========================================================================
   {
     id: 'p90x2_asylum',
     title: 'P90X2® Post-Activation Potentiation',
@@ -120,7 +104,7 @@ export const PREMADE_WORKOUT_PROGRAMS: PreMadeWorkoutProgram[] = [
     duration_weeks: 12,
     days_per_week: 5,
     description:
-      'Engineered around Post-Activation Potentiation (PAP) and balance training. Uses medicine ball instability, foam roller myofascial release, and complex athletic movements to build functional athletic horsepower.',
+      'Engineered around Post-Activation Potentiation (PAP) and balance training. Uses medicine ball instability, foam roller myofascial release, and complex athletic movements to build functional horsepower.',
     icon: '🦾',
     accent_color: '#06b6d4',
     schedule: [
@@ -132,8 +116,7 @@ export const PREMADE_WORKOUT_PROGRAMS: PreMadeWorkoutProgram[] = [
         exercises: [
           { id: 'p90x2-c-1', name: 'Medicine Ball Sphinx Push-Ups', target_muscle: 'chest', suggested_sets: 3, suggested_reps: '10–12 reps', instructions: 'Hands on medicine ball, tricep press from forearms.' },
           { id: 'p90x2-c-2', name: 'Roll-Outs with Stability Ball/Wheel', target_muscle: 'core', suggested_sets: 3, suggested_reps: '12 reps', instructions: 'Full spinal anti-extension reach, contract abs.' },
-          { id: 'p90x2-c-3', name: '4-Ball Push-Ups (Hands & Feet on Med Balls)', target_muscle: 'chest', suggested_sets: 3, suggested_reps: '8–10 reps', instructions: 'Balance all 4 limbs on separate balls, execute strict push-up.' },
-          { id: 'p90x2-c-4', name: 'Warr-1 Hops on Single Leg', target_muscle: 'glutes', suggested_sets: 3, suggested_reps: '10 hops/side', instructions: 'Single-leg balance hop holding warrior torso angle.' },
+          { id: 'p90x2-c-3', name: '4-Ball Push-Ups (Hands & Feet on Med Balls)', target_muscle: 'chest', suggested_sets: 3, suggested_reps: '8–10 reps', instructions: 'Balance on separate balls, execute strict push-up.' },
         ],
       },
       {
@@ -144,26 +127,10 @@ export const PREMADE_WORKOUT_PROGRAMS: PreMadeWorkoutProgram[] = [
         exercises: [
           { id: 'p90x2-p-1', name: 'Wide Leg Jump to Frog Squat', target_muscle: 'quads', suggested_sets: 3, suggested_reps: '45 seconds', instructions: 'Bound forward softly into deep squat, hop back.' },
           { id: 'p90x2-p-2', name: '100-Meter Bounding Skaters', target_muscle: 'glutes', suggested_sets: 3, suggested_reps: '45 seconds', instructions: 'Wide lateral bounds with 1-second balance stick.' },
-          { id: 'p90x2-p-3', name: 'Medicine Ball Slams into Burpee', target_muscle: 'full_body_cardio', suggested_sets: 3, suggested_reps: '12 reps', instructions: 'Slam ball explosively, drop into chest-to-floor burpee.' },
-        ],
-      },
-      {
-        day_number: 3,
-        day_title: 'X2 Total Body + Ab Ripper',
-        focus: 'Full-Body Compound Movement Matrix',
-        duration_minutes: 62,
-        exercises: [
-          { id: 'p90x2-tb-1', name: '1-Arm 1-Leg Flat Dumbbell Press', target_muscle: 'chest', suggested_sets: 3, suggested_reps: '8–10 reps/side', instructions: 'Lie on bench, press right arm with left leg raised in air.' },
-          { id: 'p90x2-tb-2', name: 'Scapular Pull-Ups to Lever Pulls', target_muscle: 'back', suggested_sets: 3, suggested_reps: '8 reps', instructions: 'Retract scapula, pull into 45-degree front lever angle.' },
-          { id: 'p90x2-tb-3', name: 'Balance Squats on Medicine Ball', target_muscle: 'quads', suggested_sets: 3, suggested_reps: '12 reps', instructions: 'Stand with one foot on ball, squat to parallel.' },
         ],
       },
     ],
   },
-
-  // =========================================================================
-  // 3. P90X3 (30-MINUTE HIGH-INTENSITY ACCELERATED SPLIT)
-  // =========================================================================
   {
     id: 'p90x3_accelerated',
     title: 'P90X3® 30-Minute Accelerated',
@@ -186,9 +153,7 @@ export const PREMADE_WORKOUT_PROGRAMS: PreMadeWorkoutProgram[] = [
         duration_minutes: 30,
         exercises: [
           { id: 'p90x3-ts-1', name: 'Push-Up Side Arm Balance with Knee Tuck', target_muscle: 'chest', suggested_sets: 2, suggested_reps: '12 reps', instructions: 'Push-up, rotate to side plank, drive top knee to elbow.' },
-          { id: 'p90x3-ts-2', name: 'Crescent Chair Squats with DB Press', target_muscle: 'shoulders', suggested_sets: 2, suggested_reps: '10 reps', instructions: 'Step into crescent lunge, squat, overhead press.' },
-          { id: 'p90x3-ts-3', name: 'Pull-Up Knees-to-Elbows Crunch', target_muscle: 'back', suggested_sets: 2, suggested_reps: '8 reps', instructions: 'Pull chin over bar, tuck knees simultaneously.' },
-          { id: 'p90x3-ts-4', name: 'Crawling Plank Push-Ups', target_muscle: 'core', suggested_sets: 2, suggested_reps: '10 reps', instructions: 'Walk hands 3 steps forward in plank, push-up.' },
+          { id: 'p90x3-ts-2', name: 'Pull-Up Knees-to-Elbows Crunch', target_muscle: 'back', suggested_sets: 2, suggested_reps: '8 reps', instructions: 'Pull chin over bar, tuck knees simultaneously.' },
         ],
       },
       {
@@ -197,28 +162,134 @@ export const PREMADE_WORKOUT_PROGRAMS: PreMadeWorkoutProgram[] = [
         focus: 'Max Density Pull-Ups & Push-Ups Ladder',
         duration_minutes: 30,
         exercises: [
-          { id: 'p90x3-tc-1', name: 'Standard Push-Ups (Goal Target: 25)', target_muscle: 'chest', suggested_sets: 4, suggested_reps: '20–30 reps', instructions: 'Strict form, chest to floor.' },
-          { id: 'p90x3-tc-2', name: 'Wide Grip Pull-Ups (Goal Target: 10)', target_muscle: 'back', suggested_sets: 4, suggested_reps: '8–12 reps', instructions: 'Overhand grip, deadhang to chin over bar.' },
-          { id: 'p90x3-tc-3', name: 'Military Close Push-Ups (Goal: 20)', target_muscle: 'chest', suggested_sets: 4, suggested_reps: '15–25 reps', instructions: 'Elbows brushing ribs.' },
-          { id: 'p90x3-tc-4', name: 'Reverse Chin-Ups (Goal: 10)', target_muscle: 'back', suggested_sets: 4, suggested_reps: '8–12 reps', instructions: 'Underhand supinated grip.' },
+          { id: 'p90x3-tc-1', name: 'Standard Push-Ups (Goal: 25)', target_muscle: 'chest', suggested_sets: 4, suggested_reps: '20–30 reps', instructions: 'Strict form, chest to floor.' },
+          { id: 'p90x3-tc-2', name: 'Wide Grip Pull-Ups (Goal: 10)', target_muscle: 'back', suggested_sets: 4, suggested_reps: '8–12 reps', instructions: 'Overhand grip, deadhang to chin over bar.' },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'insanity_shaunt',
+    title: 'Insanity® Max Interval Training',
+    subtitle: '60-Day Extreme High-Intensity Calisthenics',
+    creator: 'Shaun T',
+    category: 'beachbody_classic',
+    difficulty: 'advanced',
+    equipment_needed: ['bodyweight'],
+    duration_weeks: 9,
+    days_per_week: 6,
+    description:
+      'Reverses traditional interval training: Long bursts of maximum-intensity bodyweight exercises (3 mins) with short recovery intervals (30s). Builds elite cardiovascular endurance and rapid fat loss.',
+    icon: '🔥',
+    accent_color: '#ef4444',
+    schedule: [
+      {
+        day_number: 1,
+        day_title: 'Fit Test & Max Cardio Circuit',
+        focus: 'Baseline Fitness Metrics & Plyometric Intervals',
+        duration_minutes: 42,
+        exercises: [
+          { id: 'ins-1', name: 'Switch Kicks (Max in 60s)', target_muscle: 'core', suggested_sets: 1, suggested_reps: '60s max reps', instructions: 'Alternate kicking legs to waist height while hopping on balls of feet.' },
+          { id: 'ins-2', name: 'Power Jacks', target_muscle: 'quads', suggested_sets: 3, suggested_reps: '45 seconds', instructions: 'Jumping jack landing in a deep low squat, explode back up.' },
+          { id: 'ins-3', name: 'Level 2 Drill (8 Push-Ups + 8 Floor Sprints)', target_muscle: 'chest', suggested_sets: 3, suggested_reps: '45 seconds', instructions: 'Drop into 8 push-ups, immediately run 8 mountain climbers, jump up.' },
+          { id: 'ins-4', name: 'Power Knees', target_muscle: 'core', suggested_sets: 3, suggested_reps: '45s/side', instructions: 'Drive rear knee explosively into chest while pulling hands down.' },
         ],
       },
       {
-        day_number: 3,
-        day_title: 'CVX (Cardio Vascular Extreme with Weights)',
-        focus: 'Light Weighted Metabolic Resistance',
-        duration_minutes: 30,
+        day_number: 2,
+        day_title: 'Plyometric Cardio Circuit',
+        focus: 'Lower Body Explosive Power & Anaerobic Threshold',
+        duration_minutes: 42,
         exercises: [
-          { id: 'p90x3-cvx-1', name: 'Press Jack with 5lb Dumbbell', target_muscle: 'shoulders', suggested_sets: 3, suggested_reps: '60 seconds', instructions: 'Jumping jacks pressing light weight overhead.' },
-          { id: 'p90x3-cvx-2', name: 'Atlas Twist Lunges', target_muscle: 'core', suggested_sets: 3, suggested_reps: '60 seconds', instructions: 'Lunge while twisting weight diagonally across torso.' },
-          { id: 'p90x3-cvx-3', name: 'Speed Skater Reach & Press', target_muscle: 'glutes', suggested_sets: 3, suggested_reps: '60 seconds', instructions: 'Lateral bounding while punching weight forward.' },
+          { id: 'ins-plyo-1', name: 'Suicide Drills (Lateral Floor Touches)', target_muscle: 'quads', suggested_sets: 3, suggested_reps: '45 seconds', instructions: 'Shuffle 3 steps laterally, touch floor with fingertips, reverse.' },
+          { id: 'ins-plyo-2', name: 'Ski Abs into In-and-Outs', target_muscle: 'core', suggested_sets: 3, suggested_reps: '45 seconds', instructions: 'In push-up plank, jump feet to right shoulder, back to center, to left shoulder.' },
+          { id: 'ins-plyo-3', name: 'Globe Jumps', target_muscle: 'glutes', suggested_sets: 3, suggested_reps: '4 jumps/cycle (45s)', instructions: 'Jump forward, right, back, left touching floor at each corner.' },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'body_beast_sagi',
+    title: 'Body Beast® Dynamic Set Hypertrophy',
+    subtitle: 'Classic Golden-Era Mass & Proportion Protocol',
+    creator: 'Sagi Kalev',
+    category: 'beachbody_classic',
+    difficulty: 'intermediate',
+    equipment_needed: ['dumbbells', 'adjustable_bench', 'ez_curl_bar', 'weight_plates'],
+    duration_weeks: 12,
+    days_per_week: 6,
+    description:
+      'Bodybuilding mass-building system using Dynamic Set Training: Progressive Sets (15, 12, 8, drop to 8), Force Sets (5x5 with 10s isometric holds), and Super Sets for maximum hypertrophy.',
+    icon: '🦁',
+    accent_color: '#d97706',
+    schedule: [
+      {
+        day_number: 1,
+        day_title: 'Build: Chest & Tris (Dynamic Sets)',
+        focus: 'Pectoral Density & Triceps Horseshoe',
+        duration_minutes: 49,
+        exercises: [
+          { id: 'bb-ct-1', name: 'Dumbbell Flat Bench Press (Progressive Set: 15, 12, 8 reps + Drop 8)', target_muscle: 'chest', suggested_sets: 4, suggested_reps: '15, 12, 8, 8 reps', instructions: 'Increase weight each set, finish with immediate drop set.' },
+          { id: 'bb-ct-2', name: 'Incline Dumbbell Flyes (Force Set: 5 sets of 5 reps with 10s contraction)', target_muscle: 'chest', suggested_sets: 5, suggested_reps: '5 reps + 10s hold', instructions: 'Deep stretch, hold peak squeeze for 10 seconds between mini-sets.' },
+          { id: 'bb-ct-3', name: 'Lying EZ-Bar Skullcrushers (Super Set with Close-Grip Press)', target_muscle: 'triceps', suggested_sets: 3, suggested_reps: '10 + 10 reps', instructions: 'Perform 10 skullcrushers, immediately perform 10 close grip bench presses.' },
+        ],
+      },
+      {
+        day_number: 2,
+        day_title: 'Build: Legs (Quad & Hamstring Overload)',
+        focus: 'Quadriceps Sweep & Hamstring Thickness',
+        duration_minutes: 38,
+        exercises: [
+          { id: 'bb-leg-1', name: 'Sumo Squat with Heavy Dumbbell (Progressive Set)', target_muscle: 'glutes', suggested_sets: 4, suggested_reps: '15, 12, 8, 8 reps', instructions: 'Wide stance, hold dumbbell between thighs, deep parallel squat.' },
+          { id: 'bb-leg-2', name: 'Bulgarian Split Squats (Super Set)', target_muscle: 'quads', suggested_sets: 3, suggested_reps: '10 reps/side', instructions: 'Rear foot elevated on bench, drive up through front heel.' },
+          { id: 'bb-leg-3', name: 'Stiff-Legged Dumbbell Deadlift (Force Set)', target_muscle: 'hamstrings', suggested_sets: 5, suggested_reps: '5 reps', instructions: 'Flat spine, hinge hips deep for maximal hamstring stretch.' },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'liift4_joel',
+    title: 'LIIFT4® Strength & HIIT Hybrid',
+    subtitle: '4 Days/Week Heavy Lifting + High-Intensity Finisher',
+    creator: 'Joel Freeman',
+    category: 'beachbody_classic',
+    difficulty: 'intermediate',
+    equipment_needed: ['dumbbells', 'yoga_mat'],
+    duration_weeks: 8,
+    days_per_week: 4,
+    description:
+      'Structured 4-day workout program combining heavy traditional weightlifting with high-intensity interval training (HIIT) cardio finishers and core burnouts. Leaves 3 full recovery days per week.',
+    icon: '⚡',
+    accent_color: '#8b5cf6',
+    schedule: [
+      {
+        day_number: 1,
+        day_title: 'Chest & Triceps + HIIT Finisher',
+        focus: 'Upper Push Heavy Lifting & Tabata Cardio',
+        duration_minutes: 38,
+        exercises: [
+          { id: 'l4-1', name: 'Heavy Flat Dumbbell Press (3x10)', target_muscle: 'chest', suggested_sets: 3, suggested_reps: '10 reps', instructions: 'Heavy progressive weight, 45s rest between blocks.' },
+          { id: 'l4-2', name: 'Incline Dumbbell Chest Press (3x10)', target_muscle: 'chest', suggested_sets: 3, suggested_reps: '10 reps', instructions: 'Set bench to 30°, press dumbbells in vertical plane.' },
+          { id: 'l4-3', name: 'Overhead Dumbbell Tricep Extension (3x10)', target_muscle: 'triceps', suggested_sets: 3, suggested_reps: '10 reps', instructions: 'Two hands on one heavy dumbbell, lower behind head.' },
+          { id: 'l4-4', name: 'HIIT Block: Triple Hops to Burpee', target_muscle: 'full_body_cardio', suggested_sets: 3, suggested_reps: '60 seconds', instructions: '3 forward hops, drop into chest-to-floor burpee, hop back.' },
+        ],
+      },
+      {
+        day_number: 2,
+        day_title: 'Back & Biceps + HIIT Finisher',
+        focus: 'Upper Pull Strength & Sprints',
+        duration_minutes: 36,
+        exercises: [
+          { id: 'l4-bb-1', name: 'Bent-Over Alternating Dumbbell Rows (3x10)', target_muscle: 'back', suggested_sets: 3, suggested_reps: '10 reps/side', instructions: 'Hinge forward 45°, row dumbbell into hip pocket.' },
+          { id: 'l4-bb-2', name: 'Standing Bicep Hammer Curls (3x10)', target_muscle: 'biceps', suggested_sets: 3, suggested_reps: '10 reps', instructions: 'Neutral grip, curl dumbbells with zero shoulder swing.' },
+          { id: 'l4-bb-3', name: 'HIIT Block: Mountain Climber Sprints', target_muscle: 'core', suggested_sets: 3, suggested_reps: '60 seconds', instructions: 'High plank, sprint knees towards chest at maximum speed.' },
         ],
       },
     ],
   },
 
   // =========================================================================
-  // 4. STRONGLIFTS 5x5 (LINEAR STRENGTH PROGRESSION) — MEHDI
+  // 2. STRENGTH, POWERLIFTING & BARBELL PROGRESSION
   // =========================================================================
   {
     id: 'stronglifts_5x5',
@@ -259,9 +330,356 @@ export const PREMADE_WORKOUT_PROGRAMS: PreMadeWorkoutProgram[] = [
       },
     ],
   },
+  {
+    id: 'starting_strength_rippetoe',
+    title: 'Starting Strength (Novice 3×5)',
+    subtitle: 'The Classic Novice Barbell Progression Method',
+    creator: 'Mark Rippetoe',
+    category: 'strength_powerlifting',
+    difficulty: 'beginner',
+    equipment_needed: ['barbells', 'weight_plates', 'power_rack', 'flat_bench'],
+    duration_weeks: 12,
+    days_per_week: 3,
+    description:
+      'The foundational barbell strength system for novices. Focuses strictly on 3 sets of 5 reps across Squats, Overhead Press, Bench Press, Deadlift, and Power Cleans with linear progression each workout.',
+    icon: '🔩',
+    accent_color: '#059669',
+    schedule: [
+      {
+        day_number: 1,
+        day_title: 'Day A: Squat, Press, Deadlift (3x5)',
+        focus: 'Posterior Chain & Linear Base',
+        duration_minutes: 55,
+        exercises: [
+          { id: 'ss-sq-1', name: 'Low-Bar Barbell Back Squat', target_muscle: 'quads', suggested_sets: 3, suggested_reps: '5 reps', instructions: 'Bar resting on rear delts, look 4-5 feet ahead on floor, hip drive out of hole.' },
+          { id: 'ss-ohp-1', name: 'Standing Barbell Overhead Press', target_muscle: 'shoulders', suggested_sets: 3, suggested_reps: '5 reps', instructions: 'Narrow grip, hips forward, thrust bar overhead locking elbows.' },
+          { id: 'ss-dl-1', name: 'Conventional Deadlift (1x5 Heavy)', target_muscle: 'back', suggested_sets: 1, suggested_reps: '5 reps', instructions: '5-step deadlift setup, bar against shins, drag straight up.' },
+        ],
+      },
+      {
+        day_number: 2,
+        day_title: 'Day B: Squat, Bench Press, Power Clean',
+        focus: 'Explosive Power & Upper Strength',
+        duration_minutes: 55,
+        exercises: [
+          { id: 'ss-sq-2', name: 'Low-Bar Barbell Back Squat', target_muscle: 'quads', suggested_sets: 3, suggested_reps: '5 reps', instructions: 'Consistent depth, below top of patella.' },
+          { id: 'ss-bp-1', name: 'Barbell Flat Bench Press', target_muscle: 'chest', suggested_sets: 3, suggested_reps: '5 reps', instructions: 'Arch upper back, tuck elbows 75 degrees, touch lower sternum.' },
+          { id: 'ss-pc-1', name: 'Barbell Power Clean from Floor', target_muscle: 'full_body_cardio', suggested_sets: 5, suggested_reps: '3 reps (5x3)', instructions: 'Explosive triple extension of hips, knees, ankles, rack bar on shoulders.' },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'wendler_531_bbb',
+    title: 'Wendler 5/3/1 (Boring But Big)',
+    subtitle: '4-Week Submaximal Wave Periodization & Hypertrophy',
+    creator: 'Jim Wendler',
+    category: 'strength_powerlifting',
+    difficulty: 'intermediate',
+    equipment_needed: ['barbells', 'weight_plates', 'power_rack', 'flat_bench'],
+    duration_weeks: 4,
+    days_per_week: 4,
+    description:
+      'Wave periodization system based on a 90% Training Max (TM). Week 1 (3x5), Week 2 (3x3), Week 3 (5/3/1+ AMRAP), Week 4 (Deload). Includes the iconic "Boring But Big" 5 sets of 10 reps accessory volume.',
+    icon: '📊',
+    accent_color: '#3b82f6',
+    schedule: [
+      {
+        day_number: 1,
+        day_title: 'Squat Day (5/3/1 + 5x10 BBB)',
+        focus: 'Lower Body Strength & Quad Volume',
+        duration_minutes: 60,
+        exercises: [
+          { id: 'w531-sq-1', name: 'Barbell Back Squat (5/3/1 Main Work Sets)', target_muscle: 'quads', suggested_sets: 3, suggested_reps: '5, 3, 1+ AMRAP', instructions: 'Week 3: 75%x5, 85%x3, 95%x1+ (rep out as many as possible).' },
+          { id: 'w531-sq-2', name: 'Barbell Back Squat BBB (5 sets of 10 reps @ 50-60% TM)', target_muscle: 'quads', suggested_sets: 5, suggested_reps: '10 reps', instructions: 'Short 60s rest intervals, relentless hypertrophy volume.' },
+          { id: 'w531-sq-3', name: 'Hanging Leg Raises', target_muscle: 'core', suggested_sets: 5, suggested_reps: '15 reps', instructions: 'Strict toes-to-bar or knees-to-elbows.' },
+        ],
+      },
+      {
+        day_number: 2,
+        day_title: 'Bench Press Day (5/3/1 + 5x10 BBB)',
+        focus: 'Pectoral Power & Volume Density',
+        duration_minutes: 60,
+        exercises: [
+          { id: 'w531-bp-1', name: 'Barbell Flat Bench Press (5/3/1 Main Work Sets)', target_muscle: 'chest', suggested_sets: 3, suggested_reps: '5, 3, 1+ AMRAP', instructions: 'Week 3: 75%x5, 85%x3, 95%x1+ final set rep max.' },
+          { id: 'w531-bp-2', name: 'Barbell Flat Bench Press BBB (5 sets of 10 @ 50-60% TM)', target_muscle: 'chest', suggested_sets: 5, suggested_reps: '10 reps', instructions: 'Controlled 2-second negative tempo.' },
+          { id: 'w531-bp-3', name: 'Dumbbell Kroc Rows', target_muscle: 'back', suggested_sets: 5, suggested_reps: '10–15 reps/side', instructions: 'Heavy dumbbell rows into hip.' },
+        ],
+      },
+      {
+        day_number: 3,
+        day_title: 'Deadlift Day (5/3/1 + 5x10 BBB)',
+        focus: 'Posterior Chain & Spinal Erectors',
+        duration_minutes: 60,
+        exercises: [
+          { id: 'w531-dl-1', name: 'Conventional Deadlift (5/3/1 Main Work Sets)', target_muscle: 'back', suggested_sets: 3, suggested_reps: '5, 3, 1+ AMRAP', instructions: 'Week 3: 75%x5, 85%x3, 95%x1+ (pull clean with no hitching).' },
+          { id: 'w531-dl-2', name: 'Conventional Deadlift BBB (5 sets of 10 @ 50% TM)', target_muscle: 'hamstrings', suggested_sets: 5, suggested_reps: '10 reps', instructions: 'Reset smoothly on floor between every rep.' },
+          { id: 'w531-dl-3', name: 'Ab Wheel Rollouts', target_muscle: 'core', suggested_sets: 5, suggested_reps: '12 reps', instructions: 'Full extension, pull through core.' },
+        ],
+      },
+      {
+        day_number: 4,
+        day_title: 'Overhead Press Day (5/3/1 + 5x10 BBB)',
+        focus: 'Shoulder Girdle & Triceps Overhead',
+        duration_minutes: 60,
+        exercises: [
+          { id: 'w531-ohp-1', name: 'Standing Barbell Overhead Press (5/3/1 Work Sets)', target_muscle: 'shoulders', suggested_sets: 3, suggested_reps: '5, 3, 1+ AMRAP', instructions: 'Week 3: 75%x5, 85%x3, 95%x1+.' },
+          { id: 'w531-ohp-2', name: 'Standing Overhead Press BBB (5 sets of 10 @ 50% TM)', target_muscle: 'shoulders', suggested_sets: 5, suggested_reps: '10 reps', instructions: 'Strict overhead lockout.' },
+          { id: 'w531-ohp-3', name: 'Chin-Ups (Bodyweight or Weighted)', target_muscle: 'back', suggested_sets: 5, suggested_reps: '10 reps', instructions: 'Full range of motion, deadhang to chin over bar.' },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'texas_method_pendlay',
+    title: 'The Texas Method (5×5 / Recovery / 1×5 PR)',
+    subtitle: '3-Day Intermediate Strength Wave Architecture',
+    creator: 'Glenn Pendlay & Mark Rippetoe',
+    category: 'strength_powerlifting',
+    difficulty: 'advanced',
+    equipment_needed: ['barbells', 'weight_plates', 'power_rack', 'flat_bench'],
+    duration_weeks: 8,
+    days_per_week: 3,
+    description:
+      'The classic intermediate power program designed to break novice plateaus. Monday is Volume Day (5x5 @ 90% 5RM), Wednesday is Light Active Recovery (2x5 @ 80%), and Friday is Intensity PR Day (1x5 new PR).',
+    icon: '🤠',
+    accent_color: '#ea580c',
+    schedule: [
+      {
+        day_number: 1,
+        day_title: 'Monday: Volume Day (Heavy 5x5)',
+        focus: 'High Workload Neuromuscular Stimulus',
+        duration_minutes: 75,
+        exercises: [
+          { id: 'tm-v-1', name: 'Barbell Back Squat (5 sets × 5 reps @ 90% 5RM)', target_muscle: 'quads', suggested_sets: 5, suggested_reps: '5 reps', instructions: 'Relentless 5x5 volume, 3–5 min rest intervals.' },
+          { id: 'tm-v-2', name: 'Barbell Bench Press (5 sets × 5 reps @ 90% 5RM)', target_muscle: 'chest', suggested_sets: 5, suggested_reps: '5 reps', instructions: 'Heavy 5x5 compound benching.' },
+          { id: 'tm-v-3', name: 'Conventional Deadlift (1 set × 5 reps Heavy)', target_muscle: 'back', suggested_sets: 1, suggested_reps: '5 reps', instructions: '1 all-out heavy working set.' },
+        ],
+      },
+      {
+        day_number: 2,
+        day_title: 'Wednesday: Recovery Day (Light 2x5)',
+        focus: 'Active Tissue Recovery & Technique',
+        duration_minutes: 40,
+        exercises: [
+          { id: 'tm-r-1', name: 'Barbell Back Squat (2 sets × 5 reps @ 80% Monday weight)', target_muscle: 'quads', suggested_sets: 2, suggested_reps: '5 reps', instructions: 'Light speed squats focusing on crisp technique.' },
+          { id: 'tm-r-2', name: 'Standing Overhead Press (3 sets × 5 reps)', target_muscle: 'shoulders', suggested_sets: 3, suggested_reps: '5 reps', instructions: 'Smooth vertical overhead path.' },
+          { id: 'tm-r-3', name: 'Back Extensions (Hyperextensions)', target_muscle: 'hamstrings', suggested_sets: 3, suggested_reps: '12 reps', instructions: 'Bodyweight spinal erector blood flow.' },
+        ],
+      },
+      {
+        day_number: 3,
+        day_title: 'Friday: Intensity Day (1x5 PR Set)',
+        focus: 'Maximal 5-Rep Personal Record Attempt',
+        duration_minutes: 60,
+        exercises: [
+          { id: 'tm-i-1', name: 'Barbell Back Squat (1 set × 5 reps NEW PR)', target_muscle: 'quads', suggested_sets: 1, suggested_reps: '5 reps (PR Target)', instructions: 'Warm up thoroughly, then hit a new lifetime 5-rep max.' },
+          { id: 'tm-i-2', name: 'Barbell Bench Press (1 set × 5 reps NEW PR)', target_muscle: 'chest', suggested_sets: 1, suggested_reps: '5 reps (PR Target)', instructions: 'New 5-rep bench PR attempt.' },
+          { id: 'tm-i-3', name: 'Power Cleans (5 sets × 3 reps)', target_muscle: 'full_body_cardio', suggested_sets: 5, suggested_reps: '3 reps', instructions: 'Explosive triple extension.' },
+        ],
+      },
+    ],
+  },
 
   // =========================================================================
-  // 5. TAI CHI & QIGONG (24-FORM YANG STYLE LONGEVITY FLOW)
+  // 3. HYPERTROPHY, BODYBUILDING & MUSCLE BUILDING SPLITS
+  // =========================================================================
+  {
+    id: 'push_pull_legs_6day',
+    title: 'Push / Pull / Legs (PPL Hypertrophy Split)',
+    subtitle: 'The Gold-Standard 6-Day Muscle Building Frequency',
+    creator: 'Modern Bodybuilding Science',
+    category: 'bodybuilding_splits',
+    difficulty: 'intermediate',
+    equipment_needed: ['barbells', 'dumbbells', 'cable_machine', 'adjustable_bench', 'pull_up_bar'],
+    duration_weeks: 12,
+    days_per_week: 6,
+    description:
+      'Hits every muscle group twice every 7–8 days for optimal muscle protein synthesis: Push (Chest/Shoulders/Tris), Pull (Back/Traps/Bis), Legs (Quads/Hams/Calves). Rotates Heavy Strength and Hypertrophy Pump sessions.',
+    icon: '🔥',
+    accent_color: '#f97316',
+    schedule: [
+      {
+        day_number: 1,
+        day_title: 'Push A (Chest, Shoulders, Triceps - Strength Focus)',
+        focus: 'Heavy Horizontal & Vertical Pressing',
+        duration_minutes: 65,
+        exercises: [
+          { id: 'ppl-pa-1', name: 'Barbell Flat Bench Press', target_muscle: 'chest', suggested_sets: 4, suggested_reps: '6–8 reps', instructions: 'Heavy progressive overload, 2 min rest.' },
+          { id: 'ppl-pa-2', name: 'Seated Overhead Dumbbell Shoulder Press', target_muscle: 'shoulders', suggested_sets: 3, suggested_reps: '8–10 reps', instructions: 'Deep range, press dumbbells overhead in an arc.' },
+          { id: 'ppl-pa-3', name: 'Incline Dumbbell Bench Press', target_muscle: 'chest', suggested_sets: 3, suggested_reps: '10–12 reps', instructions: 'Upper clavicular head stretch.' },
+          { id: 'ppl-pa-4', name: 'Dumbbell Lateral Raises', target_muscle: 'shoulders', suggested_sets: 4, suggested_reps: '12–15 reps', instructions: 'Lead with elbows in scapular plane.' },
+          { id: 'ppl-pa-5', name: 'Rope Tricep Cable Pushdowns', target_muscle: 'triceps', suggested_sets: 3, suggested_reps: '12–15 reps', instructions: 'Spread rope ends at bottom for peak tricep lateral head contraction.' },
+        ],
+      },
+      {
+        day_number: 2,
+        day_title: 'Pull A (Back, Lats, Traps, Biceps - Strength Focus)',
+        focus: 'Heavy Rows & Vertical Deadhang Pulls',
+        duration_minutes: 65,
+        exercises: [
+          { id: 'ppl-pla-1', name: 'Conventional Olympic Deadlift', target_muscle: 'back', suggested_sets: 3, suggested_reps: '5 reps', instructions: 'Heavy pulling foundation.' },
+          { id: 'ppl-pla-2', name: 'Overhand Wide-Grip Pull-Ups', target_muscle: 'back', suggested_sets: 4, suggested_reps: '8–10 reps', instructions: 'Deadhang to chest touching bar.' },
+          { id: 'ppl-pla-3', name: 'Bent-Over Barbell Rows (Pendlay)', target_muscle: 'back', suggested_sets: 3, suggested_reps: '8–10 reps', instructions: 'Torso parallel, explode into sternum.' },
+          { id: 'ppl-pla-4', name: 'Cable Face Pulls with External Rotation', target_muscle: 'shoulders', suggested_sets: 3, suggested_reps: '15–20 reps', instructions: 'Rear delt and rotator cuff longevity.' },
+          { id: 'ppl-pla-5', name: 'Standing Barbell Bicep Curls', target_muscle: 'biceps', suggested_sets: 3, suggested_reps: '8–10 reps', instructions: 'Pin elbows to sides, full supination.' },
+        ],
+      },
+      {
+        day_number: 3,
+        day_title: 'Legs A (Quads, Hamstrings, Glutes, Calves)',
+        focus: 'Quad Squat Dominant & Hamstring Hinges',
+        duration_minutes: 65,
+        exercises: [
+          { id: 'ppl-la-1', name: 'Barbell Back Squat', target_muscle: 'quads', suggested_sets: 4, suggested_reps: '6–8 reps', instructions: 'Deep squat below parallel.' },
+          { id: 'ppl-la-2', name: 'Romanian Deadlifts (Barbell RDL)', target_muscle: 'hamstrings', suggested_sets: 3, suggested_reps: '8–10 reps', instructions: 'Push hips back, shave shins with bar.' },
+          { id: 'ppl-la-3', name: '45-Degree Leg Press', target_muscle: 'quads', suggested_sets: 3, suggested_reps: '10–12 reps', instructions: 'Controlled depth, smooth tempo.' },
+          { id: 'ppl-la-4', name: 'Lying Leg Curls', target_muscle: 'hamstrings', suggested_sets: 3, suggested_reps: '12–15 reps', instructions: 'Peak hamstring contraction.' },
+          { id: 'ppl-la-5', name: 'Standing Calf Raises', target_muscle: 'calves', suggested_sets: 4, suggested_reps: '15–20 reps', instructions: 'Hold bottom stretch 2 seconds, raise to toes.' },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'phul_4day',
+    title: 'PHUL (Power Hypertrophy Upper Lower - 4-Day)',
+    subtitle: 'Blends Compound 3-5 Rep Power with 8-12 Rep Hypertrophy',
+    creator: 'Brandon Campbell',
+    category: 'bodybuilding_splits',
+    difficulty: 'intermediate',
+    equipment_needed: ['barbells', 'dumbbells', 'cable_machine', 'power_rack', 'adjustable_bench'],
+    duration_weeks: 12,
+    days_per_week: 4,
+    description:
+      '4-day split combining maximal strength (Upper Power & Lower Power) with high-volume metabolic stress (Upper Hypertrophy & Lower Hypertrophy). Delivers both dense muscle mass and raw power.',
+    icon: '⚡',
+    accent_color: '#06b6d4',
+    schedule: [
+      {
+        day_number: 1,
+        day_title: 'Upper Power (3-5 Reps Compound Heavy)',
+        focus: 'Heavy Bench, Barbell Rows, Overhead Press',
+        duration_minutes: 60,
+        exercises: [
+          { id: 'phul-up-1', name: 'Barbell Flat Bench Press', target_muscle: 'chest', suggested_sets: 4, suggested_reps: '3–5 reps', instructions: 'Max power output.' },
+          { id: 'phul-up-2', name: 'Incline Dumbbell Bench Press', target_muscle: 'chest', suggested_sets: 3, suggested_reps: '6–8 reps', instructions: 'Upper pec strength.' },
+          { id: 'phul-up-3', name: 'Bent-Over Barbell Row', target_muscle: 'back', suggested_sets: 4, suggested_reps: '3–5 reps', instructions: 'Heavy horizontal pulling.' },
+          { id: 'phul-up-4', name: 'Standing Overhead Barbell Press', target_muscle: 'shoulders', suggested_sets: 3, suggested_reps: '5 reps', instructions: 'Strict vertical press.' },
+        ],
+      },
+      {
+        day_number: 2,
+        day_title: 'Lower Power (3-5 Reps Compound Heavy)',
+        focus: 'Heavy Squats, Deadlifts & Leg Press',
+        duration_minutes: 60,
+        exercises: [
+          { id: 'phul-lp-1', name: 'Barbell Back Squat', target_muscle: 'quads', suggested_sets: 4, suggested_reps: '3–5 reps', instructions: 'Max power squat.' },
+          { id: 'phul-lp-2', name: 'Conventional Deadlift', target_muscle: 'back', suggested_sets: 3, suggested_reps: '3–5 reps', instructions: 'Heavy posterior chain drive.' },
+          { id: 'phul-lp-3', name: '45-Degree Leg Press', target_muscle: 'quads', suggested_sets: 3, suggested_reps: '6–8 reps', instructions: 'High load volume.' },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'arnold_golden_six',
+    title: 'Arnold Schwarzenegger Golden Six',
+    subtitle: 'Classic Golden Era Full-Body Hypertrophy Blueprint',
+    creator: 'Arnold Schwarzenegger',
+    category: 'bodybuilding_splits',
+    difficulty: 'intermediate',
+    equipment_needed: ['barbells', 'weight_plates', 'flat_bench', 'pull_up_bar'],
+    duration_weeks: 8,
+    days_per_week: 3,
+    description:
+      'The foundational 6-exercise full-body hypertrophy routine Arnold used at Munich Gym to build his legendary physique. Performed 3 days a week with heavy basic compound movements.',
+    icon: '👑',
+    accent_color: '#eab308',
+    schedule: [
+      {
+        day_number: 1,
+        day_title: 'The Golden Six Session (Full Body)',
+        focus: 'Classic Golden Era Mass & Proportions',
+        duration_minutes: 65,
+        exercises: [
+          { id: 'arnold-1', name: 'Barbell Back Squat', target_muscle: 'quads', suggested_sets: 4, suggested_reps: '10 reps', instructions: 'Thighs below parallel, explosive ascent.' },
+          { id: 'arnold-2', name: 'Wide-Grip Barbell Flat Bench Press', target_muscle: 'chest', suggested_sets: 3, suggested_reps: '10 reps', instructions: 'Wide grip, touch lower chest, maximum pectoral flare.' },
+          { id: 'arnold-3', name: 'Wide-Grip Overhand Chin-Ups', target_muscle: 'back', suggested_sets: 3, suggested_reps: 'Max reps (Goal: 10+)', instructions: 'Pull to sternum, full stretch at bottom.' },
+          { id: 'arnold-4', name: 'Behind-the-Neck Barbell Overhead Press', target_muscle: 'shoulders', suggested_sets: 4, suggested_reps: '10 reps', instructions: 'Lower bar smoothly to ear level, press overhead.' },
+          { id: 'arnold-5', name: 'Standing Barbell Bicep Curls', target_muscle: 'biceps', suggested_sets: 3, suggested_reps: '10 reps', instructions: 'Strict form, no hip swing, 2-second negative.' },
+          { id: 'arnold-6', name: 'Bent-Knee Situps / Crunches', target_muscle: 'core', suggested_sets: 4, suggested_reps: '25 reps', instructions: 'Roll spine up vertebra by vertebra, squeeze abs.' },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'dorian_yates_blood_guts',
+    title: 'Dorian Yates Blood & Guts (HIT)',
+    subtitle: 'High-Intensity Training: 1 All-Out Set to Absolute Failure',
+    creator: 'Dorian Yates (6x Mr. Olympia)',
+    category: 'bodybuilding_splits',
+    difficulty: 'advanced',
+    equipment_needed: ['barbells', 'dumbbells', 'cable_machine', 'adjustable_bench'],
+    duration_weeks: 8,
+    days_per_week: 4,
+    description:
+      'The legendary High-Intensity Training (HIT) system. Perform 1–2 progressive warm-up sets, followed by exactly 1 ALL-OUT working set taken beyond positive failure with rest-pause, forced reps, and negative eccentrics.',
+    icon: '🩸',
+    accent_color: '#dc2626',
+    schedule: [
+      {
+        day_number: 1,
+        day_title: 'Chest & Biceps (HIT Absolute Failure)',
+        focus: 'Incline Heavy Pressing & Bicep Peak Overload',
+        duration_minutes: 45,
+        exercises: [
+          { id: 'dy-1', name: 'Incline Barbell Bench Press (30° Angle)', target_muscle: 'chest', suggested_sets: 1, suggested_reps: '6–8 reps to complete failure + 2 forced reps', instructions: 'Lower under strict 3-second control, press to full lockout, rep out until bar cannot move.' },
+          { id: 'dy-2', name: 'Flat Dumbbell Bench Press', target_muscle: 'chest', suggested_sets: 1, suggested_reps: '6–8 reps to failure', instructions: 'Deep chest flare, squeeze inner pecs.' },
+          { id: 'dy-3', name: 'Incline Dumbbell Bicep Curls (Seated)', target_muscle: 'biceps', suggested_sets: 1, suggested_reps: '6–8 reps to failure + rest-pause', instructions: 'Full bicep elongation at bottom, curl to chin.' },
+          { id: 'dy-4', name: 'Nautilus / Preacher Arm Curls', target_muscle: 'biceps', suggested_sets: 1, suggested_reps: '6–8 reps to failure', instructions: 'Strict isolation, 3-second negative descent.' },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'german_volume_training_10x10',
+    title: 'German Volume Training (GVT 10×10)',
+    subtitle: 'Extreme 10 Sets of 10 Reps Hypertrophy Protocol',
+    creator: 'Charles Poliquin',
+    category: 'bodybuilding_splits',
+    difficulty: 'advanced',
+    equipment_needed: ['barbells', 'weight_plates', 'flat_bench', 'power_rack'],
+    duration_weeks: 6,
+    days_per_week: 3,
+    description:
+      'The famous German Volume Training protocol. Pick one primary compound movement per muscle group and perform 10 sets of 10 reps with exactly 60% of your 1RM, using a 4-0-2-0 tempo and strict 60s rest intervals.',
+    icon: '🇩🇪',
+    accent_color: '#8b5cf6',
+    schedule: [
+      {
+        day_number: 1,
+        day_title: 'Chest & Back (10x10 Antagonistic Pairing)',
+        focus: '100 Reps Bench Press + 100 Reps Barbell Rows',
+        duration_minutes: 60,
+        exercises: [
+          { id: 'gvt-1', name: 'Barbell Flat Bench Press (10 sets × 10 reps @ 60% 1RM)', target_muscle: 'chest', suggested_sets: 10, suggested_reps: '10 reps (60s rest)', instructions: '4-second eccentric descent, 60s rest between sets.' },
+          { id: 'gvt-2', name: 'Bent-Over Barbell Rows (10 sets × 10 reps @ 60% 1RM)', target_muscle: 'back', suggested_sets: 10, suggested_reps: '10 reps (60s rest)', instructions: 'Super-set or alternate with bench press.' },
+        ],
+      },
+      {
+        day_number: 2,
+        day_title: 'Legs & Abs (10x10 Squat Overload)',
+        focus: '100 Reps Olympic Squats',
+        duration_minutes: 60,
+        exercises: [
+          { id: 'gvt-sq-1', name: 'Barbell Back Squat (10 sets × 10 reps @ 60% 1RM)', target_muscle: 'quads', suggested_sets: 10, suggested_reps: '10 reps (60s rest)', instructions: 'Deep squat with 4-second negative.' },
+          { id: 'gvt-sq-2', name: 'Lying Leg Curls (10 sets × 10 reps)', target_muscle: 'hamstrings', suggested_sets: 10, suggested_reps: '10 reps', instructions: 'Strict knee flexion.' },
+        ],
+      },
+    ],
+  },
+
+  // =========================================================================
+  // 4. MIND-BODY, TAI CHI, QIGONG, YOGA & MOBILITY
   // =========================================================================
   {
     id: 'tai_chi_yang_24',
@@ -303,52 +721,295 @@ export const PREMADE_WORKOUT_PROGRAMS: PreMadeWorkoutProgram[] = [
           { id: 'tc-form-9', name: 'Form 9: Wave Hands Like Clouds (Yunshou)', target_muscle: 'mobility', suggested_sets: 3, suggested_reps: '3 sideways paces L & R', instructions: 'Side step smoothly, rotating continuous figure-8 cloud palms in front of chest.' },
         ],
       },
+    ],
+  },
+  {
+    id: 'baduanjin_qigong',
+    title: 'Baduanjin Qigong (Eight Pieces of Brocade)',
+    subtitle: '800-Year-Old Ancient Health & Longevity Flow',
+    creator: 'Traditional Chinese Medicine & Shaolin Heritage',
+    category: 'mind_body_longevity',
+    difficulty: 'all_levels',
+    equipment_needed: ['bodyweight'],
+    duration_weeks: 8,
+    days_per_week: 7,
+    description:
+      'The 8 classic silk brocade movements designed to stimulate the 12 primary acupuncture meridians, massage internal organs through deep abdominal breathing, and release fascial adhesions.',
+    icon: '🧘',
+    accent_color: '#10b981',
+    schedule: [
       {
-        day_number: 3,
-        day_title: 'Part 3: Kicks to Closing Form',
-        focus: 'Single-Leg Balance & Qi Consolidation',
-        duration_minutes: 40,
+        day_number: 1,
+        day_title: 'Full 8-Section Brocade Sequence',
+        focus: 'Meridian Stimulation & Dan Tian Breathing',
+        duration_minutes: 25,
         exercises: [
-          { id: 'tc-form-10', name: 'Form 10: High Pat on Horse (Gaotan Ma)', target_muscle: 'mobility', suggested_sets: 3, suggested_reps: '4 holds', instructions: 'Shift back into empty stance, thrust palm forward at throat height.' },
-          { id: 'tc-form-11', name: 'Form 11: Right Heel Kick (You Dengjiao)', target_muscle: 'mobility', suggested_sets: 3, suggested_reps: '4 kicks/side', instructions: 'Cross wrists, raise right knee, extend heel kick horizontally with open arms.' },
-          { id: 'tc-form-12', name: 'Form 12: Strike to Ears with Both Fists (Shuangfeng Guan’er)', target_muscle: 'mobility', suggested_sets: 3, suggested_reps: '4 strikes', instructions: 'Step into bow stance, swing twin circular fists inwards at ear level.' },
-          { id: 'tc-form-13', name: 'Form 13: Golden Rooster Stands on One Leg (Jinji Duli)', target_muscle: 'mobility', suggested_sets: 3, suggested_reps: '4 holds/side (10s each)', instructions: 'Lift left knee to waist height, extend left fingertips vertical like a rooster comb.' },
-          { id: 'tc-form-14', name: 'Form 14: Closing Form (Shoushi)', target_muscle: 'mobility', suggested_sets: 3, suggested_reps: '5 breathing cycles', instructions: 'Step feet together, lower hands smoothly, gather Qi into lower Dan Tian.' },
+          { id: 'bdj-1', name: 'Movement 1: Holding the Sky with Both Hands to Regulate Triple Burner', target_muscle: 'mobility', suggested_sets: 1, suggested_reps: '6 repetitions', instructions: 'Interlock fingers, press palms toward heaven, look up, stretch spine.' },
+          { id: 'bdj-2', name: 'Movement 2: Drawing the Bow to Shoot the Hawk (Left & Right)', target_muscle: 'mobility', suggested_sets: 1, suggested_reps: '6 pairs', instructions: 'Wide horse stance, extend index finger, gaze past target like shooting arrow.' },
+          { id: 'bdj-3', name: 'Movement 3: Raising Single Arm to Regulate Spleen & Stomach', target_muscle: 'mobility', suggested_sets: 1, suggested_reps: '6 pairs', instructions: 'One palm presses up while other presses down, stretching torso diagonally.' },
+          { id: 'bdj-4', name: 'Movement 4: Looking Backwards to Eliminate 5 Fatigues and 7 Injuries', target_muscle: 'mobility', suggested_sets: 1, suggested_reps: '6 turns L & R', instructions: 'Open arms outward, slowly turn neck and eyes over shoulder.' },
+          { id: 'bdj-5', name: 'Movement 5: Swaying the Head and Shaking the Tail to Disperse Heart Fire', target_muscle: 'mobility', suggested_sets: 1, suggested_reps: '6 circles', instructions: 'Low horse stance, sweep torso and head in circular arc from side to side.' },
+          { id: 'bdj-6', name: 'Movement 6: Touching Toes with Both Hands to Strengthen Kidneys & Waist', target_muscle: 'mobility', suggested_sets: 1, suggested_reps: '6 folds', instructions: 'Trace palms down spine and back of legs, hold toes, stretch hamstrings.' },
+          { id: 'bdj-7', name: 'Movement 7: Clenching Fists with Fiery Eyes to Build Strength', target_muscle: 'mobility', suggested_sets: 1, suggested_reps: '6 punches L & R', instructions: 'Horse stance, punch forward with intense focused gaze, rotate fist.' },
+          { id: 'bdj-8', name: 'Movement 8: Bouncing on Heels 7 Times to Banish All Sickness', target_muscle: 'mobility', suggested_sets: 1, suggested_reps: '7 gentle drops', instructions: 'Rise onto toes, drop heels gently onto floor, vibrating the spine.' },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'ashtanga_yoga_primary',
+    title: 'Ashtanga Yoga Primary Series (Yoga Chikitsa)',
+    subtitle: '75-Minute Synchronized Breath & Vinyasa Alignment',
+    creator: 'Sri K. Pattabhi Jois',
+    category: 'mind_body_longevity',
+    difficulty: 'advanced',
+    equipment_needed: ['yoga_mat'],
+    duration_weeks: 12,
+    days_per_week: 6,
+    description:
+      'The traditional Yoga Chikitsa (Yoga Therapy) sequence. Uses Ujjayi oceanic breathing, Bandhas (energy locks), and continuous flowing Vinyasas to align the skeletal system and open hips.',
+    icon: '🕉️',
+    accent_color: '#a855f7',
+    schedule: [
+      {
+        day_number: 1,
+        day_title: 'Surya Namaskar & Standing Asanas',
+        focus: 'Spinal Extension & Hamstring Flexibility',
+        duration_minutes: 75,
+        exercises: [
+          { id: 'ash-1', name: 'Surya Namaskar A (5 Cycles)', target_muscle: 'mobility', suggested_sets: 5, suggested_reps: '5 breath cycles', instructions: 'Inhale reach, exhale forward fold, inhale flat back, chaturanga, up dog, down dog.' },
+          { id: 'ash-2', name: 'Surya Namaskar B with Warrior 1 (3 Cycles)', target_muscle: 'mobility', suggested_sets: 3, suggested_reps: '5 breath cycles', instructions: 'Chair pose into vinyasa and warrior 1 lunges.' },
+          { id: 'ash-3', name: 'Padangusthasana & Padahastasana (Big Toe & Foot Hand Folds)', target_muscle: 'mobility', suggested_sets: 1, suggested_reps: '5 breaths each', instructions: 'Hold big toes with peace fingers, fold crown towards shins.' },
+          { id: 'ash-4', name: 'Trikonasana & Parivrtta Trikonasana (Triangle & Revolved)', target_muscle: 'mobility', suggested_sets: 1, suggested_reps: '5 breaths/side', instructions: 'Open chest, reach top hand to ceiling, gaze at thumb.' },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'supple_leopard_mobility',
+    title: 'Daily Mobility & Joint Flossing WODs',
+    subtitle: '15-Minute Daily Tissue Restoration & Capsule Mobilization',
+    creator: 'Dr. Kelly Starrett (The Supple Leopard)',
+    category: 'mind_body_longevity',
+    difficulty: 'all_levels',
+    equipment_needed: ['foam_roller', 'resistance_bands'],
+    duration_weeks: 8,
+    days_per_week: 7,
+    description:
+      'Targeted joint capsule mobilizations, banded distractions, and soft-tissue smash routines designed to restore full joint range of motion in hips, shoulders, and thoracic spine.',
+    icon: '🐆',
+    accent_color: '#f59e0b',
+    schedule: [
+      {
+        day_number: 1,
+        day_title: 'Lower Body: Banded Hip Capsule & Ankle Floss',
+        focus: 'Deep Squat Mobility & Hip Flexor Extension',
+        duration_minutes: 15,
+        exercises: [
+          { id: 'mob-1', name: 'Banded Hip Flexor Couch Stretch with Traction', target_muscle: 'glutes', suggested_sets: 2, suggested_reps: '2 mins/side', instructions: 'Band around hip crease, rear foot elevated on wall, squeeze glute.' },
+          { id: 'mob-2', name: 'Banded Ankle Dorsiflexion Floss', target_muscle: 'calves', suggested_sets: 2, suggested_reps: '2 mins/side', instructions: 'Band across talus bone, drive knee forward over pinky toe.' },
+          { id: 'mob-3', name: 'Deep Goblet Squat Pry with Weight', target_muscle: 'quads', suggested_sets: 1, suggested_reps: '3 mins hold', instructions: 'Sit in bottom of deep squat, push knees apart with elbows.' },
         ],
       },
     ],
   },
 
   // =========================================================================
-  // 6. ARNOLD SCHWARZENEGGER GOLDEN SIX (CLASSIC GOLDEN ERA SPLIT)
+  // 5. FUNCTIONAL FITNESS, KETTLEBELLS & TACTICAL
   // =========================================================================
   {
-    id: 'arnold_golden_six',
-    title: 'Arnold Schwarzenegger Golden Six',
-    subtitle: 'Classic Golden Era Full-Body Hypertrophy Blueprint',
-    creator: 'Arnold Schwarzenegger',
-    category: 'bodybuilding_splits',
+    id: 'simple_and_sinister',
+    title: 'Simple & Sinister (S&S Kettlebell)',
+    subtitle: 'The Minimalist Kettlebell Standard: Swings & Turkish Get-Ups',
+    creator: 'Pavel Tsatsouline (StrongFirst)',
+    category: 'functional_tactical',
     difficulty: 'intermediate',
-    equipment_needed: ['barbells', 'weight_plates', 'flat_bench', 'pull_up_bar'],
-    duration_weeks: 8,
+    equipment_needed: ['kettlebells'],
+    duration_weeks: 12,
+    days_per_week: 5,
+    description:
+      'The gold-standard minimalist strength program: 100 explosive one-arm kettlebell swings (10 sets of 10 in under 5 mins) + 10 slow, heavy Turkish Get-Ups (5 per side in under 10 mins). Builds superhuman hip power and resilient shoulders.',
+    icon: '🔔',
+    accent_color: '#ef4444',
+    schedule: [
+      {
+        day_number: 1,
+        day_title: 'S&S Daily Standard Session',
+        focus: 'Explosive Hip Hinge & Rotational Core Resilience',
+        duration_minutes: 30,
+        exercises: [
+          { id: 'ss-kb-1', name: 'Prying Goblet Squats with Bicep Curls (Warmup)', target_muscle: 'quads', suggested_sets: 3, suggested_reps: '5 reps', instructions: 'Sink deep into goblet squat, curl bell, stand.' },
+          { id: 'ss-kb-2', name: 'Kettlebell Halos (Shoulder Prep)', target_muscle: 'shoulders', suggested_sets: 3, suggested_reps: '5 circles L & R', instructions: 'Circle heavy bell smoothly around head.' },
+          { id: 'ss-kb-3', name: 'One-Arm Explosive Kettlebell Swings (10x10)', target_muscle: 'hamstrings', suggested_sets: 10, suggested_reps: '10 reps (5L, 5R)', instructions: 'Snap hips, float bell to sternum, talk test recovery between sets.' },
+          { id: 'ss-kb-4', name: 'Turkish Get-Ups (TGU) with Heavy Bell', target_muscle: 'shoulders', suggested_sets: 10, suggested_reps: '1 rep/set (5L, 5R)', instructions: 'Roll to elbow, hand, bridge hips, sweep leg, lunge to stand, reverse.' },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'crossfit_girls_benchmarks',
+    title: 'CrossFit® "The Girls" Benchmark WODs',
+    subtitle: 'Iconic Benchmark Workouts: Fran, Cindy, Murph & Grace',
+    creator: 'Greg Glassman & CrossFit HQ',
+    category: 'functional_tactical',
+    difficulty: 'advanced',
+    equipment_needed: ['barbells', 'pull_up_bar', 'weight_plates'],
+    duration_weeks: 6,
+    days_per_week: 4,
+    description:
+      'The legendary benchmark workouts that measure total work capacity across broad time and modal domains: "Fran" (21-15-9 Thrusters & Pull-ups), "Cindy" (20-min AMRAP), and "Grace" (30 Clean & Jerks for time).',
+    icon: '🏋️',
+    accent_color: '#f97316',
+    schedule: [
+      {
+        day_number: 1,
+        day_title: 'WOD: "FRAN" (21–15–9 For Time)',
+        focus: 'Lactic Acid Tolerance & Barbell Thrusters',
+        duration_minutes: 20,
+        exercises: [
+          { id: 'cf-fran-1', name: 'Barbell Thrusters (95 lbs / 43 kg)', target_muscle: 'quads', suggested_sets: 3, suggested_reps: '21, 15, 9 reps', instructions: 'Full front squat into explosive overhead push press in one continuous motion.' },
+          { id: 'cf-fran-2', name: 'Kipping / Butterfly Pull-Ups', target_muscle: 'back', suggested_sets: 3, suggested_reps: '21, 15, 9 reps', instructions: 'Fast pull-ups clearing chin above bar.' },
+        ],
+      },
+      {
+        day_number: 2,
+        day_title: 'WOD: "CINDY" (20-Minute AMRAP)',
+        focus: 'Calisthenic Aerobic Power',
+        duration_minutes: 20,
+        exercises: [
+          { id: 'cf-cindy-1', name: 'Pull-Ups (5 reps)', target_muscle: 'back', suggested_sets: 20, suggested_reps: '5 reps', instructions: 'Continuous circuit.' },
+          { id: 'cf-cindy-2', name: 'Push-Ups (10 reps)', target_muscle: 'chest', suggested_sets: 20, suggested_reps: '10 reps', instructions: 'Chest touches floor, lock elbows.' },
+          { id: 'cf-cindy-3', name: 'Air Squats (15 reps)', target_muscle: 'quads', suggested_sets: 20, suggested_reps: '15 reps', instructions: 'Below parallel hip crease.' },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'spartan_300_challenge',
+    title: 'The 300 Spartan Challenge',
+    subtitle: 'The Original 300-Rep Timed Movie Training Test',
+    creator: 'Mark Twight (Gym Jones)',
+    category: 'functional_tactical',
+    difficulty: 'advanced',
+    equipment_needed: ['barbells', 'pull_up_bar', 'kettlebells', 'plyo_box'],
+    duration_weeks: 4,
     days_per_week: 3,
     description:
-      'The foundational 6-exercise full-body hypertrophy routine Arnold used at Munich Gym to build his legendary physique. Performed 3 days a week with heavy basic compound movements.',
-    icon: '👑',
+      'The grueling test used to evaluate the physical readiness of the cast of the movie "300". Exactly 300 total reps completed as fast as possible with zero scheduled rest periods.',
+    icon: '🛡️',
+    accent_color: '#b91c1c',
+    schedule: [
+      {
+        day_number: 1,
+        day_title: 'The 300 Spartan Test (For Time)',
+        focus: 'Total Physical & Mental Conditioning',
+        duration_minutes: 40,
+        exercises: [
+          { id: 'sp-1', name: 'Pull-Ups (25 reps)', target_muscle: 'back', suggested_sets: 1, suggested_reps: '25 reps', instructions: 'Deadhang to chin over bar.' },
+          { id: 'sp-2', name: 'Barbell Deadlifts @ 135 lbs (50 reps)', target_muscle: 'back', suggested_sets: 1, suggested_reps: '50 reps', instructions: 'Touch and go or dead-stop.' },
+          { id: 'sp-3', name: 'Push-Ups (50 reps)', target_muscle: 'chest', suggested_sets: 1, suggested_reps: '50 reps', instructions: 'Strict form, chest to deck.' },
+          { id: 'sp-4', name: 'Box Jumps on 24" Box (50 reps)', target_muscle: 'quads', suggested_sets: 1, suggested_reps: '50 reps', instructions: 'Jump and stand tall on box.' },
+          { id: 'sp-5', name: 'Floor Wipers @ 135 lbs (50 reps)', target_muscle: 'core', suggested_sets: 1, suggested_reps: '50 reps', instructions: 'Hold loaded barbell on chest, swing straight legs to left and right plates.' },
+          { id: 'sp-6', name: 'Kettlebell Clean & Press @ 36 lbs (50 reps)', target_muscle: 'shoulders', suggested_sets: 1, suggested_reps: '50 reps', instructions: '25 each arm, bell must touch floor.' },
+          { id: 'sp-7', name: 'Pull-Ups (Final 25 reps to reach 300)', target_muscle: 'back', suggested_sets: 1, suggested_reps: '25 reps', instructions: 'Sprint to the finish.' },
+        ],
+      },
+    ],
+  },
+
+  // =========================================================================
+  // 6. HYBRID, ROWING & ENDURANCE PROTOCOLS
+  // =========================================================================
+  {
+    id: 'hyrox_race_simulation',
+    title: 'HYROX® Race Simulation Training',
+    subtitle: '8× 1km Running Intervals Interspersed with 8 Functional Stations',
+    creator: 'HYROX Global Fitness Racing',
+    category: 'hybrid_endurance',
+    difficulty: 'advanced',
+    equipment_needed: ['rower', 'skierg', 'prowler_sled', 'dumbbells', 'sandbag_training'],
+    duration_weeks: 10,
+    days_per_week: 4,
+    description:
+      'Official simulation of the HYROX World Championships: 1km running intervals paired with SkiErg, Sled Push (125kg), Sled Pull (78kg), Burpee Broad Jumps (80m), Rowing (1000m), Farmers Carry, Sandbag Lunges, and Wall Balls.',
+    icon: '🏅',
     accent_color: '#eab308',
     schedule: [
       {
         day_number: 1,
-        day_title: 'The Golden Six Session (Full Body)',
-        focus: 'Classic Golden Era Mass & Proportions',
-        duration_minutes: 65,
+        day_title: 'HYROX Station Simulation A',
+        focus: '1km Run + SkiErg + Sled Push + Burpee Broad Jumps',
+        duration_minutes: 50,
         exercises: [
-          { id: 'arnold-1', name: 'Barbell Back Squat', target_muscle: 'quads', suggested_sets: 4, suggested_reps: '10 reps', instructions: 'Thighs below parallel, explosive ascent.' },
-          { id: 'arnold-2', name: 'Wide-Grip Barbell Flat Bench Press', target_muscle: 'chest', suggested_sets: 3, suggested_reps: '10 reps', instructions: 'Wide grip, touch lower chest, maximum pectoral flare.' },
-          { id: 'arnold-3', name: 'Wide-Grip Overhand Chin-Ups', target_muscle: 'back', suggested_sets: 3, suggested_reps: 'Max reps (Goal: 10+)', instructions: 'Pull to sternum, full stretch at bottom.' },
-          { id: 'arnold-4', name: 'Behind-the-Neck Barbell Overhead Press', target_muscle: 'shoulders', suggested_sets: 4, suggested_reps: '10 reps', instructions: 'Lower bar smoothly to ear level, press overhead.' },
-          { id: 'arnold-5', name: 'Standing Barbell Bicep Curls', target_muscle: 'biceps', suggested_sets: 3, suggested_reps: '10 reps', instructions: 'Strict form, no hip swing, 2-second negative.' },
-          { id: 'arnold-6', name: 'Bent-Knee Situps / Crunches', target_muscle: 'core', suggested_sets: 4, suggested_reps: '25 reps', instructions: 'Roll spine up vertebra by vertebra, squeeze abs.' },
+          { id: 'hy-1', name: '1,000m Interval Run', target_muscle: 'full_body_cardio', suggested_sets: 1, suggested_reps: '1,000 meters @ Race Pace', instructions: 'Target: 4:00–4:45 per km.' },
+          { id: 'hy-2', name: '1,000m Concept2 SkiErg', target_muscle: 'back', suggested_sets: 1, suggested_reps: '1,000 meters', instructions: 'Hinge hips, drive handles with lats.' },
+          { id: 'hy-3', name: '50m Heavy Sled Push (125 kg / 275 lbs)', target_muscle: 'quads', suggested_sets: 1, suggested_reps: '50 meters (4x12.5m)', instructions: 'Low center of gravity, drive through toes.' },
+          { id: 'hy-4', name: '80m Burpee Broad Jumps', target_muscle: 'full_body_cardio', suggested_sets: 1, suggested_reps: '80 meters distance', instructions: 'Chest to deck burpee, jump forward as far as possible.' },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'concept2_pete_plan',
+    title: 'Concept2® Pete Plan for Indoor Rowing',
+    subtitle: 'Interval Sprints & Steady Endurance for 2,000m & 5,000m PBs',
+    creator: 'Pete Marston (Concept2 Master Coach)',
+    category: 'hybrid_endurance',
+    difficulty: 'intermediate',
+    equipment_needed: ['rower'],
+    duration_weeks: 12,
+    days_per_week: 5,
+    description:
+      'The gold-standard indoor rowing plan. Balances short high-intensity intervals (8x500m), pyramid intervals (250m to 1000m), and long steady-state pieces (8,000m–10,000m) to optimize aerobic power and split times.',
+    icon: '🚣',
+    accent_color: '#0284c7',
+    schedule: [
+      {
+        day_number: 1,
+        day_title: 'Interval Sprint Day: 8 × 500m / 3:30 Rest',
+        focus: 'Anaerobic Threshold & Stroke Power',
+        duration_minutes: 45,
+        exercises: [
+          { id: 'row-1', name: 'Concept2 Rower: 8 × 500m (3:30 active rest)', target_muscle: 'full_body_cardio', suggested_sets: 8, suggested_reps: '500m per interval', instructions: 'Target: 2k split - 1 to 2 seconds. Stroke rate: 28–32 SPM.' },
+        ],
+      },
+      {
+        day_number: 2,
+        day_title: 'Steady State Endurance: 8,000m @ 20 SPM',
+        focus: 'Aerobic Base & Mitochondrial Density',
+        duration_minutes: 40,
+        exercises: [
+          { id: 'row-2', name: 'Concept2 Rower: 8,000m Continuous Row', target_muscle: 'full_body_cardio', suggested_sets: 1, suggested_reps: '8,000 meters @ 20 SPM', instructions: 'Pace: 2k split + 18-20 seconds. Focus on powerful leg drive.' },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'murph_hero_wod',
+    title: 'The "Murph" Hero WOD & Prep Protocol',
+    subtitle: '1 Mile Run, 100 Pull-Ups, 200 Push-Ups, 300 Squats, 1 Mile Run',
+    creator: 'Lt. Michael Murphy Memorial',
+    category: 'hybrid_endurance',
+    difficulty: 'advanced',
+    equipment_needed: ['pull_up_bar', 'bodyweight'],
+    duration_weeks: 6,
+    days_per_week: 3,
+    description:
+      'In memory of Navy Lieutenant Michael Murphy (Medal of Honor). 1-mile run, 100 pull-ups, 200 push-ups, 300 air squats, and a final 1-mile run, optionally partitioned as 20 rounds of Cindy (5/10/15) while wearing a 20 lb weighted vest.',
+    icon: '🎖️',
+    accent_color: '#475569',
+    schedule: [
+      {
+        day_number: 1,
+        day_title: 'The Full Murph Protocol (Partitioned or Unpartitioned)',
+        focus: 'Endurance Grit & Calisthenic Volume',
+        duration_minutes: 60,
+        exercises: [
+          { id: 'murph-1', name: '1.0 Mile Run (1,600m)', target_muscle: 'full_body_cardio', suggested_sets: 1, suggested_reps: '1.0 Mile', instructions: 'Pace sustainably; do not sprint the first mile.' },
+          { id: 'murph-2', name: 'Pull-Ups (100 total reps or 20 rounds of 5)', target_muscle: 'back', suggested_sets: 20, suggested_reps: '5 reps', instructions: 'Strict or kipping, chin over bar.' },
+          { id: 'murph-3', name: 'Push-Ups (200 total reps or 20 rounds of 10)', target_muscle: 'chest', suggested_sets: 20, suggested_reps: '10 reps', instructions: 'Chest touches deck, full arm extension.' },
+          { id: 'murph-4', name: 'Air Squats (300 total reps or 20 rounds of 15)', target_muscle: 'quads', suggested_sets: 20, suggested_reps: '15 reps', instructions: 'Full depth below parallel.' },
+          { id: 'murph-5', name: '1.0 Mile Run (1,600m)', target_muscle: 'full_body_cardio', suggested_sets: 1, suggested_reps: '1.0 Mile', instructions: 'Final mile push to the finish line.' },
         ],
       },
     ],

@@ -115,12 +115,21 @@ export interface WorkoutProgramDay {
   notes?: string;
 }
 
+export type ProgramCategory =
+  | 'p90x_series'
+  | 'beachbody_classic'
+  | 'strength_powerlifting'
+  | 'bodybuilding_splits'
+  | 'mind_body_longevity'
+  | 'functional_tactical'
+  | 'hybrid_endurance';
+
 export interface PreMadeWorkoutProgram {
   id: string;
   title: string;
   subtitle: string;
   creator: string;
-  category: 'p90x_series' | 'strength_powerlifting' | 'bodybuilding_splits' | 'mind_body_longevity' | 'hiit_cardio';
+  category: ProgramCategory;
   difficulty: 'beginner' | 'intermediate' | 'advanced' | 'all_levels';
   equipment_needed: string[];
   duration_weeks: number;

@@ -92,14 +92,17 @@ export const PreMadeProgramsBrowser: React.FC = () => {
         </div>
 
         {/* Category Pills & Search */}
-        <div className="pt-3 border-t border-surface-border/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="pt-3 border-t border-surface-border/60 flex flex-col lg:flex-row lg:items-center justify-between gap-3">
           <div className="flex items-center gap-2 overflow-x-auto pb-1 text-xs">
             {[
               { id: 'all', label: 'All Programs' },
               { id: 'p90x_series', label: 'P90X Series' },
-              { id: 'strength_powerlifting', label: 'Strength & 5x5' },
-              { id: 'mind_body_longevity', label: 'Tai Chi & Longevity' },
-              { id: 'bodybuilding_splits', label: 'Bodybuilding Splits' },
+              { id: 'beachbody_classic', label: 'Insanity & Beachbody' },
+              { id: 'strength_powerlifting', label: 'Strength & 5x5 / Barbell' },
+              { id: 'bodybuilding_splits', label: 'Hypertrophy & PPL' },
+              { id: 'mind_body_longevity', label: 'Tai Chi & Mobility' },
+              { id: 'functional_tactical', label: 'Kettlebells & Tactical' },
+              { id: 'hybrid_endurance', label: 'Rowing & Hybrid (HYROX)' },
             ].map((cat) => (
               <button
                 key={cat.id}
