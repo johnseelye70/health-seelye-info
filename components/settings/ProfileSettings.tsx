@@ -211,6 +211,17 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'Beta 2.0.0',
+      date: '2026-08-23',
+      title: 'Landmark Milestone: Radical Dual-Mode Architecture (Ultra-Simple vs High-Tech Athlete)',
+      changes: [
+        'Radical Dual-Mode Architecture: Complete bifurcation of all 8 core modules between Standard User ("Daily Wellness Companion") and Advanced Athlete ("Athlete Metric Engine").',
+        'Standard User Experience: Drastically simplified, peaceful, conversational layout with 1-click wholesome meal ideas, visual portion guides (palm/fist/cup), guided routine checklists, and clean aisle-by-aisle shopping lists with zero equation fatigue.',
+        'Advanced Athlete Experience: High-tech obsidian telemetry with precision macro progress rings, raw P/C/F splits with delta variance, 1RM % calculators, RPE/RIR tracking, Olympic barbell plate math, HIIT interval timers, and 5-stage biological fasting telemetry.',
+        'Seamless 1-Tap Toggle: Instantly switch between Daily Wellness Companion and Athlete Metric Engine via the persistent header toggle.',
+      ],
+    },
+    {
       version: 'Beta 1.4.1',
       date: '2026-08-23',
       title: 'Context-Aware Device Detection for Phone Pedometer & Desktop/iPad Sync Station',
@@ -1061,7 +1072,7 @@ export const ProfileSettings: React.FC = () => {
             title="Click to open release changelog modal window"
           >
             <span className="w-2 h-2 rounded-full bg-brand-400 animate-pulse"></span>
-            <span>Active: Beta 1.4.1</span>
+            <span>Active: Beta 2.0.0</span>
             <ChevronRight className="w-3.5 h-3.5 text-brand-400 group-hover:translate-x-0.5 transition-transform" />
           </button>
         </div>

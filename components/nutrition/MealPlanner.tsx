@@ -42,6 +42,79 @@ export const MealPlanner: React.FC = () => {
   const isSimple = experienceMode === 'simple';
   const isImperial = profile.unit_preference === 'imperial';
 
+  // 1-Click Wholesome Meal Presets for Simple Mode
+  const WHOLESOME_PRESETS = [
+    {
+      id: 'oats_berries',
+      name: '🥣 Oatmeal & Fresh Blueberries Bowl',
+      desc: 'Rolled oats cooked with pure water, wild blueberries, and a spoon of raw almond butter',
+      cals: 360,
+      mealIndex: 1,
+      foodName: 'Rolled Oats with Blueberries & Almond Butter',
+      grams: 160,
+    },
+    {
+      id: 'chicken_rice_bowl',
+      name: '🥗 Grilled Chicken & Jasmine Rice Power Bowl',
+      desc: 'Tender chicken breast, steamed jasmine rice, and steamed broccoli florets',
+      cals: 520,
+      mealIndex: 2,
+      foodName: 'Grilled Chicken Breast with Rice & Broccoli',
+      grams: 280,
+    },
+    {
+      id: 'yogurt_parfait',
+      name: '🍓 Greek Yogurt & Strawberry Parfait',
+      desc: 'High-protein nonfat plain Greek yogurt with fresh cut strawberries',
+      cals: 190,
+      mealIndex: 3,
+      foodName: 'Nonfat Greek Yogurt with Strawberries',
+      grams: 200,
+    },
+    {
+      id: 'salmon_sweet_potato',
+      name: '🐟 Wild Salmon with Roasted Sweet Potato',
+      desc: 'Oven-baked wild salmon fillet, roasted sweet potato cubes, and grilled asparagus',
+      cals: 560,
+      mealIndex: 3,
+      foodName: 'Wild Alaskan Salmon with Sweet Potato & Asparagus',
+      grams: 320,
+    },
+    {
+      id: 'turkey_toast',
+      name: '🥪 Lean Turkey & Avocado Sourdough',
+      desc: 'Artisan sourdough slice, lean roasted turkey breast, and mashed fresh avocado',
+      cals: 410,
+      mealIndex: 2,
+      foodName: 'Roasted Turkey Breast & Avocado Sourdough Toast',
+      grams: 220,
+    },
+  ];
+
+  const handleLogWholesomePreset = (preset: typeof WHOLESOME_PRESETS[0]) => {
+    logFood({
+      user_id: profile.id,
+      food: {
+        id: `preset-${preset.id}`,
+        name: preset.foodName,
+        category: 'protein',
+        calories_per_100g: Math.round((preset.cals / preset.grams) * 100),
+        protein_per_100g: 15,
+        carbs_per_100g: 20,
+        fat_per_100g: 5,
+        is_gluten_free: true,
+        is_dairy_free: true,
+        serving_size_g: preset.grams,
+        default_unit: 'g',
+        storage_type: 'fresh_weekly',
+      },
+      food_name: preset.foodName,
+      grams_consumed: preset.grams,
+      meal_index: preset.mealIndex,
+      logged_at: new Date().toISOString().split('T')[0],
+    });
+  };
+
   // Search & Logging Modal State
   const [selectedMealIndex, setSelectedMealIndex] = useState<number | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -138,70 +211,160 @@ export const MealPlanner: React.FC = () => {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 mb-2">
-              <span className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-brand-500/20 text-brand-300 border border-brand-500/30">
-                {isSimple ? 'HEALTHY NUTRITION & MEAL PLAN' : 'PRECISION MACRONUTRIENT & MEAL SPLITTER'}
+              <span className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-brand-500/20 text-brand-300 border border-brand-500/30 flex items-center gap-1.5">
+                {isSimple ? (
+                  <>
+                    <Sparkles className="w-3.5 h-3.5 text-brand-400" />
+                    <span>WHOLESOME NOURISHMENT</span>
+                  </>
+                ) : (
+                  <>
+                    <Flame className="w-3.5 h-3.5 text-brand-400" />
+                    <span>PRECISION MACRONUTRIENT ENGINE</span>
+                  </>
+                )}
               </span>
             </div>
             <h1 className="text-2xl md:text-3xl font-black text-white tracking-tight">
-              {isSimple ? 'Daily Meals & Food Log' : 'Daily Meal Plan & Food Database'}
+              {isSimple ? 'Daily Wholesome Meals' : 'Daily Meal Plan & Food Database'}
             </h1>
             <p className="text-zinc-400 text-sm mt-1 max-w-2xl">
               {isSimple
-                ? 'Enjoy nourishing balanced meals, log what you eat with easy portion sizes, and explore healthy food alternatives.'
+                ? 'Enjoy nourishing balanced meals, choose from delicious 1-click wholesome plates, and stay energized all day.'
                 : 'Track macro splits, dynamically re-divide targets across 2, 3, or 4 meals, and swap equivalent protein/carb sources in real-time.'}
             </p>
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
-            <button
-              onClick={() => setShowSwapModal(true)}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-surface-200 hover:bg-surface-300 border border-surface-border text-xs font-semibold text-zinc-200 transition-all hover:border-zinc-700"
-            >
-              <ArrowRightLeft className="w-4 h-4 text-accent-cyan" />
-              <span>{isSimple ? 'Food Swaps & Alternatives' : 'Real-Time Food Swap'}</span>
-            </button>
-            <button
-              onClick={() => setShowCustomFoodModal(true)}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-gradient-to-r from-brand-500 to-accent-teal hover:from-brand-600 hover:to-accent-teal/90 text-zinc-950 text-xs font-bold shadow-glow transition-all active:scale-95"
-            >
-              <Plus className="w-4 h-4 stroke-[2.5]" />
-              <span>Add Custom Food</span>
-            </button>
+            {!isSimple && (
+              <button
+                onClick={() => setShowSwapModal(true)}
+                className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-surface-200 hover:bg-surface-300 border border-surface-border text-xs font-semibold text-zinc-200 transition-all hover:border-zinc-700"
+              >
+                <ArrowRightLeft className="w-4 h-4 text-accent-cyan" />
+                <span>Real-Time Food Swap</span>
+              </button>
+            )}
+            {!isSimple && (
+              <button
+                onClick={() => setShowCustomFoodModal(true)}
+                className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-gradient-to-r from-brand-500 to-accent-teal hover:from-brand-600 hover:to-accent-teal/90 text-zinc-950 text-xs font-bold shadow-glow transition-all active:scale-95"
+              >
+                <Plus className="w-4 h-4 stroke-[2.5]" />
+                <span>Add Custom Food</span>
+              </button>
+            )}
           </div>
         </div>
       </div>
 
-      {/* Target vs Remaining Rings */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <MacroProgressRing
-          label="Calories"
-          current={todayMacros.calories}
-          target={profile.daily_calorie_target}
-          unit="kcal"
-          color="#10b981"
-        />
-        <MacroProgressRing
-          label="Protein"
-          current={todayMacros.protein}
-          target={profile.protein_target_g}
-          unit="g"
-          color="#14b8a6"
-        />
-        <MacroProgressRing
-          label="Carbohydrates"
-          current={todayMacros.carbs}
-          target={profile.carb_target_g}
-          unit="g"
-          color="#06b6d4"
-        />
-        <MacroProgressRing
-          label="Healthy Fats"
-          current={todayMacros.fat}
-          target={profile.fat_target_g}
-          unit="g"
-          color="#f59e0b"
-        />
-      </div>
+      {/* Target Progress: Simple vs Athlete Layout */}
+      {isSimple ? (
+        /* SIMPLE MODE: Calorie Balance Bar + 1-Click Wholesome Meal Presets */
+        <div className="space-y-6">
+          {/* Calorie Balance Card */}
+          <div className="p-6 rounded-3xl bg-surface-100/90 border border-surface-border backdrop-blur-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="space-y-1">
+              <div className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Today's Calorie Balance</div>
+              <div className="text-3xl font-black font-mono text-brand-400">
+                {todayRemaining.calories}{' '}
+                <span className="text-sm font-normal text-zinc-400">kcal remaining</span>
+              </div>
+              <p className="text-xs text-zinc-400">
+                You've consumed <strong className="text-zinc-200">{todayMacros.calories} kcal</strong> of your <strong className="text-zinc-200">{profile.daily_calorie_target} kcal</strong> daily target.
+              </p>
+            </div>
+
+            <div className="w-full sm:w-64 space-y-1.5">
+              <div className="flex justify-between text-xs font-mono text-zinc-400">
+                <span>{Math.round((todayMacros.calories / (profile.daily_calorie_target || 2000)) * 100)}% Consumed</span>
+                <span className="text-brand-400 font-bold">{todayRemaining.calories} left</span>
+              </div>
+              <div className="w-full h-3 bg-surface-300 rounded-full overflow-hidden border border-surface-border">
+                <div
+                  className="h-full bg-gradient-to-r from-brand-500 to-accent-teal rounded-full transition-all duration-500"
+                  style={{ width: `${Math.min(100, Math.round((todayMacros.calories / profile.daily_calorie_target) * 100))}%` }}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* 1-Click Wholesome Meal Presets Bar */}
+          <div className="p-6 rounded-3xl bg-surface-100/90 border border-surface-border backdrop-blur-xl space-y-4">
+            <div className="flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-brand-400" />
+              <h2 className="text-base font-bold text-zinc-100">1-Click Wholesome Meal Ideas</h2>
+            </div>
+            <p className="text-xs text-zinc-400">
+              Tap any balanced meal to instantly add it to your daily food log with verified natural ingredients.
+            </p>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 pt-2">
+              {WHOLESOME_PRESETS.map((preset) => (
+                <div
+                  key={preset.id}
+                  className="p-4 rounded-2xl bg-surface-200/80 border border-surface-border hover:border-brand-500/40 transition-all flex flex-col justify-between space-y-3 group"
+                >
+                  <div className="space-y-1">
+                    <div className="text-sm font-bold text-zinc-100 group-hover:text-brand-300 transition-colors">
+                      {preset.name}
+                    </div>
+                    <p className="text-xs text-zinc-400 leading-relaxed">
+                      {preset.desc}
+                    </p>
+                  </div>
+
+                  <div className="flex items-center justify-between pt-2 border-t border-surface-border/60">
+                    <span className="text-xs font-mono font-bold text-brand-400">
+                      +{preset.cals} kcal
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => handleLogWholesomePreset(preset)}
+                      className="px-3 py-1.5 rounded-xl bg-brand-500 hover:bg-brand-400 text-zinc-950 text-xs font-black shadow-glow transition-all cursor-pointer active:scale-95 flex items-center gap-1.5"
+                    >
+                      <Plus className="w-3.5 h-3.5 stroke-[3]" />
+                      <span>+ Log Meal</span>
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      ) : (
+        /* ATHLETE MODE: 4 FULL MACRO RINGS */
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <MacroProgressRing
+            label="Calories"
+            current={todayMacros.calories}
+            target={profile.daily_calorie_target}
+            unit="kcal"
+            color="#10b981"
+          />
+          <MacroProgressRing
+            label="Protein"
+            current={todayMacros.protein}
+            target={profile.protein_target_g}
+            unit="g"
+            color="#14b8a6"
+          />
+          <MacroProgressRing
+            label="Carbohydrates"
+            current={todayMacros.carbs}
+            target={profile.carb_target_g}
+            unit="g"
+            color="#06b6d4"
+          />
+          <MacroProgressRing
+            label="Healthy Fats"
+            current={todayMacros.fat}
+            target={profile.fat_target_g}
+            unit="g"
+            color="#f59e0b"
+          />
+        </div>
+      )}
 
       {/* Dynamic Meal Splitter Selector */}
       <div className="p-6 rounded-3xl bg-surface-100/90 border border-surface-border backdrop-blur-xl">
@@ -410,39 +573,56 @@ export const MealPlanner: React.FC = () => {
               </div>
             </div>
 
-            {/* Calculated Macros Preview */}
+            {/* Calculated Preview: Simple Mode (Calorie focus) vs Athlete Mode (Full Macros) */}
             {selectedFoodForLog && (
-              <div className="p-3.5 rounded-2xl bg-surface-200 border border-surface-border">
-                <div className="text-[11px] text-zinc-400 uppercase tracking-wider mb-2 font-semibold">
-                  Macros for {gramsToLog}g Portion
-                </div>
-                <div className="grid grid-cols-4 gap-2 text-center font-mono">
-                  <div className="p-2 rounded-xl bg-surface-300">
-                    <div className="text-[10px] text-zinc-400">Calories</div>
-                    <div className="text-sm font-bold text-zinc-100">
-                      {Math.round((selectedFoodForLog.calories_per_100g * gramsToLog) / 100)}
+              isSimple ? (
+                <div className="p-4 rounded-2xl bg-surface-200 border border-surface-border flex items-center justify-between">
+                  <div>
+                    <div className="text-xs font-bold text-zinc-200">{selectedFoodForLog.name}</div>
+                    <div className="text-[11px] text-zinc-400 mt-0.5">
+                      Portion: {gramsToLog}g {isImperial ? `(~${(gramsToLog * 0.03527).toFixed(1)} oz)` : ''}
                     </div>
                   </div>
-                  <div className="p-2 rounded-xl bg-surface-300">
-                    <div className="text-[10px] text-zinc-400">Protein</div>
-                    <div className="text-sm font-bold text-brand-400">
-                      {((selectedFoodForLog.protein_per_100g * gramsToLog) / 100).toFixed(1)}g
+                  <div className="text-right font-mono">
+                    <div className="text-lg font-black text-brand-400">
+                      +{Math.round((selectedFoodForLog.calories_per_100g * gramsToLog) / 100)} kcal
                     </div>
-                  </div>
-                  <div className="p-2 rounded-xl bg-surface-300">
-                    <div className="text-[10px] text-zinc-400">Carbs</div>
-                    <div className="text-sm font-bold text-accent-cyan">
-                      {((selectedFoodForLog.carbs_per_100g * gramsToLog) / 100).toFixed(1)}g
-                    </div>
-                  </div>
-                  <div className="p-2 rounded-xl bg-surface-300">
-                    <div className="text-[10px] text-zinc-400">Fats</div>
-                    <div className="text-sm font-bold text-amber-400">
-                      {((selectedFoodForLog.fat_per_100g * gramsToLog) / 100).toFixed(1)}g
-                    </div>
+                    <div className="text-[10px] text-emerald-400 font-sans font-semibold">Wholesome Fuel ✨</div>
                   </div>
                 </div>
-              </div>
+              ) : (
+                <div className="p-3.5 rounded-2xl bg-surface-200 border border-surface-border">
+                  <div className="text-[11px] text-zinc-400 uppercase tracking-wider mb-2 font-semibold">
+                    Macros for {gramsToLog}g Portion
+                  </div>
+                  <div className="grid grid-cols-4 gap-2 text-center font-mono">
+                    <div className="p-2 rounded-xl bg-surface-300">
+                      <div className="text-[10px] text-zinc-400">Calories</div>
+                      <div className="text-sm font-bold text-zinc-100">
+                        {Math.round((selectedFoodForLog.calories_per_100g * gramsToLog) / 100)}
+                      </div>
+                    </div>
+                    <div className="p-2 rounded-xl bg-surface-300">
+                      <div className="text-[10px] text-zinc-400">Protein</div>
+                      <div className="text-sm font-bold text-brand-400">
+                        {((selectedFoodForLog.protein_per_100g * gramsToLog) / 100).toFixed(1)}g
+                      </div>
+                    </div>
+                    <div className="p-2 rounded-xl bg-surface-300">
+                      <div className="text-[10px] text-zinc-400">Carbs</div>
+                      <div className="text-sm font-bold text-accent-cyan">
+                        {((selectedFoodForLog.carbs_per_100g * gramsToLog) / 100).toFixed(1)}g
+                      </div>
+                    </div>
+                    <div className="p-2 rounded-xl bg-surface-300">
+                      <div className="text-[10px] text-zinc-400">Fats</div>
+                      <div className="text-sm font-bold text-amber-400">
+                        {((selectedFoodForLog.fat_per_100g * gramsToLog) / 100).toFixed(1)}g
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )
             )}
 
             <div className="flex gap-3 pt-2">

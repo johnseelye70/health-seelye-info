@@ -71,7 +71,10 @@ export const GroceryManager: React.FC = () => {
     syncGroceryFromMealPlan,
     profile,
     foods,
+    experienceMode,
   } = useHealth();
+
+  const isSimple = experienceMode === 'simple';
 
   // Active Named List
   const [activeListId, setActiveListId] = useState<string>('main');
@@ -318,18 +321,30 @@ export const GroceryManager: React.FC = () => {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 mb-1.5 flex-wrap">
-              <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-brand-500/20 text-brand-300 border border-brand-500/30">
-                🛒 SAM'S CLUB • ALDI • MEIJER GROCERY REQUISITION
+              <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-brand-500/20 text-brand-300 border border-brand-500/30 flex items-center gap-1.5">
+                {isSimple ? (
+                  <>
+                    <Sparkles className="w-3.5 h-3.5 text-brand-400" />
+                    <span>WHOLESOME SHOPPING LIST</span>
+                  </>
+                ) : (
+                  <>
+                    <ShoppingCart className="w-3.5 h-3.5 text-brand-400" />
+                    <span>SAM'S CLUB • ALDI • MEIJER REQUISITION</span>
+                  </>
+                )}
               </span>
               <span className="text-xs text-zinc-400 font-mono">
-                Real Store Brand Items & Whole Food Database
+                {isSimple ? 'Aisle-By-Aisle Pantry & Cart' : 'Real Store Brand Items & Macro Engine'}
               </span>
             </div>
             <h1 className="text-2xl md:text-3xl font-black text-white tracking-tight">
-              Weekly Grocery & Pantry Manager
+              {isSimple ? 'Weekly Grocery & Pantry List' : 'Weekly Grocery & Pantry Manager'}
             </h1>
             <p className="text-zinc-400 text-xs sm:text-sm mt-1 max-w-2xl">
-              Add authentic signature products from <strong>Sam's Club (Member's Mark)</strong>, <strong>Aldi (Simply Nature / Friendly Farms)</strong>, and <strong>Meijer (True Goodness / Frederik's)</strong>, or pull from the 1,000+ item master food database with verified macronutrient ratios.
+              {isSimple
+                ? 'Your clear, organized shopping list. Add real store items from Sam’s Club, Aldi, and Meijer, check them off as you shop, or track what you have in your kitchen pantry.'
+                : 'Add authentic signature products from Sam’s Club (Member’s Mark), Aldi (Simply Nature / Friendly Farms), and Meijer (True Goodness / Frederik’s), or pull from the 1,000+ item master food database.'}
             </p>
           </div>
 

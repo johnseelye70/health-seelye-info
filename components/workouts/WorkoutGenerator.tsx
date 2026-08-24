@@ -96,7 +96,7 @@ export const WorkoutGenerator: React.FC = () => {
           }`}
         >
           <Calendar className="w-4 h-4" />
-          <span>Daily Split & Player</span>
+          <span>{isSimple ? "Today's Guided Routine" : 'Daily Split & Player'}</span>
         </button>
 
         <button
@@ -110,36 +110,40 @@ export const WorkoutGenerator: React.FC = () => {
           }`}
         >
           <Award className="w-4 h-4 text-amber-400" />
-          <span>Pre-Made Programs (P90X, CrossFit, 5x5)</span>
+          <span>{isSimple ? 'Workout Programs (P90X, CrossFit, 5x5)' : 'Pre-Made Programs (P90X, CrossFit, 5x5, Sheets)'}</span>
         </button>
 
-        <button
-          type="button"
-          id="fitness-tab-workout-database"
-          onClick={() => setActiveSubTab('workout_database')}
-          className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0 ${
-            activeSubTab === 'workout_database'
-              ? 'bg-brand-500 text-zinc-950 shadow-glow'
-              : 'text-zinc-300 hover:text-white hover:bg-surface-200'
-          }`}
-        >
-          <BarChart3 className="w-4 h-4 text-emerald-400" />
-          <span>Workout Database {logsCount > 0 ? `(${logsCount})` : ''}</span>
-        </button>
+        {!isSimple && (
+          <button
+            type="button"
+            id="fitness-tab-workout-database"
+            onClick={() => setActiveSubTab('workout_database')}
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0 ${
+              activeSubTab === 'workout_database'
+                ? 'bg-brand-500 text-zinc-950 shadow-glow'
+                : 'text-zinc-300 hover:text-white hover:bg-surface-200'
+            }`}
+          >
+            <BarChart3 className="w-4 h-4 text-emerald-400" />
+            <span>Workout Telemetry {logsCount > 0 ? `(${logsCount})` : ''}</span>
+          </button>
+        )}
 
-        <button
-          type="button"
-          id="fitness-tab-exercise-db"
-          onClick={() => setActiveSubTab('exercise_db')}
-          className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0 ${
-            activeSubTab === 'exercise_db'
-              ? 'bg-brand-500 text-zinc-950 shadow-glow'
-              : 'text-zinc-300 hover:text-white hover:bg-surface-200'
-          }`}
-        >
-          <Library className="w-4 h-4" />
-          <span>Exercise Database</span>
-        </button>
+        {!isSimple && (
+          <button
+            type="button"
+            id="fitness-tab-exercise-db"
+            onClick={() => setActiveSubTab('exercise_db')}
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0 ${
+              activeSubTab === 'exercise_db'
+                ? 'bg-brand-500 text-zinc-950 shadow-glow'
+                : 'text-zinc-300 hover:text-white hover:bg-surface-200'
+            }`}
+          >
+            <Library className="w-4 h-4" />
+            <span>Exercise Matrix</span>
+          </button>
+        )}
 
         <button
           type="button"
@@ -152,36 +156,40 @@ export const WorkoutGenerator: React.FC = () => {
           }`}
         >
           <Boxes className="w-4 h-4" />
-          <span>Equipment Inventory {ownedCount > 0 ? `(${ownedCount})` : '(0)'}</span>
+          <span>{isSimple ? 'My Available Equipment' : `Equipment Inventory (${ownedCount})`}</span>
         </button>
 
-        <button
-          type="button"
-          id="fitness-tab-plate-calc"
-          onClick={() => setActiveSubTab('plate_calc')}
-          className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0 ${
-            activeSubTab === 'plate_calc'
-              ? 'bg-brand-500 text-zinc-950 shadow-glow'
-              : 'text-zinc-300 hover:text-white hover:bg-surface-200'
-          }`}
-        >
-          <Scale className="w-4 h-4 text-accent-cyan" />
-          <span>Weight Plates & Barbell Loader</span>
-        </button>
+        {!isSimple && (
+          <button
+            type="button"
+            id="fitness-tab-plate-calc"
+            onClick={() => setActiveSubTab('plate_calc')}
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0 ${
+              activeSubTab === 'plate_calc'
+                ? 'bg-brand-500 text-zinc-950 shadow-glow'
+                : 'text-zinc-300 hover:text-white hover:bg-surface-200'
+            }`}
+          >
+            <Scale className="w-4 h-4 text-accent-cyan" />
+            <span>Olympic Barbell Plate Math</span>
+          </button>
+        )}
 
-        <button
-          type="button"
-          id="fitness-tab-hiit"
-          onClick={() => setActiveSubTab('hiit')}
-          className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0 ${
-            activeSubTab === 'hiit'
-              ? 'bg-brand-500 text-zinc-950 shadow-glow'
-              : 'text-zinc-300 hover:text-white hover:bg-surface-200'
-          }`}
-        >
-          <Flame className="w-4 h-4 text-amber-400" />
-          <span>HIIT Timer</span>
-        </button>
+        {!isSimple && (
+          <button
+            type="button"
+            id="fitness-tab-hiit"
+            onClick={() => setActiveSubTab('hiit')}
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0 ${
+              activeSubTab === 'hiit'
+                ? 'bg-brand-500 text-zinc-950 shadow-glow'
+                : 'text-zinc-300 hover:text-white hover:bg-surface-200'
+            }`}
+          >
+            <Timer className="w-4 h-4 text-rose-400" />
+            <span>HIIT & Tabata Telemetry</span>
+          </button>
+        )}
       </div>
 
       {/* =====================================================================
