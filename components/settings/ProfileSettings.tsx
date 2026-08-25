@@ -212,6 +212,16 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'Beta 2.6.0',
+      date: '2026-08-25',
+      title: 'Massive Recipe Expansion & Sub-Category Architecture',
+      changes: [
+        'Comprehensive Recipe Library: Massively expanded the recipe database across all categories, adding dozens of chef-crafted, high-protein, whole food meals.',
+        'Interactive Sub-Category Filtering: Introduced dynamic sub-categories (Eggs & Scrambles, Oats & Pancakes, Smoothies & Bowls, Power Bowls, Wraps & Pockets, Crisp Salads, Soups & Chilis, Poultry, Steaks & Sirloin, Seafood & Fish, Pastas, Sheet-Pan Preps, Slow Cooker, Casseroles, Protein Bars & Bites, Sweet Treats, and Savory Crunches) with dedicated badge counts.',
+        'Full Ingredient Scaler & Print Integration: All new recipes seamlessly integrate with the batch scaler (1x-6x), 1-tap grocery list sync, 1-tap meal logging, and 4" x 6" card / 8.5" x 11" letter print studio.',
+      ],
+    },
+    {
       version: 'Beta 2.5.4',
       date: '2026-08-25',
       title: 'Removed Duplicate Recipe View and Unified Print Preview Canvas',
@@ -1320,7 +1330,7 @@ export const ProfileSettings: React.FC = () => {
             title="Click to open release changelog modal window"
           >
             <span className="w-2 h-2 rounded-full bg-brand-400 animate-pulse"></span>
-            <span>Active: Beta 2.5.4</span>
+            <span>Active: Beta 2.6.0</span>
             <ChevronRight className="w-3.5 h-3.5 text-brand-400 group-hover:translate-x-0.5 transition-transform" />
           </button>
         </div>

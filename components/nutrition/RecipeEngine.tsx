@@ -2,8 +2,8 @@
 
 import React, { useState, useMemo } from 'react';
 import { useHealth } from '@/context/HealthContext';
-import { RecipeItem, RecipeCategory, FoodItem, UnitPreference } from '@/lib/types';
-import { COMPREHENSIVE_RECIPE_DATABASE } from '@/lib/recipe-database';
+import { RecipeItem, RecipeCategory, RecipeSubCategory, FoodItem, UnitPreference } from '@/lib/types';
+import { COMPREHENSIVE_RECIPE_DATABASE, RECIPE_SUB_CATEGORIES } from '@/lib/recipe-database';
 import { CustomRecipeModal } from './CustomRecipeModal';
 import {
   UtensilsCrossed,
@@ -24,6 +24,8 @@ import {
   Sparkles,
   CreditCard,
   FileText,
+  Filter,
+  Tag,
 } from 'lucide-react';
 
 interface RecipeEngineProps {
@@ -52,8 +54,9 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
   // If used as modal and closed, return null
   if (isModal && !isOpen) return null;
 
-  // State
+  // Category & Subcategory State
   const [selectedCategory, setSelectedCategory] = useState<RecipeCategory>('all');
+  const [selectedSubCategory, setSelectedSubCategory] = useState<RecipeSubCategory | 'all'>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
   
   // Selected recipe for 100% Inline Detail View
@@ -80,19 +83,45 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
     return [...customRecipes, ...COMPREHENSIVE_RECIPE_DATABASE];
   }, [customRecipes]);
 
+  // Available subcategories based on active category
+  const availableSubCategories = useMemo(() => {
+    if (selectedCategory === 'all') {
+      return RECIPE_SUB_CATEGORIES;
+    }
+    return RECIPE_SUB_CATEGORIES.filter((sub) => sub.category === selectedCategory);
+  }, [selectedCategory]);
+
   // Filtered recipes
   const filteredRecipes = useMemo(() => {
     return allRecipes.filter((recipe) => {
       const matchesCat =
         selectedCategory === 'all' || recipe.category === selectedCategory;
+      const matchesSubCat =
+        selectedSubCategory === 'all' || recipe.sub_category === selectedSubCategory;
       const matchesQuery =
         searchQuery.trim() === '' ||
         recipe.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         recipe.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        recipe.tags.some((t) => t.toLowerCase().includes(searchQuery.toLowerCase()));
-      return matchesCat && matchesQuery;
+        recipe.tags.some((t) => t.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (recipe.sub_category && recipe.sub_category.toLowerCase().includes(searchQuery.toLowerCase()));
+      return matchesCat && matchesSubCat && matchesQuery;
     });
-  }, [allRecipes, selectedCategory, searchQuery]);
+  }, [allRecipes, selectedCategory, selectedSubCategory, searchQuery]);
+
+  // Count recipes in each category
+  const getCategoryCount = (catId: RecipeCategory) => {
+    if (catId === 'all') return allRecipes.length;
+    return allRecipes.filter((r) => r.category === catId).length;
+  };
+
+  // Count recipes in each subcategory
+  const getSubCategoryCount = (subId: RecipeSubCategory | 'all') => {
+    if (subId === 'all') {
+      if (selectedCategory === 'all') return allRecipes.length;
+      return allRecipes.filter((r) => r.category === selectedCategory).length;
+    }
+    return allRecipes.filter((r) => r.sub_category === subId).length;
+  };
 
   // Trigger feedback banner
   const triggerSuccessFeedback = (recipeId: string, text: string) => {
@@ -171,11 +200,11 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
 
   const categories = [
     { id: 'all', label: 'All Recipes', emoji: '🍽️' },
-    { id: 'dinner', label: isSimple ? '15-Min Dinners' : 'Dinner Protocols', emoji: '🐟' },
-    { id: 'lunch', label: isSimple ? 'Fresh Lunches' : 'Midday Fuel', emoji: '🥗' },
-    { id: 'breakfast', label: isSimple ? 'Quick Breakfasts' : 'Morning Primers', emoji: '🥣' },
+    { id: 'breakfast', label: isSimple ? 'Breakfasts' : 'Morning Primers', emoji: '🍳' },
+    { id: 'lunch', label: isSimple ? 'Lunches & Bowls' : 'Midday Power', emoji: '🥗' },
+    { id: 'dinner', label: isSimple ? 'Dinners & Steaks' : 'Dinner Protocols', emoji: '🥩' },
     { id: 'bulk_meal_prep', label: isSimple ? 'Batch Meal Prep' : 'Bulk Batch Prep', emoji: '🍲' },
-    { id: 'snack_dessert', label: isSimple ? 'Light Treats' : 'Anabolic Snacks', emoji: '🍓' },
+    { id: 'snack_dessert', label: isSimple ? 'Snacks & Treats' : 'Anabolic Snacks', emoji: '🍓' },
   ] as const;
 
   // View: 100% INLINE Print Preview & Customization Studio
@@ -534,6 +563,11 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
             <span className="px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider bg-brand-500/15 text-brand-300 border border-brand-500/30">
               {detailRecipe.category.replace('_', ' ')}
             </span>
+            {detailRecipe.sub_category && (
+              <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-surface-300 text-brand-400 border border-surface-border">
+                {detailRecipe.sub_category.replace(/_/g, ' ')}
+              </span>
+            )}
             {detailRecipe.tags.map((tag, idx) => (
               <span
                 key={idx}
@@ -819,17 +853,21 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
         )}
       </div>
 
-      {/* Interactive Controls: Category Tabs & Search Bar */}
+      {/* Interactive Controls: Primary Category Tabs & Search Bar */}
       <div className="p-4 rounded-2xl bg-surface-100/90 border border-surface-border backdrop-blur-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         {/* Category Filter Pills */}
         <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1 sm:pb-0">
           {categories.map((cat) => {
             const isSelected = selectedCategory === cat.id;
+            const count = getCategoryCount(cat.id as any);
             return (
               <button
                 key={cat.id}
                 type="button"
-                onClick={() => setSelectedCategory(cat.id as any)}
+                onClick={() => {
+                  setSelectedCategory(cat.id as any);
+                  setSelectedSubCategory('all');
+                }}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
                   isSelected
                     ? 'bg-brand-500 text-zinc-950 shadow-glow font-bold'
@@ -838,6 +876,11 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
               >
                 <span>{cat.emoji}</span>
                 <span>{cat.label}</span>
+                <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono ${
+                  isSelected ? 'bg-zinc-950/20 text-zinc-950' : 'bg-surface-300 text-zinc-500'
+                }`}>
+                  {count}
+                </span>
               </button>
             );
           })}
@@ -850,7 +893,7 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search ingredients, title..."
+            placeholder="Search ingredients, subcategory..."
             className="w-full pl-9 pr-8 py-2 rounded-xl bg-surface-200/80 border border-surface-border text-xs text-zinc-100 placeholder:text-zinc-500 focus:outline-none focus:border-brand-500/50"
           />
           {searchQuery && (
@@ -863,6 +906,54 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
           )}
         </div>
       </div>
+
+      {/* Sub-Category Filter Shelf */}
+      {availableSubCategories.length > 0 && (
+        <div className="p-3.5 rounded-2xl bg-surface-200/50 border border-surface-border/80 flex items-center gap-2 overflow-x-auto no-scrollbar">
+          <span className="text-[11px] font-bold uppercase tracking-wider text-zinc-400 flex items-center gap-1 shrink-0 pl-1">
+            <Filter className="w-3 h-3 text-brand-400" />
+            <span>Sub-Categories:</span>
+          </span>
+
+          <button
+            type="button"
+            onClick={() => setSelectedSubCategory('all')}
+            className={`px-3 py-1 rounded-xl text-xs font-medium transition-all whitespace-nowrap cursor-pointer shrink-0 ${
+              selectedSubCategory === 'all'
+                ? 'bg-brand-500 text-zinc-950 font-bold shadow-sm'
+                : 'bg-surface-300/80 text-zinc-400 hover:text-foreground hover:bg-surface-300'
+            }`}
+          >
+            All {selectedCategory !== 'all' ? selectedCategory.replace(/_/g, ' ') : ''} ({getSubCategoryCount('all')})
+          </button>
+
+          {availableSubCategories.map((sub) => {
+            const isSubSelected = selectedSubCategory === sub.id;
+            const subCount = getSubCategoryCount(sub.id);
+            return (
+              <button
+                key={sub.id}
+                type="button"
+                onClick={() => setSelectedSubCategory(sub.id)}
+                className={`flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs transition-all whitespace-nowrap cursor-pointer shrink-0 ${
+                  isSubSelected
+                    ? 'bg-brand-500 text-zinc-950 font-bold shadow-sm'
+                    : 'bg-surface-300/80 text-zinc-400 hover:text-foreground hover:bg-surface-300'
+                }`}
+                title={sub.description}
+              >
+                <span>{sub.emoji}</span>
+                <span>{sub.name}</span>
+                <span className={`text-[10px] px-1 rounded-full font-mono ${
+                  isSubSelected ? 'bg-zinc-950/20 text-zinc-950' : 'bg-surface-200 text-zinc-500'
+                }`}>
+                  {subCount}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      )}
 
       {/* Action Toast Feedback Banner */}
       {actionSuccessMsg && (
@@ -889,170 +980,181 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
             <p className="text-xs text-zinc-500 mt-1">Try clearing filters or search query.</p>
           </div>
         ) : (
-          filteredRecipes.map((recipe) => (
-            <div
-              key={recipe.id}
-              className="rounded-3xl bg-surface-100/90 border border-surface-border p-5 flex flex-col justify-between hover:border-brand-500/40 transition-all group"
-            >
-              <div>
-                {/* Card Top Row: Emoji, Category, Times */}
-                <div className="flex items-start justify-between gap-2 mb-3">
-                  <div className="flex items-center gap-2">
-                    <span className="text-2xl p-2 rounded-2xl bg-surface-200 border border-surface-border">
-                      {recipe.icon_emoji || '🍽️'}
-                    </span>
-                    <div>
-                      <span className="text-[10px] font-bold uppercase font-mono tracking-wider text-brand-400 bg-brand-500/10 px-2 py-0.5 rounded-full border border-brand-500/20">
-                        {recipe.category.replace('_', ' ')}
+          filteredRecipes.map((recipe) => {
+            const subMeta = RECIPE_SUB_CATEGORIES.find((s) => s.id === recipe.sub_category);
+
+            return (
+              <div
+                key={recipe.id}
+                className="rounded-3xl bg-surface-100/90 border border-surface-border p-5 flex flex-col justify-between hover:border-brand-500/40 transition-all group"
+              >
+                <div>
+                  {/* Card Top Row: Emoji, Category, Times */}
+                  <div className="flex items-start justify-between gap-2 mb-3">
+                    <div className="flex items-center gap-2">
+                      <span className="text-2xl p-2 rounded-2xl bg-surface-200 border border-surface-border">
+                        {recipe.icon_emoji || '🍽️'}
                       </span>
-                      <div className="flex items-center gap-1.5 text-[11px] text-zinc-400 font-mono mt-1">
-                        <Clock className="w-3 h-3 text-zinc-500" />
-                        <span>{recipe.prep_time_minutes + recipe.cook_time_minutes} min</span>
+                      <div>
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <span className="text-[10px] font-bold uppercase font-mono tracking-wider text-brand-400 bg-brand-500/10 px-2 py-0.5 rounded-full border border-brand-500/20">
+                            {recipe.category.replace('_', ' ')}
+                          </span>
+                          {subMeta && (
+                            <span className="text-[10px] font-medium text-zinc-400 bg-surface-200 px-1.5 py-0.5 rounded-full border border-surface-border">
+                              {subMeta.emoji} {subMeta.name}
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-1.5 text-[11px] text-zinc-400 font-mono mt-1">
+                          <Clock className="w-3 h-3 text-zinc-500" />
+                          <span>{recipe.prep_time_minutes + recipe.cook_time_minutes} min</span>
+                        </div>
                       </div>
+                    </div>
+
+                    <div className="text-right">
+                      <div className="text-xs font-mono font-bold text-brand-400">
+                        {recipe.calories_per_serving} kcal
+                      </div>
+                      <span className="text-[10px] text-zinc-400">per serving</span>
                     </div>
                   </div>
 
-                  <div className="text-right">
-                    <div className="text-xs font-mono font-bold text-brand-400">
-                      {recipe.calories_per_serving} kcal
+                  {/* Title & Description */}
+                  <h3
+                    onClick={() => setSelectedRecipeDetail(recipe)}
+                    className="text-base font-bold text-white group-hover:text-brand-300 transition-colors leading-snug line-clamp-1 cursor-pointer"
+                    title="Click to view recipe details"
+                  >
+                    {recipe.title}
+                  </h3>
+                  <p className="text-xs text-zinc-400 mt-1 line-clamp-2 leading-relaxed">
+                    {recipe.description}
+                  </p>
+
+                  {/* Macro Badges for Athlete Mode */}
+                  {!isSimple && (
+                    <div className="mt-3 p-2 rounded-xl bg-surface-200/60 border border-surface-border/60">
+                      <div className="grid grid-cols-3 gap-2 text-center text-[11px] font-mono">
+                        <div className="p-1 rounded-lg bg-surface-300">
+                          <span className="text-brand-400 font-bold">{recipe.protein_g_per_serving}g</span>
+                          <span className="text-zinc-400 block text-[9px]">Protein</span>
+                        </div>
+                        <div className="p-1 rounded-lg bg-surface-300">
+                          <span className="text-cyan-400 font-bold">{recipe.carbs_g_per_serving}g</span>
+                          <span className="text-zinc-400 block text-[9px]">Carbs</span>
+                        </div>
+                        <div className="p-1 rounded-lg bg-surface-300">
+                          <span className="text-amber-400 font-bold">{recipe.fat_g_per_serving}g</span>
+                          <span className="text-zinc-400 block text-[9px]">Fats</span>
+                        </div>
+                      </div>
                     </div>
-                    <span className="text-[10px] text-zinc-400">per serving</span>
+                  )}
+
+                  {/* Traditional Ingredients Preview */}
+                  <div className="mt-4 space-y-1.5">
+                    <div className="text-xs font-bold text-zinc-300 flex items-center justify-between">
+                      <span>Key Ingredients:</span>
+                      <span className="text-[10px] text-brand-400 font-normal">
+                        {recipe.ingredients.length} items
+                      </span>
+                    </div>
+
+                    <div className="space-y-1 text-xs">
+                      {recipe.ingredients.slice(0, 3).map((ing, idx) => {
+                        const rawMeasure = isImperial ? ing.amount_imperial : ing.amount_metric;
+                        return (
+                          <div
+                            key={idx}
+                            className="p-1.5 px-2.5 rounded-xl bg-surface-200/50 border border-surface-border/60 flex items-center justify-between"
+                          >
+                            <span className="text-zinc-300 truncate">{ing.name}</span>
+                            <span className="font-mono font-bold text-brand-300 text-[11px] shrink-0">
+                              {rawMeasure}
+                            </span>
+                          </div>
+                        );
+                      })}
+                      {recipe.ingredients.length > 3 && (
+                        <div
+                          onClick={() => setSelectedRecipeDetail(recipe)}
+                          className="text-[11px] text-brand-400 hover:underline cursor-pointer pt-0.5 text-center font-medium"
+                        >
+                          + {recipe.ingredients.length - 3} more ingredients (View Recipe)
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
 
-                {/* Title & Description */}
-                <h3
-                  onClick={() => setSelectedRecipeDetail(recipe)}
-                  className="text-base font-bold text-white group-hover:text-brand-300 transition-colors leading-snug line-clamp-1 cursor-pointer"
-                  title="Click to view recipe details"
-                >
-                  {recipe.title}
-                </h3>
-                <p className="text-xs text-zinc-400 mt-1 line-clamp-2 leading-relaxed">
-                  {recipe.description}
-                </p>
+                {/* Card Bottom Actions */}
+                <div className="pt-3 border-t border-surface-border/80 flex flex-col sm:flex-row items-center justify-between gap-2 mt-4">
+                  {/* View Recipe Button (100% Inline Detail Transition) */}
+                  <button
+                    type="button"
+                    onClick={() => setSelectedRecipeDetail(recipe)}
+                    className="text-xs font-bold text-brand-400 hover:text-brand-300 flex items-center gap-1 cursor-pointer self-start sm:self-auto py-1"
+                  >
+                    <BookOpen className="w-3.5 h-3.5" />
+                    <span>View Recipe</span>
+                  </button>
 
-                {/* Macro Badges for Athlete Mode */}
-                {!isSimple && (
-                  <div className="mt-3 p-2 rounded-xl bg-surface-200/60 border border-surface-border/60">
-                    <div className="grid grid-cols-3 gap-2 text-center text-[11px] font-mono">
-                      <div className="p-1 rounded-lg bg-surface-300">
-                        <span className="text-brand-400 font-bold">{recipe.protein_g_per_serving}g</span>
-                        <span className="text-zinc-400 block text-[9px]">Protein</span>
-                      </div>
-                      <div className="p-1 rounded-lg bg-surface-300">
-                        <span className="text-cyan-400 font-bold">{recipe.carbs_g_per_serving}g</span>
-                        <span className="text-zinc-400 block text-[9px]">Carbs</span>
-                      </div>
-                      <div className="p-1 rounded-lg bg-surface-300">
-                        <span className="text-amber-400 font-bold">{recipe.fat_g_per_serving}g</span>
-                        <span className="text-zinc-400 block text-[9px]">Fats</span>
-                      </div>
-                    </div>
-                  </div>
-                )}
+                  <div className="flex items-center gap-2 w-full sm:w-auto">
+                    {/* Print Recipe Button (Opens Print Preview Studio) */}
+                    <button
+                      type="button"
+                      onClick={() => handleOpenPrintPreview(recipe, 1)}
+                      className="px-3 py-2 rounded-xl bg-surface-200 hover:bg-surface-300 border border-surface-border text-xs font-bold text-zinc-300 hover:text-white flex items-center justify-center gap-1.5 transition-all active:scale-95 cursor-pointer"
+                      title="Print 4x6 Index Card or Standard Letter Sheet"
+                    >
+                      <Printer className="w-3.5 h-3.5 text-brand-400" />
+                      <span>Print Card</span>
+                    </button>
 
-                {/* Traditional Ingredients Preview */}
-                <div className="mt-4 space-y-1.5">
-                  <div className="text-xs font-bold text-zinc-300 flex items-center justify-between">
-                    <span>Key Ingredients:</span>
-                    <span className="text-[10px] text-brand-400 font-normal">
-                      {recipe.ingredients.length} items
-                    </span>
-                  </div>
+                    {/* Add to Shopping List Button */}
+                    <button
+                      type="button"
+                      onClick={() => handleSyncGrocery(recipe, !isSimple ? batchMultiplier : 1)}
+                      className="flex-1 sm:flex-none px-3 py-2 rounded-xl bg-surface-200 hover:bg-surface-300 border border-surface-border text-xs font-bold text-zinc-200 flex items-center justify-center gap-1.5 transition-all active:scale-95 cursor-pointer"
+                      title="Add all ingredients to shopping list"
+                    >
+                      <ShoppingCart className="w-3.5 h-3.5 text-accent-cyan" />
+                      <span>+ Grocery List</span>
+                    </button>
 
-                  <div className="space-y-1 text-xs">
-                    {recipe.ingredients.slice(0, 3).map((ing, idx) => {
-                      const rawMeasure = isImperial ? ing.amount_imperial : ing.amount_metric;
-                      return (
-                        <div
-                          key={idx}
-                          className="p-1.5 px-2.5 rounded-xl bg-surface-200/50 border border-surface-border/60 flex items-center justify-between"
-                        >
-                          <span className="text-zinc-300 truncate">{ing.name}</span>
-                          <span className="font-mono font-bold text-brand-300 text-[11px] shrink-0">
-                            {rawMeasure}
-                          </span>
-                        </div>
-                      );
-                    })}
-                    {recipe.ingredients.length > 3 && (
-                      <div
-                        onClick={() => setSelectedRecipeDetail(recipe)}
-                        className="text-[11px] text-brand-400 hover:underline cursor-pointer pt-0.5 text-center font-medium"
+                    {/* Simple Mode: 1-Tap Cooked This Meal */}
+                    {isSimple ? (
+                      <button
+                        type="button"
+                        onClick={() => handleLogRecipe(recipe, 1)}
+                        className="flex-1 sm:flex-none px-4 py-2 rounded-xl bg-brand-500 hover:bg-brand-400 text-zinc-950 text-xs font-bold shadow-glow transition-all active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer"
                       >
-                        + {recipe.ingredients.length - 3} more ingredients (View Recipe)
+                        <UtensilsCrossed className="w-3.5 h-3.5 stroke-[2.5]" />
+                        <span>Cooked!</span>
+                      </button>
+                    ) : (
+                      /* Athlete Mode: Log to Meal Slot Selection */
+                      <div className="flex items-center gap-1 bg-surface-200 p-1 rounded-xl border border-surface-border">
+                        {[1, 2, 3].map((slot) => (
+                          <button
+                            key={slot}
+                            type="button"
+                            onClick={() => handleLogRecipe(recipe, slot)}
+                            className="px-2.5 py-1 rounded-lg bg-surface-300 hover:bg-brand-500 hover:text-zinc-950 text-brand-300 text-[11px] font-mono font-bold transition-all active:scale-95 cursor-pointer"
+                            title={`Log 1 serving to Meal ${slot}`}
+                          >
+                            + M{slot}
+                          </button>
+                        ))}
                       </div>
                     )}
                   </div>
                 </div>
               </div>
-
-              {/* Card Bottom Actions */}
-              <div className="pt-3 border-t border-surface-border/80 flex flex-col sm:flex-row items-center justify-between gap-2 mt-4">
-                {/* View Recipe Button (100% Inline Detail Transition) */}
-                <button
-                  type="button"
-                  onClick={() => setSelectedRecipeDetail(recipe)}
-                  className="text-xs font-bold text-brand-400 hover:text-brand-300 flex items-center gap-1 cursor-pointer self-start sm:self-auto py-1"
-                >
-                  <BookOpen className="w-3.5 h-3.5" />
-                  <span>View Recipe</span>
-                </button>
-
-                <div className="flex items-center gap-2 w-full sm:w-auto">
-                  {/* Print Recipe Button (Opens Print Preview Studio) */}
-                  <button
-                    type="button"
-                    onClick={() => handleOpenPrintPreview(recipe, 1)}
-                    className="px-3 py-2 rounded-xl bg-surface-200 hover:bg-surface-300 border border-surface-border text-xs font-bold text-zinc-300 hover:text-white flex items-center justify-center gap-1.5 transition-all active:scale-95 cursor-pointer"
-                    title="Print 4x6 Index Card or Standard Letter Sheet"
-                  >
-                    <Printer className="w-3.5 h-3.5 text-brand-400" />
-                    <span>Print Card</span>
-                  </button>
-
-                  {/* Add to Shopping List Button */}
-                  <button
-                    type="button"
-                    onClick={() => handleSyncGrocery(recipe, !isSimple ? batchMultiplier : 1)}
-                    className="flex-1 sm:flex-none px-3 py-2 rounded-xl bg-surface-200 hover:bg-surface-300 border border-surface-border text-xs font-bold text-zinc-200 flex items-center justify-center gap-1.5 transition-all active:scale-95 cursor-pointer"
-                    title="Add all ingredients to shopping list"
-                  >
-                    <ShoppingCart className="w-3.5 h-3.5 text-accent-cyan" />
-                    <span>+ Grocery List</span>
-                  </button>
-
-                  {/* Simple Mode: 1-Tap Cooked This Meal */}
-                  {isSimple ? (
-                    <button
-                      type="button"
-                      onClick={() => handleLogRecipe(recipe, 1)}
-                      className="flex-1 sm:flex-none px-4 py-2 rounded-xl bg-brand-500 hover:bg-brand-400 text-zinc-950 text-xs font-bold shadow-glow transition-all active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer"
-                    >
-                      <UtensilsCrossed className="w-3.5 h-3.5 stroke-[2.5]" />
-                      <span>Cooked!</span>
-                    </button>
-                  ) : (
-                    /* Athlete Mode: Log to Meal Slot Selection */
-                    <div className="flex items-center gap-1 bg-surface-200 p-1 rounded-xl border border-surface-border">
-                      {[1, 2, 3].map((slot) => (
-                        <button
-                          key={slot}
-                          type="button"
-                          onClick={() => handleLogRecipe(recipe, slot)}
-                          className="px-2.5 py-1 rounded-lg bg-surface-300 hover:bg-brand-500 hover:text-zinc-950 text-brand-300 text-[11px] font-mono font-bold transition-all active:scale-95 cursor-pointer"
-                          title={`Log 1 serving to Meal ${slot}`}
-                        >
-                          + M{slot}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          ))
+            );
+          })
         )}
       </div>
 

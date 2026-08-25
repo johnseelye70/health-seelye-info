@@ -431,6 +431,40 @@ export type RecipeCategory =
   | 'snack_dessert'
   | 'bulk_meal_prep';
 
+export type RecipeSubCategory =
+  // Breakfast
+  | 'high_protein_eggs'
+  | 'oats_pancakes'
+  | 'smoothies_bowls'
+  | 'quick_grab_go'
+  // Lunch
+  | 'power_bowls'
+  | 'wraps_sandwiches'
+  | 'fresh_salads'
+  | 'soups_chilis'
+  // Dinner
+  | 'poultry_dishes'
+  | 'beef_steaks'
+  | 'seafood_fish'
+  | 'pasta_comfort'
+  // Bulk Meal Prep
+  | 'sheet_pan_meals'
+  | 'slow_cooker_instant_pot'
+  | 'casseroles_bakes'
+  | 'prepped_proteins_sides'
+  // Snacks & Desserts
+  | 'protein_bites_bars'
+  | 'sweet_treats'
+  | 'savory_crunch';
+
+export interface RecipeSubCategoryMeta {
+  id: RecipeSubCategory;
+  category: RecipeCategory;
+  name: string;
+  emoji: string;
+  description: string;
+}
+
 export interface RecipeIngredient {
   food_id?: string;
   name: string;
@@ -446,6 +480,7 @@ export interface RecipeItem {
   title: string;
   description: string;
   category: 'breakfast' | 'lunch' | 'dinner' | 'snack_dessert' | 'bulk_meal_prep';
+  sub_category?: RecipeSubCategory;
   prep_time_minutes: number;
   cook_time_minutes: number;
   servings_yield: number;
