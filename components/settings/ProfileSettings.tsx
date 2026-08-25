@@ -212,6 +212,15 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'Beta 2.5.4',
+      date: '2026-08-25',
+      title: 'Removed Duplicate Recipe View and Unified Print Preview Canvas',
+      changes: [
+        'Eliminated Duplicate Recipe View: Completely removed the broken, cut-off second recipe markup rendered below the visual preview, delivering a single, pristine on-screen preview card.',
+        'Unified Screen & Paper Canvas: Merged the on-screen preview and physical print target into a single high-fidelity component with exact 4" x 6" and 8.5" x 11" paper boundaries.',
+      ],
+    },
+    {
       version: 'Beta 2.5.3',
       date: '2026-08-25',
       title: 'Dedicated Recipe Print Preview Studio & Isolated Card Canvas',
@@ -1311,7 +1320,7 @@ export const ProfileSettings: React.FC = () => {
             title="Click to open release changelog modal window"
           >
             <span className="w-2 h-2 rounded-full bg-brand-400 animate-pulse"></span>
-            <span>Active: Beta 2.5.3</span>
+            <span>Active: Beta 2.5.4</span>
             <ChevronRight className="w-3.5 h-3.5 text-brand-400 group-hover:translate-x-0.5 transition-transform" />
           </button>
         </div>

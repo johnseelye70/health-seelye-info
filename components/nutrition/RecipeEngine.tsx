@@ -309,37 +309,38 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
           </div>
         </div>
 
-        {/* Live On-Screen Visual Paper Preview */}
+        {/* Live On-Screen Visual Paper Preview & Print Canvas */}
         <div className="space-y-2">
-          <div className="flex items-center justify-between text-xs font-bold text-zinc-400 px-1">
+          <div className="flex items-center justify-between text-xs font-bold text-zinc-400 px-1 no-print">
             <span>Visual Preview ({is4x6 ? '4" x 6" Kitchen Index Card' : '8.5" x 11" Standard Sheet'}):</span>
             <span className="text-brand-400 font-mono">100% Ink-Friendly Paper Layout</span>
           </div>
 
           <div className="p-4 sm:p-8 bg-zinc-900/90 rounded-3xl border border-surface-border flex justify-center overflow-x-auto">
-            {/* Visual Card / Letter Component */}
+            {/* Single Unified Target for Screen Preview and Physical Print */}
             <div
+              id="recipe-print-canvas"
               className={`bg-white text-black font-sans shadow-2xl transition-all ${
                 is4x6
-                  ? 'w-full max-w-[620px] p-5 border-2 border-black rounded-lg text-[11px]'
-                  : 'w-full max-w-[760px] p-8 border border-zinc-300 rounded-lg text-xs'
+                  ? 'w-full max-w-[600px] p-5 border-2 border-black rounded-lg text-[11px] print-canvas-4x6'
+                  : 'w-full max-w-[760px] p-8 border border-zinc-300 rounded-lg text-xs print-canvas-letter'
               }`}
             >
               {/* Header */}
-              <div className="border-b-2 border-black pb-2 mb-3 flex items-start justify-between gap-3">
+              <div className="border-b-2 border-black pb-2 mb-3 flex items-start justify-between gap-3 print-avoid-break">
                 <div>
                   <div className="text-[9px] uppercase font-bold tracking-widest text-zinc-600">
                     SEELYE FAMILY HEALTH • WHOLESOME RECIPES
                   </div>
-                  <h3 className="text-lg font-black text-black leading-tight mt-0.5">
+                  <h3 className={`${is4x6 ? 'text-base' : 'text-xl'} font-black text-black leading-tight mt-0.5`}>
                     {printRecipe.title}
                   </h3>
-                  <p className="text-[10px] text-zinc-700 italic mt-0.5">
+                  <p className="text-[10px] text-zinc-700 italic mt-0.5 max-w-xl">
                     {printRecipe.description}
                   </p>
                 </div>
                 <div className="text-right shrink-0 border-l border-black pl-3">
-                  <div className="text-sm font-black text-black">
+                  <div className={`${is4x6 ? 'text-sm' : 'text-base'} font-black text-black`}>
                     {totalCals} kcal
                   </div>
                   <div className="text-[9px] text-zinc-600 font-mono">
@@ -355,7 +356,7 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
               {is4x6 ? (
                 <div className="grid grid-cols-5 gap-4 text-[10.5px]">
                   {/* Left Column: Ingredients & Macros */}
-                  <div className="col-span-2 space-y-2">
+                  <div className="col-span-2 space-y-2 print-avoid-break">
                     <div className="font-bold uppercase text-[10px] border-b border-black pb-0.5">
                       Ingredients {printMultiplier > 1 ? `(${printMultiplier}x)` : ''}
                     </div>
@@ -391,7 +392,7 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
                   </div>
 
                   {/* Right Column: Directions */}
-                  <div className="col-span-3 space-y-2">
+                  <div className="col-span-3 space-y-2 print-avoid-break">
                     <div className="font-bold uppercase text-[10px] border-b border-black pb-0.5">
                       Preparation & Directions
                     </div>
@@ -415,14 +416,14 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
                 /* Letter Full Sheet Layout */
                 <div className="space-y-4 text-xs">
                   {/* Macro Summary */}
-                  <div className="p-2 border border-black flex justify-around text-xs font-mono">
+                  <div className="p-2 border border-black flex justify-around text-xs font-mono print-avoid-break">
                     <div><strong>Protein:</strong> {printRecipe.protein_g_per_serving}g</div>
                     <div><strong>Carbohydrates:</strong> {printRecipe.carbs_g_per_serving}g</div>
                     <div><strong>Fats:</strong> {printRecipe.fat_g_per_serving}g</div>
                   </div>
 
                   {/* Ingredients Section */}
-                  <div className="space-y-1.5">
+                  <div className="space-y-1.5 print-avoid-break">
                     <div className="font-bold uppercase text-xs border-b border-black pb-0.5">
                       Ingredients {printMultiplier > 1 ? `(${printMultiplier}x Batch)` : ''}
                     </div>
@@ -455,12 +456,12 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
 
                   {/* Directions Section */}
                   <div className="space-y-1.5">
-                    <div className="font-bold uppercase text-xs border-b border-black pb-0.5">
+                    <div className="font-bold uppercase text-xs border-b border-black pb-0.5 print-avoid-break">
                       Preparation & Directions
                     </div>
                     <ol className="space-y-2 pt-1">
                       {printRecipe.instructions.map((step, sIdx) => (
-                        <li key={sIdx} className="flex gap-2 text-xs leading-relaxed">
+                        <li key={sIdx} className="flex gap-2 text-xs leading-relaxed print-avoid-break">
                           <span className="font-bold font-mono shrink-0">{sIdx + 1}.</span>
                           <span>{step}</span>
                         </li>
@@ -468,7 +469,7 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
                     </ol>
 
                     {printRecipe.chef_notes && (
-                      <div className="mt-3 p-2.5 border border-black text-xs italic">
+                      <div className="mt-3 p-2.5 border border-black text-xs italic print-avoid-break">
                         <strong>Chef's Technique & Advice:</strong> {printRecipe.chef_notes}
                       </div>
                     )}
@@ -477,172 +478,10 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
               )}
 
               {/* Card Footer */}
-              <div className="mt-4 pt-1.5 border-t border-zinc-400 text-[8px] font-mono text-zinc-600 flex justify-between">
+              <div className="mt-4 pt-1.5 border-t border-zinc-400 text-[8px] font-mono text-zinc-600 flex justify-between print-avoid-break">
                 <span>health.seelye.info</span>
                 <span>{is4x6 ? '4x6 Kitchen Index Card Format' : '8.5x11 Standard Letter Format'}</span>
               </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Dedicated Hidden Print Canvas for window.print() */}
-        <div id="recipe-print-canvas" className={is4x6 ? 'print-canvas-4x6' : 'print-canvas-letter'}>
-          <div className="bg-white text-black font-sans">
-            {/* Header */}
-            <div className="border-b-2 border-black pb-2 mb-2 flex items-start justify-between gap-3 print-avoid-break">
-              <div>
-                <div className="text-[9px] uppercase font-bold tracking-widest text-zinc-700">
-                  SEELYE FAMILY HEALTH • WHOLESOME RECIPES
-                </div>
-                <h1 className={`${is4x6 ? 'text-base' : 'text-xl'} font-black text-black leading-tight mt-0.5`}>
-                  {printRecipe.title}
-                </h1>
-                <p className="text-[10px] text-zinc-700 italic mt-0.5">
-                  {printRecipe.description}
-                </p>
-              </div>
-              <div className="text-right shrink-0 border-l border-black pl-3">
-                <div className={`${is4x6 ? 'text-xs' : 'text-sm'} font-black text-black`}>
-                  {totalCals} kcal
-                </div>
-                <div className="text-[9px] text-zinc-600 font-mono">
-                  Prep: {printRecipe.prep_time_minutes}m • Cook: {printRecipe.cook_time_minutes}m
-                </div>
-                <div className="text-[9px] font-bold text-black">
-                  Yield: {printRecipe.servings_yield * printMultiplier} portion{printRecipe.servings_yield * printMultiplier > 1 ? 's' : ''}
-                </div>
-              </div>
-            </div>
-
-            {/* 4x6 Pure Print Output */}
-            {is4x6 ? (
-              <div className="grid grid-cols-5 gap-3 text-[10px]">
-                {/* Left Column: Ingredients & Macros */}
-                <div className="col-span-2 space-y-1.5 print-avoid-break">
-                  <div className="font-bold uppercase text-[9.5px] border-b border-black pb-0.5">
-                    Ingredients {printMultiplier > 1 ? `(${printMultiplier}x)` : ''}
-                  </div>
-                  <ul className="space-y-1">
-                    {printRecipe.ingredients.map((ing, idx) => {
-                      const rawMeasure = isPrintImperial ? ing.amount_imperial : ing.amount_metric;
-                      let displayMeasure = rawMeasure;
-
-                      if (printMultiplier > 1 && ing.raw_weight_grams_base) {
-                        const totalGrams = ing.raw_weight_grams_base * printMultiplier;
-                        const totalOz = (totalGrams * 0.03527).toFixed(1);
-                        displayMeasure = isPrintImperial
-                          ? `${totalOz} oz (${totalGrams}g)`
-                          : `${totalGrams}g`;
-                      } else if (printMultiplier > 1) {
-                        displayMeasure = `${printMultiplier}x (${rawMeasure})`;
-                      }
-
-                      return (
-                        <li key={idx} className="flex items-start gap-1 leading-tight">
-                          <span className="inline-block w-2.5 h-2.5 border border-black rounded-none mt-0.5 shrink-0"></span>
-                          <span>
-                            <strong>{displayMeasure}</strong> {ing.name}
-                          </span>
-                        </li>
-                      );
-                    })}
-                  </ul>
-
-                  <div className="p-1 border border-black text-[8.5px] font-mono mt-1.5">
-                    <strong>Macros:</strong> {printRecipe.protein_g_per_serving}g P • {printRecipe.carbs_g_per_serving}g C • {printRecipe.fat_g_per_serving}g F
-                  </div>
-                </div>
-
-                {/* Right Column: Directions */}
-                <div className="col-span-3 space-y-1.5 print-avoid-break">
-                  <div className="font-bold uppercase text-[9.5px] border-b border-black pb-0.5">
-                    Preparation & Directions
-                  </div>
-                  <ol className="space-y-1 text-[9.5px] leading-snug">
-                    {printRecipe.instructions.map((step, sIdx) => (
-                      <li key={sIdx} className="flex gap-1">
-                        <span className="font-bold font-mono shrink-0">{sIdx + 1}.</span>
-                        <span>{step}</span>
-                      </li>
-                    ))}
-                  </ol>
-
-                  {printRecipe.chef_notes && (
-                    <div className="mt-1.5 pt-1 border-t border-zinc-400 text-[8.5px] italic">
-                      <strong>Tip:</strong> {printRecipe.chef_notes}
-                    </div>
-                  )}
-                </div>
-              </div>
-            ) : (
-              /* Letter Pure Print Output */
-              <div className="space-y-4 text-xs">
-                {/* Macro Summary */}
-                <div className="p-2 border border-black flex justify-around text-xs font-mono print-avoid-break">
-                  <div><strong>Protein:</strong> {printRecipe.protein_g_per_serving}g</div>
-                  <div><strong>Carbohydrates:</strong> {printRecipe.carbs_g_per_serving}g</div>
-                  <div><strong>Fats:</strong> {printRecipe.fat_g_per_serving}g</div>
-                </div>
-
-                {/* Ingredients Section */}
-                <div className="space-y-1.5 print-avoid-break">
-                  <div className="font-bold uppercase text-xs border-b border-black pb-0.5">
-                    Ingredients {printMultiplier > 1 ? `(${printMultiplier}x Batch)` : ''}
-                  </div>
-                  <div className="grid grid-cols-2 gap-x-4 gap-y-1 pt-1">
-                    {printRecipe.ingredients.map((ing, idx) => {
-                      const rawMeasure = isPrintImperial ? ing.amount_imperial : ing.amount_metric;
-                      let displayMeasure = rawMeasure;
-
-                      if (printMultiplier > 1 && ing.raw_weight_grams_base) {
-                        const totalGrams = ing.raw_weight_grams_base * printMultiplier;
-                        const totalOz = (totalGrams * 0.03527).toFixed(1);
-                        displayMeasure = isPrintImperial
-                          ? `${totalOz} oz (${totalGrams}g)`
-                          : `${totalGrams}g`;
-                      } else if (printMultiplier > 1) {
-                        displayMeasure = `${printMultiplier}x (${rawMeasure})`;
-                      }
-
-                      return (
-                        <div key={idx} className="flex items-start gap-2 py-0.5">
-                          <span className="inline-block w-3 h-3 border border-black rounded-none mt-0.5 shrink-0"></span>
-                          <span className="leading-snug">
-                            <strong>{displayMeasure}</strong> {ing.name}
-                          </span>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* Directions Section */}
-                <div className="space-y-1.5">
-                  <div className="font-bold uppercase text-xs border-b border-black pb-0.5 print-avoid-break">
-                    Preparation & Directions
-                  </div>
-                  <ol className="space-y-2 pt-1">
-                    {printRecipe.instructions.map((step, sIdx) => (
-                      <li key={sIdx} className="flex gap-2 text-xs leading-relaxed print-avoid-break">
-                        <span className="font-bold font-mono shrink-0">{sIdx + 1}.</span>
-                        <span>{step}</span>
-                      </li>
-                    ))}
-                  </ol>
-
-                  {printRecipe.chef_notes && (
-                    <div className="mt-3 p-2.5 border border-black text-xs italic print-avoid-break">
-                      <strong>Chef's Technique & Advice:</strong> {printRecipe.chef_notes}
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {/* Footer */}
-            <div className="mt-3 pt-1 border-t border-zinc-400 text-[8px] font-mono text-zinc-600 flex justify-between print-avoid-break">
-              <span>health.seelye.info</span>
-              <span>{is4x6 ? '4x6 Kitchen Index Card Format' : '8.5x11 Standard Letter Format'}</span>
             </div>
           </div>
         </div>
