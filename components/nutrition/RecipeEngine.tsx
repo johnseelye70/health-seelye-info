@@ -967,25 +967,54 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
           </div>
         </div>
 
-        {/* Cooking Directions */}
+        {/* Cooking Directions with Dynamic Culinary Adaptation */}
         <div className="space-y-3">
-          <h3 className="text-sm font-bold text-foreground uppercase tracking-wider flex items-center gap-2">
-            <BookOpen className="w-4 h-4 text-accent-cyan" />
-            <span>Step-by-Step Cooking Directions</span>
-          </h3>
+          <div className="flex items-center justify-between">
+            <h3 className="text-sm font-bold text-foreground uppercase tracking-wider flex items-center gap-2">
+              <BookOpen className="w-4 h-4 text-accent-cyan" />
+              <span>Step-by-Step Cooking Directions</span>
+            </h3>
+            {detailRecipe.hasSwaps && detailRecipe.adaptedStepsIndices && detailRecipe.adaptedStepsIndices.length > 0 && (
+              <span className="text-[10px] font-bold font-mono text-brand-300 bg-brand-500/15 border border-brand-500/30 px-2 py-0.5 rounded-full flex items-center gap-1">
+                <Sparkles className="w-3 h-3" />
+                <span>Directions Adapted for Active Swaps</span>
+              </span>
+            )}
+          </div>
 
           <ol className="space-y-2.5 text-xs">
-            {detailRecipe.instructions.map((step, sIdx) => (
-              <li
-                key={sIdx}
-                className="p-3.5 rounded-2xl bg-surface-200/60 border border-surface-border/70 flex gap-3"
-              >
-                <span className="w-6 h-6 rounded-xl bg-brand-500/15 border border-brand-500/30 text-brand-400 font-mono font-bold flex items-center justify-center text-xs shrink-0 mt-0.5">
-                  {sIdx + 1}
-                </span>
-                <span className="flex-1 text-foreground leading-relaxed text-xs sm:text-[13px]">{step}</span>
-              </li>
-            ))}
+            {detailRecipe.instructions.map((step, sIdx) => {
+              const isStepAdapted = detailRecipe.adaptedStepsIndices && detailRecipe.adaptedStepsIndices.includes(sIdx);
+
+              return (
+                <li
+                  key={sIdx}
+                  className={`p-3.5 rounded-2xl border flex gap-3 transition-all ${
+                    isStepAdapted
+                      ? 'bg-brand-500/10 border-brand-500/40 shadow-sm'
+                      : 'bg-surface-200/60 border-surface-border/70'
+                  }`}
+                >
+                  <span
+                    className={`w-6 h-6 rounded-xl border font-mono font-bold flex items-center justify-center text-xs shrink-0 mt-0.5 ${
+                      isStepAdapted
+                        ? 'bg-brand-500 text-zinc-950 border-brand-500 shadow-glow'
+                        : 'bg-brand-500/15 border-brand-500/30 text-brand-400'
+                    }`}
+                  >
+                    {sIdx + 1}
+                  </span>
+                  <div className="flex-1 space-y-1">
+                    <p className="text-foreground leading-relaxed text-xs sm:text-[13px]">{step}</p>
+                    {isStepAdapted && (
+                      <span className="inline-block text-[10px] font-bold text-brand-300 bg-brand-500/20 px-2 py-0.2 rounded-md">
+                        ✨ Customized culinary step
+                      </span>
+                    )}
+                  </div>
+                </li>
+              );
+            })}
           </ol>
 
           {detailRecipe.chef_notes && (

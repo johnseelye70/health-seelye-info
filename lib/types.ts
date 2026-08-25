@@ -479,6 +479,8 @@ export interface RecipeIngredientSwapOption {
   food_category?: FoodCategory;
   tag?: string; // e.g. "Lower Calorie", "Higher Protein", "Dairy-Free", "Plant-Based", "Gluten-Free"
   reason?: string;
+  culinary_action?: 'crack_and_whisk' | 'fold_in_chilled' | 'slice_hardboiled' | 'sear_protein' | 'sear_tofu' | 'warm_beans' | 'saute_riced_veg' | 'roast_potatoes' | 'steam_veg' | 'wilt_greens' | 'stir_in_dairy';
+  cook_time_delta_minutes?: number; // adjustment to recipe cook time (e.g. -8 min for yogurt/hardboiled)
 }
 
 export interface RecipeIngredient {

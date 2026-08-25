@@ -212,6 +212,16 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'Beta 2.9.0',
+      date: '2026-08-25',
+      title: 'Context-Aware Culinary Instruction Adaptation & Step Rewriter',
+      changes: [
+        'Dynamic Culinary Step Synthesis: When ingredients are swapped (e.g. raw eggs ➔ Greek yogurt or sliced hard-boiled eggs; raw chicken ➔ pressed tofu or canned black beans; jasmine rice ➔ riced cauliflower), the step-by-step cooking directions dynamically rewrite techniques, actions, and preparation methods.',
+        'Adaptive Cook & Prep Timings: Total recipe cooking times adjust automatically (e.g. -8 min when switching to no-cook Greek yogurt or pre-cooked eggs; -10 min when switching to sautéed riced cauliflower).',
+        'Intelligent Technique Guidance & Visual Indicators: Adapted steps are visually marked with custom badges and custom chef technique notes in both on-screen view and physical print studio (4x6 cards / 8.5x11 sheets).',
+      ],
+    },
+    {
       version: 'Beta 2.8.0',
       date: '2026-08-25',
       title: 'Dynamic Ingredient Swapping Engine & Live Macro Recalculation',
@@ -1350,7 +1360,7 @@ export const ProfileSettings: React.FC = () => {
             title="Click to open release changelog modal window"
           >
             <span className="w-2 h-2 rounded-full bg-brand-400 animate-pulse"></span>
-            <span>Active: Beta 2.8.0</span>
+            <span>Active: Beta 2.9.0</span>
             <ChevronRight className="w-3.5 h-3.5 text-brand-400 group-hover:translate-x-0.5 transition-transform" />
           </button>
         </div>
