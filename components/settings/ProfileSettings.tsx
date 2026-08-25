@@ -213,12 +213,12 @@ export const ProfileSettings: React.FC = () => {
     {
       version: 'Beta 2.4.0',
       date: '2026-08-25',
-      title: 'Obsidian Slate Dark Mode, High-Contrast Light Mode & Rich Multi-Color Overhaul',
+      title: 'Choice-Driven Feel-Good Movement Engine & Custom Activity Studio for Simple Mode',
       changes: [
-        'Obsidian Slate Dark Mode: Replaced flat pitch-black background with a deep, rich indigo-slate canvas (#0c121e) with layered surfaces (#131d2e, #1b263b), crisp slate-blue borders (#233554), and subtle ambient glow.',
-        'High-Contrast Light Mode: Overhauled light mode with a soft, glare-free slate canvas (#edf2f7), elevated crisp white cards (#ffffff), distinct borders (#cbd5e1), and dark, legible slate typography (#0f172a / #334155 / #475569) passing WCAG AAA contrast.',
-        'Vibrant Multi-Metric Palette: Enhanced all metric gauges, macro rings, and telemetry with distinct luminous colors — Warm Amber Flame for Calories, Electric Cobalt for Protein, Vitality Emerald for Carbs, Royal Amethyst for Healthy Fats, Ocean Aqua for Hydration, and Crimson Coral for Movement.',
-        'Light Mode Contrast Guards: Implemented global CSS overrides preventing pale gray washout on white backgrounds across all sub-components.',
+        'Choice-Driven Movement Architecture: Eliminated forced gym routines and rigid split exercises in Simple Mode, empowering users to choose feel-good activities they genuinely enjoy.',
+        '16+ Categorized Feel-Good Library: Built a comprehensive library spanning Walking & Steps (Brisk Walks, Nature Hikes, Post-Meal Strolls), Mobility & Yoga (Morning Stretches, Bedtime Wind-Down), Strength & Tone, and Active Fun (Cycling, Swimming, Dance, Gardening, Pickleball).',
+        'Custom Activity Studio: Added a dedicated builder for creating personalized feel-good activities with custom duration, calorie burn estimates, and emoji icons.',
+        'Interactive Movement Dashboard: Integrated 1-tap completion toggles, activity swapping, removal, and live "Log to Daily Burn & Step Tracker" integration across both the Movement Hub and Today Dashboard.',
       ],
     },
     {
@@ -1169,7 +1169,7 @@ export const ProfileSettings: React.FC = () => {
             title="Click to open release changelog modal window"
           >
             <span className="w-2 h-2 rounded-full bg-brand-400 animate-pulse"></span>
-            <span>Active: Beta 2.3.0</span>
+            <span>Active: Beta 2.4.0</span>
             <ChevronRight className="w-3.5 h-3.5 text-brand-400 group-hover:translate-x-0.5 transition-transform" />
           </button>
         </div>

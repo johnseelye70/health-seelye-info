@@ -29,6 +29,7 @@ import { FASTING_CONFIGS } from '@/lib/macro-calculator';
 import { HydrationTracker } from '@/components/dashboard/HydrationTracker';
 import { StepTracker } from '@/components/dashboard/StepTracker';
 import { RecipeEngine } from '@/components/nutrition/RecipeEngine';
+import { SimpleMovementPickerModal } from '@/components/workouts/SimpleMovementPickerModal';
 
 export const DashboardOverview: React.FC = () => {
   const {
@@ -51,10 +52,15 @@ export const DashboardOverview: React.FC = () => {
     todaySteps,
     todayStepMiles,
     todayStepCalories,
+    simpleMovementActivities,
+    toggleSimpleMovementCompleted,
+    addSimpleMovementActivity,
+    swapSimpleMovementActivity,
   } = useHealth();
 
   const isSimple = experienceMode === 'simple';
   const [showDashboardRecipeModal, setShowDashboardRecipeModal] = useState<boolean>(false);
+  const [showDashboardMovementModal, setShowDashboardMovementModal] = useState<boolean>(false);
 
   // Find today's workout
   const todayWorkout = workoutPlan.find(
@@ -335,32 +341,64 @@ export const DashboardOverview: React.FC = () => {
 
             {/* Right 1 Column: Today's Gentle Movement & Habit Check */}
             <div className="space-y-6">
-              {/* Today's Gentle Movement Card */}
+              {/* Today's Chosen Movement Card (Simple Mode) */}
               <div className="p-6 rounded-3xl bg-surface-100/90 border border-surface-border backdrop-blur-xl space-y-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-2xl bg-accent-teal/10 border border-accent-teal/20 flex items-center justify-center">
-                    <Dumbbell className="w-5 h-5 text-accent-teal" />
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-2xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-accent-coral shadow-glow-coral">
+                      <Heart className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h2 className="text-base font-bold text-foreground">Today's Movement</h2>
+                      <p className="text-xs text-zinc-400">Your chosen feel-good activities</p>
+                    </div>
                   </div>
-                  <div>
-                    <h2 className="text-base font-bold text-zinc-100">Today's Movement</h2>
-                    <p className="text-xs text-zinc-400">Gentle, feel-good daily activity</p>
-                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => setShowDashboardMovementModal(true)}
+                    className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-accent-coral/15 hover:bg-accent-coral/25 border border-accent-coral/30 text-accent-coral text-xs font-bold transition-all cursor-pointer"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>Choices</span>
+                  </button>
                 </div>
 
                 <div className="space-y-2 pt-1">
-                  {[
-                    { id: 'm1', title: '🚶 20-Minute Brisk Walk', desc: 'Fresh air & gentle heart rate boost' },
-                    { id: 'm2', title: '🧘 10-Minute Morning Stretch', desc: 'Relax neck, shoulders, and hips' },
-                    { id: 'm3', title: '💪 15-Minute Light Tone', desc: 'Easy bodyweight strength routine' },
-                  ].map((m) => (
+                  {simpleMovementActivities.map((m) => (
                     <div
                       key={m.id}
-                      className="p-3.5 rounded-2xl bg-surface-200/60 border border-surface-border flex items-center justify-between"
+                      onClick={() => toggleSimpleMovementCompleted(m.id)}
+                      className={`p-3.5 rounded-2xl border flex items-center justify-between cursor-pointer transition-all ${
+                        m.completed
+                          ? 'bg-emerald-500/10 border-emerald-500/30 text-zinc-300'
+                          : 'bg-surface-200/60 border-surface-border hover:border-accent-coral/40 text-foreground'
+                      }`}
                     >
-                      <div>
-                        <div className="text-xs font-bold text-zinc-200">{m.title}</div>
-                        <div className="text-[10px] text-zinc-400 mt-0.5">{m.desc}</div>
+                      <div className="flex items-center gap-2.5">
+                        <button
+                          type="button"
+                          className="text-zinc-400 hover:text-foreground shrink-0 cursor-pointer"
+                        >
+                          {m.completed ? (
+                            <CheckCircle2 className="w-5 h-5 text-emerald-400 fill-emerald-400/20" />
+                          ) : (
+                            <Circle className="w-5 h-5 text-zinc-400 hover:text-accent-coral" />
+                          )}
+                        </button>
+                        <div>
+                          <div className={`text-xs font-bold ${m.completed ? 'line-through text-zinc-400' : 'text-foreground'}`}>
+                            {m.icon} {m.title}
+                          </div>
+                          <div className="text-[10px] text-zinc-400 mt-0.5">
+                            {m.duration_minutes}m • ~{m.estimated_calories} kcal
+                          </div>
+                        </div>
                       </div>
+
+                      <span className="text-[10px] font-bold text-accent-coral shrink-0">
+                        {m.completed ? 'Done ✓' : 'Tap to Complete'}
+                      </span>
                     </div>
                   ))}
                 </div>
@@ -368,12 +406,20 @@ export const DashboardOverview: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setActiveTab('workouts')}
-                  className="w-full py-3 rounded-2xl bg-gradient-to-r from-brand-500 to-accent-teal text-zinc-950 text-xs font-black shadow-glow flex items-center justify-center gap-2 cursor-pointer active:scale-95 transition-all"
+                  className="w-full py-3 rounded-2xl bg-gradient-to-r from-accent-coral to-rose-500 hover:from-rose-600 hover:to-rose-700 text-white text-xs font-black shadow-glow-coral flex items-center justify-center gap-2 cursor-pointer active:scale-95 transition-all"
                 >
-                  <CheckCircle2 className="w-4 h-4" />
-                  <span>Open Movement Routine</span>
+                  <Heart className="w-4 h-4" />
+                  <span>Open Movement Studio & Choices</span>
                 </button>
               </div>
+
+              {/* Simple Movement Picker Modal Dialog from Today Overview */}
+              <SimpleMovementPickerModal
+                isOpen={showDashboardMovementModal}
+                onClose={() => setShowDashboardMovementModal(false)}
+                onSelectActivity={(act) => addSimpleMovementActivity(act)}
+                selectedActivityIds={simpleMovementActivities.map((a) => a.id)}
+              />
 
               {/* Friendly Daily Tip */}
               <div className="p-5 rounded-3xl bg-surface-100/90 border border-surface-border backdrop-blur-xl space-y-2">

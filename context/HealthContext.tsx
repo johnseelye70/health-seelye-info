@@ -35,6 +35,10 @@ import {
 import { generateSmartGroceryRequisition } from '@/lib/grocery-database';
 import { isSupabaseConfigured, supabase } from '@/lib/supabase/client';
 import { normalizeFoodCategory } from '@/lib/food-database';
+import {
+  SimpleMovementActivity,
+  DEFAULT_SIMPLE_DAILY_CHOICES,
+} from '@/lib/movement-database';
 
 export type SyncStatusType = 'synced' | 'syncing' | 'offline' | 'error' | 'local_only';
 
@@ -81,6 +85,14 @@ interface HealthContextType {
   regenerateWorkouts: (equipment?: EquipmentType[]) => void;
   toggleEquipment: (eq: EquipmentType) => void;
   setEquipmentInventory: (inventory: string[]) => void;
+
+  // Simple Mode Feel-Good Movement Choices
+  simpleMovementActivities: SimpleMovementActivity[];
+  toggleSimpleMovementCompleted: (id: string) => void;
+  addSimpleMovementActivity: (activity: SimpleMovementActivity) => void;
+  removeSimpleMovementActivity: (id: string) => void;
+  swapSimpleMovementActivity: (oldId: string, newActivity: SimpleMovementActivity) => void;
+  resetSimpleMovementActivities: () => void;
 
   // Pre-Made Programs & Workout Database Query Engine
   workoutLogs: WorkoutSessionLog[];
@@ -176,6 +188,7 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
   const [waterLogs, setWaterLogs] = useState<WaterLogEntry[]>([]);
   const [stepGoal, setStepGoal] = useState<number>(10000);
   const [stepLogs, setStepLogs] = useState<StepLogEntry[]>([]);
+  const [simpleMovementActivities, setSimpleMovementActivities] = useState<SimpleMovementActivity[]>(DEFAULT_SIMPLE_DAILY_CHOICES);
 
   // Cloud Auth & Sync States
   const [authUser, setAuthUser] = useState<any | null>(null);
@@ -235,6 +248,9 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
           if (parsed.waterLogs && Array.isArray(parsed.waterLogs)) setWaterLogs(parsed.waterLogs);
           if (parsed.stepGoal) setStepGoal(parsed.stepGoal);
           if (parsed.stepLogs && Array.isArray(parsed.stepLogs)) setStepLogs(parsed.stepLogs);
+          if (parsed.simpleMovementActivities && Array.isArray(parsed.simpleMovementActivities) && parsed.simpleMovementActivities.length > 0) {
+            setSimpleMovementActivities(parsed.simpleMovementActivities);
+          }
         } else {
           setFoods(DEFAULT_FOODS);
           setWorkoutLogs(INITIAL_WORKOUT_LOGS);
@@ -264,13 +280,14 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
           waterLogs,
           stepGoal,
           stepLogs,
+          simpleMovementActivities,
         };
         localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(stateToPersist));
       } catch (err) {
         console.warn('Failed to persist state:', err);
       }
     }
-  }, [profile, foods, foodLogs, workoutPlan, groceryList, weightLogs, workoutLogs, activeProgramId, notificationsEnabled, waterGoalOz, waterLogs, stepGoal, stepLogs]);
+  }, [profile, foods, foodLogs, workoutPlan, groceryList, weightLogs, workoutLogs, activeProgramId, notificationsEnabled, waterGoalOz, waterLogs, stepGoal, stepLogs, simpleMovementActivities]);
 
   // Refs to decouple async synchronization from React state render cycles
   const profileRef = useRef<UserProfile>(profile);
@@ -966,6 +983,42 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
+  // Simple Mode Feel-Good Movement Handlers
+  const toggleSimpleMovementCompleted = useCallback((id: string) => {
+    setSimpleMovementActivities((prev) =>
+      prev.map((act) =>
+        act.id === id
+          ? {
+              ...act,
+              completed: !act.completed,
+              completed_at: !act.completed ? new Date().toISOString() : undefined,
+            }
+          : act
+      )
+    );
+  }, []);
+
+  const addSimpleMovementActivity = useCallback((activity: SimpleMovementActivity) => {
+    setSimpleMovementActivities((prev) => {
+      if (prev.some((a) => a.id === activity.id)) return prev;
+      return [...prev, activity];
+    });
+  }, []);
+
+  const removeSimpleMovementActivity = useCallback((id: string) => {
+    setSimpleMovementActivities((prev) => prev.filter((a) => a.id !== id));
+  }, []);
+
+  const swapSimpleMovementActivity = useCallback((oldId: string, newActivity: SimpleMovementActivity) => {
+    setSimpleMovementActivities((prev) =>
+      prev.map((a) => (a.id === oldId ? newActivity : a))
+    );
+  }, []);
+
+  const resetSimpleMovementActivities = useCallback(() => {
+    setSimpleMovementActivities(DEFAULT_SIMPLE_DAILY_CHOICES);
+  }, []);
+
   // Hydration Engine
   const todayWaterOz = useMemo(() => {
     return waterLogs
@@ -1085,6 +1138,15 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
         regenerateWorkouts,
         toggleEquipment,
         setEquipmentInventory,
+
+        // Simple Mode Movement Choices
+        simpleMovementActivities,
+        toggleSimpleMovementCompleted,
+        addSimpleMovementActivity,
+        removeSimpleMovementActivity,
+        swapSimpleMovementActivity,
+        resetSimpleMovementActivities,
+
         workoutLogs,
         saveWorkoutSessionLog,
         deleteWorkoutSessionLog,
