@@ -83,37 +83,37 @@ export const WorkoutGenerator: React.FC = () => {
 
   return (
     <div className="space-y-6 animate-fadeIn pb-12">
-      {/* Top Main Navigation Tabs for Daily Fitness Section */}
-      <div className="p-2 rounded-2xl bg-surface-100/90 border border-surface-border backdrop-blur-xl flex items-center gap-2 overflow-x-auto no-scrollbar sm:flex-wrap select-none shadow-md">
-        <button
-          type="button"
-          id="fitness-tab-routine"
-          onClick={() => setActiveSubTab('routine')}
-          className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0 ${
-            activeSubTab === 'routine'
-              ? 'bg-brand-500 text-zinc-950 shadow-glow'
-              : 'text-zinc-300 hover:text-white hover:bg-surface-200'
-          }`}
-        >
-          <Calendar className="w-4 h-4" />
-          <span>{isSimple ? "Today's Guided Routine" : 'Daily Split & Player'}</span>
-        </button>
+      {/* Top Sub-Navigation (Athlete Mode Only) */}
+      {!isSimple && (
+        <div className="p-2 rounded-2xl bg-surface-100/90 border border-surface-border backdrop-blur-xl flex items-center gap-2 overflow-x-auto no-scrollbar sm:flex-wrap select-none shadow-md">
+          <button
+            type="button"
+            id="fitness-tab-routine"
+            onClick={() => setActiveSubTab('routine')}
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0 ${
+              activeSubTab === 'routine'
+                ? 'bg-brand-500 text-zinc-950 shadow-glow'
+                : 'text-zinc-300 hover:text-white hover:bg-surface-200'
+            }`}
+          >
+            <Calendar className="w-4 h-4" />
+            <span>Daily Split & Player</span>
+          </button>
 
-        <button
-          type="button"
-          id="fitness-tab-premade-programs"
-          onClick={() => setActiveSubTab('premade_programs')}
-          className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0 ${
-            activeSubTab === 'premade_programs'
-              ? 'bg-brand-500 text-zinc-950 shadow-glow'
-              : 'text-zinc-300 hover:text-white hover:bg-surface-200'
-          }`}
-        >
-          <Award className="w-4 h-4 text-amber-400" />
-          <span>{isSimple ? 'Workout Programs (P90X, CrossFit, 5x5)' : 'Pre-Made Programs (P90X, CrossFit, 5x5, Sheets)'}</span>
-        </button>
+          <button
+            type="button"
+            id="fitness-tab-premade-programs"
+            onClick={() => setActiveSubTab('premade_programs')}
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0 ${
+              activeSubTab === 'premade_programs'
+                ? 'bg-brand-500 text-zinc-950 shadow-glow'
+                : 'text-zinc-300 hover:text-white hover:bg-surface-200'
+            }`}
+          >
+            <Award className="w-4 h-4 text-amber-400" />
+            <span>Pre-Made Programs (P90X, CrossFit, 5x5)</span>
+          </button>
 
-        {!isSimple && (
           <button
             type="button"
             id="fitness-tab-workout-database"
@@ -127,9 +127,7 @@ export const WorkoutGenerator: React.FC = () => {
             <BarChart3 className="w-4 h-4 text-emerald-400" />
             <span>Workout Telemetry {logsCount > 0 ? `(${logsCount})` : ''}</span>
           </button>
-        )}
 
-        {!isSimple && (
           <button
             type="button"
             id="fitness-tab-exercise-db"
@@ -143,23 +141,21 @@ export const WorkoutGenerator: React.FC = () => {
             <Library className="w-4 h-4" />
             <span>Exercise Matrix</span>
           </button>
-        )}
 
-        <button
-          type="button"
-          id="fitness-tab-equipment-db"
-          onClick={() => setActiveSubTab('equipment_db')}
-          className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0 ${
-            activeSubTab === 'equipment_db'
-              ? 'bg-brand-500 text-zinc-950 shadow-glow'
-              : 'text-zinc-300 hover:text-white hover:bg-surface-200'
-          }`}
-        >
-          <Boxes className="w-4 h-4" />
-          <span>{isSimple ? 'My Available Equipment' : `Equipment Inventory (${ownedCount})`}</span>
-        </button>
+          <button
+            type="button"
+            id="fitness-tab-equipment-db"
+            onClick={() => setActiveSubTab('equipment_db')}
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0 ${
+              activeSubTab === 'equipment_db'
+                ? 'bg-brand-500 text-zinc-950 shadow-glow'
+                : 'text-zinc-300 hover:text-white hover:bg-surface-200'
+            }`}
+          >
+            <Boxes className="w-4 h-4" />
+            <span>Equipment Inventory ({ownedCount})</span>
+          </button>
 
-        {!isSimple && (
           <button
             type="button"
             id="fitness-tab-plate-calc"
@@ -173,9 +169,7 @@ export const WorkoutGenerator: React.FC = () => {
             <Scale className="w-4 h-4 text-accent-cyan" />
             <span>Olympic Barbell Plate Math</span>
           </button>
-        )}
 
-        {!isSimple && (
           <button
             type="button"
             id="fitness-tab-hiit"
@@ -189,225 +183,347 @@ export const WorkoutGenerator: React.FC = () => {
             <Timer className="w-4 h-4 text-rose-400" />
             <span>HIIT & Tabata Telemetry</span>
           </button>
-        )}
-      </div>
+        </div>
+      )}
 
       {/* =====================================================================
-          VIEW 1: DAILY WORKOUT ROUTINES & INTERACTIVE PLAYER
+          VIEW 1: SIMPLE MODE DAILY MOVEMENT COMPANION
           ===================================================================== */}
-      {activeSubTab === 'routine' && (
+      {isSimple ? (
         <div className="space-y-6 animate-fadeIn">
-          {/* Header Banner */}
+          {/* Simple Header Banner */}
           <div className="rounded-3xl bg-surface-100/90 border border-surface-border p-6 md:p-8 backdrop-blur-xl">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div>
                 <div className="flex items-center gap-2 mb-2">
                   <span className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-accent-teal/20 text-accent-teal border border-accent-teal/30">
-                    {isSimple ? 'DAILY FITNESS & EXERCISES' : 'EQUIPMENT-FILTERED 4-WEEK PERIODIZED SPLIT'}
+                    DAILY FEEL-GOOD MOVEMENT
                   </span>
                 </div>
                 <h1 className="text-2xl md:text-3xl font-black text-white tracking-tight">
-                  {isSimple ? 'Daily Fitness & Workout Routines' : 'Adaptive Workout Generator & Player'}
+                  Daily Feel-Good Movement
                 </h1>
                 <p className="text-zinc-400 text-sm mt-1 max-w-2xl">
-                  {isSimple
-                    ? 'Guided daily movement routine adapted to your active gym equipment. Mark sets completed and track weights as you go.'
-                    : '4-Week periodized athletic training split dynamically generated to match your checked equipment inventory.'}
+                  No rigid sets or complicated gym math. Pick today's gentle activity, stay active, and feel energized!
                 </p>
               </div>
 
               <div className="flex items-center gap-3">
                 <button
                   onClick={() => regenerateWorkouts()}
-                  className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-gradient-to-r from-brand-500 to-accent-teal hover:from-brand-600 text-zinc-950 text-xs font-bold shadow-glow transition-all active:scale-95 cursor-pointer"
+                  className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-surface-200 hover:bg-surface-300 border border-surface-border text-zinc-200 text-xs font-bold transition-all active:scale-95 cursor-pointer"
                 >
                   <RotateCcw className="w-4 h-4" />
-                  <span>Regenerate Routine</span>
+                  <span>Refresh Choices</span>
                 </button>
               </div>
             </div>
           </div>
 
-          {/* Zero Equipment Notice Banner */}
-          {ownedCount === 0 && (
-            <div className="p-4 sm:p-5 rounded-3xl bg-gradient-to-r from-amber-500/10 via-surface-100 to-amber-500/5 border border-amber-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-3 animate-fadeIn">
-              <div className="flex items-center gap-3">
-                <div className="p-2.5 rounded-2xl bg-amber-500/20 text-amber-300 border border-amber-500/40">
-                  <AlertTriangle className="w-5 h-5" />
+          {/* 3 Gentle Daily Choices */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="p-6 rounded-3xl bg-surface-100/90 border border-surface-border backdrop-blur-xl flex flex-col justify-between space-y-4 hover:border-brand-500/40 transition-all">
+              <div className="space-y-2">
+                <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-2xl">
+                  🚶
                 </div>
-                <div>
-                  <h4 className="text-sm font-bold text-amber-200">No Equipment Currently Selected</h4>
-                  <p className="text-xs text-zinc-400 mt-0.5">
-                    Your routines are currently defaulting to pure bodyweight exercises. Check off your gym gear or choose a pre-made program (like P90X or StrongLifts) above.
-                  </p>
-                </div>
+                <h3 className="text-base font-bold text-zinc-100">20-Minute Brisk Walk</h3>
+                <p className="text-xs text-zinc-400 leading-relaxed">
+                  Head outside, breathe fresh air, get natural sunlight, and boost your cardiovascular circulation.
+                </p>
               </div>
-
-              <button
-                type="button"
-                onClick={() => setActiveSubTab('equipment_db')}
-                className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-zinc-950 text-xs font-bold shadow-glow whitespace-nowrap self-start sm:self-auto cursor-pointer transition-all active:scale-95"
-              >
-                <span>Select Your Equipment</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </button>
-            </div>
-          )}
-
-          {/* Week & Day Periodization Navigation */}
-          <div className="space-y-4">
-            {/* 4-Week Selector Tabs */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Calendar className="w-4 h-4 text-brand-400" />
-                <h3 className="text-sm font-bold text-zinc-200 uppercase tracking-wider">
-                  Training Periodization
-                </h3>
-              </div>
-
-              <div className="flex items-center gap-1.5 bg-surface-200 p-1.5 rounded-2xl border border-surface-border">
-                {[1, 2, 3, 4].map((wk) => (
-                  <button
-                    key={wk}
-                    id={`btn-week-${wk}`}
-                    onClick={() => setActiveWeek(wk)}
-                    className={`px-4 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                      activeWeek === wk
-                        ? 'bg-brand-500 text-zinc-950 shadow-glow'
-                        : 'text-zinc-400 hover:text-zinc-200'
-                    }`}
-                  >
-                    Week {wk}
-                  </button>
-                ))}
+              <div className="text-[11px] font-mono font-bold text-emerald-400 pt-2 border-t border-surface-border/60">
+                ~100 kcal • 2,200 steps
               </div>
             </div>
 
-            {/* 7-Day Matrix Carousel */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-2.5">
-              {daysOfWeek.map((day) => {
-                const isDaySelected = activeDay === day.dayNum;
-                const targetDayPlan = workoutPlan.find(
-                  (w) => w.week_number === activeWeek && w.day_number === day.dayNum
-                );
-                const dayCompleted =
-                  targetDayPlan?.exercises.every((e) => e.completed) &&
-                  (targetDayPlan?.exercises.length || 0) > 0;
+            <div className="p-6 rounded-3xl bg-surface-100/90 border border-surface-border backdrop-blur-xl flex flex-col justify-between space-y-4 hover:border-brand-500/40 transition-all">
+              <div className="space-y-2">
+                <div className="w-12 h-12 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-2xl">
+                  🧘
+                </div>
+                <h3 className="text-base font-bold text-zinc-100">10-Minute Morning Stretch</h3>
+                <p className="text-xs text-zinc-400 leading-relaxed">
+                  Gentle mobility routine to release tension in neck, shoulders, lower back, and hips.
+                </p>
+              </div>
+              <div className="text-[11px] font-mono font-bold text-cyan-400 pt-2 border-t border-surface-border/60">
+                Flexibility & Posture
+              </div>
+            </div>
 
-                return (
-                  <button
-                    key={day.dayNum}
-                    id={`btn-day-${day.dayNum}`}
-                    onClick={() => setActiveDay(day.dayNum)}
-                    className={`p-3 rounded-2xl border text-left transition-all cursor-pointer ${
-                      isDaySelected
-                        ? 'bg-surface-100 border-brand-500 shadow-glow text-white'
-                        : 'bg-surface-200/60 border-surface-border hover:border-zinc-700 text-zinc-400'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between text-[11px] font-mono mb-1">
-                      <span className={isDaySelected ? 'font-bold text-brand-400' : 'text-zinc-400'}>
-                        {day.label}
-                      </span>
-                      {dayCompleted && <CheckCircle2 className="w-3.5 h-3.5 text-brand-400" />}
-                    </div>
-                    <div className="text-xs font-bold text-zinc-200 truncate">{day.title}</div>
-                    <div className="text-[10px] text-zinc-400 font-mono mt-1">
-                      {targetDayPlan?.exercises.length || 0} Movements
-                    </div>
-                  </button>
-                );
-              })}
+            <div className="p-6 rounded-3xl bg-surface-100/90 border border-surface-border backdrop-blur-xl flex flex-col justify-between space-y-4 hover:border-brand-500/40 transition-all">
+              <div className="space-y-2">
+                <div className="w-12 h-12 rounded-2xl bg-brand-500/10 border border-brand-500/20 flex items-center justify-center text-2xl">
+                  💪
+                </div>
+                <h3 className="text-base font-bold text-zinc-100">15-Minute Home Tone</h3>
+                <p className="text-xs text-zinc-400 leading-relaxed">
+                  Simple bodyweight squats, wall push-ups, knee planks, and arm reaches to feel strong and toned.
+                </p>
+              </div>
+              <div className="text-[11px] font-mono font-bold text-brand-400 pt-2 border-t border-surface-border/60">
+                Light Muscle Tone
+              </div>
             </div>
           </div>
 
-          {/* Active Workout Session Details & Exercise Player List */}
-          <div className="rounded-3xl bg-surface-100/90 border border-surface-border p-6 md:p-8 backdrop-blur-xl space-y-6">
+          {/* Active Routine Checklist */}
+          <div className="p-6 md:p-8 rounded-3xl bg-surface-100/90 border border-surface-border backdrop-blur-xl space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-surface-border/80">
               <div>
-                <div className="flex items-center gap-2 text-xs font-bold text-accent-teal uppercase tracking-wider">
-                  <span>{activeDayWorkout.split_type.replace('_', ' ').toUpperCase()}</span>
-                  <span>•</span>
-                  <span>Week {activeWeek}, Day {activeDay}</span>
-                </div>
-                <h2 className="text-xl md:text-2xl font-black text-white mt-1">
-                  {activeDayWorkout.day_title}
-                </h2>
+                <h2 className="text-xl font-black text-white">Today's Suggested Movements</h2>
+                <p className="text-xs text-zinc-400 mt-0.5">
+                  Tap any movement to mark it complete. Take your time and focus on feeling good!
+                </p>
               </div>
 
-              <div className="flex items-center gap-3">
-                <div className="text-right">
-                  <div className="text-sm font-mono font-bold text-brand-400">
-                    {completedCount} / {totalCount} Exercises Done
-                  </div>
-                  <div className="text-[10px] text-zinc-400">
-                    {ownedCount > 0 ? `${ownedCount} Gym Pieces Active` : 'Bodyweight Mode'}
-                  </div>
-                </div>
+              <div className="text-sm font-mono font-bold text-brand-400">
+                {completedCount} of {totalCount} Completed
               </div>
             </div>
 
-            {/* Exercises List */}
-            <div className="space-y-4">
+            <div className="space-y-3">
               {activeDayWorkout.exercises.map((slot) => (
-                <WorkoutPlayer
+                <div
                   key={slot.id}
-                  slot={slot}
-                  dayId={activeDayWorkout.id}
-                  onToggleComplete={() => toggleExerciseCompleted(activeDayWorkout.id, slot.id)}
-                  onSaveSetData={(reps, weight) => updateExerciseSetData(activeDayWorkout.id, slot.id, reps, weight)}
-                />
+                  onClick={() => toggleExerciseCompleted(activeDayWorkout.id, slot.id)}
+                  className={`p-4 rounded-2xl border flex items-center justify-between cursor-pointer transition-all ${
+                    slot.completed
+                      ? 'bg-brand-500/10 border-brand-500/40 text-zinc-200'
+                      : 'bg-surface-200/60 border-surface-border hover:border-zinc-700 text-zinc-300'
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    {slot.completed ? (
+                      <CheckCircle2 className="w-5 h-5 text-brand-400 shrink-0" />
+                    ) : (
+                      <Circle className="w-5 h-5 text-zinc-500 shrink-0" />
+                    )}
+                    <div>
+                      <div className={`text-sm font-bold ${slot.completed ? 'line-through text-zinc-500' : 'text-zinc-100'}`}>
+                        {slot.exercise.name}
+                      </div>
+                      <div className="text-xs text-zinc-400 mt-0.5">
+                        {slot.exercise.instructions || 'Gentle body movement for posture and energy'}
+                      </div>
+                    </div>
+                  </div>
+
+                  <span className="text-xs font-mono text-zinc-400 shrink-0">
+                    {slot.target_sets} sets
+                  </span>
+                </div>
               ))}
             </div>
           </div>
         </div>
-      )}
+      ) : (
+        /* =====================================================================
+            ATHLETE MODE: 4-WEEK PERIODIZED SPLIT & ADVANCED SUITE
+            ===================================================================== */
+        <>
+          {activeSubTab === 'routine' && (
+            <div className="space-y-6 animate-fadeIn">
+              {/* Header Banner */}
+              <div className="rounded-3xl bg-surface-100/90 border border-surface-border p-6 md:p-8 backdrop-blur-xl">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                  <div>
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-accent-teal/20 text-accent-teal border border-accent-teal/30">
+                        EQUIPMENT-FILTERED 4-WEEK PERIODIZED SPLIT
+                      </span>
+                    </div>
+                    <h1 className="text-2xl md:text-3xl font-black text-white tracking-tight">
+                      Adaptive Workout Generator & Player
+                    </h1>
+                    <p className="text-zinc-400 text-sm mt-1 max-w-2xl">
+                      4-Week periodized athletic training split dynamically generated to match your checked equipment inventory.
+                    </p>
+                  </div>
 
-      {/* =====================================================================
-          VIEW 2: PRE-MADE WORKOUT PROGRAMS (P90X, STRONGLIFTS 5X5, TAI CHI)
-          ===================================================================== */}
-      {activeSubTab === 'premade_programs' && <PreMadeProgramsBrowser />}
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={() => regenerateWorkouts()}
+                      className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-gradient-to-r from-brand-500 to-accent-teal hover:from-brand-600 text-zinc-950 text-xs font-bold shadow-glow transition-all active:scale-95 cursor-pointer"
+                    >
+                      <RotateCcw className="w-4 h-4" />
+                      <span>Regenerate Routine</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
 
-      {/* =====================================================================
-          VIEW 3: ONGOING WORKOUT DATABASE & ANALYTICS QUERY ENGINE
-          ===================================================================== */}
-      {activeSubTab === 'workout_database' && <WorkoutHistoryAnalytics />}
+              {/* Zero Equipment Notice Banner */}
+              {ownedCount === 0 && (
+                <div className="p-4 sm:p-5 rounded-3xl bg-gradient-to-r from-amber-500/10 via-surface-100 to-amber-500/5 border border-amber-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-3 animate-fadeIn">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2.5 rounded-2xl bg-amber-500/20 text-amber-300 border border-amber-500/40">
+                      <AlertTriangle className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-bold text-amber-200">No Equipment Currently Selected</h4>
+                      <p className="text-xs text-zinc-400 mt-0.5">
+                        Your routines are currently defaulting to pure bodyweight exercises. Check off your gym gear or choose a pre-made program (like P90X or StrongLifts) above.
+                      </p>
+                    </div>
+                  </div>
 
-      {/* =====================================================================
-          VIEW 4: COMPLETE EXERCISE DATABASE BROWSER (3-Tier Hierarchical View)
-          ===================================================================== */}
-      {activeSubTab === 'exercise_db' && (
-        <ExerciseDatabaseBrowser
-          onNavigateToEquipment={() => setActiveSubTab('equipment_db')}
-        />
-      )}
+                  <button
+                    type="button"
+                    onClick={() => setActiveSubTab('equipment_db')}
+                    className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-zinc-950 text-xs font-bold shadow-glow whitespace-nowrap self-start sm:self-auto cursor-pointer transition-all active:scale-95"
+                  >
+                    <span>Select Your Equipment</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              )}
 
-      {/* =====================================================================
-          VIEW 5: COMPLETE EQUIPMENT INVENTORY BROWSER (3-Tier Hierarchical View)
-          ===================================================================== */}
-      {activeSubTab === 'equipment_db' && (
-        <EquipmentInventoryBrowser
-          onNavigateToExercises={() => setActiveSubTab('exercise_db')}
-          onNavigateToPlateCalculator={() => setActiveSubTab('plate_calc')}
-        />
-      )}
+              {/* Week & Day Periodization Navigation */}
+              <div className="space-y-4">
+                {/* 4-Week Selector Tabs */}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Calendar className="w-4 h-4 text-brand-400" />
+                    <h3 className="text-sm font-bold text-zinc-200 uppercase tracking-wider">
+                      Training Periodization
+                    </h3>
+                  </div>
 
-      {/* =====================================================================
-          VIEW 6: WEIGHT PLATE INVENTORY & BARBELL MAX LOAD CALCULATOR
-          ===================================================================== */}
-      {activeSubTab === 'plate_calc' && (
-        <div className="animate-fadeIn">
-          <PlateInventoryCalculator onPlatesUpdated={() => {}} />
-        </div>
-      )}
+                  <div className="flex items-center gap-1.5 bg-surface-200 p-1.5 rounded-2xl border border-surface-border">
+                    {[1, 2, 3, 4].map((wk) => (
+                      <button
+                        key={wk}
+                        id={`btn-week-${wk}`}
+                        onClick={() => setActiveWeek(wk)}
+                        className={`px-4 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                          activeWeek === wk
+                            ? 'bg-brand-500 text-zinc-950 shadow-glow'
+                            : 'text-zinc-400 hover:text-zinc-200'
+                        }`}
+                      >
+                        Week {wk}
+                      </button>
+                    ))}
+                  </div>
+                </div>
 
-      {/* =====================================================================
-          VIEW 7: HIIT & TABATA INTERVAL TIMER
-          ===================================================================== */}
-      {activeSubTab === 'hiit' && (
-        <div className="animate-fadeIn">
-          <HiitTimer initialWorkSeconds={40} initialRestSeconds={20} initialRounds={8} />
-        </div>
+                {/* 7-Day Matrix Carousel */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-2.5">
+                  {daysOfWeek.map((day) => {
+                    const isDaySelected = activeDay === day.dayNum;
+                    const targetDayPlan = workoutPlan.find(
+                      (w) => w.week_number === activeWeek && w.day_number === day.dayNum
+                    );
+                    const dayCompleted =
+                      targetDayPlan?.exercises.every((e) => e.completed) &&
+                      (targetDayPlan?.exercises.length || 0) > 0;
+
+                    return (
+                      <button
+                        key={day.dayNum}
+                        id={`btn-day-${day.dayNum}`}
+                        onClick={() => setActiveDay(day.dayNum)}
+                        className={`p-3 rounded-2xl border text-left transition-all cursor-pointer ${
+                          isDaySelected
+                            ? 'bg-surface-100 border-brand-500 shadow-glow text-white'
+                            : 'bg-surface-200/60 border-surface-border hover:border-zinc-700 text-zinc-400'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between text-[11px] font-mono mb-1">
+                          <span className={isDaySelected ? 'font-bold text-brand-400' : 'text-zinc-400'}>
+                            {day.label}
+                          </span>
+                          {dayCompleted && <CheckCircle2 className="w-3.5 h-3.5 text-brand-400" />}
+                        </div>
+                        <div className="text-xs font-bold text-zinc-200 truncate">{day.title}</div>
+                        <div className="text-[10px] text-zinc-400 font-mono mt-1">
+                          {targetDayPlan?.exercises.length || 0} Movements
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Active Workout Session Details & Exercise Player List */}
+              <div className="rounded-3xl bg-surface-100/90 border border-surface-border p-6 md:p-8 backdrop-blur-xl space-y-6">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-surface-border/80">
+                  <div>
+                    <div className="flex items-center gap-2 text-xs font-bold text-accent-teal uppercase tracking-wider">
+                      <span>{activeDayWorkout.split_type.replace('_', ' ').toUpperCase()}</span>
+                      <span>•</span>
+                      <span>Week {activeWeek}, Day {activeDay}</span>
+                    </div>
+                    <h2 className="text-xl md:text-2xl font-black text-white mt-1">
+                      {activeDayWorkout.day_title}
+                    </h2>
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    <div className="text-right">
+                      <div className="text-sm font-mono font-bold text-brand-400">
+                        {completedCount} / {totalCount} Exercises Done
+                      </div>
+                      <div className="text-[10px] text-zinc-400">
+                        {ownedCount > 0 ? `${ownedCount} Gym Pieces Active` : 'Bodyweight Mode'}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Exercises List */}
+                <div className="space-y-4">
+                  {activeDayWorkout.exercises.map((slot) => (
+                    <WorkoutPlayer
+                      key={slot.id}
+                      slot={slot}
+                      dayId={activeDayWorkout.id}
+                      onToggleComplete={() => toggleExerciseCompleted(activeDayWorkout.id, slot.id)}
+                      onSaveSetData={(reps, weight) => updateExerciseSetData(activeDayWorkout.id, slot.id, reps, weight)}
+                    />
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* VIEW 2: PRE-MADE WORKOUT PROGRAMS */}
+          {activeSubTab === 'premade_programs' && <PreMadeProgramsBrowser />}
+
+          {/* VIEW 3: ONGOING WORKOUT DATABASE & ANALYTICS */}
+          {activeSubTab === 'workout_database' && <WorkoutHistoryAnalytics />}
+
+          {/* VIEW 4: COMPLETE EXERCISE DATABASE BROWSER */}
+          {activeSubTab === 'exercise_db' && (
+            <ExerciseDatabaseBrowser
+              onNavigateToEquipment={() => setActiveSubTab('equipment_db')}
+            />
+          )}
+
+          {/* VIEW 5: COMPLETE EQUIPMENT INVENTORY BROWSER */}
+          {activeSubTab === 'equipment_db' && (
+            <EquipmentInventoryBrowser
+              onNavigateToExercises={() => setActiveSubTab('exercise_db')}
+              onNavigateToPlateCalculator={() => setActiveSubTab('plate_calc')}
+            />
+          )}
+
+          {/* VIEW 6: WEIGHT PLATE INVENTORY & BARBELL MAX LOAD CALCULATOR */}
+          {activeSubTab === 'plate_calc' && (
+            <div className="animate-fadeIn">
+              <PlateInventoryCalculator onPlatesUpdated={() => {}} />
+            </div>
+          )}
+
+          {/* VIEW 7: HIIT & TABATA INTERVAL TIMER */}
+          {activeSubTab === 'hiit' && (
+            <div className="animate-fadeIn">
+              <HiitTimer initialWorkSeconds={40} initialRestSeconds={20} initialRounds={8} />
+            </div>
+          )}
+        </>
       )}
     </div>
   );

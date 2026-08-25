@@ -135,359 +135,538 @@ export const DashboardOverview: React.FC = () => {
         </div>
       </div>
 
-      {/* Progress Cards: Simple vs Athlete Layout */}
+      {/* Dashboard Body: Ultra-Simple vs Athlete Mode */}
       {isSimple ? (
-        /* SIMPLE MODE CARDS */
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          {/* Calorie Card */}
-          <div className="p-6 rounded-3xl bg-surface-100/90 border border-surface-border backdrop-blur-xl flex items-center justify-between">
-            <div>
-              <div className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Today's Calories</div>
-              <div className="text-3xl font-black font-mono text-brand-400 mt-1">
-                {todayRemaining.calories} <span className="text-sm font-normal text-zinc-400">kcal left</span>
+        /* ================= ULTRA-SIMPLE DAILY WELLNESS COMPANION ================= */
+        <div className="space-y-6">
+          {/* Today's 3 Big Visual Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* 1. Calorie Balance Card */}
+            <div className="p-6 rounded-3xl bg-surface-100/90 border border-surface-border backdrop-blur-xl flex flex-col justify-between space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="text-xs font-bold text-zinc-400 uppercase tracking-wider">Calorie Balance</div>
+                <div className="w-10 h-10 rounded-2xl bg-brand-500/10 border border-brand-500/20 flex items-center justify-center">
+                  <Flame className="w-5 h-5 text-brand-400 fill-brand-400/20" />
+                </div>
               </div>
-              <div className="text-xs text-zinc-400 mt-1">
-                {todayMacros.calories} of {profile.daily_calorie_target} kcal consumed
-              </div>
-            </div>
-            <div className="w-14 h-14 rounded-2xl bg-brand-500/10 border border-brand-500/20 flex items-center justify-center">
-              <Flame className="w-7 h-7 text-brand-400 fill-brand-400/20" />
-            </div>
-          </div>
 
-          {/* Hydration Card */}
-          <div className="p-6 rounded-3xl bg-surface-100/90 border border-surface-border backdrop-blur-xl flex items-center justify-between">
-            <div>
-              <div className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Hydration (Water)</div>
-              <div className="text-3xl font-black font-mono text-cyan-400 mt-1">
-                {todayWaterOz} <span className="text-sm font-normal text-zinc-400">/ {waterGoalOz} oz</span>
+              <div>
+                <div className="text-3xl sm:text-4xl font-black font-mono text-brand-400">
+                  {todayRemaining.calories} <span className="text-sm font-medium text-zinc-400">kcal left</span>
+                </div>
+                <div className="text-xs text-zinc-400 mt-1">
+                  {todayMacros.calories} of {profile.daily_calorie_target} kcal consumed today
+                </div>
               </div>
-              <div className="text-xs text-zinc-400 mt-1 flex items-center gap-2">
-                <span>{Math.min(200, Math.round((todayWaterOz / (waterGoalOz || 96)) * 100))}% of daily goal</span>
+
+              {/* Cheerful Progress Bar */}
+              <div className="space-y-1.5">
+                <div className="w-full h-3 bg-surface-300 rounded-full overflow-hidden border border-surface-border">
+                  <div
+                    className="h-full bg-gradient-to-r from-brand-500 to-accent-teal rounded-full transition-all duration-500"
+                    style={{ width: `${Math.min(100, Math.round((todayMacros.calories / (profile.daily_calorie_target || 2000)) * 100))}%` }}
+                  />
+                </div>
+                <div className="flex justify-between text-[11px] font-mono text-zinc-400">
+                  <span>{Math.round((todayMacros.calories / (profile.daily_calorie_target || 2000)) * 100)}% used</span>
+                  <span className="text-brand-300 font-bold">{todayRemaining.calories} remaining</span>
+                </div>
+              </div>
+            </div>
+
+            {/* 2. Hydration Cups Card */}
+            <div className="p-6 rounded-3xl bg-surface-100/90 border border-surface-border backdrop-blur-xl flex flex-col justify-between space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="text-xs font-bold text-zinc-400 uppercase tracking-wider">Water & Hydration</div>
+                <div className="w-10 h-10 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
+                  <Droplets className="w-5 h-5 text-cyan-400 fill-cyan-400/20" />
+                </div>
+              </div>
+
+              <div>
+                <div className="text-3xl sm:text-4xl font-black font-mono text-cyan-400">
+                  {todayWaterOz} <span className="text-sm font-medium text-zinc-400">/ {waterGoalOz} oz</span>
+                </div>
+                <div className="text-xs text-zinc-400 mt-1">
+                  ~{Math.round(todayWaterOz / 8)} of {Math.round((waterGoalOz || 96) / 8)} cups enjoyed today
+                </div>
+              </div>
+
+              {/* 1-Tap Quick Hydrate Buttons */}
+              <div className="flex items-center gap-2 pt-1">
                 <button
                   type="button"
                   onClick={() => logWaterOz(8, 'Glass')}
-                  className="px-2 py-0.5 rounded-md bg-cyan-500/20 text-cyan-300 hover:bg-cyan-500/30 text-[10px] font-bold font-mono transition-colors"
+                  className="flex-1 py-2 px-3 rounded-xl bg-cyan-500/15 hover:bg-cyan-500/25 border border-cyan-500/30 text-cyan-300 text-xs font-bold transition-all active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer"
                 >
-                  +8 oz
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>+8 oz Cup</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => logWaterOz(16, 'Bottle')}
+                  className="flex-1 py-2 px-3 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-500/40 text-cyan-200 text-xs font-bold transition-all active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>+16 oz Bottle</span>
                 </button>
               </div>
             </div>
-            <div className="w-14 h-14 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
-              <Droplets className="w-7 h-7 text-cyan-400 fill-cyan-400/20" />
-            </div>
-          </div>
 
-          {/* Movement & Steps Goal Card */}
-          <div className="p-6 rounded-3xl bg-surface-100/90 border border-surface-border backdrop-blur-xl flex items-center justify-between">
-            <div>
-              <div className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Daily Steps</div>
-              <div className="text-3xl font-black font-mono text-emerald-400 mt-1">
-                {todaySteps.toLocaleString()} <span className="text-sm font-normal text-zinc-400">steps</span>
-              </div>
-              <div className="text-xs text-zinc-400 mt-1">
-                {todayStepMiles} mi • {todayStepCalories} kcal • {Math.min(100, Math.round((todaySteps / stepGoal) * 100))}%
-              </div>
-            </div>
-            <div className="w-14 h-14 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
-              <Heart className="w-7 h-7 text-emerald-400" />
-            </div>
-          </div>
-        </div>
-      ) : (
-        /* ATHLETE MODE: 4 FULL MACRO RINGS */
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <MacroProgressRing
-            label="Calories"
-            current={todayMacros.calories}
-            target={profile.daily_calorie_target}
-            unit="kcal"
-            color="#10b981"
-            sublabel={`${todayRemaining.calories} kcal remaining`}
-          />
-          <MacroProgressRing
-            label="Protein"
-            current={todayMacros.protein}
-            target={profile.protein_target_g}
-            unit="g"
-            color="#14b8a6"
-            sublabel={`${todayRemaining.protein}g left (1.0g/lb lean)`}
-          />
-          <MacroProgressRing
-            label="Carbohydrates"
-            current={todayMacros.carbs}
-            target={profile.carb_target_g}
-            unit="g"
-            color="#06b6d4"
-            sublabel={`${todayRemaining.carbs}g left (Complex Fuel)`}
-          />
-          <MacroProgressRing
-            label="Healthy Fats"
-            current={todayMacros.fat}
-            target={profile.fat_target_g}
-            unit="g"
-            color="#f59e0b"
-            sublabel={`${todayRemaining.fat}g left (25% Total)`}
-          />
-        </div>
-      )}
-
-      {/* Hydration Engine & Step Tracker Suite */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <HydrationTracker />
-        <StepTracker />
-      </div>
-
-      {/* Main Two-Column Dashboard Body */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left 2 Columns: Fasting Status & Today's Meals */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Fasting & Eating Window Card */}
-          <div className="rounded-3xl bg-surface-100/90 border border-surface-border p-6 backdrop-blur-xl">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center">
-                  <Timer className="w-5 h-5 text-purple-400" />
-                </div>
-                <div>
-                  <h2 className="text-base font-bold text-zinc-100">
-                    {isSimple ? 'Eating & Fasting Schedule' : 'Fasting & Eating Window'}
-                  </h2>
-                  <p className="text-xs text-zinc-400">
-                    {isSimple
-                      ? `${profile.eating_window_duration_hours} hours eating window • ${24 - profile.eating_window_duration_hours} hours resting`
-                      : `${currentFastingConfig.name} (${profile.eating_window_duration_hours}h Feeding Window)`}
-                  </p>
-                </div>
-              </div>
-              <button
-                onClick={() => setActiveTab('fasting')}
-                className="text-xs font-semibold text-brand-400 hover:text-brand-300 flex items-center gap-1"
-              >
-                <span>{isSimple ? 'View Details' : 'Adjust'}</span>
-                <ChevronRight className="w-4 h-4" />
-              </button>
-            </div>
-
-            <div className="p-4 rounded-2xl bg-surface-200/80 border border-surface-border flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div className="flex items-center gap-3">
-                <span className={`w-3.5 h-3.5 rounded-full ${fastingStatus.isFasting ? 'bg-purple-500 animate-pulse' : 'bg-brand-500 animate-pulse'}`} />
-                <div>
-                  <div className="text-xs font-bold text-zinc-100">
-                    {fastingStatus.isFasting
-                      ? (isSimple ? 'Fasting Time (Digest & Rest)' : 'Currently in Fasting State')
-                      : (isSimple ? 'Eating Window Open (Time for Nutrition)' : 'Currently in Eating Window')}
-                  </div>
-                  <div className="text-xs text-zinc-400 mt-0.5">
-                    {fastingStatus.isFasting
-                      ? (isSimple ? 'Drink pure water, black coffee, or herbal tea to stay refreshed.' : 'Cells are burning stored fatty acids.')
-                      : (isSimple ? 'Fuel your body with wholesome meals and healthy proteins.' : 'Digestive enzymes active for nutrient partitioning.')}
-                  </div>
-                </div>
-              </div>
-
-              <div className="text-right font-mono self-end sm:self-center">
-                <div className="text-lg font-black text-brand-300">
-                  {remainingHours}h {remainingMins}m
-                </div>
-                <div className="text-[10px] text-zinc-400 uppercase">
-                  {fastingStatus.isFasting ? 'Until Eating Window' : 'Until Fasting Starts'}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Today's Meals Timeline */}
-          <div className="rounded-3xl bg-surface-100/90 border border-surface-border p-6 backdrop-blur-xl space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-brand-500/10 border border-brand-500/20 flex items-center justify-center">
-                  <UtensilsCrossed className="w-5 h-5 text-brand-400" />
-                </div>
-                <div>
-                  <h2 className="text-base font-bold text-zinc-100">
-                    {isSimple ? "Today's Meal Plan" : "Today's Nutrition Breakdown"}
-                  </h2>
-                  <p className="text-xs text-zinc-400">
-                    {profile.meal_count} meals planned • {todayRemaining.calories} kcal remaining
-                  </p>
-                </div>
-              </div>
-
-              <button
-                onClick={() => setActiveTab('nutrition')}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-brand-500/15 hover:bg-brand-500/25 border border-brand-500/30 text-xs font-semibold text-brand-300 transition-colors"
-              >
-                <Plus className="w-3.5 h-3.5" />
-                <span>Log Meal</span>
-              </button>
-            </div>
-
-            {/* Meal Slots List */}
-            <div className="space-y-3">
-              {mealSplitTargets.map((target) => {
-                const logsForMeal = currentDayFoodLogs.filter((l) => l.meal_index === target.mealIndex);
-                const loggedCalories = logsForMeal.reduce((sum, l) => sum + l.calories, 0);
-                const loggedProtein = logsForMeal.reduce((sum, l) => sum + l.protein_g, 0);
-
-                return (
-                  <div
-                    key={target.mealIndex}
-                    className="p-4 rounded-2xl bg-surface-200/60 border border-surface-border hover:border-zinc-700 transition-colors"
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div
-                          className={`w-8 h-8 rounded-xl flex items-center justify-center font-bold font-mono text-xs ${
-                            logsForMeal.length > 0
-                              ? 'bg-brand-500 text-zinc-950'
-                              : 'bg-surface-300 text-zinc-400'
-                          }`}
-                        >
-                          {target.mealIndex}
-                        </div>
-                        <div>
-                          <div className="text-sm font-semibold text-zinc-200 flex items-center gap-2">
-                            <span>{target.title}</span>
-                            <span className="text-[10px] px-2 py-0.5 rounded bg-surface-300 text-zinc-400 font-mono">
-                              ~{target.suggestedTime}
-                            </span>
-                          </div>
-                          <div className="text-xs text-zinc-400 mt-0.5">
-                            Target: <span className="text-zinc-200 font-medium">{target.calories} kcal</span>
-                            {!isSimple && ` (${target.protein_g}g P / ${target.carbs_g}g C / ${target.fat_g}g F)`}
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="text-right">
-                        <div className="text-sm font-bold font-mono text-zinc-100">
-                          {loggedCalories} <span className="text-xs font-normal text-zinc-400">kcal logged</span>
-                        </div>
-                        {!isSimple && (
-                          <div className="text-[11px] text-zinc-400 font-mono">
-                            {loggedProtein.toFixed(0)}g protein
-                          </div>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Logged Items Chips */}
-                    {logsForMeal.length > 0 && (
-                      <div className="mt-3 pt-3 border-t border-surface-border/60 flex flex-wrap gap-1.5">
-                        {logsForMeal.map((log) => (
-                          <span
-                            key={log.id}
-                            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-surface-300 text-zinc-300 text-xs border border-surface-border"
-                          >
-                            <span>{log.food_name}</span>
-                            <span className="text-zinc-400 font-mono text-[10px]">({log.grams_consumed}g)</span>
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-
-        {/* Right Column: Today's Routine & Helpful Wellness Tip */}
-        <div className="space-y-6">
-          {/* Today's Workout Card */}
-          <div className="rounded-3xl bg-surface-100/90 border border-surface-border p-6 backdrop-blur-xl">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-accent-teal/10 border border-accent-teal/20 flex items-center justify-center">
-                  <Dumbbell className="w-5 h-5 text-accent-teal" />
-                </div>
-                <div>
-                  <h2 className="text-base font-bold text-zinc-100">
-                    {isSimple ? "Today's Routine" : "Today's Workout"}
-                  </h2>
-                  <p className="text-xs text-zinc-400">
-                    {isSimple ? 'Guided movements for energy & health' : `Week ${activeWeek}, Day ${activeDay} Training Split`}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="p-4 rounded-2xl bg-surface-200/90 border border-surface-border mb-4">
+            {/* 3. Daily Steps Card */}
+            <div className="p-6 rounded-3xl bg-surface-100/90 border border-surface-border backdrop-blur-xl flex flex-col justify-between space-y-4">
               <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-xs uppercase tracking-wider font-semibold text-accent-teal">
-                    {todayWorkout.split_type.replace('_', ' ').toUpperCase()}
-                  </div>
-                  <h3 className="text-base font-bold text-white mt-0.5">{todayWorkout.day_title}</h3>
+                <div className="text-xs font-bold text-zinc-400 uppercase tracking-wider">Daily Movement</div>
+                <div className="w-10 h-10 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
+                  <Heart className="w-5 h-5 text-emerald-400" />
                 </div>
-                <div className="text-right">
-                  <span className="text-xs font-mono font-bold text-brand-400">
-                    {completedExercisesCount}/{totalExercisesCount}
-                  </span>
-                  <div className="text-[10px] text-zinc-400">Completed</div>
+              </div>
+
+              <div>
+                <div className="text-3xl sm:text-4xl font-black font-mono text-emerald-400">
+                  {todaySteps.toLocaleString()} <span className="text-sm font-medium text-zinc-400">steps</span>
+                </div>
+                <div className="text-xs text-zinc-400 mt-1">
+                  {todayStepMiles} miles • {todayStepCalories} active kcal burned
                 </div>
               </div>
 
               {/* Progress bar */}
-              <div className="w-full h-1.5 bg-surface-300 rounded-full mt-3 overflow-hidden">
-                <div
-                  className="h-full bg-gradient-to-r from-brand-500 to-accent-teal transition-all duration-300"
-                  style={{ width: `${workoutProgress}%` }}
-                />
+              <div className="space-y-1.5">
+                <div className="w-full h-3 bg-surface-300 rounded-full overflow-hidden border border-surface-border">
+                  <div
+                    className="h-full bg-gradient-to-r from-emerald-500 to-teal-400 rounded-full transition-all duration-500"
+                    style={{ width: `${Math.min(100, Math.round((todaySteps / (stepGoal || 10000)) * 100))}%` }}
+                  />
+                </div>
+                <div className="flex justify-between text-[11px] font-mono text-zinc-400">
+                  <span>{Math.min(100, Math.round((todaySteps / (stepGoal || 10000)) * 100))}% of {stepGoal.toLocaleString()} goal</span>
+                  <span className="text-emerald-300 font-bold">{Math.max(0, stepGoal - todaySteps).toLocaleString()} left</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Two-Column Middle Area: 1-Tap Meals & Today's Movement */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Left 2 Columns: 1-Tap Wholesome Meals */}
+            <div className="lg:col-span-2 space-y-6">
+              <div className="p-6 rounded-3xl bg-surface-100/90 border border-surface-border backdrop-blur-xl space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-2xl bg-brand-500/10 border border-brand-500/20 flex items-center justify-center">
+                      <UtensilsCrossed className="w-5 h-5 text-brand-400" />
+                    </div>
+                    <div>
+                      <h2 className="text-base font-bold text-zinc-100">1-Tap Wholesome Meals</h2>
+                      <p className="text-xs text-zinc-400">Tap to instantly record a wholesome balanced plate</p>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => setActiveTab('nutrition')}
+                    className="text-xs font-semibold text-brand-400 hover:text-brand-300 flex items-center gap-1 cursor-pointer"
+                  >
+                    <span>View All Meals</span>
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                  {[
+                    { id: 'p1', name: '🥣 Oatmeal & Fresh Berries', cals: 350, desc: 'Rolled oats, blueberries & almond butter' },
+                    { id: 'p2', name: '🥗 Grilled Chicken Power Bowl', cals: 520, desc: 'Tender chicken, jasmine rice & broccoli' },
+                    { id: 'p3', name: '🐟 Salmon & Sweet Potato', cals: 580, desc: 'Wild salmon, roasted sweet potato & asparagus' },
+                    { id: 'p4', name: '🍓 Greek Yogurt & Berries', cals: 200, desc: 'Non-fat Greek yogurt with fresh strawberries' },
+                  ].map((meal) => (
+                    <div
+                      key={meal.id}
+                      className="p-4 rounded-2xl bg-surface-200/80 border border-surface-border flex items-center justify-between gap-3 hover:border-brand-500/40 transition-all"
+                    >
+                      <div className="min-w-0">
+                        <div className="text-xs sm:text-sm font-bold text-zinc-100 truncate">{meal.name}</div>
+                        <div className="text-[11px] text-zinc-400 mt-0.5">{meal.desc}</div>
+                        <div className="text-[11px] font-mono font-bold text-brand-400 mt-1">+{meal.cals} kcal</div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setActiveTab('nutrition')}
+                        className="px-3 py-1.5 rounded-xl bg-brand-500/15 hover:bg-brand-500 text-brand-300 hover:text-zinc-950 text-xs font-bold transition-all shrink-0 cursor-pointer active:scale-95"
+                      >
+                        + Log
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Eating Schedule Card */}
+              <div className="p-6 rounded-3xl bg-surface-100/90 border border-surface-border backdrop-blur-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-2xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center">
+                    <Sun className="w-5 h-5 text-purple-400" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-bold text-zinc-100">
+                      {fastingStatus.isFasting ? 'Rest & Digest Hours 🌙' : 'Daytime Eating Hours ☀️'}
+                    </h3>
+                    <p className="text-xs text-zinc-400 mt-0.5">
+                      {fastingStatus.isFasting
+                        ? 'Drink water, herbal tea, or black coffee to stay refreshed.'
+                        : 'Fuel your body with wholesome meals and healthy hydration.'}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="text-right font-mono self-end sm:self-center">
+                  <div className="text-lg font-black text-brand-300">
+                    {remainingHours}h {remainingMins}m
+                  </div>
+                  <div className="text-[10px] text-zinc-400 uppercase">
+                    {fastingStatus.isFasting ? 'Until Breakfast' : 'Remaining Today'}
+                  </div>
+                </div>
               </div>
             </div>
 
-            {/* Exercise Checklist */}
-            <div className="space-y-2">
-              {todayWorkout.exercises.map((slot) => (
-                <div
-                  key={slot.id}
-                  onClick={() => toggleExerciseCompleted(todayWorkout.id, slot.id)}
-                  className={`flex items-center justify-between p-3 rounded-xl border cursor-pointer transition-all ${
-                    slot.completed
-                      ? 'bg-brand-500/10 border-brand-500/30 text-zinc-300'
-                      : 'bg-surface-200/50 border-surface-border hover:border-zinc-700 text-zinc-300'
-                  }`}
-                >
-                  <div className="flex items-center gap-2.5">
-                    {slot.completed ? (
-                      <CheckCircle2 className="w-4 h-4 text-brand-400 shrink-0" />
-                    ) : (
-                      <Circle className="w-4 h-4 text-zinc-500 shrink-0" />
-                    )}
-                    <span className={`text-xs font-medium ${slot.completed ? 'line-through text-zinc-500' : 'text-zinc-200'}`}>
-                      {slot.exercise.name}
-                    </span>
+            {/* Right 1 Column: Today's Gentle Movement & Habit Check */}
+            <div className="space-y-6">
+              {/* Today's Gentle Movement Card */}
+              <div className="p-6 rounded-3xl bg-surface-100/90 border border-surface-border backdrop-blur-xl space-y-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-2xl bg-accent-teal/10 border border-accent-teal/20 flex items-center justify-center">
+                    <Dumbbell className="w-5 h-5 text-accent-teal" />
                   </div>
-                  <span className="text-[10px] font-mono text-zinc-400">
-                    {slot.target_sets} sets
-                  </span>
+                  <div>
+                    <h2 className="text-base font-bold text-zinc-100">Today's Movement</h2>
+                    <p className="text-xs text-zinc-400">Gentle, feel-good daily activity</p>
+                  </div>
                 </div>
-              ))}
-            </div>
 
-            <button
-              onClick={() => setActiveTab('workouts')}
-              className="w-full mt-4 py-2.5 rounded-xl bg-surface-200 hover:bg-surface-300 border border-surface-border text-zinc-200 text-xs font-semibold flex items-center justify-center gap-2 transition-colors"
-            >
-              <span>{isSimple ? 'View Routine Guide' : 'Open Workout Player'}</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </button>
-          </div>
+                <div className="space-y-2 pt-1">
+                  {[
+                    { id: 'm1', title: '🚶 20-Minute Brisk Walk', desc: 'Fresh air & gentle heart rate boost' },
+                    { id: 'm2', title: '🧘 10-Minute Morning Stretch', desc: 'Relax neck, shoulders, and hips' },
+                    { id: 'm3', title: '💪 15-Minute Light Tone', desc: 'Easy bodyweight strength routine' },
+                  ].map((m) => (
+                    <div
+                      key={m.id}
+                      className="p-3.5 rounded-2xl bg-surface-200/60 border border-surface-border flex items-center justify-between"
+                    >
+                      <div>
+                        <div className="text-xs font-bold text-zinc-200">{m.title}</div>
+                        <div className="text-[10px] text-zinc-400 mt-0.5">{m.desc}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
 
-          {/* Daily Positive Wellness Note */}
-          <div className="p-5 rounded-3xl bg-surface-100/90 border border-surface-border backdrop-blur-xl space-y-2">
-            <div className="flex items-center gap-2 text-xs font-bold text-brand-400">
-              <Sparkles className="w-4 h-4 text-brand-400" />
-              <span>Healthy Living Tip</span>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('workouts')}
+                  className="w-full py-3 rounded-2xl bg-gradient-to-r from-brand-500 to-accent-teal text-zinc-950 text-xs font-black shadow-glow flex items-center justify-center gap-2 cursor-pointer active:scale-95 transition-all"
+                >
+                  <CheckCircle2 className="w-4 h-4" />
+                  <span>Open Movement Routine</span>
+                </button>
+              </div>
+
+              {/* Friendly Daily Tip */}
+              <div className="p-5 rounded-3xl bg-surface-100/90 border border-surface-border backdrop-blur-xl space-y-2">
+                <div className="flex items-center gap-2 text-xs font-bold text-brand-400">
+                  <Sparkles className="w-4 h-4 text-brand-400" />
+                  <span>Healthy Living Note</span>
+                </div>
+                <p className="text-xs text-zinc-300 leading-relaxed">
+                  "Small daily habits create long-term health. Enjoy delicious wholesome food, take a refreshing walk, and get a good night's sleep."
+                </p>
+              </div>
             </div>
-            <p className="text-xs text-zinc-300 leading-relaxed">
-              "Consistency over perfection. Eating balanced meals, drinking plenty of water, and taking a short walk each day creates lasting lifelong vitality."
-            </p>
           </div>
         </div>
-      </div>
+      ) : (
+        /* ================= ATHLETE METRIC ENGINE ================= */
+        <div className="space-y-6">
+          {/* 4 Precision Macro Rings */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <MacroProgressRing
+              label="Calories"
+              current={todayMacros.calories}
+              target={profile.daily_calorie_target}
+              unit="kcal"
+              color="#10b981"
+              sublabel={`${todayRemaining.calories} kcal remaining`}
+            />
+            <MacroProgressRing
+              label="Protein"
+              current={todayMacros.protein}
+              target={profile.protein_target_g}
+              unit="g"
+              color="#14b8a6"
+              sublabel={`${todayRemaining.protein}g left (1.0g/lb lean)`}
+            />
+            <MacroProgressRing
+              label="Carbohydrates"
+              current={todayMacros.carbs}
+              target={profile.carb_target_g}
+              unit="g"
+              color="#06b6d4"
+              sublabel={`${todayRemaining.carbs}g left (Complex Fuel)`}
+            />
+            <MacroProgressRing
+              label="Healthy Fats"
+              current={todayMacros.fat}
+              target={profile.fat_target_g}
+              unit="g"
+              color="#f59e0b"
+              sublabel={`${todayRemaining.fat}g left (25% Total)`}
+            />
+          </div>
+
+          {/* Hydration Engine & Step Tracker Suite */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <HydrationTracker />
+            <StepTracker />
+          </div>
+
+          {/* Main Two-Column Dashboard Body */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Left 2 Columns: Fasting Status & Today's Meals */}
+            <div className="lg:col-span-2 space-y-6">
+              {/* Fasting & Eating Window Card */}
+              <div className="rounded-3xl bg-surface-100/90 border border-surface-border p-6 backdrop-blur-xl">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-2xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center">
+                      <Timer className="w-5 h-5 text-purple-400" />
+                    </div>
+                    <div>
+                      <h2 className="text-base font-bold text-zinc-100">Fasting & Eating Window</h2>
+                      <p className="text-xs text-zinc-400">
+                        {currentFastingConfig.name} ({profile.eating_window_duration_hours}h Feeding Window)
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setActiveTab('fasting')}
+                    className="text-xs font-semibold text-brand-400 hover:text-brand-300 flex items-center gap-1 cursor-pointer"
+                  >
+                    <span>Adjust</span>
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-surface-200/80 border border-surface-border flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div className="flex items-center gap-3">
+                    <span className={`w-3.5 h-3.5 rounded-full ${fastingStatus.isFasting ? 'bg-purple-500 animate-pulse' : 'bg-brand-500 animate-pulse'}`} />
+                    <div>
+                      <div className="text-xs font-bold text-zinc-100">
+                        {fastingStatus.isFasting ? 'Currently in Fasting State' : 'Currently in Eating Window'}
+                      </div>
+                      <div className="text-xs text-zinc-400 mt-0.5">
+                        {fastingStatus.isFasting ? 'Cells are burning stored fatty acids.' : 'Digestive enzymes active for nutrient partitioning.'}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="text-right font-mono self-end sm:self-center">
+                    <div className="text-lg font-black text-brand-300">
+                      {remainingHours}h {remainingMins}m
+                    </div>
+                    <div className="text-[10px] text-zinc-400 uppercase">
+                      {fastingStatus.isFasting ? 'Until Eating Window' : 'Until Fasting Starts'}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Today's Meals Timeline */}
+              <div className="rounded-3xl bg-surface-100/90 border border-surface-border p-6 backdrop-blur-xl space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-2xl bg-brand-500/10 border border-brand-500/20 flex items-center justify-center">
+                      <UtensilsCrossed className="w-5 h-5 text-brand-400" />
+                    </div>
+                    <div>
+                      <h2 className="text-base font-bold text-zinc-100">Today's Nutrition Breakdown</h2>
+                      <p className="text-xs text-zinc-400">
+                        {profile.meal_count} meals planned • {todayRemaining.calories} kcal remaining
+                      </p>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => setActiveTab('nutrition')}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-brand-500/15 hover:bg-brand-500/25 border border-brand-500/30 text-xs font-semibold text-brand-300 transition-colors cursor-pointer"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>Log Meal</span>
+                  </button>
+                </div>
+
+                {/* Meal Slots List */}
+                <div className="space-y-3">
+                  {mealSplitTargets.map((target) => {
+                    const logsForMeal = currentDayFoodLogs.filter((l) => l.meal_index === target.mealIndex);
+                    const loggedCalories = logsForMeal.reduce((sum, l) => sum + l.calories, 0);
+                    const loggedProtein = logsForMeal.reduce((sum, l) => sum + l.protein_g, 0);
+
+                    return (
+                      <div
+                        key={target.mealIndex}
+                        className="p-4 rounded-2xl bg-surface-200/60 border border-surface-border hover:border-zinc-700 transition-colors"
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <div
+                              className={`w-8 h-8 rounded-xl flex items-center justify-center font-bold font-mono text-xs ${
+                                logsForMeal.length > 0
+                                  ? 'bg-brand-500 text-zinc-950'
+                                  : 'bg-surface-300 text-zinc-400'
+                              }`}
+                            >
+                              {target.mealIndex}
+                            </div>
+                            <div>
+                              <div className="text-sm font-semibold text-zinc-200 flex items-center gap-2">
+                                <span>{target.title}</span>
+                                <span className="text-[10px] px-2 py-0.5 rounded bg-surface-300 text-zinc-400 font-mono">
+                                  ~{target.suggestedTime}
+                                </span>
+                              </div>
+                              <div className="text-xs text-zinc-400 mt-0.5">
+                                Target: <span className="text-zinc-200 font-medium">{target.calories} kcal</span>
+                                {` (${target.protein_g}g P / ${target.carbs_g}g C / ${target.fat_g}g F)`}
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="text-right">
+                            <div className="text-sm font-bold font-mono text-zinc-100">
+                              {loggedCalories} <span className="text-xs font-normal text-zinc-400">kcal logged</span>
+                            </div>
+                            <div className="text-[11px] text-zinc-400 font-mono">
+                              {loggedProtein.toFixed(0)}g protein
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Logged Items Chips */}
+                        {logsForMeal.length > 0 && (
+                          <div className="mt-3 pt-3 border-t border-surface-border/60 flex flex-wrap gap-1.5">
+                            {logsForMeal.map((log) => (
+                              <span
+                                key={log.id}
+                                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-surface-300 text-zinc-300 text-xs border border-surface-border"
+                              >
+                                <span>{log.food_name}</span>
+                                <span className="text-zinc-400 font-mono text-[10px]">({log.grams_consumed}g)</span>
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+
+            {/* Right Column: Today's Routine & Helpful Telemetry */}
+            <div className="space-y-6">
+              {/* Today's Workout Card */}
+              <div className="rounded-3xl bg-surface-100/90 border border-surface-border p-6 backdrop-blur-xl">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-2xl bg-accent-teal/10 border border-accent-teal/20 flex items-center justify-center">
+                      <Dumbbell className="w-5 h-5 text-accent-teal" />
+                    </div>
+                    <div>
+                      <h2 className="text-base font-bold text-zinc-100">Today's Workout</h2>
+                      <p className="text-xs text-zinc-400">
+                        Week {activeWeek}, Day {activeDay} Training Split
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-surface-200/90 border border-surface-border mb-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="text-xs uppercase tracking-wider font-semibold text-accent-teal">
+                        {todayWorkout.split_type.replace('_', ' ').toUpperCase()}
+                      </div>
+                      <h3 className="text-base font-bold text-white mt-0.5">{todayWorkout.day_title}</h3>
+                    </div>
+                    <div className="text-right">
+                      <span className="text-xs font-mono font-bold text-brand-400">
+                        {completedExercisesCount}/{totalExercisesCount}
+                      </span>
+                      <div className="text-[10px] text-zinc-400">Completed</div>
+                    </div>
+                  </div>
+
+                  {/* Progress bar */}
+                  <div className="w-full h-1.5 bg-surface-300 rounded-full mt-3 overflow-hidden">
+                    <div
+                      className="h-full bg-gradient-to-r from-brand-500 to-accent-teal transition-all duration-300"
+                      style={{ width: `${workoutProgress}%` }}
+                    />
+                  </div>
+                </div>
+
+                {/* Exercise Checklist */}
+                <div className="space-y-2">
+                  {todayWorkout.exercises.map((slot) => (
+                    <div
+                      key={slot.id}
+                      onClick={() => toggleExerciseCompleted(todayWorkout.id, slot.id)}
+                      className={`flex items-center justify-between p-3 rounded-xl border cursor-pointer transition-all ${
+                        slot.completed
+                          ? 'bg-brand-500/10 border-brand-500/30 text-zinc-300'
+                          : 'bg-surface-200/50 border-surface-border hover:border-zinc-700 text-zinc-300'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2.5">
+                        {slot.completed ? (
+                          <CheckCircle2 className="w-4 h-4 text-brand-400 shrink-0" />
+                        ) : (
+                          <Circle className="w-4 h-4 text-zinc-500 shrink-0" />
+                        )}
+                        <span className={`text-xs font-medium ${slot.completed ? 'line-through text-zinc-500' : 'text-zinc-200'}`}>
+                          {slot.exercise.name}
+                        </span>
+                      </div>
+                      <span className="text-[10px] font-mono text-zinc-400">
+                        {slot.target_sets} sets
+                      </span>
+                    </div>
+                  ))}
+                </div>
+
+                <button
+                  onClick={() => setActiveTab('workouts')}
+                  className="w-full mt-4 py-2.5 rounded-xl bg-surface-200 hover:bg-surface-300 border border-surface-border text-zinc-200 text-xs font-semibold flex items-center justify-center gap-2 transition-colors cursor-pointer"
+                >
+                  <span>Open Workout Player</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
+
+              {/* Athlete Telemetry Note */}
+              <div className="p-5 rounded-3xl bg-surface-100/90 border border-surface-border backdrop-blur-xl space-y-2">
+                <div className="flex items-center gap-2 text-xs font-bold text-brand-400">
+                  <Zap className="w-4 h-4 text-brand-400" />
+                  <span>Performance Optimization</span>
+                </div>
+                <p className="text-xs text-zinc-300 leading-relaxed">
+                  "Maintain clean progressive overload and prioritize 1.0g protein per lb of lean mass to maximize MPS."
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

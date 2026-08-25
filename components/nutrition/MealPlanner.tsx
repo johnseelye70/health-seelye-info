@@ -260,7 +260,7 @@ export const MealPlanner: React.FC = () => {
 
       {/* Target Progress: Simple vs Athlete Layout */}
       {isSimple ? (
-        /* SIMPLE MODE: Calorie Balance Bar + 1-Click Wholesome Meal Presets */
+        /* ================= SIMPLE MODE: CALORIE BALANCE & 1-CLICK WHOLESOME PLATES ================= */
         <div className="space-y-6">
           {/* Calorie Balance Card */}
           <div className="p-6 rounded-3xl bg-surface-100/90 border border-surface-border backdrop-blur-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -278,7 +278,7 @@ export const MealPlanner: React.FC = () => {
             <div className="w-full sm:w-64 space-y-1.5">
               <div className="flex justify-between text-xs font-mono text-zinc-400">
                 <span>{Math.round((todayMacros.calories / (profile.daily_calorie_target || 2000)) * 100)}% Consumed</span>
-                <span className="text-brand-400 font-bold">{todayRemaining.calories} left</span>
+                <span className="text-brand-300 font-bold">{todayRemaining.calories} left</span>
               </div>
               <div className="w-full h-3 bg-surface-300 rounded-full overflow-hidden border border-surface-border">
                 <div
@@ -331,173 +331,257 @@ export const MealPlanner: React.FC = () => {
               ))}
             </div>
           </div>
+
+          {/* Visual Hand-Portion Sizing Guide */}
+          <div className="p-6 rounded-3xl bg-surface-100/90 border border-surface-border backdrop-blur-xl space-y-4">
+            <div className="flex items-center gap-2">
+              <UtensilsCrossed className="w-4 h-4 text-brand-400" />
+              <h2 className="text-base font-bold text-zinc-100">Simple Hand Portion Guide (Zero Scale Math)</h2>
+            </div>
+            <p className="text-xs text-zinc-400">
+              No need to weigh foods on a digital scale. Use your hand as an intuitive visual portion guide:
+            </p>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-2">
+              <div className="p-4 rounded-2xl bg-surface-200/70 border border-surface-border space-y-1">
+                <div className="text-2xl">🥩</div>
+                <div className="text-xs font-bold text-zinc-100">1 Palm = Lean Protein</div>
+                <div className="text-[11px] text-zinc-400">Chicken, fish, beef, tofu (~25-30g protein, ~180-220 kcal)</div>
+              </div>
+
+              <div className="p-4 rounded-2xl bg-surface-200/70 border border-surface-border space-y-1">
+                <div className="text-2xl">🥦</div>
+                <div className="text-xs font-bold text-zinc-100">1 Fist = Crisp Veggies</div>
+                <div className="text-[11px] text-zinc-400">Broccoli, spinach, peppers, asparagus (~25-40 kcal)</div>
+              </div>
+
+              <div className="p-4 rounded-2xl bg-surface-200/70 border border-surface-border space-y-1">
+                <div className="text-2xl">🍚</div>
+                <div className="text-xs font-bold text-zinc-100">1 Cupped Hand = Carbs</div>
+                <div className="text-[11px] text-zinc-400">Jasmine rice, oats, sweet potato, quinoa (~150-200 kcal)</div>
+              </div>
+
+              <div className="p-4 rounded-2xl bg-surface-200/70 border border-surface-border space-y-1">
+                <div className="text-2xl">🥑</div>
+                <div className="text-xs font-bold text-zinc-100">1 Thumb = Healthy Fats</div>
+                <div className="text-[11px] text-zinc-400">Olive oil, avocado, almonds, walnuts (~80-120 kcal)</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Today's Logged Food Items List */}
+          <div className="p-6 rounded-3xl bg-surface-100/90 border border-surface-border backdrop-blur-xl space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-base font-bold text-zinc-100">Today's Meals Eaten</h2>
+              <span className="text-xs font-mono text-brand-400 font-bold">
+                {currentDayFoodLogs.length} items logged ({todayMacros.calories} kcal)
+              </span>
+            </div>
+
+            {currentDayFoodLogs.length === 0 ? (
+              <div className="text-center py-8 text-xs text-zinc-400 bg-surface-200/40 rounded-2xl border border-surface-border">
+                No food logged yet today. Tap any of the wholesome meals above to get started! 🌟
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {currentDayFoodLogs.map((log) => (
+                  <div
+                    key={log.id}
+                    className="p-3.5 rounded-2xl bg-surface-200/70 border border-surface-border flex items-center justify-between"
+                  >
+                    <div>
+                      <div className="text-xs sm:text-sm font-bold text-zinc-200">{log.food_name}</div>
+                      <div className="text-[11px] text-zinc-400 mt-0.5">
+                        Meal {log.meal_index} • {log.grams_consumed}g portion
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span className="text-xs font-mono font-bold text-brand-400">
+                        +{log.calories} kcal
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => deleteFoodLog(log.id)}
+                        className="text-zinc-500 hover:text-rose-400 p-1.5 rounded-lg hover:bg-surface-300 transition-colors"
+                        title="Delete entry"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       ) : (
-        /* ATHLETE MODE: 4 FULL MACRO RINGS */
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <MacroProgressRing
-            label="Calories"
-            current={todayMacros.calories}
-            target={profile.daily_calorie_target}
-            unit="kcal"
-            color="#10b981"
-          />
-          <MacroProgressRing
-            label="Protein"
-            current={todayMacros.protein}
-            target={profile.protein_target_g}
-            unit="g"
-            color="#14b8a6"
-          />
-          <MacroProgressRing
-            label="Carbohydrates"
-            current={todayMacros.carbs}
-            target={profile.carb_target_g}
-            unit="g"
-            color="#06b6d4"
-          />
-          <MacroProgressRing
-            label="Healthy Fats"
-            current={todayMacros.fat}
-            target={profile.fat_target_g}
-            unit="g"
-            color="#f59e0b"
+        /* ================= ATHLETE MODE: 4 FULL MACRO RINGS & SPLITTER ================= */
+        <div className="space-y-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <MacroProgressRing
+              label="Calories"
+              current={todayMacros.calories}
+              target={profile.daily_calorie_target}
+              unit="kcal"
+              color="#10b981"
+            />
+            <MacroProgressRing
+              label="Protein"
+              current={todayMacros.protein}
+              target={profile.protein_target_g}
+              unit="g"
+              color="#14b8a6"
+            />
+            <MacroProgressRing
+              label="Carbohydrates"
+              current={todayMacros.carbs}
+              target={profile.carb_target_g}
+              unit="g"
+              color="#06b6d4"
+            />
+            <MacroProgressRing
+              label="Healthy Fats"
+              current={todayMacros.fat}
+              target={profile.fat_target_g}
+              unit="g"
+              color="#f59e0b"
+            />
+          </div>
+
+          {/* Dynamic Meal Splitter Selector */}
+          <div className="p-6 rounded-3xl bg-surface-100/90 border border-surface-border backdrop-blur-xl">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-surface-border/80">
+              <div>
+                <h2 className="text-base font-bold text-zinc-100 flex items-center gap-2">
+                  <Layers className="w-4 h-4 text-brand-400" />
+                  <span>Dynamic Meal Splitter Engine</span>
+                </h2>
+                <p className="text-xs text-zinc-400 mt-0.5">
+                  Choose your meal cadence. Targets automatically recalculate across your feeding window.
+                </p>
+              </div>
+
+              {/* Meal Count Switcher Buttons */}
+              <div className="flex items-center gap-2 bg-surface-200/90 p-1.5 rounded-2xl border border-surface-border">
+                {[2, 3, 4].map((count) => {
+                  const isSelected = profile.meal_count === count;
+                  return (
+                    <button
+                      key={count}
+                      id={`btn-meal-count-${count}`}
+                      onClick={() => handleMealCountChange(count)}
+                      className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+                        isSelected
+                          ? 'bg-gradient-to-r from-brand-500 to-accent-teal text-zinc-950 shadow-glow font-bold'
+                          : 'text-zinc-400 hover:text-zinc-200'
+                      }`}
+                    >
+                      {count} Meals / Day
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Dynamic Meal Allocation Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mt-6">
+              {mealSplitTargets.map((target) => {
+                const logs = currentDayFoodLogs.filter((log) => log.meal_index === target.mealIndex);
+                const totalCals = logs.reduce((sum, item) => sum + item.calories, 0);
+                const totalProtein = logs.reduce((sum, item) => sum + item.protein_g, 0);
+                const totalCarbs = logs.reduce((sum, item) => sum + item.carbs_g, 0);
+                const totalFat = logs.reduce((sum, item) => sum + item.fat_g, 0);
+
+                return (
+                  <div
+                    key={target.mealIndex}
+                    className="rounded-2xl bg-surface-200/70 border border-surface-border p-4 flex flex-col justify-between hover:border-zinc-700 transition-all"
+                  >
+                    <div>
+                      {/* Meal Header */}
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-2">
+                          <span className="w-6 h-6 rounded-full bg-brand-500/20 text-brand-400 flex items-center justify-center font-mono font-bold text-xs">
+                            {target.mealIndex}
+                          </span>
+                          <div>
+                            <div className="text-xs font-bold text-zinc-100">{target.title}</div>
+                            <div className="text-[10px] text-zinc-400 font-mono">Suggested: ~{target.suggestedTime}</div>
+                          </div>
+                        </div>
+                        <span className="text-[10px] px-2 py-0.5 rounded bg-surface-300 text-zinc-400 font-mono">
+                          {target.percentOfTotal}% Split
+                        </span>
+                      </div>
+
+                      {/* Target Macros Pill */}
+                      <div className="p-2.5 rounded-xl bg-surface-300/60 border border-surface-border/60 text-[11px] font-mono text-zinc-300 flex justify-between items-center mb-3">
+                        <span>Target: <strong>{target.calories} kcal</strong></span>
+                        <span className="text-zinc-400">
+                          {target.protein_g}P / {target.carbs_g}C / {target.fat_g}F
+                        </span>
+                      </div>
+
+                      {/* Logged Items List */}
+                      <div className="space-y-2 min-h-[70px]">
+                        {logs.length === 0 ? (
+                          <div className="text-[11px] text-zinc-500 italic text-center py-4">
+                            No food logged yet
+                          </div>
+                        ) : (
+                          logs.map((log) => (
+                            <div
+                              key={log.id}
+                              className="flex items-center justify-between p-2 rounded-lg bg-surface-100/80 border border-surface-border text-xs"
+                            >
+                              <div className="truncate mr-2">
+                                <div className="font-semibold text-zinc-200 truncate">{log.food_name}</div>
+                                <div className="text-[10px] text-zinc-400 font-mono">
+                                  {log.grams_consumed}g • {log.calories} kcal ({log.protein_g}g P)
+                                </div>
+                              </div>
+                              <button
+                                onClick={() => deleteFoodLog(log.id)}
+                                className="text-zinc-500 hover:text-rose-400 p-1 rounded transition-colors"
+                                title="Delete log"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Card Footer: Summary & Log Button */}
+                    <div className="pt-3 border-t border-surface-border/80 mt-3 flex items-center justify-between">
+                      <div className="text-[11px] font-mono text-zinc-400">
+                        Logged: <strong className="text-zinc-100">{totalCals}</strong> / {target.calories} kcal
+                      </div>
+                      <button
+                        onClick={() => handleOpenLogModal(target.mealIndex)}
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-surface-100 hover:bg-surface-50 border border-surface-border text-xs font-semibold text-brand-400 transition-all hover:border-brand-500/40"
+                      >
+                        <Plus className="w-3.5 h-3.5" />
+                        <span>Log Item</span>
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Layered & Searchable Complete Food Database Section */}
+          <FoodDatabaseBrowser
+            onLogToMeal={(item, mealIdx) => {
+              setSelectedFoodForLog(item);
+              setGramsToLog(item.serving_size_g);
+              setSelectedMealIndex(mealIdx || 1);
+            }}
           />
         </div>
       )}
-
-      {/* Dynamic Meal Splitter Selector */}
-      <div className="p-6 rounded-3xl bg-surface-100/90 border border-surface-border backdrop-blur-xl">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-surface-border/80">
-          <div>
-            <h2 className="text-base font-bold text-zinc-100 flex items-center gap-2">
-              <Layers className="w-4 h-4 text-brand-400" />
-              <span>Dynamic Meal Splitter Engine</span>
-            </h2>
-            <p className="text-xs text-zinc-400 mt-0.5">
-              Choose your meal cadence. Targets automatically recalculate across your feeding window.
-            </p>
-          </div>
-
-          {/* Meal Count Switcher Buttons */}
-          <div className="flex items-center gap-2 bg-surface-200/90 p-1.5 rounded-2xl border border-surface-border">
-            {[2, 3, 4].map((count) => {
-              const isSelected = profile.meal_count === count;
-              return (
-                <button
-                  key={count}
-                  id={`btn-meal-count-${count}`}
-                  onClick={() => handleMealCountChange(count)}
-                  className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-                    isSelected
-                      ? 'bg-gradient-to-r from-brand-500 to-accent-teal text-zinc-950 shadow-glow font-bold'
-                      : 'text-zinc-400 hover:text-zinc-200'
-                  }`}
-                >
-                  {count} Meals / Day
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Dynamic Meal Allocation Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mt-6">
-          {mealSplitTargets.map((target) => {
-            const logs = currentDayFoodLogs.filter((log) => log.meal_index === target.mealIndex);
-            const totalCals = logs.reduce((sum, item) => sum + item.calories, 0);
-            const totalProtein = logs.reduce((sum, item) => sum + item.protein_g, 0);
-            const totalCarbs = logs.reduce((sum, item) => sum + item.carbs_g, 0);
-            const totalFat = logs.reduce((sum, item) => sum + item.fat_g, 0);
-
-            return (
-              <div
-                key={target.mealIndex}
-                className="rounded-2xl bg-surface-200/70 border border-surface-border p-4 flex flex-col justify-between hover:border-zinc-700 transition-all"
-              >
-                <div>
-                  {/* Meal Header */}
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-2">
-                      <span className="w-6 h-6 rounded-full bg-brand-500/20 text-brand-400 flex items-center justify-center font-mono font-bold text-xs">
-                        {target.mealIndex}
-                      </span>
-                      <div>
-                        <div className="text-xs font-bold text-zinc-100">{target.title}</div>
-                        <div className="text-[10px] text-zinc-400 font-mono">Suggested: ~{target.suggestedTime}</div>
-                      </div>
-                    </div>
-                    <span className="text-[10px] px-2 py-0.5 rounded bg-surface-300 text-zinc-400 font-mono">
-                      {target.percentOfTotal}% Split
-                    </span>
-                  </div>
-
-                  {/* Target Macros Pill */}
-                  <div className="p-2.5 rounded-xl bg-surface-300/60 border border-surface-border/60 text-[11px] font-mono text-zinc-300 flex justify-between items-center mb-3">
-                    <span>Target: <strong>{target.calories} kcal</strong></span>
-                    <span className="text-zinc-400">
-                      {target.protein_g}P / {target.carbs_g}C / {target.fat_g}F
-                    </span>
-                  </div>
-
-                  {/* Logged Items List */}
-                  <div className="space-y-2 min-h-[70px]">
-                    {logs.length === 0 ? (
-                      <div className="text-[11px] text-zinc-500 italic text-center py-4">
-                        No food logged yet
-                      </div>
-                    ) : (
-                      logs.map((log) => (
-                        <div
-                          key={log.id}
-                          className="flex items-center justify-between p-2 rounded-lg bg-surface-100/80 border border-surface-border text-xs"
-                        >
-                          <div className="truncate mr-2">
-                            <div className="font-semibold text-zinc-200 truncate">{log.food_name}</div>
-                            <div className="text-[10px] text-zinc-400 font-mono">
-                              {log.grams_consumed}g • {log.calories} kcal ({log.protein_g}g P)
-                            </div>
-                          </div>
-                          <button
-                            onClick={() => deleteFoodLog(log.id)}
-                            className="text-zinc-500 hover:text-rose-400 p-1 rounded transition-colors"
-                            title="Delete log"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
-                      ))
-                    )}
-                  </div>
-                </div>
-
-                {/* Card Footer: Summary & Log Button */}
-                <div className="pt-3 border-t border-surface-border/80 mt-3 flex items-center justify-between">
-                  <div className="text-[11px] font-mono text-zinc-400">
-                    Logged: <strong className="text-zinc-100">{totalCals}</strong> / {target.calories} kcal
-                  </div>
-                  <button
-                    onClick={() => handleOpenLogModal(target.mealIndex)}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-surface-100 hover:bg-surface-50 border border-surface-border text-xs font-semibold text-brand-400 transition-all hover:border-brand-500/40"
-                  >
-                    <Plus className="w-3.5 h-3.5" />
-                    <span>Log Item</span>
-                  </button>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Layered & Searchable Complete Food Database Section */}
-      <FoodDatabaseBrowser
-        onLogToMeal={(item, mealIdx) => {
-          setSelectedFoodForLog(item);
-          setGramsToLog(item.serving_size_g);
-          setSelectedMealIndex(mealIdx || 1);
-        }}
-      />
 
       {/* Modal: Quick Food Logger */}
       {selectedMealIndex !== null && (

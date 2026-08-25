@@ -26,8 +26,10 @@ export const ProgressTrends: React.FC = () => {
     profile,
     weightLogs,
     logWeight,
+    updateProfile,
     experienceMode,
     waterGoalOz,
+    setWaterGoalOz,
     todayWaterOz,
     stepGoal,
     todaySteps,
@@ -364,6 +366,82 @@ export const ProgressTrends: React.FC = () => {
           </table>
         </div>
       </div>
+
+      {/* Simple Mode: Inline Goal & Unit Preferences Card */}
+      {isSimple && (
+        <div className="p-6 md:p-8 rounded-3xl bg-surface-100/90 border border-surface-border backdrop-blur-xl space-y-6">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-brand-500/10 border border-brand-500/20 flex items-center justify-center">
+              <Sparkles className="w-5 h-5 text-brand-400" />
+            </div>
+            <div>
+              <h3 className="text-base font-bold text-zinc-100">My Personal Goals & Units</h3>
+              <p className="text-xs text-zinc-400">Customize your daily targets and units at any time</p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            {/* Unit Preference */}
+            <div className="p-4 rounded-2xl bg-surface-200/60 border border-surface-border space-y-2">
+              <label className="text-xs font-bold text-zinc-300">Unit Display</label>
+              <div className="flex rounded-xl bg-surface-300 p-1 border border-surface-border">
+                <button
+                  type="button"
+                  onClick={() => updateProfile({ unit_preference: 'imperial' })}
+                  className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                    isImperial ? 'bg-brand-500 text-zinc-950 shadow-glow' : 'text-zinc-400 hover:text-zinc-200'
+                  }`}
+                >
+                  lbs (Pounds)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => updateProfile({ unit_preference: 'metric' })}
+                  className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                    !isImperial ? 'bg-brand-500 text-zinc-950 shadow-glow' : 'text-zinc-400 hover:text-zinc-200'
+                  }`}
+                >
+                  kg (Kilograms)
+                </button>
+              </div>
+            </div>
+
+            {/* Daily Calorie Target */}
+            <div className="p-4 rounded-2xl bg-surface-200/60 border border-surface-border space-y-2">
+              <label className="text-xs font-bold text-zinc-300">Daily Calorie Target</label>
+              <div className="flex items-center gap-2">
+                <input
+                  type="number"
+                  value={profile.daily_calorie_target}
+                  onChange={(e) => updateProfile({ daily_calorie_target: Number(e.target.value) })}
+                  className="w-full px-3 py-2 rounded-xl bg-surface-300 border border-surface-border font-mono text-sm font-bold text-brand-400 focus:outline-none focus:border-brand-500"
+                  step={50}
+                  min={1000}
+                  max={5000}
+                />
+                <span className="text-xs font-mono text-zinc-400">kcal</span>
+              </div>
+            </div>
+
+            {/* Daily Water Target */}
+            <div className="p-4 rounded-2xl bg-surface-200/60 border border-surface-border space-y-2">
+              <label className="text-xs font-bold text-zinc-300">Daily Water Target</label>
+              <div className="flex items-center gap-2">
+                <input
+                  type="number"
+                  value={waterGoalOz}
+                  onChange={(e) => setWaterGoalOz(Number(e.target.value))}
+                  className="w-full px-3 py-2 rounded-xl bg-surface-300 border border-surface-border font-mono text-sm font-bold text-cyan-400 focus:outline-none focus:border-brand-500"
+                  step={8}
+                  min={32}
+                  max={200}
+                />
+                <span className="text-xs font-mono text-zinc-400">oz</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Modal: Log Weight */}
       {showLogModal && (

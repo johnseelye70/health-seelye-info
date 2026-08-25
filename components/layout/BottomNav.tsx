@@ -16,15 +16,22 @@ export const BottomNav: React.FC = () => {
   const { activeTab, setActiveTab, experienceMode } = useHealth();
   const isSimple = experienceMode === 'simple';
 
-  const navItems = [
-    { id: 'dashboard', label: 'Home', icon: LayoutDashboard },
-    { id: 'nutrition', label: 'Meals', icon: UtensilsCrossed },
-    { id: 'fasting', label: 'Fast', icon: Timer },
-    { id: 'workouts', label: 'Fitness', icon: Dumbbell },
-    { id: 'grocery', label: 'Grocery', icon: ShoppingCart },
-    { id: 'trends', label: 'Stats', icon: TrendingUp },
-    { id: 'settings', label: 'Profile', icon: SlidersHorizontal },
-  ] as const;
+  const navItems = isSimple
+    ? ([
+        { id: 'dashboard', label: 'Today', icon: LayoutDashboard },
+        { id: 'nutrition', label: 'Meals', icon: UtensilsCrossed },
+        { id: 'workouts', label: 'Movement', icon: Dumbbell },
+        { id: 'trends', label: 'Progress', icon: TrendingUp },
+      ] as const)
+    : ([
+        { id: 'dashboard', label: 'Home', icon: LayoutDashboard },
+        { id: 'nutrition', label: 'Meals', icon: UtensilsCrossed },
+        { id: 'fasting', label: 'Fast', icon: Timer },
+        { id: 'workouts', label: 'Fitness', icon: Dumbbell },
+        { id: 'grocery', label: 'Grocery', icon: ShoppingCart },
+        { id: 'trends', label: 'Stats', icon: TrendingUp },
+        { id: 'settings', label: 'Profile', icon: SlidersHorizontal },
+      ] as const);
 
   return (
     <nav

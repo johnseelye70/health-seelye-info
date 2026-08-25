@@ -211,6 +211,18 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'Beta 2.1.0',
+      date: '2026-08-25',
+      title: 'Radical Simplification of Simple Mode (4 Core Tabs & Zero Math)',
+      changes: [
+        'Consolidated Navigation: Streamlined Simple Mode from 7 dense tabs down to 4 ultra-clean tabs (Today, Food & Meals, Movement, Progress & Goals).',
+        'Intuitive Hand Portion Guide: Replaced digital gram-scale calculations with visual hand portion sizing (1 Palm Protein, 1 Fist Veggies, 1 Cup Carbs, 1 Thumb Fat).',
+        '1-Click Wholesome Meals: Added 1-tap wholesome meal plates (Oatmeal & Berries, Chicken Power Bowl, Salmon Sweet Potato) for instant effortless logging.',
+        'Gentle Feel-Good Movement: Replaced complex periodized splits with 3 gentle daily choices (20-min Walk, 10-min Stretch, 15-min Tone) and 1-tap completion.',
+        'Inline Goals & Preferences: Integrated unit preferences and calorie/water targets directly into Progress & Goals for zero-friction personalization.',
+      ],
+    },
+    {
       version: 'Beta 2.0.3',
       date: '2026-08-24',
       title: 'Consistent Title-Case Fasting State Labels Across All Modes',

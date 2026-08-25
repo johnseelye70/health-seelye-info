@@ -32,15 +32,22 @@ export const Sidebar: React.FC = () => {
 
   const isSimple = experienceMode === 'simple';
 
-  const navItems = [
-    { id: 'dashboard', label: isSimple ? 'Home Overview' : 'Dashboard', icon: LayoutDashboard, badge: null },
-    { id: 'nutrition', label: isSimple ? 'Food & Meals' : 'Meal Plan & Food', icon: UtensilsCrossed, badge: `${profile.meal_count} Meals` },
-    { id: 'fasting', label: isSimple ? 'Eating & Fasting' : 'Fasting Tracker', icon: Timer, badge: fastingStatus.isFasting ? (isSimple ? 'Fasting' : 'Fasting') : (isSimple ? 'Eating' : 'Eating') },
-    { id: 'workouts', label: isSimple ? 'Daily Fitness' : 'Workout Split', icon: Dumbbell, badge: isSimple ? 'Active' : '4-Week' },
-    { id: 'grocery', label: isSimple ? 'Shopping List' : 'Grocery Manager', icon: ShoppingCart, badge: 'Auto' },
-    { id: 'trends', label: isSimple ? 'My Progress' : 'Weight & Trends', icon: TrendingUp, badge: null },
-    { id: 'settings', label: isSimple ? 'Goals & Profile' : 'Macro & Profile', icon: SlidersHorizontal, badge: null },
-  ] as const;
+  const navItems = isSimple
+    ? ([
+        { id: 'dashboard', label: 'Today', icon: Sparkles, badge: null },
+        { id: 'nutrition', label: 'Food & Meals', icon: UtensilsCrossed, badge: null },
+        { id: 'workouts', label: 'Movement', icon: Dumbbell, badge: null },
+        { id: 'trends', label: 'Progress & Goals', icon: TrendingUp, badge: null },
+      ] as const)
+    : ([
+        { id: 'dashboard', label: 'Command Dashboard', icon: LayoutDashboard, badge: null },
+        { id: 'nutrition', label: 'Macro Split & Foods', icon: UtensilsCrossed, badge: `${profile.meal_count} Meals` },
+        { id: 'fasting', label: 'Fasting Telemetry', icon: Timer, badge: fastingStatus.isFasting ? 'Fasting' : 'Eating Window' },
+        { id: 'workouts', label: 'Workout Split & Math', icon: Dumbbell, badge: '4-Week' },
+        { id: 'grocery', label: 'Macro Requisition', icon: ShoppingCart, badge: 'Auto' },
+        { id: 'trends', label: 'Biometric Analytics', icon: TrendingUp, badge: null },
+        { id: 'settings', label: 'BMR & System Settings', icon: SlidersHorizontal, badge: null },
+      ] as const);
 
   return (
     <aside className="hidden md:flex flex-col w-64 bg-surface-200/90 border-r border-surface-border h-screen sticky top-0 backdrop-blur-xl z-30 select-none">
@@ -131,7 +138,7 @@ export const Sidebar: React.FC = () => {
       <div className="p-4 border-t border-surface-border text-xs text-zinc-400 bg-surface-300/30 flex items-center justify-between">
         <div className="flex items-center gap-1.5">
           <span className="w-2 h-2 rounded-full bg-brand-500 animate-pulse"></span>
-          <span className="font-mono text-[11px] text-zinc-300">Beta 2.0.3</span>
+          <span className="font-mono text-[11px] text-zinc-300">Beta 2.1.0</span>
         </div>
         <span className="text-[10px] text-zinc-400 font-mono">health.seelye.info</span>
       </div>
