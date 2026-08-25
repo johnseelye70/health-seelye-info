@@ -211,6 +211,17 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'Beta 2.4.3',
+      date: '2026-08-25',
+      title: 'Zero Forced Biometrics & Inline Biometrics Studio in Progress Section',
+      changes: [
+        'Zero Forced Biometrics: Eliminated hardcoded and unselected defaults (e.g. 176 lbs / 165 lbs / 15.3% body fat) from the Progress & Analytics section, ensuring every metric reflects real user data.',
+        'Inline Biometrics Studio: Added a dedicated, 1-click Biometrics Editor right inside the Progress section to customize Height (Feet & Inches or CM), Starting Weight, Target Goal Weight, Age, Biological Sex, and Activity Level.',
+        'Instant Target Recalculation: Saving custom biometrics immediately updates your Mifflin-St Jeor TDEE, macro distribution, and hydration targets in real-time.',
+        'Clean Empty State Trajectory: If no weigh-in entries have been recorded, displays an inviting check-in prompt instead of plotting arbitrary curves.',
+      ],
+    },
+    {
       version: 'Beta 2.4.2',
       date: '2026-08-25',
       title: 'iPhone Header Viewport Fit & Horizontal Elasticity Fix',
@@ -1189,7 +1200,7 @@ export const ProfileSettings: React.FC = () => {
             title="Click to open release changelog modal window"
           >
             <span className="w-2 h-2 rounded-full bg-brand-400 animate-pulse"></span>
-            <span>Active: Beta 2.4.2</span>
+            <span>Active: Beta 2.4.3</span>
             <ChevronRight className="w-3.5 h-3.5 text-brand-400 group-hover:translate-x-0.5 transition-transform" />
           </button>
         </div>
