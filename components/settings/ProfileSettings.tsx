@@ -211,6 +211,17 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'Beta 2.3.0',
+      date: '2026-08-25',
+      title: 'Apple Health Multi-Metric Color Overhaul & Dynamic Light/Dark Mode Switcher',
+      changes: [
+        'Multi-Metric Health Palette: Overhauled color system inspired by Apple Health and Fitness+, replacing monochrome green with vibrant semantic color coding for Movement (Flame Coral), Nutrition (Saffron & Sage), Hydration (Bio-Aqua Cyan), and Recovery/Fasting (Deep Lavender).',
+        'Dynamic Light & Dark Mode Engine: Built instant "Light / Dark" theme switcher in top navigation header with full CSS-variable token integration across all pages and components.',
+        'Fresh Morning Studio (Light Mode): Clean, airy slate-50 canvas (#f8fafc) with pure white frosted glass cards (#ffffff), crisp slate typography (#0f172a), and high-contrast accents.',
+        'Single-Scroll Modal Architecture: Completely eliminated nested scrollbars across all modals with pinned headers, pinned footers, and unified single-stream body scrolling.',
+      ],
+    },
+    {
       version: 'Beta 2.2.2',
       date: '2026-08-25',
       title: 'Complete Modal Popup Architecture for Recipes, Print Studio & Builders',
@@ -1147,7 +1158,7 @@ export const ProfileSettings: React.FC = () => {
             title="Click to open release changelog modal window"
           >
             <span className="w-2 h-2 rounded-full bg-brand-400 animate-pulse"></span>
-            <span>Active: Beta 2.2.2</span>
+            <span>Active: Beta 2.3.0</span>
             <ChevronRight className="w-3.5 h-3.5 text-brand-400 group-hover:translate-x-0.5 transition-transform" />
           </button>
         </div>
