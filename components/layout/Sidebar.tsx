@@ -133,7 +133,7 @@ export const Sidebar: React.FC = () => {
       <div className="p-4 border-t border-surface-border text-xs text-zinc-500 bg-surface-300/30 flex items-center justify-between">
         <div className="flex items-center gap-1.5">
           <span className="w-2 h-2 rounded-full bg-brand-500 animate-pulse"></span>
-          <span className="font-mono text-[11px] text-foreground font-semibold">Beta 2.4.4</span>
+          <span className="font-mono text-[11px] text-foreground font-semibold">Beta 2.4.5</span>
         </div>
         <span className="text-[10px] text-zinc-400 font-mono">health.seelye.info</span>
       </div>

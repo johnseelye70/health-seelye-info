@@ -139,7 +139,7 @@ export const EquipmentInventoryBrowser: React.FC<EquipmentInventoryBrowserProps>
   return (
     <div className="space-y-6">
       {/* Header Banner & Symbiotic Metric */}
-      <div className="p-4 sm:p-6 rounded-3xl bg-surface-100/90 border border-surface-border backdrop-blur-xl space-y-4">
+      <div className="p-4 sm:p-6 rounded-3xl bg-surface-100 border border-surface-border space-y-4 shadow-sm">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2">

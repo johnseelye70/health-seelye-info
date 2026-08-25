@@ -211,6 +211,16 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'Beta 2.4.5',
+      date: '2026-08-25',
+      title: 'Weight Plate Inventory & Visual Barbell Loader Overhaul',
+      changes: [
+        'Zero Nested Scrollbars: Removed all nested scrollbars and inner overflow scroll-traps across the Plate Inventory and Barbell Calculator views.',
+        'Eliminated Blur Haze & Screen Clutter: Replaced GPU-choking backdrop blur stacking with crisp, high-contrast, clean solid surfaces for ultra-sharp readability and smooth scrolling.',
+        'Responsive 100% Width Barbell Graphic: Redesigned the visual barbell plate loader to dynamically scale and fit all mobile and desktop screens with zero horizontal overflow.',
+      ],
+    },
+    {
       version: 'Beta 2.4.4',
       date: '2026-08-25',
       title: 'Authenticated Mobile Viewport & Background Blur Offset Fix for iOS',
@@ -1210,7 +1220,7 @@ export const ProfileSettings: React.FC = () => {
             title="Click to open release changelog modal window"
           >
             <span className="w-2 h-2 rounded-full bg-brand-400 animate-pulse"></span>
-            <span>Active: Beta 2.4.4</span>
+            <span>Active: Beta 2.4.5</span>
             <ChevronRight className="w-3.5 h-3.5 text-brand-400 group-hover:translate-x-0.5 transition-transform" />
           </button>
         </div>
