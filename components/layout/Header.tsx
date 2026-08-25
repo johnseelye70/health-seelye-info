@@ -29,6 +29,7 @@ export const Header: React.FC = () => {
     toggleUnitPreference,
     experienceMode,
     toggleExperienceMode,
+    setExperienceMode,
     authUser,
     setShowAuthModal,
     syncStatus,
@@ -64,8 +65,8 @@ export const Header: React.FC = () => {
 
   return (
     <header className="sticky top-0 z-20 bg-surface-200/90 backdrop-blur-2xl border-b border-surface-border px-3.5 sm:px-6 md:px-8 pt-[max(env(safe-area-inset-top),12px)] pb-3 flex items-center justify-between">
-      {/* Left: Brand/Date & Current Active Window Status */}
-      <div className="flex items-center gap-2 sm:gap-4">
+      {/* Left: Brand/Date & Experience Mode Segmented Switch */}
+      <div className="flex items-center gap-2.5 sm:gap-4 shrink-0">
         {/* Mobile Brand Icon (Visible on small screens) */}
         <div className="flex md:hidden items-center gap-2">
           <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-brand-500 to-accent-teal flex items-center justify-center shadow-glow">
@@ -81,10 +82,45 @@ export const Header: React.FC = () => {
           <span>{formattedDate}</span>
         </div>
 
-        {/* Fasting / Eating Pill */}
+        {/* Static, Non-Moving Experience Mode Segmented Switch */}
+        <div className="flex items-center p-0.5 rounded-xl bg-surface-100 border border-surface-border select-none shrink-0 shadow-inner">
+          <button
+            type="button"
+            id="btn-mode-simple"
+            onClick={() => setExperienceMode('simple')}
+            title="Switch to Simple Daily Wellness Mode"
+            className={`flex items-center justify-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+              experienceMode === 'simple'
+                ? 'bg-brand-500 text-zinc-950 shadow-glow font-bold'
+                : 'text-zinc-400 hover:text-zinc-200'
+            }`}
+          >
+            <Sparkles className="w-3.5 h-3.5 shrink-0" />
+            <span className="text-[11px] sm:text-xs">Simple</span>
+          </button>
+          <button
+            type="button"
+            id="btn-mode-athlete"
+            onClick={() => setExperienceMode('advanced')}
+            title="Switch to High-Tech Athlete Mode"
+            className={`flex items-center justify-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+              experienceMode === 'advanced'
+                ? 'bg-purple-600 text-white shadow-glow font-bold'
+                : 'text-zinc-400 hover:text-zinc-200'
+            }`}
+          >
+            <Flame className="w-3.5 h-3.5 shrink-0" />
+            <span className="text-[11px] sm:text-xs">Athlete</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Right: Actions & Fasting / Quick Controls */}
+      <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+        {/* Fasting / Eating Pill (Static position on right side cluster) */}
         <div
           onClick={() => setActiveTab('fasting')}
-          className={`cursor-pointer hidden sm:flex items-center gap-2 px-3 py-1 rounded-full text-xs font-mono border transition-all ${
+          className={`cursor-pointer hidden xl:flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-mono border transition-all ${
             fastingStatus.isFasting
               ? 'bg-purple-950/40 border-purple-500/30 text-purple-300 hover:border-purple-500/60'
               : 'bg-emerald-950/40 border-brand-500/30 text-brand-300 hover:border-brand-500/60'
@@ -93,50 +129,13 @@ export const Header: React.FC = () => {
           <Clock className="w-3.5 h-3.5" />
           <span className="font-semibold">
             {experienceMode === 'simple'
-              ? (fastingStatus.isFasting ? 'Fasting Time' : 'Eating Window')
+              ? (fastingStatus.isFasting ? 'Fasting' : 'Eating')
               : (fastingStatus.isFasting ? 'FASTING' : 'EATING WINDOW')}
           </span>
           <span className="text-[10px] text-zinc-400">
-            {Math.floor(fastingStatus.remainingSeconds / 3600)}h {Math.floor((fastingStatus.remainingSeconds % 3600) / 60)}m left
+            {Math.floor(fastingStatus.remainingSeconds / 3600)}h {Math.floor((fastingStatus.remainingSeconds % 3600) / 60)}m
           </span>
         </div>
-      </div>
-
-      {/* Right: Actions & Quick Stats */}
-      <div className="flex items-center gap-2 sm:gap-3">
-        {/* Experience Mode Toggle Button (Simple vs Athlete Pro) */}
-        <button
-          id="btn-toggle-experience-mode"
-          onClick={toggleExperienceMode}
-          title={experienceMode === 'simple' ? 'Click to enable Advanced Athlete Mode' : 'Click to enable Simple & Friendly Mode'}
-          className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-2 rounded-xl border text-xs font-semibold transition-all cursor-pointer ${
-            experienceMode === 'simple'
-              ? 'bg-brand-500/15 border-brand-500/40 text-brand-300 hover:bg-brand-500/25 shadow-glow'
-              : 'bg-purple-950/40 border-purple-500/40 text-purple-300 hover:bg-purple-900/50'
-          }`}
-        >
-          {experienceMode === 'simple' ? (
-            <>
-              <Sparkles className="w-3.5 h-3.5 text-brand-400" />
-              <span className="hidden xs:inline">Simple</span>
-            </>
-          ) : (
-            <>
-              <Flame className="w-3.5 h-3.5 text-purple-400 fill-purple-400/20" />
-              <span className="hidden xs:inline">Athlete</span>
-            </>
-          )}
-        </button>
-
-        {/* Calorie Pill summary (in Athlete Mode) */}
-        {experienceMode === 'advanced' && (
-          <div className="hidden lg:flex items-center gap-2 px-3 py-1 rounded-xl bg-surface-100/80 border border-surface-border text-xs">
-            <Flame className="w-3.5 h-3.5 text-amber-400 fill-amber-400/20" />
-            <span className="text-zinc-400">Budget:</span>
-            <span className="font-bold text-zinc-100 font-mono">{todayRemaining.calories} kcal</span>
-            <span className="text-zinc-400">/ {profile.daily_calorie_target}</span>
-          </div>
-        )}
 
         {/* Local Notification Button (Tablet & Desktop) */}
         <button

@@ -211,6 +211,15 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'Beta 2.0.2',
+      date: '2026-08-24',
+      title: 'Static Anchored Header Toggle for Simple vs Athlete Mode',
+      changes: [
+        'Static Segmented Switch: Replaced the dynamic toggle with an anchored dual-segment switch ([ Simple | Athlete ]) in the header that never shifts on click.',
+        'Zero Layout Shift: Removed conditional layout-shifting elements from the header navigation row to guarantee pixel-stable positioning across screen sizes.',
+      ],
+    },
+    {
       version: 'Beta 2.0.1',
       date: '2026-08-24',
       title: 'Full User Control & System-Wide Default State Purge',
@@ -1082,7 +1091,7 @@ export const ProfileSettings: React.FC = () => {
             title="Click to open release changelog modal window"
           >
             <span className="w-2 h-2 rounded-full bg-brand-400 animate-pulse"></span>
-            <span>Active: Beta 2.0.1</span>
+            <span>Active: Beta 2.0.2</span>
             <ChevronRight className="w-3.5 h-3.5 text-brand-400 group-hover:translate-x-0.5 transition-transform" />
           </button>
         </div>
