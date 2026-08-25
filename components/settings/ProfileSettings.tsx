@@ -212,6 +212,16 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'Beta 2.5.1',
+      date: '2026-08-25',
+      title: '100% Inline Recipe Detail View & Elimination of Nested Modals',
+      changes: [
+        '100% Inline Recipe Detail View: Clicking "View Recipe" or any recipe title now seamlessly transitions directly to the full recipe view in place, fixing the issue where clicking the button previously did nothing due to nested modal z-index conflicts.',
+        'Zero Nested Modals: Eliminated RecipeDetailModal completely in favor of smooth, instantaneous inline transitions with explicit "← Back to All Recipes" navigation buttons.',
+        'Interactive Checklist & Batch Scaler: Full support for interactive ingredient checks, batch scaling (1x, 2x, 4x, 6x), direct 1-click printing, and grocery list sync.',
+      ],
+    },
+    {
       version: 'Beta 2.5.0',
       date: '2026-08-25',
       title: 'Fixed Wholesome Home Recipes Header Clipping & Top Margin Architecture',
@@ -1281,7 +1291,7 @@ export const ProfileSettings: React.FC = () => {
             title="Click to open release changelog modal window"
           >
             <span className="w-2 h-2 rounded-full bg-brand-400 animate-pulse"></span>
-            <span>Active: Beta 2.5.0</span>
+            <span>Active: Beta 2.5.1</span>
             <ChevronRight className="w-3.5 h-3.5 text-brand-400 group-hover:translate-x-0.5 transition-transform" />
           </button>
         </div>
