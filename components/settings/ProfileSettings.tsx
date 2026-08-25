@@ -212,6 +212,16 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'Beta 2.4.9',
+      date: '2026-08-25',
+      title: 'Eliminated Recipe Print Modal & Direct High-Contrast Print Pipeline',
+      changes: [
+        'Eliminated Recipe Print Modal: Completely removed the recipe print preview modal window that created screen clutter and trapped users without an obvious close button.',
+        'Direct 1-Click Print Engine: Clicking "Print Recipe" now directly activates your browser/device native print pipeline with automatic clean black-and-white recipe formatting.',
+        'Enhanced Recipe View Navigation: Added a prominent, dedicated "Close" button in both header and footer alongside backdrop dismiss controls for effortless navigation.',
+      ],
+    },
+    {
       version: 'Beta 2.4.8',
       date: '2026-08-25',
       title: 'Cloud Database Biometric Default Purge & Blank-State Stepper Controls',
@@ -1261,7 +1271,7 @@ export const ProfileSettings: React.FC = () => {
             title="Click to open release changelog modal window"
           >
             <span className="w-2 h-2 rounded-full bg-brand-400 animate-pulse"></span>
-            <span>Active: Beta 2.4.8</span>
+            <span>Active: Beta 2.4.9</span>
             <ChevronRight className="w-3.5 h-3.5 text-brand-400 group-hover:translate-x-0.5 transition-transform" />
           </button>
         </div>

@@ -5,7 +5,6 @@ import { useHealth } from '@/context/HealthContext';
 import { RecipeItem, RecipeCategory, FoodItem } from '@/lib/types';
 import { COMPREHENSIVE_RECIPE_DATABASE } from '@/lib/recipe-database';
 import { RecipeDetailModal } from './RecipeDetailModal';
-import { RecipePrintModal } from './RecipePrintModal';
 import { CustomRecipeModal } from './CustomRecipeModal';
 import {
   UtensilsCrossed,
@@ -53,7 +52,6 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
   
   // Modals state
   const [selectedRecipeDetail, setSelectedRecipeDetail] = useState<RecipeItem | null>(null);
-  const [recipeToPrint, setRecipeToPrint] = useState<RecipeItem | null>(null);
   const [showCustomModal, setShowCustomModal] = useState<boolean>(false);
   const [customRecipes, setCustomRecipes] = useState<RecipeItem[]>([]);
 
@@ -415,12 +413,15 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
                 </button>
 
                 <div className="flex items-center gap-2 w-full sm:w-auto">
-                  {/* Print Recipe Button (Opens Print Modal) */}
+                  {/* Print Recipe Button */}
                   <button
                     type="button"
-                    onClick={() => setRecipeToPrint(recipe)}
+                    onClick={() => {
+                      setSelectedRecipeDetail(recipe);
+                      setTimeout(() => window.print(), 150);
+                    }}
                     className="px-3 py-2 rounded-xl bg-surface-200 hover:bg-surface-300 border border-surface-border text-xs font-bold text-zinc-300 hover:text-white flex items-center justify-center gap-1.5 transition-all active:scale-95 cursor-pointer"
-                    title="Print 4x6 Index Card or Standard Letter Sheet"
+                    title="Print Recipe Sheet"
                   >
                     <Printer className="w-3.5 h-3.5 text-brand-400" />
                     <span>Print</span>
@@ -470,24 +471,14 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
         )}
       </div>
 
-      {/* Recipe Detail Modal Popup Window */}
+      {/* Recipe Detail View with Direct Print & Easy Close */}
       <RecipeDetailModal
         recipe={selectedRecipeDetail}
         isOpen={selectedRecipeDetail !== null}
         onClose={() => setSelectedRecipeDetail(null)}
-        onPrint={(r) => {
-          setSelectedRecipeDetail(null);
-          setRecipeToPrint(r);
-        }}
+        onPrint={() => window.print()}
         onLog={(r, slot) => handleLogRecipe(r, slot)}
         onSyncGrocery={(r, mult) => handleSyncGrocery(r, mult)}
-      />
-
-      {/* Recipe Print Modal Popup Window (4x6 Card and 8.5x11 Letter) */}
-      <RecipePrintModal
-        recipe={recipeToPrint}
-        onClose={() => setRecipeToPrint(null)}
-        defaultUnitPreference={profile.unit_preference}
       />
 
       {/* Custom Recipe Modal Popup Window (Athlete Mode) */}
