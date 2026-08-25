@@ -212,6 +212,17 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'Beta 2.13.0',
+      date: '2026-08-25',
+      title: 'Expansion to 75 Authentic Chef-Crafted Wholesome Recipes',
+      changes: [
+        '50 Brand-New Authentic Recipes: Expanded master recipe database to 75 total gourmet, macro-balanced recipes across all 19 culinary subcategories.',
+        'Zero-Template Uniqueness: Every single recipe features realistic cooking steps, authentic ingredient measurements (cups, tbsp, oz, grams), matching macro calories, and true chef pro tips.',
+        'Comprehensive Subcategory Coverage: Expanded Morning Primers & Breakfasts (20), Midday Power & Lunches (15), Dinner Protocols (14), Bulk Meal Preps (13), and High-Protein Snacks & Treats (13).',
+        'Deep Swap Engine Integration: All 75 recipes fully integrate with the dynamic culinary ingredient swapper, store grocery router (Aldi, Meijer, Sam’s Club, Costco, Walmart), and 4x6 / Letter print studio.',
+      ],
+    },
+    {
       version: 'Beta 2.12.0',
       date: '2026-08-25',
       title: 'Shopping Cart Clearing Engine & Store-Specific Empty Actions',
@@ -1401,7 +1412,7 @@ export const ProfileSettings: React.FC = () => {
             title="Click to open release changelog modal window"
           >
             <span className="w-2 h-2 rounded-full bg-brand-400 animate-pulse"></span>
-            <span>Active: Beta 2.12.0</span>
+            <span>Active: Beta 2.13.0</span>
             <ChevronRight className="w-3.5 h-3.5 text-brand-400 group-hover:translate-x-0.5 transition-transform" />
           </button>
         </div>
