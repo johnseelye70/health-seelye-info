@@ -348,15 +348,32 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
         .maybeSingle();
 
       if (cloudProfile && !profileErr) {
+        let hCm = Number(cloudProfile.height_cm) || 0;
+        let cKg = Number(cloudProfile.current_weight_kg) || 0;
+        let tKg = Number(cloudProfile.target_weight_kg) || 0;
+
+        // If the cloud profile has the old default placeholders (178cm, 80kg, 75kg) and user never customized them:
+        if (hCm === 178 && cKg === 80 && tKg === 75) {
+          hCm = 0;
+          cKg = 0;
+          tKg = 0;
+          (client.from('profiles') as any).update({
+            height_cm: 0,
+            current_weight_kg: 0,
+            target_weight_kg: 0,
+          }).eq('id', user.id);
+        }
+
         setProfile((prev) => ({
           ...prev,
           id: user.id,
           email: user.email || cloudProfile.email || prev.email,
           full_name: cloudProfile.full_name || user.user_metadata?.full_name || prev.full_name || 'Athlete',
           age: cloudProfile.age ?? prev.age,
-          height_cm: Number(cloudProfile.height_cm) || prev.height_cm,
-          current_weight_kg: Number(cloudProfile.current_weight_kg) || prev.current_weight_kg,
-          target_weight_kg: Number(cloudProfile.target_weight_kg) || prev.target_weight_kg,
+          height_cm: hCm,
+          current_weight_kg: cKg,
+          target_weight_kg: tKg,
+          has_configured_biometrics: Boolean(hCm > 0 || cKg > 0 || tKg > 0),
           sex: (cloudProfile.sex as any) || prev.sex,
           activity_level: (cloudProfile.activity_level as any) || prev.activity_level,
           goal: (cloudProfile.goal as any) || prev.goal,

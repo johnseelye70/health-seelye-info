@@ -14,6 +14,8 @@ interface NumberStepperProps {
   id?: string;
   size?: 'sm' | 'md' | 'lg';
   decimals?: number;
+  placeholder?: string;
+  allowEmptyZero?: boolean;
   className?: string;
 }
 
@@ -28,24 +30,32 @@ export const NumberStepper: React.FC<NumberStepperProps> = ({
   id,
   size = 'md',
   decimals = 0,
+  placeholder,
+  allowEmptyZero = false,
   className = '',
 }) => {
   const handleDecrement = (e: React.MouseEvent) => {
     e.preventDefault();
-    const nextVal = Math.max(min, Number((value - step).toFixed(decimals || 2)));
+    const currentVal = value || min;
+    const nextVal = Math.max(min, Number((currentVal - step).toFixed(decimals || 2)));
     onChange(nextVal);
   };
 
   const handleIncrement = (e: React.MouseEvent) => {
     e.preventDefault();
-    const nextVal = Math.min(max, Number((value + step).toFixed(decimals || 2)));
+    const currentVal = value || (min > 0 ? min : 0);
+    const nextVal = Math.min(max, Number((currentVal + step).toFixed(decimals || 2)));
     onChange(nextVal);
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.value === '') {
+      onChange(0);
+      return;
+    }
     const num = parseFloat(e.target.value);
     if (!isNaN(num)) {
-      onChange(Math.max(min, Math.min(max, num)));
+      onChange(Math.max(0, Math.min(max, num)));
     }
   };
 
@@ -58,6 +68,13 @@ export const NumberStepper: React.FC<NumberStepperProps> = ({
 
   const iconSize = size === 'sm' ? 'w-3.5 h-3.5' : size === 'lg' ? 'w-5 h-5' : 'w-4 h-4';
 
+  const displayVal =
+    isNaN(value) || (allowEmptyZero && (value === 0 || !value))
+      ? ''
+      : decimals > 0
+      ? value.toFixed(decimals)
+      : value;
+
   return (
     <div className={`space-y-1.5 ${className}`}>
       {label && <label className="text-xs font-semibold text-zinc-300 block">{label}</label>}
@@ -65,7 +82,7 @@ export const NumberStepper: React.FC<NumberStepperProps> = ({
         <button
           type="button"
           onClick={handleDecrement}
-          disabled={value <= min}
+          disabled={value <= min && value > 0}
           className={`${btnSizeClasses} flex items-center justify-center bg-surface-300 hover:bg-surface-400 active:scale-95 disabled:opacity-30 disabled:pointer-events-none text-zinc-200 font-bold border border-surface-border transition-all cursor-pointer shadow-sm`}
           title={`Decrease by ${step}`}
         >
@@ -76,12 +93,13 @@ export const NumberStepper: React.FC<NumberStepperProps> = ({
           <input
             id={id}
             type="number"
-            value={isNaN(value) ? '' : decimals > 0 ? value.toFixed(decimals) : value}
+            value={displayVal}
+            placeholder={placeholder}
             onChange={handleInputChange}
             step={step}
             min={min}
             max={max}
-            className="w-full bg-transparent text-center font-mono font-bold text-zinc-100 focus:outline-none text-sm sm:text-base [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+            className="w-full bg-transparent text-center font-mono font-bold text-zinc-100 placeholder:text-zinc-500 focus:outline-none text-sm sm:text-base [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
           />
           {unit && <span className="text-xs font-mono font-medium text-zinc-400 select-none shrink-0">{unit}</span>}
         </div>

@@ -212,6 +212,16 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'Beta 2.4.8',
+      date: '2026-08-25',
+      title: 'Cloud Database Biometric Default Purge & Blank-State Stepper Controls',
+      changes: [
+        'Cloud Database Default Purge: Fixed cloud synchronization to detect and purge stale 178cm / 80kg / 75kg default entries from Supabase user accounts, preventing them from being synced back to desktop and mobile browsers.',
+        'Zero-Clamping Input Steppers: Updated all numeric height and weight steppers with allowEmptyZero support so inputs remain cleanly blank with helpful placeholder text until you input your personal metrics.',
+        'Instant Clean-Slate Initialization: Guaranteed that any newly opened or existing desktop/mobile session boots with clean em-dashes and direct 1-click customization studios.',
+      ],
+    },
+    {
       version: 'Beta 2.4.7',
       date: '2026-08-25',
       title: 'Zero Forced Biometrics & Legacy Default State Purge (v8 Local Storage)',
@@ -1104,9 +1114,11 @@ export const ProfileSettings: React.FC = () => {
                 label="Height (Feet)"
                 value={form.height_ft}
                 onChange={(val) => setForm({ ...form, height_ft: val })}
-                min={3}
+                min={0}
                 max={7}
                 step={1}
+                allowEmptyZero={true}
+                placeholder="Feet (e.g. 5)"
                 unit="ft"
               />
               <NumberStepper
@@ -1116,6 +1128,8 @@ export const ProfileSettings: React.FC = () => {
                 min={0}
                 max={11}
                 step={1}
+                allowEmptyZero={true}
+                placeholder="Inches (e.g. 10)"
                 unit="in"
               />
             </div>
@@ -1125,9 +1139,11 @@ export const ProfileSettings: React.FC = () => {
                 label="Height (cm)"
                 value={form.height_cm}
                 onChange={(val) => setForm({ ...form, height_cm: val })}
-                min={100}
+                min={0}
                 max={250}
                 step={1}
+                allowEmptyZero={true}
+                placeholder="cm (e.g. 178)"
                 unit="cm"
               />
             </div>
@@ -1139,10 +1155,12 @@ export const ProfileSettings: React.FC = () => {
               label={`Current Weight (${form.unit_preference === 'imperial' ? 'lbs' : 'kg'})`}
               value={form.current_weight_input}
               onChange={(val) => setForm({ ...form, current_weight_input: val })}
-              min={form.unit_preference === 'imperial' ? 60 : 30}
+              min={0}
               max={form.unit_preference === 'imperial' ? 600 : 300}
               step={0.5}
               decimals={1}
+              allowEmptyZero={true}
+              placeholder={form.unit_preference === 'imperial' ? 'e.g. 175.0' : 'e.g. 79.5'}
               unit={form.unit_preference === 'imperial' ? 'lbs' : 'kg'}
             />
           </div>
@@ -1153,10 +1171,12 @@ export const ProfileSettings: React.FC = () => {
               label={`Target Goal Weight (${form.unit_preference === 'imperial' ? 'lbs' : 'kg'})`}
               value={form.target_weight_input}
               onChange={(val) => setForm({ ...form, target_weight_input: val })}
-              min={form.unit_preference === 'imperial' ? 60 : 30}
+              min={0}
               max={form.unit_preference === 'imperial' ? 600 : 300}
               step={0.5}
               decimals={1}
+              allowEmptyZero={true}
+              placeholder={form.unit_preference === 'imperial' ? 'e.g. 165.0' : 'e.g. 75.0'}
               unit={form.unit_preference === 'imperial' ? 'lbs' : 'kg'}
             />
           </div>
@@ -1241,7 +1261,7 @@ export const ProfileSettings: React.FC = () => {
             title="Click to open release changelog modal window"
           >
             <span className="w-2 h-2 rounded-full bg-brand-400 animate-pulse"></span>
-            <span>Active: Beta 2.4.6</span>
+            <span>Active: Beta 2.4.8</span>
             <ChevronRight className="w-3.5 h-3.5 text-brand-400 group-hover:translate-x-0.5 transition-transform" />
           </button>
         </div>
