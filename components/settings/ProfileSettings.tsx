@@ -211,6 +211,16 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'Beta 2.4.1',
+      date: '2026-08-25',
+      title: 'Neutral Obsidian Charcoal & Crisp Porcelain Surfaces (Eliminated Blue-on-Blue)',
+      changes: [
+        'Neutral Obsidian Canvas: Replaced navy/blue-tinted background and cards with pure, deep obsidian charcoal (#090a0d) and graphite cards (#141417), completely eliminating the blue-on-blue aesthetic.',
+        'High-Contrast Porcelain Light Mode: Clean warm porcelain canvas (#f4f4f6) with pure white elevated cards (#ffffff) and subtle silver borders (#e2e8f0).',
+        'Vibrant Multi-Metric Contrast: Restored clean primary health emerald (#10b981) while letting Flame Coral, Warm Saffron, Bio-Cyan, and Royal Violet pop vibrantly on neutral surfaces.',
+      ],
+    },
+    {
       version: 'Beta 2.4.0',
       date: '2026-08-25',
       title: 'Choice-Driven Feel-Good Movement Engine & Custom Activity Studio for Simple Mode',
@@ -1169,7 +1179,7 @@ export const ProfileSettings: React.FC = () => {
             title="Click to open release changelog modal window"
           >
             <span className="w-2 h-2 rounded-full bg-brand-400 animate-pulse"></span>
-            <span>Active: Beta 2.4.0</span>
+            <span>Active: Beta 2.4.1</span>
             <ChevronRight className="w-3.5 h-3.5 text-brand-400 group-hover:translate-x-0.5 transition-transform" />
           </button>
         </div>
