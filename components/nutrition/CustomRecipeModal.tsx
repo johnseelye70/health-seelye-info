@@ -8,8 +8,6 @@ import {
   ChefHat,
   Plus,
   Trash2,
-  Sparkles,
-  Flame,
 } from 'lucide-react';
 
 interface CustomRecipeModalProps {
@@ -117,14 +115,15 @@ export const CustomRecipeModal: React.FC<CustomRecipeModalProps> = ({
 
   return (
     <div
-      className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 overflow-y-auto animate-fadeIn select-none"
+      className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 overflow-hidden animate-fadeIn select-none"
       onClick={onClose}
     >
       <div
-        className="relative w-full max-w-2xl my-auto p-6 sm:p-8 rounded-3xl bg-surface-100/95 border border-surface-border shadow-2xl backdrop-blur-xl text-zinc-100 max-h-[90vh] overflow-y-auto space-y-6"
+        className="relative w-full max-w-2xl max-h-[92vh] flex flex-col rounded-3xl bg-surface-100/95 border border-surface-border shadow-2xl backdrop-blur-xl text-zinc-100 overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between pb-4 border-b border-surface-border pr-10">
+        {/* Pinned Header */}
+        <div className="p-5 sm:p-6 border-b border-surface-border shrink-0 flex items-center justify-between gap-4 bg-surface-100">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-2xl bg-brand-500/10 border border-brand-500/20 flex items-center justify-center">
               <ChefHat className="w-5 h-5 text-brand-400" />
@@ -137,13 +136,14 @@ export const CustomRecipeModal: React.FC<CustomRecipeModalProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="p-2.5 rounded-2xl text-zinc-400 hover:text-white bg-surface-200"
+            className="p-2.5 rounded-2xl text-zinc-400 hover:text-white bg-surface-200 cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Single Scrolling Body Form */}
+        <form onSubmit={handleSubmit} id="custom-recipe-form" className="p-5 sm:p-6 overflow-y-auto flex-1 space-y-6">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="space-y-1 sm:col-span-2">
               <label className="text-xs font-bold text-zinc-300">Recipe Title</label>
@@ -254,7 +254,7 @@ export const CustomRecipeModal: React.FC<CustomRecipeModalProps> = ({
                   type="button"
                   onClick={handleAddCustomIngredient}
                   disabled={!selectedFoodForCustom}
-                  className="px-4 py-2 rounded-xl bg-brand-500 hover:bg-brand-400 text-zinc-950 text-xs font-bold disabled:opacity-40 shrink-0"
+                  className="px-4 py-2 rounded-xl bg-brand-500 hover:bg-brand-400 text-zinc-950 text-xs font-bold disabled:opacity-40 shrink-0 cursor-pointer"
                 >
                   Add
                 </button>
@@ -277,7 +277,7 @@ export const CustomRecipeModal: React.FC<CustomRecipeModalProps> = ({
                       onClick={() =>
                         setCustomIngredientsList((prev) => prev.filter((_, i) => i !== idx))
                       }
-                      className="text-rose-400 hover:text-rose-300 font-bold"
+                      className="text-rose-400 hover:text-rose-300 font-bold cursor-pointer"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>
@@ -297,24 +297,35 @@ export const CustomRecipeModal: React.FC<CustomRecipeModalProps> = ({
               className="w-full p-3 rounded-xl bg-surface-200 border border-surface-border text-xs text-zinc-100 focus:outline-none focus:border-brand-500"
             />
           </div>
-
-          {customIngredientsList.length > 0 && (
-            <div className="p-4 rounded-2xl bg-surface-200 border border-brand-500/30 flex items-center justify-between">
-              <div>
-                <div className="text-xs font-bold text-brand-300">Per Serving ({customServings} Servings Yield):</div>
-                <div className="text-xs text-zinc-400 mt-0.5 font-mono">
-                  {customCalculatedMacros.calsPerServing} kcal • {customCalculatedMacros.proteinPerServing}g P • {customCalculatedMacros.carbsPerServing}g C • {customCalculatedMacros.fatPerServing}g F
-                </div>
-              </div>
-              <button
-                type="submit"
-                className="px-5 py-2.5 rounded-xl bg-brand-500 text-zinc-950 font-bold text-xs shadow-glow cursor-pointer"
-              >
-                Save Recipe
-              </button>
-            </div>
-          )}
         </form>
+
+        {/* Pinned Action Footer */}
+        <div className="p-4 sm:p-5 border-t border-surface-border shrink-0 bg-surface-100 flex items-center justify-between gap-3">
+          <div>
+            {customIngredientsList.length > 0 && (
+              <div className="text-xs font-mono text-zinc-400">
+                <strong className="text-brand-300">{customCalculatedMacros.calsPerServing} kcal</strong> ({customCalculatedMacros.proteinPerServing}g P / {customCalculatedMacros.carbsPerServing}g C / {customCalculatedMacros.fatPerServing}g F)
+              </div>
+            )}
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 rounded-xl bg-surface-200 hover:bg-surface-300 border border-surface-border text-xs font-bold text-zinc-300 cursor-pointer"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              form="custom-recipe-form"
+              disabled={!customTitle.trim() || customIngredientsList.length === 0}
+              className="px-5 py-2 rounded-xl bg-brand-500 hover:bg-brand-400 text-zinc-950 font-bold text-xs shadow-glow disabled:opacity-40 cursor-pointer"
+            >
+              Save Recipe
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -505,11 +505,11 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
   if (isModal) {
     return (
       <div
-        className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 overflow-y-auto animate-fadeIn select-none"
+        className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 overflow-hidden animate-fadeIn select-none"
         onClick={onClose}
       >
         <div
-          className="relative w-full max-w-5xl my-auto p-5 sm:p-8 rounded-3xl bg-surface-100/95 border border-surface-border shadow-2xl backdrop-blur-xl text-zinc-100 max-h-[90vh] overflow-y-auto"
+          className="relative w-full max-w-5xl max-h-[92vh] flex flex-col rounded-3xl bg-surface-100/95 border border-surface-border shadow-2xl backdrop-blur-xl text-zinc-100 overflow-hidden"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Close Button top-right */}
@@ -523,7 +523,9 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
             </button>
           )}
 
-          {content}
+          <div className="p-5 sm:p-8 overflow-y-auto flex-1">
+            {content}
+          </div>
         </div>
       </div>
     );

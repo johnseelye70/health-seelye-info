@@ -3,6 +3,7 @@ export type BiologicalSex = 'male' | 'female' | 'other';
 export type GoalType = 'cut_500' | 'cut_250' | 'maintain' | 'bulk_250' | 'bulk_500';
 export type UnitPreference = 'imperial' | 'metric';
 export type ExperienceMode = 'simple' | 'advanced';
+export type ThemeMode = 'dark' | 'light';
 export type FastingProtocol = '16_8' | '18_6' | '20_4' | '14_10' | '23_1_omad' | 'standard_3_meal';
 export type EquipmentType = string;
 
@@ -186,6 +187,7 @@ export interface UserProfile {
   goal: GoalType;
   unit_preference: UnitPreference;
   experience_mode: ExperienceMode;
+  theme_mode?: ThemeMode;
   daily_calorie_target: number;
   protein_target_g: number;
   carb_target_g: number;
