@@ -36,6 +36,7 @@ export function ozToGrams(oz: number, decimals: number = 0): number {
 }
 
 export function formatWeight(weightKg: number, unit: UnitPreference): string {
+  if (!weightKg || weightKg <= 0) return '—';
   if (unit === 'imperial') {
     return `${kgToLbs(weightKg)} lbs`;
   }
@@ -43,6 +44,7 @@ export function formatWeight(weightKg: number, unit: UnitPreference): string {
 }
 
 export function formatHeight(heightCm: number, unit: UnitPreference): string {
+  if (!heightCm || heightCm <= 0) return '—';
   if (unit === 'imperial') {
     const { feet, inches } = cmToFtIn(heightCm);
     return `${feet}'${inches}"`;

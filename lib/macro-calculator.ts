@@ -102,15 +102,17 @@ export function calculateMacroTargets(params: {
   activityLevel: ActivityLevel;
   goal: GoalType;
 }) {
-  const bmr = calculateBMR(params.weightKg, params.heightCm, params.age, params.sex);
-  const tdee = calculateTDEE(bmr, params.activityLevel);
+  const safeWeightKg = params.weightKg > 0 ? params.weightKg : 75;
+  const safeHeightCm = params.heightCm > 0 ? params.heightCm : 175;
+  const bmr = calculateBMR(safeWeightKg, safeHeightCm, params.age || 35, params.sex || 'male');
+  const tdee = calculateTDEE(bmr, params.activityLevel || 'moderate');
   const adjustment = GOAL_CALORIE_ADJUSTMENTS[params.goal] ?? -500;
   
   // Total daily calorie target (minimum floor 1200 kcal for metabolic safety)
   const dailyCalories = Math.max(1200, tdee + adjustment);
 
   // 1.0g protein per lb of body weight (1 kg = 2.20462 lbs)
-  const weightLbs = params.weightKg * 2.20462;
+  const weightLbs = safeWeightKg * 2.20462;
   const proteinGrams = Math.round(Math.min(dailyCalories * 0.45 / 4, Math.max(100, weightLbs * 1.0)));
   const proteinCalories = proteinGrams * 4;
 

@@ -30,7 +30,7 @@ export const OnboardingModal: React.FC = () => {
   } = useHealth();
 
   const isImperial = profile.unit_preference === 'imperial';
-  const initialFtIn = cmToFtIn(profile.height_cm);
+  const initialFtIn = profile.height_cm > 0 ? cmToFtIn(profile.height_cm) : { feet: 0, inches: 0 };
 
   const [step, setStep] = useState<number>(1);
 
@@ -40,11 +40,11 @@ export const OnboardingModal: React.FC = () => {
     full_name: profile.full_name,
     age: profile.age,
     sex: profile.sex,
-    height_cm: profile.height_cm,
+    height_cm: profile.height_cm || 0,
     height_ft: initialFtIn.feet,
     height_in: initialFtIn.inches,
-    current_weight_input: isImperial ? kgToLbs(profile.current_weight_kg) : profile.current_weight_kg,
-    target_weight_input: isImperial ? kgToLbs(profile.target_weight_kg) : profile.target_weight_kg,
+    current_weight_input: profile.current_weight_kg > 0 ? (isImperial ? kgToLbs(profile.current_weight_kg) : profile.current_weight_kg) : 0,
+    target_weight_input: profile.target_weight_kg > 0 ? (isImperial ? kgToLbs(profile.target_weight_kg) : profile.target_weight_kg) : 0,
     activity_level: profile.activity_level,
     goal: profile.goal,
     meal_count: profile.meal_count,
@@ -56,37 +56,37 @@ export const OnboardingModal: React.FC = () => {
   const handleUnitToggle = (newUnit: UnitPreference) => {
     if (newUnit === unitPref) return;
     if (newUnit === 'imperial') {
-      const ftIn = cmToFtIn(formData.height_cm);
+      const ftIn = formData.height_cm > 0 ? cmToFtIn(formData.height_cm) : { feet: 0, inches: 0 };
       setUnitPref('imperial');
       setFormData((prev) => ({
         ...prev,
         height_ft: ftIn.feet,
         height_in: ftIn.inches,
-        current_weight_input: kgToLbs(prev.current_weight_input),
-        target_weight_input: kgToLbs(prev.target_weight_input),
+        current_weight_input: prev.current_weight_input > 0 ? kgToLbs(prev.current_weight_input) : 0,
+        target_weight_input: prev.target_weight_input > 0 ? kgToLbs(prev.target_weight_input) : 0,
       }));
     } else {
-      const cm = ftInToCm(formData.height_ft, formData.height_in);
+      const cm = (formData.height_ft > 0 || formData.height_in > 0) ? ftInToCm(formData.height_ft, formData.height_in) : 0;
       setUnitPref('metric');
       setFormData((prev) => ({
         ...prev,
         height_cm: cm,
-        current_weight_input: lbsToKg(prev.current_weight_input),
-        target_weight_input: lbsToKg(prev.target_weight_input),
+        current_weight_input: prev.current_weight_input > 0 ? lbsToKg(prev.current_weight_input) : 0,
+        target_weight_input: prev.target_weight_input > 0 ? lbsToKg(prev.target_weight_input) : 0,
       }));
     }
   };
 
   const normalizedWeightKg = unitPref === 'imperial'
-    ? lbsToKg(Number(formData.current_weight_input))
+    ? (formData.current_weight_input > 0 ? lbsToKg(Number(formData.current_weight_input)) : 0)
     : Number(formData.current_weight_input);
 
   const normalizedTargetWeightKg = unitPref === 'imperial'
-    ? lbsToKg(Number(formData.target_weight_input))
+    ? (formData.target_weight_input > 0 ? lbsToKg(Number(formData.target_weight_input)) : 0)
     : Number(formData.target_weight_input);
 
   const normalizedHeightCm = unitPref === 'imperial'
-    ? ftInToCm(Number(formData.height_ft), Number(formData.height_in))
+    ? ((formData.height_ft > 0 || formData.height_in > 0) ? ftInToCm(Number(formData.height_ft), Number(formData.height_in)) : 0)
     : Number(formData.height_cm);
 
   // Real-time calculation preview
@@ -108,6 +108,7 @@ export const OnboardingModal: React.FC = () => {
       height_cm: normalizedHeightCm,
       current_weight_kg: normalizedWeightKg,
       target_weight_kg: normalizedTargetWeightKg,
+      has_configured_biometrics: normalizedHeightCm > 0 || normalizedWeightKg > 0,
       activity_level: formData.activity_level,
       goal: formData.goal,
       meal_count: Number(formData.meal_count),

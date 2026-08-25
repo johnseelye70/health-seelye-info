@@ -200,6 +200,7 @@ export interface UserProfile {
   plate_inventory?: PlateInventory;
   workout_logs?: WorkoutSessionLog[];
   active_program_id?: string;
+  has_configured_biometrics?: boolean;
   created_at?: string;
   updated_at?: string;
 }

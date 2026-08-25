@@ -59,15 +59,21 @@ export const ProgressTrends: React.FC = () => {
   const isImperial = profile.unit_preference === 'imperial';
 
   // Biometrics Form State initialized from user's current profile
-  const initialFtIn = cmToFtIn(profile.height_cm || 178);
-  const [bioFeet, setBioFeet] = useState<number>(initialFtIn.feet);
-  const [bioInches, setBioInches] = useState<number>(initialFtIn.inches);
-  const [bioHeightCm, setBioHeightCm] = useState<number>(profile.height_cm || 178);
+  const hasConfigured = Boolean(profile.has_configured_biometrics && profile.height_cm > 0);
+  const initialFtIn = profile.height_cm > 0 ? cmToFtIn(profile.height_cm) : { feet: 0, inches: 0 };
+  
+  const [bioFeet, setBioFeet] = useState<number>(profile.height_cm > 0 ? initialFtIn.feet : 0);
+  const [bioInches, setBioInches] = useState<number>(profile.height_cm > 0 ? initialFtIn.inches : 0);
+  const [bioHeightCm, setBioHeightCm] = useState<number>(profile.height_cm || 0);
   const [bioCurrentWeight, setBioCurrentWeight] = useState<number>(
-    isImperial ? kgToLbs(profile.current_weight_kg) : profile.current_weight_kg
+    profile.current_weight_kg > 0
+      ? (isImperial ? kgToLbs(profile.current_weight_kg) : profile.current_weight_kg)
+      : 0
   );
   const [bioTargetWeight, setBioTargetWeight] = useState<number>(
-    isImperial ? kgToLbs(profile.target_weight_kg) : profile.target_weight_kg
+    profile.target_weight_kg > 0
+      ? (isImperial ? kgToLbs(profile.target_weight_kg) : profile.target_weight_kg)
+      : 0
   );
   const [bioAge, setBioAge] = useState<number>(profile.age || 35);
   const [bioSex, setBioSex] = useState<BiologicalSex>(profile.sex || 'male');
@@ -75,12 +81,26 @@ export const ProgressTrends: React.FC = () => {
 
   // Keep biometrics form in sync if profile updates externally
   useEffect(() => {
-    const ftIn = cmToFtIn(profile.height_cm || 178);
-    setBioFeet(ftIn.feet);
-    setBioInches(ftIn.inches);
-    setBioHeightCm(profile.height_cm || 178);
-    setBioCurrentWeight(isImperial ? kgToLbs(profile.current_weight_kg) : profile.current_weight_kg);
-    setBioTargetWeight(isImperial ? kgToLbs(profile.target_weight_kg) : profile.target_weight_kg);
+    if (profile.height_cm > 0) {
+      const ftIn = cmToFtIn(profile.height_cm);
+      setBioFeet(ftIn.feet);
+      setBioInches(ftIn.inches);
+      setBioHeightCm(profile.height_cm);
+    } else {
+      setBioFeet(0);
+      setBioInches(0);
+      setBioHeightCm(0);
+    }
+    setBioCurrentWeight(
+      profile.current_weight_kg > 0
+        ? (isImperial ? kgToLbs(profile.current_weight_kg) : profile.current_weight_kg)
+        : 0
+    );
+    setBioTargetWeight(
+      profile.target_weight_kg > 0
+        ? (isImperial ? kgToLbs(profile.target_weight_kg) : profile.target_weight_kg)
+        : 0
+    );
     setBioAge(profile.age || 35);
     setBioSex(profile.sex || 'male');
     setBioActivity(profile.activity_level || 'moderate');
@@ -88,7 +108,9 @@ export const ProgressTrends: React.FC = () => {
 
   // Modal Log Weight State
   const [newWeightInput, setNewWeightInput] = useState<number>(
-    isImperial ? kgToLbs(profile.current_weight_kg) : profile.current_weight_kg
+    profile.current_weight_kg > 0
+      ? (isImperial ? kgToLbs(profile.current_weight_kg) : profile.current_weight_kg)
+      : (isImperial ? 175 : 75)
   );
   const [newBodyFatInput, setNewBodyFatInput] = useState<string>('');
 
@@ -106,8 +128,9 @@ export const ProgressTrends: React.FC = () => {
   const remainingToGoalLbs = Number((kgToLbs(currentWeightKg) - kgToLbs(profile.target_weight_kg)).toFixed(1));
 
   // Determine min & max for SVG trend line
-  const weightsKg = sortedLogs.length > 0 ? sortedLogs.map((l) => l.weight_kg) : [currentWeightKg];
-  const minWKg = Math.min(...weightsKg, profile.target_weight_kg) - 1;
+  const weightsKg = sortedLogs.length > 0 ? sortedLogs.map((l) => l.weight_kg) : [currentWeightKg > 0 ? currentWeightKg : 75];
+  const targetW = profile.target_weight_kg > 0 ? profile.target_weight_kg : weightsKg[0];
+  const minWKg = Math.min(...weightsKg, targetW) - 1;
   const maxWKg = Math.max(...weightsKg) + 1;
   const rangeKg = maxWKg - minWKg || 1;
 
@@ -133,7 +156,11 @@ export const ProgressTrends: React.FC = () => {
       : '';
 
   const handleOpenModal = () => {
-    setNewWeightInput(isImperial ? kgToLbs(currentWeightKg) : currentWeightKg);
+    setNewWeightInput(
+      currentWeightKg > 0
+        ? (isImperial ? kgToLbs(currentWeightKg) : currentWeightKg)
+        : (isImperial ? 175 : 75)
+    );
     setNewBodyFatInput('');
     setShowLogModal(true);
   };
@@ -156,6 +183,7 @@ export const ProgressTrends: React.FC = () => {
       height_cm: computedHeightCm,
       current_weight_kg: computedCurrentWeightKg,
       target_weight_kg: computedTargetWeightKg,
+      has_configured_biometrics: true,
       age: Number(bioAge),
       sex: bioSex,
       activity_level: bioActivity,
@@ -163,7 +191,7 @@ export const ProgressTrends: React.FC = () => {
 
     recalculateMacros();
     setShowBiometricsEditor(false);
-    setSaveToast('Your height, weight, and targets have been saved & recalculated!');
+    setSaveToast('Your custom height, weight, and targets have been saved & recalculated!');
     setTimeout(() => setSaveToast(null), 3500);
   };
 
@@ -207,7 +235,7 @@ export const ProgressTrends: React.FC = () => {
               className="flex items-center gap-2 px-3.5 py-2.5 rounded-2xl bg-surface-200 hover:bg-surface-300 border border-surface-border text-foreground text-xs font-bold transition-all active:scale-95 cursor-pointer"
             >
               <SlidersHorizontal className="w-4 h-4 text-accent-cyan" />
-              <span>{showBiometricsEditor ? 'Hide Biometrics' : 'Edit My Biometrics'}</span>
+              <span>{showBiometricsEditor ? 'Hide Biometrics' : (profile.height_cm > 0 ? 'Edit My Biometrics' : 'Set My Biometrics')}</span>
             </button>
 
             <button
@@ -235,7 +263,7 @@ export const ProgressTrends: React.FC = () => {
               </div>
               <div>
                 <h2 className="text-base font-bold text-foreground">Customize Your Personal Biometrics</h2>
-                <p className="text-xs text-zinc-400">Set your actual height, current weight, and target goal</p>
+                <p className="text-xs text-zinc-400">Set your actual height, current starting weight, and target goal</p>
               </div>
             </div>
             <button
@@ -256,7 +284,9 @@ export const ProgressTrends: React.FC = () => {
                   <span>Height</span>
                 </label>
                 <span className="text-[11px] font-mono text-zinc-400 font-bold">
-                  {isImperial ? `${bioFeet} ft ${bioInches} in` : `${bioHeightCm} cm`}
+                  {bioFeet > 0 || bioHeightCm > 0
+                    ? (isImperial ? `${bioFeet} ft ${bioInches} in` : `${bioHeightCm} cm`)
+                    : 'Not entered'}
                 </span>
               </div>
 
@@ -266,9 +296,10 @@ export const ProgressTrends: React.FC = () => {
                     <label className="text-[10px] text-zinc-400 block mb-1">Feet</label>
                     <input
                       type="number"
-                      min={4}
+                      min={0}
                       max={7}
-                      value={bioFeet}
+                      placeholder="e.g. 5"
+                      value={bioFeet > 0 ? bioFeet : ''}
                       onChange={(e) => setBioFeet(Number(e.target.value))}
                       className="w-full px-3 py-2 rounded-xl bg-surface-300 border border-surface-border font-mono text-sm font-bold text-foreground focus:outline-none focus:border-brand-500"
                     />
@@ -279,7 +310,8 @@ export const ProgressTrends: React.FC = () => {
                       type="number"
                       min={0}
                       max={11}
-                      value={bioInches}
+                      placeholder="e.g. 10"
+                      value={bioInches > 0 ? bioInches : ''}
                       onChange={(e) => setBioInches(Number(e.target.value))}
                       className="w-full px-3 py-2 rounded-xl bg-surface-300 border border-surface-border font-mono text-sm font-bold text-foreground focus:outline-none focus:border-brand-500"
                     />
@@ -289,9 +321,10 @@ export const ProgressTrends: React.FC = () => {
                 <div>
                   <input
                     type="number"
-                    min={120}
+                    min={0}
                     max={240}
-                    value={bioHeightCm}
+                    placeholder="e.g. 178"
+                    value={bioHeightCm > 0 ? bioHeightCm : ''}
                     onChange={(e) => setBioHeightCm(Number(e.target.value))}
                     className="w-full px-3 py-2 rounded-xl bg-surface-300 border border-surface-border font-mono text-sm font-bold text-foreground focus:outline-none focus:border-brand-500"
                   />
@@ -308,14 +341,17 @@ export const ProgressTrends: React.FC = () => {
               <input
                 type="number"
                 step={0.5}
-                min={isImperial ? 60 : 30}
+                min={0}
                 max={isImperial ? 600 : 300}
-                value={bioCurrentWeight}
+                placeholder={isImperial ? 'e.g. 175.0' : 'e.g. 79.5'}
+                value={bioCurrentWeight > 0 ? bioCurrentWeight : ''}
                 onChange={(e) => setBioCurrentWeight(Number(e.target.value))}
                 className="w-full px-3 py-2 rounded-xl bg-surface-300 border border-surface-border font-mono text-sm font-bold text-foreground focus:outline-none focus:border-brand-500"
               />
               <span className="text-[10px] text-zinc-400 font-mono block">
-                {isImperial ? `~${lbsToKg(bioCurrentWeight)} kg` : `~${kgToLbs(bioCurrentWeight)} lbs`}
+                {bioCurrentWeight > 0
+                  ? (isImperial ? `~${lbsToKg(bioCurrentWeight)} kg` : `~${kgToLbs(bioCurrentWeight)} lbs`)
+                  : 'Enter your real starting weight'}
               </span>
             </div>
 
@@ -328,14 +364,17 @@ export const ProgressTrends: React.FC = () => {
               <input
                 type="number"
                 step={0.5}
-                min={isImperial ? 60 : 30}
+                min={0}
                 max={isImperial ? 600 : 300}
-                value={bioTargetWeight}
+                placeholder={isImperial ? 'e.g. 165.0' : 'e.g. 75.0'}
+                value={bioTargetWeight > 0 ? bioTargetWeight : ''}
                 onChange={(e) => setBioTargetWeight(Number(e.target.value))}
                 className="w-full px-3 py-2 rounded-xl bg-surface-300 border border-surface-border font-mono text-sm font-bold text-foreground focus:outline-none focus:border-brand-500"
               />
               <span className="text-[10px] text-zinc-400 font-mono block">
-                {isImperial ? `~${lbsToKg(bioTargetWeight)} kg` : `~${kgToLbs(bioTargetWeight)} lbs`}
+                {bioTargetWeight > 0
+                  ? (isImperial ? `~${lbsToKg(bioTargetWeight)} kg` : `~${kgToLbs(bioTargetWeight)} lbs`)
+                  : 'Enter your desired target goal'}
               </span>
             </div>
 
@@ -423,14 +462,30 @@ export const ProgressTrends: React.FC = () => {
               <Scale className="w-4 h-4 text-brand-400" />
             </div>
             <div className="text-3xl font-black font-mono text-foreground mt-1.5">
-              {isImperial ? kgToLbs(currentWeightKg) : currentWeightKg}{' '}
-              <span className="text-sm font-normal text-zinc-400">{isImperial ? 'lbs' : 'kg'}</span>
+              {currentWeightKg > 0 ? (
+                <>
+                  {isImperial ? kgToLbs(currentWeightKg) : currentWeightKg}{' '}
+                  <span className="text-sm font-normal text-zinc-400">{isImperial ? 'lbs' : 'kg'}</span>
+                </>
+              ) : (
+                <span className="text-zinc-500 text-2xl font-normal">—</span>
+              )}
             </div>
           </div>
           <div className="text-xs text-zinc-400 mt-2 font-mono">
-            {sortedLogs.length > 0
-              ? `Check-in: ${sortedLogs[sortedLogs.length - 1].logged_at}`
-              : 'Base profile setting'}
+            {currentWeightKg > 0 ? (
+              sortedLogs.length > 0
+                ? `Check-in: ${sortedLogs[sortedLogs.length - 1].logged_at}`
+                : 'Base profile setting'
+            ) : (
+              <button
+                type="button"
+                onClick={() => setShowBiometricsEditor(true)}
+                className="text-brand-400 font-bold hover:underline cursor-pointer"
+              >
+                + Set Current Weight
+              </button>
+            )}
           </div>
         </div>
 
@@ -476,18 +531,34 @@ export const ProgressTrends: React.FC = () => {
               <Target className="w-4 h-4 text-accent-cyan" />
             </div>
             <div className="text-3xl font-black font-mono text-accent-cyan mt-1.5">
-              {isImperial ? kgToLbs(profile.target_weight_kg) : profile.target_weight_kg}{' '}
-              <span className="text-sm font-normal text-zinc-400">{isImperial ? 'lbs' : 'kg'}</span>
+              {profile.target_weight_kg > 0 ? (
+                <>
+                  {isImperial ? kgToLbs(profile.target_weight_kg) : profile.target_weight_kg}{' '}
+                  <span className="text-sm font-normal text-zinc-400">{isImperial ? 'lbs' : 'kg'}</span>
+                </>
+              ) : (
+                <span className="text-zinc-500 text-2xl font-normal">—</span>
+              )}
             </div>
           </div>
           <div className="text-xs text-zinc-400 mt-2 font-mono">
-            {isImperial
-              ? remainingToGoalLbs > 0
-                ? `${remainingToGoalLbs} lbs to goal`
+            {profile.target_weight_kg > 0 ? (
+              isImperial
+                ? remainingToGoalLbs > 0
+                  ? `${remainingToGoalLbs} lbs to goal`
+                  : 'Goal reached! 🎉'
+                : remainingToGoalKg > 0
+                ? `${remainingToGoalKg} kg to goal`
                 : 'Goal reached! 🎉'
-              : remainingToGoalKg > 0
-              ? `${remainingToGoalKg} kg to goal`
-              : 'Goal reached! 🎉'}
+            ) : (
+              <button
+                type="button"
+                onClick={() => setShowBiometricsEditor(true)}
+                className="text-accent-cyan font-bold hover:underline cursor-pointer"
+              >
+                + Set Goal Target
+              </button>
+            )}
           </div>
         </div>
 
@@ -499,7 +570,11 @@ export const ProgressTrends: React.FC = () => {
               <Ruler className="w-4 h-4 text-purple-400" />
             </div>
             <div className="text-3xl font-black font-mono text-purple-400 mt-1.5">
-              {formatHeight(profile.height_cm, profile.unit_preference)}
+              {profile.height_cm > 0 ? (
+                formatHeight(profile.height_cm, profile.unit_preference)
+              ) : (
+                <span className="text-zinc-500 text-2xl font-normal">—</span>
+              )}
             </div>
           </div>
           <div className="flex items-center justify-between text-xs text-zinc-400 mt-2">
@@ -509,7 +584,7 @@ export const ProgressTrends: React.FC = () => {
               onClick={() => setShowBiometricsEditor(true)}
               className="text-[11px] text-brand-400 hover:underline font-bold cursor-pointer"
             >
-              Edit
+              {profile.height_cm > 0 ? 'Edit' : '+ Set Height'}
             </button>
           </div>
         </div>
@@ -624,15 +699,17 @@ export const ProgressTrends: React.FC = () => {
               {areaD && <path d={areaD} fill="url(#trendGradient)" />}
 
               {/* Target Goal Line */}
-              <line
-                x1={padding}
-                y1={svgHeight - padding - ((profile.target_weight_kg - minWKg) / rangeKg) * (svgHeight - 2 * padding)}
-                x2={svgWidth - padding}
-                y2={svgHeight - padding - ((profile.target_weight_kg - minWKg) / rangeKg) * (svgHeight - 2 * padding)}
-                stroke="#06b6d4"
-                strokeDasharray="6 6"
-                strokeWidth="1.5"
-              />
+              {profile.target_weight_kg > 0 && (
+                <line
+                  x1={padding}
+                  y1={svgHeight - padding - ((profile.target_weight_kg - minWKg) / rangeKg) * (svgHeight - 2 * padding)}
+                  x2={svgWidth - padding}
+                  y2={svgHeight - padding - ((profile.target_weight_kg - minWKg) / rangeKg) * (svgHeight - 2 * padding)}
+                  stroke="#06b6d4"
+                  strokeDasharray="6 6"
+                  strokeWidth="1.5"
+                />
+              )}
 
               {/* Main Trend Line */}
               {pathD && (
@@ -673,10 +750,12 @@ export const ProgressTrends: React.FC = () => {
                 <span className="w-3 h-3 rounded-full bg-brand-500 inline-block" />
                 <span>Actual Weigh-In</span>
               </span>
-              <span className="flex items-center gap-2">
-                <span className="w-4 h-0.5 bg-accent-cyan inline-block border-t border-dashed border-accent-cyan" />
-                <span>Goal Target ({isImperial ? `${kgToLbs(profile.target_weight_kg)} lbs` : `${profile.target_weight_kg} kg`})</span>
-              </span>
+              {profile.target_weight_kg > 0 && (
+                <span className="flex items-center gap-2">
+                  <span className="w-4 h-0.5 bg-accent-cyan inline-block border-t border-dashed border-accent-cyan" />
+                  <span>Goal Target ({isImperial ? `${kgToLbs(profile.target_weight_kg)} lbs` : `${profile.target_weight_kg} kg`})</span>
+                </span>
+              )}
             </div>
           </div>
         )}

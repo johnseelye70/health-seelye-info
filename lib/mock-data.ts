@@ -7,18 +7,19 @@ export const INITIAL_PROFILE: UserProfile = {
   email: '',
   full_name: 'Logged-on User',
   age: 35,
-  height_cm: 178, // ~5'10"
-  current_weight_kg: 80.0, // ~176 lbs
-  target_weight_kg: 75.0, // ~165 lbs
+  height_cm: 0, // Unset until user inputs real biometrics
+  current_weight_kg: 0, // Unset until user inputs real biometrics
+  target_weight_kg: 0, // Unset until user inputs real biometrics
+  has_configured_biometrics: false,
   sex: 'male',
   activity_level: 'moderate',
   goal: 'cut_500',
   unit_preference: 'imperial',
   experience_mode: 'simple',
-  daily_calorie_target: 2150,
-  protein_target_g: 176,
-  carb_target_g: 210,
-  fat_target_g: 60,
+  daily_calorie_target: 2000,
+  protein_target_g: 150,
+  carb_target_g: 200,
+  fat_target_g: 65,
   fasting_protocol: '16_8',
   fasting_start_time: '20:00',
   eating_window_duration_hours: 8,

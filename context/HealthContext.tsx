@@ -161,7 +161,7 @@ interface HealthContextType {
 
 const HealthContext = createContext<HealthContextType | undefined>(undefined);
 
-const LOCAL_STORAGE_KEY = 'health_seelye_app_state_v7';
+const LOCAL_STORAGE_KEY = 'health_seelye_app_state_v8';
 
 export function HealthProvider({ children }: { children: React.ReactNode }) {
   const [profile, setProfile] = useState<UserProfile>(INITIAL_PROFILE);
@@ -212,12 +212,29 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
       try {
         const saved =
           localStorage.getItem(LOCAL_STORAGE_KEY) ||
+          localStorage.getItem('health_seelye_app_state_v7') ||
+          localStorage.getItem('health_seelye_app_state_v6') ||
           localStorage.getItem('health_seelye_app_state_v5') ||
           localStorage.getItem('health_seelye_app_state_v4');
 
         if (saved) {
           const parsed = JSON.parse(saved);
-          if (parsed.profile) setProfile(parsed.profile);
+          if (parsed.profile) {
+            const prof = { ...parsed.profile };
+            // Purge legacy hardcoded defaults (178cm / 80kg / 75kg) if user hasn't explicitly configured custom biometrics
+            if (
+              !prof.has_configured_biometrics &&
+              (prof.height_cm === 178 || !prof.height_cm) &&
+              (prof.current_weight_kg === 80 || !prof.current_weight_kg) &&
+              (prof.target_weight_kg === 75 || !prof.target_weight_kg)
+            ) {
+              prof.height_cm = 0;
+              prof.current_weight_kg = 0;
+              prof.target_weight_kg = 0;
+              prof.has_configured_biometrics = false;
+            }
+            setProfile(prof);
+          }
 
           if (parsed.foods && Array.isArray(parsed.foods) && parsed.foods.length >= DEFAULT_FOODS.length) {
             setFoods(

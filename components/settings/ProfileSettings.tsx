@@ -62,7 +62,7 @@ export const ProfileSettings: React.FC = () => {
   } = useHealth();
 
   const isImperial = profile.unit_preference === 'imperial';
-  const initialFtIn = cmToFtIn(profile.height_cm);
+  const initialFtIn = profile.height_cm > 0 ? cmToFtIn(profile.height_cm) : { feet: 0, inches: 0 };
 
   const [showChangelog, setShowChangelog] = useState<boolean>(false);
   const [form, setForm] = useState({
@@ -72,11 +72,11 @@ export const ProfileSettings: React.FC = () => {
     sex: profile.sex,
     unit_preference: profile.unit_preference,
     experience_mode: profile.experience_mode || 'simple',
-    height_cm: profile.height_cm,
+    height_cm: profile.height_cm || 0,
     height_ft: initialFtIn.feet,
     height_in: initialFtIn.inches,
-    current_weight_input: isImperial ? kgToLbs(profile.current_weight_kg) : profile.current_weight_kg,
-    target_weight_input: isImperial ? kgToLbs(profile.target_weight_kg) : profile.target_weight_kg,
+    current_weight_input: profile.current_weight_kg > 0 ? (isImperial ? kgToLbs(profile.current_weight_kg) : profile.current_weight_kg) : 0,
+    target_weight_input: profile.target_weight_kg > 0 ? (isImperial ? kgToLbs(profile.target_weight_kg) : profile.target_weight_kg) : 0,
     activity_level: profile.activity_level,
     goal: profile.goal,
     meal_count: profile.meal_count,
@@ -86,7 +86,7 @@ export const ProfileSettings: React.FC = () => {
 
   // Keep form in sync when profile updates (e.g. on account login/sync)
   useEffect(() => {
-    const ftIn = cmToFtIn(profile.height_cm);
+    const ftIn = profile.height_cm > 0 ? cmToFtIn(profile.height_cm) : { feet: 0, inches: 0 };
     setForm({
       full_name: profile.full_name || '',
       email: profile.email || '',
@@ -94,11 +94,11 @@ export const ProfileSettings: React.FC = () => {
       sex: profile.sex,
       unit_preference: profile.unit_preference,
       experience_mode: profile.experience_mode || 'simple',
-      height_cm: profile.height_cm,
+      height_cm: profile.height_cm || 0,
       height_ft: ftIn.feet,
       height_in: ftIn.inches,
-      current_weight_input: profile.unit_preference === 'imperial' ? kgToLbs(profile.current_weight_kg) : profile.current_weight_kg,
-      target_weight_input: profile.unit_preference === 'imperial' ? kgToLbs(profile.target_weight_kg) : profile.target_weight_kg,
+      current_weight_input: profile.current_weight_kg > 0 ? (profile.unit_preference === 'imperial' ? kgToLbs(profile.current_weight_kg) : profile.current_weight_kg) : 0,
+      target_weight_input: profile.target_weight_kg > 0 ? (profile.unit_preference === 'imperial' ? kgToLbs(profile.target_weight_kg) : profile.target_weight_kg) : 0,
       activity_level: profile.activity_level,
       goal: profile.goal,
       meal_count: profile.meal_count,
@@ -172,6 +172,7 @@ export const ProfileSettings: React.FC = () => {
       height_cm: finalHeightCm,
       current_weight_kg: finalWeightKg,
       target_weight_kg: finalTargetWeightKg,
+      has_configured_biometrics: finalHeightCm > 0 || finalWeightKg > 0,
       activity_level: form.activity_level,
       goal: form.goal,
       meal_count: Number(form.meal_count),
@@ -188,17 +189,17 @@ export const ProfileSettings: React.FC = () => {
   const handleReset = () => {
     resetAllData();
     setForm({
-      full_name: 'Athlete',
+      full_name: 'Logged-on User',
       email: '',
       age: 35,
       sex: 'male',
       unit_preference: 'imperial',
       experience_mode: 'simple',
-      height_cm: 178,
-      height_ft: 5,
-      height_in: 10,
-      current_weight_input: 176.0,
-      target_weight_input: 165.0,
+      height_cm: 0,
+      height_ft: 0,
+      height_in: 0,
+      current_weight_input: 0,
+      target_weight_input: 0,
       activity_level: 'moderate',
       goal: 'cut_500',
       meal_count: 3,
@@ -210,6 +211,16 @@ export const ProfileSettings: React.FC = () => {
   };
 
   const changelogHistory = [
+    {
+      version: 'Beta 2.4.7',
+      date: '2026-08-25',
+      title: 'Zero Forced Biometrics & Legacy Default State Purge (v8 Local Storage)',
+      changes: [
+        'Zero Forced Biometrics: Eliminated all hardcoded weight (176 lbs), goal target (165 lbs), and height (5\'10") baseline defaults throughout the app and initialization templates.',
+        'Legacy Default State Purge: Upgraded local storage engine to v8 and automated clean sanitization of stale cached profiles on all connected mobile and desktop devices.',
+        'Intuitive Biometrics Inputs: Displays clean em-dashes ("—") and direct 1-tap setup buttons until the user inputs their real height, weight, and goals.',
+      ],
+    },
     {
       version: 'Beta 2.4.6',
       date: '2026-08-25',
