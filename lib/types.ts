@@ -332,9 +332,11 @@ export type GroceryDepartment =
 
 export type GroceryStoreTag =
   | 'all'
-  | 'sams_club'
   | 'aldi'
   | 'meijer'
+  | 'sams_club'
+  | 'costco'
+  | 'walmart'
   | 'supermarket'
   | 'farmers_market';
 

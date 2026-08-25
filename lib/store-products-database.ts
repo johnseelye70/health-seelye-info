@@ -3,7 +3,7 @@ import { CatalogGroceryItem, GroceryStoreTag, FoodCategory } from './types';
 export interface StoreBrandProduct extends CatalogGroceryItem {
   brand: string;
   package_size: string;
-  store_tag_primary: 'sams_club' | 'aldi' | 'meijer';
+  store_tag_primary: 'sams_club' | 'aldi' | 'meijer' | 'costco' | 'walmart';
 }
 
 // =========================================================================
@@ -867,10 +867,342 @@ export const MEIJER_PRODUCTS: StoreBrandProduct[] = [
   },
 ];
 
+// =========================================================================
+// 4. COSTCO WHOLESALE (Kirkland Signature Bulk & Fresh)
+// =========================================================================
+export const COSTCO_PRODUCTS: StoreBrandProduct[] = [
+  {
+    id: 'costco_chicken_breast',
+    name: 'Kirkland Signature Boneless Skinless Chicken Breasts',
+    brand: 'Kirkland Signature (Costco)',
+    package_size: '6.5 lb Vacuum Sealed Fresh Multi-Pack',
+    department: 'poultry_meat' as any,
+    shelf_life: 'fresh_weekly',
+    default_unit: 'pack (6.5 lbs)',
+    default_quantity: 1,
+    store_tags: ['costco'],
+    store_tag_primary: 'costco',
+    calories_per_serving: 120,
+    protein_g: 26,
+    carbs_g: 0,
+    fat_g: 1.5,
+    common_substitutes: [
+      { name: 'Kirkland Signature Wild Alaskan Sockeye Salmon', department: 'fish_seafood' as any, default_unit: 'bag', conversion_ratio: 1.0, reason: 'Wild seafood alternative' },
+    ],
+    icon_emoji: '🍗',
+  },
+  {
+    id: 'costco_organic_ground_beef',
+    name: 'Kirkland Signature Organic 85/15 Ground Beef',
+    brand: 'Kirkland Signature (Costco)',
+    package_size: '3 x 1.34 lb Vacuum Packs (4 lbs total)',
+    department: 'poultry_meat' as any,
+    shelf_life: 'fresh_weekly',
+    default_unit: 'pack (4 lbs)',
+    default_quantity: 1,
+    store_tags: ['costco'],
+    store_tag_primary: 'costco',
+    calories_per_serving: 240,
+    protein_g: 21,
+    carbs_g: 0,
+    fat_g: 17,
+    common_substitutes: [
+      { name: 'Kirkland Signature Boneless Skinless Chicken Breasts', department: 'poultry_meat' as any, default_unit: 'pack', conversion_ratio: 1.0, reason: 'Lean poultry alternative' },
+    ],
+    icon_emoji: '🥩',
+  },
+  {
+    id: 'costco_salmon',
+    name: 'Kirkland Signature Wild Alaskan Sockeye Salmon Portions',
+    brand: 'Kirkland Signature (Costco)',
+    package_size: '3 lb Frozen Resealable Bag',
+    department: 'fish_seafood' as any,
+    shelf_life: 'freezer_monthly',
+    default_unit: 'bag (3 lbs)',
+    default_quantity: 1,
+    store_tags: ['costco'],
+    store_tag_primary: 'costco',
+    calories_per_serving: 150,
+    protein_g: 23,
+    carbs_g: 0,
+    fat_g: 6,
+    common_substitutes: [
+      { name: 'Kirkland Signature Raw Tail-On Jumbo Shrimp (2 lbs)', department: 'fish_seafood' as any, default_unit: 'bag', conversion_ratio: 1.0, reason: 'Lean high-protein seafood' },
+    ],
+    icon_emoji: '🐟',
+  },
+  {
+    id: 'costco_greek_yogurt',
+    name: 'Kirkland Signature Organic Non-Fat Plain Greek Yogurt',
+    brand: 'Kirkland Signature (Costco)',
+    package_size: '48 oz (3 lbs) Tub',
+    department: 'dairy_eggs' as any,
+    shelf_life: 'fresh_weekly',
+    default_unit: 'tub (48 oz)',
+    default_quantity: 1,
+    store_tags: ['costco'],
+    store_tag_primary: 'costco',
+    calories_per_serving: 100,
+    protein_g: 18,
+    carbs_g: 6,
+    fat_g: 0,
+    common_substitutes: [
+      { name: 'Kirkland Signature Organic Pasture-Raised Eggs', department: 'dairy_eggs' as any, default_unit: 'carton', conversion_ratio: 1.0, reason: 'Whole farm egg protein' },
+    ],
+    icon_emoji: '🥣',
+  },
+  {
+    id: 'costco_organic_eggs',
+    name: 'Kirkland Signature Organic Pasture-Raised Large Brown Eggs',
+    brand: 'Kirkland Signature (Costco)',
+    package_size: '2 x 18 Count (36 Eggs Total)',
+    department: 'dairy_eggs' as any,
+    shelf_life: 'fresh_weekly',
+    default_unit: 'pack (36 eggs)',
+    default_quantity: 1,
+    store_tags: ['costco'],
+    store_tag_primary: 'costco',
+    calories_per_serving: 70,
+    protein_g: 6,
+    carbs_g: 0,
+    fat_g: 5,
+    common_substitutes: [
+      { name: 'Kirkland Signature Organic Non-Fat Plain Greek Yogurt', department: 'dairy_eggs' as any, default_unit: 'tub', conversion_ratio: 1.0, reason: 'High-protein cultured dairy' },
+    ],
+    icon_emoji: '🥚',
+  },
+  {
+    id: 'costco_olive_oil',
+    name: 'Kirkland Signature Organic Extra Virgin Olive Oil',
+    brand: 'Kirkland Signature (Costco)',
+    package_size: '2 Liter (67.6 fl oz) Bottle',
+    department: 'healthy_fats' as any,
+    shelf_life: 'pantry_monthly',
+    default_unit: 'bottle (2L)',
+    default_quantity: 1,
+    store_tags: ['costco'],
+    store_tag_primary: 'costco',
+    calories_per_serving: 120,
+    protein_g: 0,
+    carbs_g: 0,
+    fat_g: 14,
+    common_substitutes: [
+      { name: 'Kirkland Signature Pure Avocado Oil (1 Liter)', department: 'healthy_fats' as any, default_unit: 'bottle', conversion_ratio: 1.0, reason: 'High-heat cooking oil' },
+    ],
+    icon_emoji: '🫒',
+  },
+  {
+    id: 'costco_quinoa',
+    name: 'Kirkland Signature Organic White Royal Quinoa',
+    brand: 'Kirkland Signature (Costco)',
+    package_size: '4.5 lb Bag',
+    department: 'grains_bakery' as any,
+    shelf_life: 'pantry_monthly',
+    default_unit: 'bag (4.5 lbs)',
+    default_quantity: 1,
+    store_tags: ['costco'],
+    store_tag_primary: 'costco',
+    calories_per_serving: 170,
+    protein_g: 6,
+    carbs_g: 30,
+    fat_g: 3,
+    common_substitutes: [
+      { name: 'Kirkland Signature Organic Jasmine Rice', department: 'grains_bakery' as any, default_unit: 'bag', conversion_ratio: 1.0, reason: 'Clean fast-digesting carb' },
+    ],
+    icon_emoji: '🌾',
+  },
+  {
+    id: 'costco_berries',
+    name: 'Kirkland Signature Organic Three Berry Blend (Blueberries, Raspberries, Blackberries)',
+    brand: 'Kirkland Signature (Costco)',
+    package_size: '4 lb Frozen Bag',
+    department: 'fruits' as any,
+    shelf_life: 'freezer_monthly',
+    default_unit: 'bag (4 lbs)',
+    default_quantity: 1,
+    store_tags: ['costco'],
+    store_tag_primary: 'costco',
+    calories_per_serving: 70,
+    protein_g: 1,
+    carbs_g: 15,
+    fat_g: 0.5,
+    common_substitutes: [
+      { name: 'Kirkland Signature Organic Whole Strawberries (4 lbs)', department: 'fruits' as any, default_unit: 'bag', conversion_ratio: 1.0, reason: 'Whole antioxidant fruit' },
+    ],
+    icon_emoji: '🫐',
+  },
+];
+
+// =========================================================================
+// 5. WALMART (Great Value & Marketside Fresh)
+// =========================================================================
+export const WALMART_PRODUCTS: StoreBrandProduct[] = [
+  {
+    id: 'walmart_chicken_breast',
+    name: 'Marketside All Natural Fresh Boneless Skinless Chicken Breasts',
+    brand: 'Marketside (Walmart)',
+    package_size: '3 lb Family Tray',
+    department: 'poultry_meat' as any,
+    shelf_life: 'fresh_weekly',
+    default_unit: 'tray (3 lbs)',
+    default_quantity: 1,
+    store_tags: ['walmart'],
+    store_tag_primary: 'walmart',
+    calories_per_serving: 120,
+    protein_g: 26,
+    carbs_g: 0,
+    fat_g: 1.5,
+    common_substitutes: [
+      { name: 'Great Value 93/7 Lean Ground Beef (1 lb Roll)', department: 'poultry_meat' as any, default_unit: 'roll', conversion_ratio: 1.0, reason: 'Lean ground beef' },
+    ],
+    icon_emoji: '🍗',
+  },
+  {
+    id: 'walmart_lean_beef',
+    name: 'Great Value 93/7 All Natural Lean Ground Beef',
+    brand: 'Great Value (Walmart)',
+    package_size: '1 lb Roll',
+    department: 'poultry_meat' as any,
+    shelf_life: 'fresh_weekly',
+    default_unit: 'roll (1 lb)',
+    default_quantity: 2,
+    store_tags: ['walmart'],
+    store_tag_primary: 'walmart',
+    calories_per_serving: 170,
+    protein_g: 24,
+    carbs_g: 0,
+    fat_g: 8,
+    common_substitutes: [
+      { name: 'Marketside All Natural Fresh Boneless Skinless Chicken Breasts', department: 'poultry_meat' as any, default_unit: 'tray', conversion_ratio: 1.0, reason: 'Lean poultry alternative' },
+    ],
+    icon_emoji: '🥩',
+  },
+  {
+    id: 'walmart_greek_yogurt',
+    name: 'Great Value Plain Nonfat Greek Yogurt',
+    brand: 'Great Value (Walmart)',
+    package_size: '32 oz Tub',
+    department: 'dairy_eggs' as any,
+    shelf_life: 'fresh_weekly',
+    default_unit: 'tub (32 oz)',
+    default_quantity: 1,
+    store_tags: ['walmart'],
+    store_tag_primary: 'walmart',
+    calories_per_serving: 90,
+    protein_g: 16,
+    carbs_g: 6,
+    fat_g: 0,
+    common_substitutes: [
+      { name: 'Great Value Large White Cage-Free Eggs (18 Count)', department: 'dairy_eggs' as any, default_unit: 'carton', conversion_ratio: 1.0, reason: 'Fresh whole eggs' },
+    ],
+    icon_emoji: '🥣',
+  },
+  {
+    id: 'walmart_2pct_milk',
+    name: 'Great Value 2% Reduced-Fat Milk',
+    brand: 'Great Value (Walmart)',
+    package_size: '1 Gallon Jug',
+    department: 'dairy_eggs' as any,
+    shelf_life: 'fresh_weekly',
+    default_unit: 'gallon',
+    default_quantity: 1,
+    store_tags: ['walmart'],
+    store_tag_primary: 'walmart',
+    calories_per_serving: 120,
+    protein_g: 8,
+    carbs_g: 12,
+    fat_g: 5,
+    common_substitutes: [
+      { name: 'Great Value Whole Vitamin D Milk (1 Gallon)', department: 'dairy_eggs' as any, default_unit: 'gallon', conversion_ratio: 1.0, reason: 'Rich whole dairy milk' },
+    ],
+    icon_emoji: '🥛',
+  },
+  {
+    id: 'walmart_eggs',
+    name: 'Great Value Large White Cage-Free Grade A Eggs',
+    brand: 'Great Value (Walmart)',
+    package_size: '18 Count Carton',
+    department: 'dairy_eggs' as any,
+    shelf_life: 'fresh_weekly',
+    default_unit: 'carton (18 eggs)',
+    default_quantity: 1,
+    store_tags: ['walmart'],
+    store_tag_primary: 'walmart',
+    calories_per_serving: 70,
+    protein_g: 6,
+    carbs_g: 0,
+    fat_g: 5,
+    common_substitutes: [
+      { name: 'Great Value 100% Pure Liquid Egg Whites (32 oz)', department: 'dairy_eggs' as any, default_unit: 'carton', conversion_ratio: 1.0, reason: 'Pure lean protein whites' },
+    ],
+    icon_emoji: '🥚',
+  },
+  {
+    id: 'walmart_jasmine_rice',
+    name: 'Great Value Authentic Thai Jasmine Rice',
+    brand: 'Great Value (Walmart)',
+    package_size: '5 lb Bag',
+    department: 'grains_bakery' as any,
+    shelf_life: 'pantry_monthly',
+    default_unit: 'bag (5 lbs)',
+    default_quantity: 1,
+    store_tags: ['walmart'],
+    store_tag_primary: 'walmart',
+    calories_per_serving: 160,
+    protein_g: 3,
+    carbs_g: 36,
+    fat_g: 0,
+    common_substitutes: [
+      { name: 'Great Value 100% Whole Grain Brown Rice (5 lbs)', department: 'grains_bakery' as any, default_unit: 'bag', conversion_ratio: 1.0, reason: 'High-fiber whole grain' },
+    ],
+    icon_emoji: '🍚',
+  },
+  {
+    id: 'walmart_frozen_broccoli',
+    name: 'Great Value Steamable Broccoli Florets',
+    brand: 'Great Value (Walmart)',
+    package_size: '12 oz Steamable Bag',
+    department: 'vegetables' as any,
+    shelf_life: 'freezer_monthly',
+    default_unit: 'bag (12 oz)',
+    default_quantity: 2,
+    store_tags: ['walmart'],
+    store_tag_primary: 'walmart',
+    calories_per_serving: 30,
+    protein_g: 3,
+    carbs_g: 6,
+    fat_g: 0,
+    common_substitutes: [
+      { name: 'Marketside Fresh Asparagus Spears (1 lb)', department: 'vegetables' as any, default_unit: 'bunch', conversion_ratio: 1.0, reason: 'Fresh tender spears' },
+    ],
+    icon_emoji: '🥦',
+  },
+  {
+    id: 'walmart_olive_oil',
+    name: 'Great Value 100% Extra Virgin Olive Oil',
+    brand: 'Great Value (Walmart)',
+    package_size: '16.9 fl oz (500 ml) Glass Bottle',
+    department: 'healthy_fats' as any,
+    shelf_life: 'pantry_monthly',
+    default_unit: 'bottle (16.9 oz)',
+    default_quantity: 1,
+    store_tags: ['walmart'],
+    store_tag_primary: 'walmart',
+    calories_per_serving: 120,
+    protein_g: 0,
+    carbs_g: 0,
+    fat_g: 14,
+    common_substitutes: [
+      { name: 'Great Value 100% Pure Avocado Oil (16.9 oz)', department: 'healthy_fats' as any, default_unit: 'bottle', conversion_ratio: 1.0, reason: 'High-heat cooking fat' },
+    ],
+    icon_emoji: '🫒',
+  },
+];
+
 /**
  * Get products for a specific store
  */
-export function getStoreSpecificProducts(store: 'sams_club' | 'aldi' | 'meijer'): StoreBrandProduct[] {
+export function getStoreSpecificProducts(store: 'sams_club' | 'aldi' | 'meijer' | 'costco' | 'walmart'): StoreBrandProduct[] {
   switch (store) {
     case 'sams_club':
       return SAMS_CLUB_PRODUCTS;
@@ -878,5 +1210,9 @@ export function getStoreSpecificProducts(store: 'sams_club' | 'aldi' | 'meijer')
       return ALDI_PRODUCTS;
     case 'meijer':
       return MEIJER_PRODUCTS;
+    case 'costco':
+      return COSTCO_PRODUCTS;
+    case 'walmart':
+      return WALMART_PRODUCTS;
   }
 }

@@ -22,6 +22,8 @@ import {
   SAMS_CLUB_PRODUCTS,
   ALDI_PRODUCTS,
   MEIJER_PRODUCTS,
+  COSTCO_PRODUCTS,
+  WALMART_PRODUCTS,
 } from '@/lib/store-products-database';
 import {
   ShoppingCart,
@@ -191,6 +193,8 @@ export const GroceryManager: React.FC = () => {
     sams: SAMS_CLUB_PRODUCTS.length,
     aldi: ALDI_PRODUCTS.length,
     meijer: MEIJER_PRODUCTS.length,
+    costco: COSTCO_PRODUCTS.length,
+    walmart: WALMART_PRODUCTS.length,
   }), []);
 
   // Actions
@@ -225,9 +229,16 @@ export const GroceryManager: React.FC = () => {
     }
   };
 
-  const handleLoadStoreRun = (store: 'sams_club' | 'aldi' | 'meijer') => {
+  const handleLoadStoreRun = (store: 'sams_club' | 'aldi' | 'meijer' | 'costco' | 'walmart') => {
     const items = generateStoreSpecificRequisition(store, groceryMultiplier);
-    const listId = store === 'sams_club' ? 'sams_club_bulk' : store === 'aldi' ? 'aldi_run' : 'meijer_run';
+    const listMap = {
+      sams_club: 'sams_club_bulk',
+      aldi: 'aldi_run',
+      meijer: 'meijer_run',
+      costco: 'costco_bulk',
+      walmart: 'walmart_run',
+    };
+    const listId = listMap[store] || 'main';
     setActiveListId(listId);
     setSelectedStoreTag(store);
 
@@ -239,6 +250,8 @@ export const GroceryManager: React.FC = () => {
       sams_club: "Sam's Club Member's Mark Bulk",
       aldi: "Aldi Simply Nature & Friendly Farms",
       meijer: "Meijer True Goodness & Frederik's",
+      costco: "Costco Kirkland Signature Bulk",
+      walmart: "Walmart Great Value & Marketside",
     };
 
     setToastMessage(`Loaded ${items.length} signature ${storeNames[store]} items into your list!`);
@@ -395,20 +408,11 @@ export const GroceryManager: React.FC = () => {
           <div className="flex items-center gap-2 flex-wrap">
             <button
               type="button"
-              onClick={() => handleLoadStoreRun('sams_club')}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-surface-300 hover:bg-brand-500 hover:text-zinc-950 text-zinc-200 text-xs font-bold transition-all cursor-pointer border border-surface-border hover:border-brand-400 active:scale-95"
-            >
-              <span>📦</span>
-              <span>+ Sam's Club Bulk ({storeCounts.sams} items)</span>
-            </button>
-
-            <button
-              type="button"
               onClick={() => handleLoadStoreRun('aldi')}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-surface-300 hover:bg-brand-500 hover:text-zinc-950 text-zinc-200 text-xs font-bold transition-all cursor-pointer border border-surface-border hover:border-brand-400 active:scale-95"
             >
               <span>🛒</span>
-              <span>+ Aldi Organics ({storeCounts.aldi} items)</span>
+              <span>+ Aldi ({storeCounts.aldi} items)</span>
             </button>
 
             <button
@@ -417,7 +421,34 @@ export const GroceryManager: React.FC = () => {
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-surface-300 hover:bg-brand-500 hover:text-zinc-950 text-zinc-200 text-xs font-bold transition-all cursor-pointer border border-surface-border hover:border-brand-400 active:scale-95"
             >
               <span>🏷️</span>
-              <span>+ Meijer Weekly ({storeCounts.meijer} items)</span>
+              <span>+ Meijer ({storeCounts.meijer} items)</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => handleLoadStoreRun('sams_club')}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-surface-300 hover:bg-brand-500 hover:text-zinc-950 text-zinc-200 text-xs font-bold transition-all cursor-pointer border border-surface-border hover:border-brand-400 active:scale-95"
+            >
+              <span>📦</span>
+              <span>+ Sam's Club ({storeCounts.sams} items)</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => handleLoadStoreRun('costco')}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-surface-300 hover:bg-brand-500 hover:text-zinc-950 text-zinc-200 text-xs font-bold transition-all cursor-pointer border border-surface-border hover:border-brand-400 active:scale-95"
+            >
+              <span>🏬</span>
+              <span>+ Costco ({storeCounts.costco} items)</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => handleLoadStoreRun('walmart')}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-surface-300 hover:bg-brand-500 hover:text-zinc-950 text-zinc-200 text-xs font-bold transition-all cursor-pointer border border-surface-border hover:border-brand-400 active:scale-95"
+            >
+              <span>🏪</span>
+              <span>+ Walmart ({storeCounts.walmart} items)</span>
             </button>
           </div>
         </div>

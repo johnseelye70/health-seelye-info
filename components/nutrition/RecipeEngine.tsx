@@ -8,6 +8,7 @@ import {
   RecipeSubCategory,
   RecipeIngredient,
   RecipeIngredientSwapOption,
+  GroceryStoreTag,
   FoodItem,
   UnitPreference,
 } from '@/lib/types';
@@ -42,6 +43,7 @@ import {
   SlidersHorizontal,
   Info,
   RotateCcw,
+  Store,
 } from 'lucide-react';
 
 interface RecipeEngineProps {
@@ -70,13 +72,15 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
   const [selectedSubCategory, setSelectedSubCategory] = useState<RecipeSubCategory | 'all'>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
 
+  // Selected Target Store for Grocery Routing (Aldi, Meijer, Sam's Club, Costco, Walmart, All)
+  const [selectedTargetStore, setSelectedTargetStore] = useState<GroceryStoreTag>('all');
+
   // Selected recipe for 100% Inline Detail View
   const [selectedRecipeDetail, setSelectedRecipeDetail] = useState<RecipeItem | null>(null);
 
   // Dynamic Ingredient Swaps State (keyed by ingredient index in selected recipe)
   const [activeSwaps, setActiveSwaps] = useState<Record<number, RecipeIngredientSwapOption>>({});
   const [openSwapIndex, setOpenSwapIndex] = useState<number | null>(null);
-  const [categorySearchQuery, setCategorySearchQuery] = useState<string>('');
 
   // Selected recipe for Dedicated Print Preview Studio
   const [recipeForPrintPreview, setRecipeForPrintPreview] = useState<RecipeItem | null>(null);
@@ -185,8 +189,33 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
     );
   };
 
-  // 1-Tap Sync Ingredients to Grocery List
-  const handleSyncGrocery = (recipe: RecipeItem, multiplier: number = 1) => {
+  // 1-Tap Sync Ingredients to Grocery List with Store Routing (Aldi, Meijer, Sam's Club, Costco, Walmart, All)
+  const handleSyncGrocery = (
+    recipe: RecipeItem,
+    multiplier: number = 1,
+    targetStore?: GroceryStoreTag
+  ) => {
+    const effectiveStore = targetStore || selectedTargetStore;
+    const listMap: Record<string, string> = {
+      aldi: 'aldi_run',
+      meijer: 'meijer_run',
+      sams_club: 'sams_club_bulk',
+      costco: 'costco_bulk',
+      walmart: 'walmart_run',
+      all: 'main',
+    };
+    const targetListId = listMap[effectiveStore] || 'main';
+
+    const storeNames: Record<string, string> = {
+      all: 'Weekly Shopping',
+      aldi: 'Aldi',
+      meijer: 'Meijer',
+      sams_club: "Sam's Club",
+      costco: 'Costco Wholesale',
+      walmart: 'Walmart',
+    };
+    const storeLabel = storeNames[effectiveStore] || 'Shopping';
+
     let countAdded = 0;
     recipe.ingredients.forEach((ing) => {
       const baseMeasure = isImperial ? ing.amount_imperial : ing.amount_metric;
@@ -200,6 +229,8 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
         department: ing.department || 'produce',
         is_checked: false,
         in_pantry: false,
+        store_tag: effectiveStore !== 'all' ? effectiveStore : undefined,
+        list_id: targetListId,
         notes: `For ${recipe.title} (${scaledMeasure})${ing.notes ? ` - ${ing.notes}` : ''}`,
       });
       countAdded++;
@@ -207,7 +238,7 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
 
     triggerSuccessFeedback(
       recipe.id,
-      `Added ${countAdded} ingredients from "${recipe.title}" ${multiplier > 1 ? `(${multiplier}x batch)` : ''} to your Shopping List! 🛒`
+      `Added ${countAdded} ingredients from "${recipe.title}" ${multiplier > 1 ? `(${multiplier}x batch)` : ''} to your ${storeLabel} List! 🛒`
     );
   };
 
@@ -225,6 +256,15 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
     { id: 'bulk_meal_prep', label: isSimple ? 'Batch Meal Prep' : 'Bulk Batch Prep', emoji: '🍲' },
     { id: 'snack_dessert', label: isSimple ? 'Snacks & Treats' : 'Anabolic Snacks', emoji: '🍓' },
   ] as const;
+
+  const storeOptions: { id: GroceryStoreTag; label: string; icon: string }[] = [
+    { id: 'all', label: 'All Stores', icon: '🏢' },
+    { id: 'aldi', label: 'Aldi', icon: '🛒' },
+    { id: 'meijer', label: 'Meijer', icon: '🏷️' },
+    { id: 'sams_club', label: "Sam's Club", icon: '📦' },
+    { id: 'costco', label: 'Costco', icon: '🏬' },
+    { id: 'walmart', label: 'Walmart', icon: '🏪' },
+  ];
 
   // View: 100% INLINE Print Preview & Customization Studio
   const renderPrintPreviewStudio = (printRecipe: RecipeItem) => {
@@ -560,7 +600,7 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
             <span>← Back to All Recipes</span>
           </button>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             {detailRecipe.hasSwaps && (
               <button
                 type="button"
@@ -585,14 +625,31 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
               <span>Print Preview & Card</span>
             </button>
 
-            <button
-              type="button"
-              onClick={() => handleSyncGrocery(detailRecipe, batchMultiplier)}
-              className="flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-surface-200 hover:bg-surface-300 border border-surface-border text-xs font-bold text-foreground cursor-pointer shadow-sm active:scale-95"
-            >
-              <ShoppingCart className="w-4 h-4 text-accent-cyan" />
-              <span>+ Shopping List</span>
-            </button>
+            {/* Store Destination Routing & Sync Button */}
+            <div className="flex items-center gap-1 bg-surface-200 p-1 rounded-2xl border border-surface-border">
+              <select
+                value={selectedTargetStore}
+                onChange={(e) => setSelectedTargetStore(e.target.value as any)}
+                className="bg-surface-300 text-foreground text-xs font-bold px-2.5 py-1.5 rounded-xl border-none focus:outline-none cursor-pointer"
+                title="Choose destination store list"
+              >
+                {storeOptions.map((opt) => (
+                  <option key={opt.id} value={opt.id}>
+                    {opt.icon} {opt.label}
+                  </option>
+                ))}
+              </select>
+
+              <button
+                type="button"
+                onClick={() => handleSyncGrocery(detailRecipe, batchMultiplier)}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-brand-500 hover:bg-brand-400 text-zinc-950 text-xs font-bold cursor-pointer shadow-glow active:scale-95 transition-all"
+                title={`Add all ingredients to ${storeOptions.find(s => s.id === selectedTargetStore)?.label || 'Shopping'} list`}
+              >
+                <ShoppingCart className="w-3.5 h-3.5" />
+                <span>+ Grocery</span>
+              </button>
+            </div>
           </div>
         </div>
 
@@ -742,7 +799,7 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
           </div>
 
           <p className="text-[11px] text-zinc-400">
-            Click <strong>🔁 Swap</strong> on any ingredient to customize dairy (e.g. 2% vs Whole vs Almond Milk), proteins, or vegetables with automatic live macro recalculation!
+            Click <strong>🔁 Swap</strong> on any ingredient to customize dairy, proteins, or vegetables with automatic live macro recalculation!
           </p>
 
           <div className="space-y-3">
@@ -865,7 +922,7 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
                         <div className="flex items-center justify-between text-xs">
                           <span className="font-bold text-zinc-300 uppercase tracking-wider flex items-center gap-1.5">
                             <Sparkles className="w-3.5 h-3.5 text-brand-400" />
-                            <span>Recommended Options for {originalIng.name}:</span>
+                            <span>Authentic Culinary Options for {originalIng.name}:</span>
                           </span>
                           <span className="text-[11px] text-zinc-400">1-Tap to apply</span>
                         </div>
@@ -928,7 +985,6 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
                           })}
                         </div>
                       </div>
-
                     </div>
                   )}
                 </div>
@@ -1013,7 +1069,7 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
             <span>← Back to All Recipes</span>
           </button>
 
-          <div className="flex items-center gap-2 w-full sm:w-auto">
+          <div className="flex items-center gap-2 w-full sm:w-auto flex-wrap">
             <button
               type="button"
               onClick={() => handleOpenPrintPreview(detailRecipe, batchMultiplier)}
@@ -1022,6 +1078,32 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
               <Printer className="w-4 h-4 text-brand-400" />
               <span>Print Preview & Card</span>
             </button>
+
+            {/* Store Destination Routing for Bottom Bar */}
+            <div className="flex items-center gap-1 bg-surface-300 p-1 rounded-2xl border border-surface-border">
+              <select
+                value={selectedTargetStore}
+                onChange={(e) => setSelectedTargetStore(e.target.value as any)}
+                className="bg-surface-200 text-foreground text-xs font-bold px-2 py-1.5 rounded-xl border-none focus:outline-none cursor-pointer"
+                title="Choose destination store list"
+              >
+                {storeOptions.map((opt) => (
+                  <option key={opt.id} value={opt.id}>
+                    {opt.icon} {opt.label}
+                  </option>
+                ))}
+              </select>
+
+              <button
+                type="button"
+                onClick={() => handleSyncGrocery(detailRecipe, batchMultiplier)}
+                className="px-3 py-1.5 rounded-xl bg-surface-200 hover:bg-brand-500 hover:text-zinc-950 text-foreground text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5"
+                title="Add to selected store list"
+              >
+                <ShoppingCart className="w-3.5 h-3.5 text-accent-cyan" />
+                <span>+ List</span>
+              </button>
+            </div>
 
             {isSimple ? (
               <button
@@ -1074,8 +1156,8 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
           </h2>
           <p className="text-xs sm:text-sm text-zinc-400 max-w-2xl">
             {isSimple
-              ? 'Distinct, chef-crafted meals with instant ingredient swapping (e.g. 2% vs Whole milk, asparagus vs green beans) with live updated nutritional stats!'
-              : 'Precision macro recipes with batch meal prep scaling (1x, 2x, 4x, 6x), per-serving MPS breakdowns, live ingredient swapping, and custom recipe builder.'}
+              ? 'Distinct, chef-crafted meals with instant ingredient swapping (e.g. 2% vs Whole milk, asparagus vs green beans) with live updated nutritional stats and direct store shopping list integration!'
+              : 'Precision macro recipes with batch meal prep scaling (1x, 2x, 4x, 6x), per-serving MPS breakdowns, live ingredient swapping, custom recipe builder, and multi-store list routing.'}
           </p>
         </div>
 
@@ -1094,39 +1176,32 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
         )}
       </div>
 
-      {/* Interactive Controls: Primary Category Tabs & Search Bar */}
-      <div className="p-4 rounded-2xl bg-surface-100/90 border border-surface-border backdrop-blur-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        {/* Category Filter Pills */}
-        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1 sm:pb-0">
-          {categories.map((cat) => {
-            const isSelected = selectedCategory === cat.id;
-            const count = getCategoryCount(cat.id as any);
-            return (
+      {/* Interactive Store Routing Shelf & Controls */}
+      <div className="p-4 rounded-2xl bg-surface-100/90 border border-surface-border backdrop-blur-xl flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        {/* Store Destination Selector */}
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider flex items-center gap-1.5 pl-1">
+            <Store className="w-3.5 h-3.5 text-brand-400" />
+            <span>Store List Destination:</span>
+          </span>
+
+          <div className="flex items-center gap-1 overflow-x-auto no-scrollbar pb-0.5">
+            {storeOptions.map((st) => (
               <button
-                key={cat.id}
+                key={st.id}
                 type="button"
-                onClick={() => {
-                  setSelectedCategory(cat.id as any);
-                  setSelectedSubCategory('all');
-                }}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
-                  isSelected
-                    ? 'bg-brand-500 text-zinc-950 shadow-glow font-bold'
-                    : 'bg-surface-200 text-zinc-400 hover:text-zinc-200 hover:bg-surface-300'
+                onClick={() => setSelectedTargetStore(st.id)}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap cursor-pointer ${
+                  selectedTargetStore === st.id
+                    ? 'bg-brand-500 text-zinc-950 font-bold shadow-glow'
+                    : 'bg-surface-200/80 text-zinc-400 hover:text-zinc-200 hover:bg-surface-300'
                 }`}
               >
-                <span>{cat.emoji}</span>
-                <span>{cat.label}</span>
-                <span
-                  className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono ${
-                    isSelected ? 'bg-zinc-950/20 text-zinc-950' : 'bg-surface-300 text-zinc-500'
-                  }`}
-                >
-                  {count}
-                </span>
+                <span>{st.icon}</span>
+                <span>{st.label}</span>
               </button>
-            );
-          })}
+            ))}
+          </div>
         </div>
 
         {/* Search Input Bar */}
@@ -1148,6 +1223,39 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
             </button>
           )}
         </div>
+      </div>
+
+      {/* Category Tabs */}
+      <div className="p-3 rounded-2xl bg-surface-200/50 border border-surface-border flex items-center gap-1.5 overflow-x-auto no-scrollbar">
+        {categories.map((cat) => {
+          const isSelected = selectedCategory === cat.id;
+          const count = getCategoryCount(cat.id as any);
+          return (
+            <button
+              key={cat.id}
+              type="button"
+              onClick={() => {
+                setSelectedCategory(cat.id as any);
+                setSelectedSubCategory('all');
+              }}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+                isSelected
+                  ? 'bg-brand-500 text-zinc-950 shadow-glow font-bold'
+                  : 'bg-surface-300 text-zinc-400 hover:text-zinc-200 hover:bg-surface-100'
+              }`}
+            >
+              <span>{cat.emoji}</span>
+              <span>{cat.label}</span>
+              <span
+                className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono ${
+                  isSelected ? 'bg-zinc-950/20 text-zinc-950' : 'bg-surface-200 text-zinc-500'
+                }`}
+              >
+                {count}
+              </span>
+            </button>
+          );
+        })}
       </div>
 
       {/* Sub-Category Filter Shelf */}
@@ -1224,6 +1332,7 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
         ) : (
           filteredRecipes.map((recipe) => {
             const subMeta = RECIPE_SUB_CATEGORIES.find((s) => s.id === recipe.sub_category);
+            const activeStoreLabel = storeOptions.find((s) => s.id === selectedTargetStore)?.label || 'Store';
 
             return (
               <div
@@ -1367,15 +1476,15 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
                       <span>Print Card</span>
                     </button>
 
-                    {/* Add to Shopping List Button */}
+                    {/* Add to Shopping List Button (Store Tagged) */}
                     <button
                       type="button"
                       onClick={() => handleSyncGrocery(recipe, !isSimple ? batchMultiplier : 1)}
                       className="flex-1 sm:flex-none px-3 py-2 rounded-xl bg-surface-200 hover:bg-surface-300 border border-surface-border text-xs font-bold text-zinc-200 flex items-center justify-center gap-1.5 transition-all active:scale-95 cursor-pointer"
-                      title="Add all ingredients to shopping list"
+                      title={`Add all ingredients to ${activeStoreLabel} list`}
                     >
                       <ShoppingCart className="w-3.5 h-3.5 text-accent-cyan" />
-                      <span>+ Grocery</span>
+                      <span>+ {selectedTargetStore !== 'all' ? activeStoreLabel : 'Grocery'}</span>
                     </button>
 
                     {/* Simple Mode: 1-Tap Cooked This Meal */}

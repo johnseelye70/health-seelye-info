@@ -14,6 +14,8 @@ import {
   SAMS_CLUB_PRODUCTS,
   ALDI_PRODUCTS,
   MEIJER_PRODUCTS,
+  COSTCO_PRODUCTS,
+  WALMART_PRODUCTS,
   StoreBrandProduct,
 } from './store-products-database';
 
@@ -30,19 +32,23 @@ export const GROCERY_DEPARTMENTS: {
 }));
 
 export const GROCERY_STORE_TAGS: { id: GroceryStoreTag; label: string; icon: string; brandSummary: string }[] = [
-  { id: 'all', label: 'All Stores & Aisles', icon: '🏬', brandSummary: 'All whole foods and retail items' },
-  { id: 'sams_club', label: "Sam's Club", icon: '📦', brandSummary: "Member's Mark Wholesale & Bulk Packs" },
+  { id: 'all', label: 'All Stores & Aisles', icon: '🏢', brandSummary: 'All whole foods and retail items' },
   { id: 'aldi', label: 'Aldi', icon: '🛒', brandSummary: 'Simply Nature, Friendly Farms & Specially Selected' },
   { id: 'meijer', label: 'Meijer', icon: '🏷️', brandSummary: "True Goodness & Frederik's by Meijer" },
+  { id: 'sams_club', label: "Sam's Club", icon: '📦', brandSummary: "Member's Mark Wholesale & Bulk Packs" },
+  { id: 'costco', label: 'Costco Wholesale', icon: '🏬', brandSummary: 'Kirkland Signature Wholesale Bulk' },
+  { id: 'walmart', label: 'Walmart', icon: '🏪', brandSummary: 'Great Value & Marketside Groceries' },
   { id: 'supermarket', label: 'Local Supermarket', icon: '🏪', brandSummary: 'Standard grocery staples' },
   { id: 'farmers_market', label: 'Farmers Market', icon: '🌱', brandSummary: 'Fresh local organic produce' },
 ];
 
 export const DEFAULT_NAMED_LISTS: NamedGroceryList[] = [
   { id: 'main', name: 'Weekly Essentials', description: 'Primary 7-day grocery run for home meal preparation', icon: '🛒' },
-  { id: 'sams_club_bulk', name: "Sam's Club Bulk Run", description: "Member's Mark bulk chicken, beef, oats, eggs, rice, olive oil", icon: '📦' },
   { id: 'aldi_run', name: 'Aldi Smart Run', description: 'Simply Nature organic grass-fed beef, Greek yogurt, spinach & staples', icon: '🛒' },
   { id: 'meijer_run', name: 'Meijer Weekly Run', description: "True Goodness organics, fresh counter seafood & Frederik's artisan goods", icon: '🏷️' },
+  { id: 'sams_club_bulk', name: "Sam's Club Bulk Run", description: "Member's Mark bulk chicken, beef, oats, eggs, rice, olive oil", icon: '📦' },
+  { id: 'costco_bulk', name: 'Costco Wholesale Run', description: 'Kirkland Signature bulk chicken, wild salmon, Greek yogurt & olive oil', icon: '🏬' },
+  { id: 'walmart_run', name: 'Walmart Value Run', description: 'Great Value & Marketside produce, dairy, meats, and pantry items', icon: '🏪' },
   { id: 'prep_day', name: 'Sunday Meal Prep Requisition', description: 'Batch ingredients needed for 3-4 days of pre-cooked macros', icon: '🍱' },
 ];
 
@@ -116,6 +122,8 @@ export const MASTER_GROCERY_DATABASE: CatalogGroceryItem[] = [
   ...SAMS_CLUB_PRODUCTS,
   ...ALDI_PRODUCTS,
   ...MEIJER_PRODUCTS,
+  ...COSTCO_PRODUCTS,
+  ...WALMART_PRODUCTS,
   ...GENERIC_FOOD_CATALOG,
 ];
 
@@ -127,7 +135,13 @@ export function getSmartSubstitutesForItem(
   foodDatabase: FoodItem[] = ALL_FOODS_DATA
 ): SmartGrocerySubstitute[] {
   // Check store brand products first
-  const storeMatch = [...SAMS_CLUB_PRODUCTS, ...ALDI_PRODUCTS, ...MEIJER_PRODUCTS].find(
+  const storeMatch = [
+    ...SAMS_CLUB_PRODUCTS,
+    ...ALDI_PRODUCTS,
+    ...MEIJER_PRODUCTS,
+    ...COSTCO_PRODUCTS,
+    ...WALMART_PRODUCTS,
+  ].find(
     (p) => p.name.toLowerCase().includes(itemName.toLowerCase()) || itemName.toLowerCase().includes(p.name.toLowerCase())
   );
   if (storeMatch && storeMatch.common_substitutes && storeMatch.common_substitutes.length > 0) {
@@ -164,16 +178,18 @@ export function getSmartSubstitutesForItem(
   // Fallback
   return [
     { name: "Member's Mark Boneless Skinless Chicken Breasts", department: 'poultry_meat' as any, default_unit: 'pack', conversion_ratio: 1.0, reason: "Sam's Club bulk lean protein" },
+    { name: 'Kirkland Signature Wild Alaskan Sockeye Salmon', department: 'fish_seafood' as any, default_unit: 'bag', conversion_ratio: 1.0, reason: 'Costco wild fish' },
     { name: 'Friendly Farms Plain Greek Yogurt', department: 'dairy_eggs' as any, default_unit: 'tub', conversion_ratio: 1.0, reason: 'Aldi probiotic protein' },
     { name: 'True Goodness Organic Rolled Oats', department: 'grains_carbs' as any, default_unit: 'canister', conversion_ratio: 1.0, reason: 'Meijer whole grain carbs' },
+    { name: 'Great Value Thai Jasmine Rice', department: 'grains_carbs' as any, default_unit: 'bag', conversion_ratio: 1.0, reason: 'Walmart clean carb staple' },
   ];
 }
 
 /**
- * Generate a complete store-specific requisition list based on Sam's Club, Aldi, or Meijer signature products
+ * Generate a complete store-specific requisition list based on Sam's Club, Aldi, Meijer, Costco, or Walmart products
  */
 export function generateStoreSpecificRequisition(
-  store: 'sams_club' | 'aldi' | 'meijer',
+  store: 'sams_club' | 'aldi' | 'meijer' | 'costco' | 'walmart',
   multiplier: number = 1
 ): GroceryItem[] {
   let products: StoreBrandProduct[] = [];
@@ -185,9 +201,15 @@ export function generateStoreSpecificRequisition(
   } else if (store === 'aldi') {
     products = ALDI_PRODUCTS;
     listId = 'aldi_run';
-  } else {
+  } else if (store === 'meijer') {
     products = MEIJER_PRODUCTS;
     listId = 'meijer_run';
+  } else if (store === 'costco') {
+    products = COSTCO_PRODUCTS;
+    listId = 'costco_bulk';
+  } else {
+    products = WALMART_PRODUCTS;
+    listId = 'walmart_run';
   }
 
   return products.map((prod, idx) => ({

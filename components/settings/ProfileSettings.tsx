@@ -212,6 +212,16 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'Beta 2.10.0',
+      date: '2026-08-25',
+      title: 'Multi-Store Recipe Grocery Routing (Aldi, Meijer, Sam’s Club, Costco, Walmart)',
+      changes: [
+        'Multi-Store Grocery Routing: Seamlessly route chosen recipe ingredients directly into store-specific shopping lists with 1-click store destination filters (Aldi, Meijer, Sam’s Club, Costco Wholesale, Walmart, or All Stores).',
+        'Costco & Walmart Brand Product Integration: Added signature Kirkland Signature (Costco) and Great Value / Marketside (Walmart) fresh, bulk, and pantry items to store database catalogs, 1-click run presets, and substituter.',
+        'Bidirectional Grocery Integration: Filter, sort, view, and check off recipe ingredients by store in the Grocery Manager, or send ingredients straight from any recipe card or detail page.',
+      ],
+    },
+    {
       version: 'Beta 2.9.1',
       date: '2026-08-25',
       title: 'Authentic Culinary Role-Based Swap Mapping & Sauce Engine',
@@ -1369,7 +1379,7 @@ export const ProfileSettings: React.FC = () => {
             title="Click to open release changelog modal window"
           >
             <span className="w-2 h-2 rounded-full bg-brand-400 animate-pulse"></span>
-            <span>Active: Beta 2.9.1</span>
+            <span>Active: Beta 2.10.0</span>
             <ChevronRight className="w-3.5 h-3.5 text-brand-400 group-hover:translate-x-0.5 transition-transform" />
           </button>
         </div>
