@@ -211,6 +211,16 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'Beta 2.4.6',
+      date: '2026-08-25',
+      title: 'Zero Modal Popup & 100% Inline Plate Inventory Architecture',
+      changes: [
+        'Zero Modal Popups: Completely removed the 90vh popup modal window from Equipment Inventory that previously trapped the Plate Inventory in scrollbars inside scrollbars.',
+        'Direct Sub-Tab Navigation: Clicking "Plate Inventory & Barbell Math" now immediately switches to the dedicated, full-screen Olympic Barbell Plate Math view.',
+        'Crisp Solid Aesthetics: Eliminated all hazy backdrop filters and blur overlays across the plate inventory and visual loading simulator for ultra-clean rendering.',
+      ],
+    },
+    {
       version: 'Beta 2.4.5',
       date: '2026-08-25',
       title: 'Weight Plate Inventory & Visual Barbell Loader Overhaul',
@@ -1220,7 +1230,7 @@ export const ProfileSettings: React.FC = () => {
             title="Click to open release changelog modal window"
           >
             <span className="w-2 h-2 rounded-full bg-brand-400 animate-pulse"></span>
-            <span>Active: Beta 2.4.5</span>
+            <span>Active: Beta 2.4.6</span>
             <ChevronRight className="w-3.5 h-3.5 text-brand-400 group-hover:translate-x-0.5 transition-transform" />
           </button>
         </div>

@@ -16,7 +16,6 @@ import {
   Plus,
   Minus,
   RotateCcw,
-  Sparkles,
   Scale,
   Boxes,
   Sliders,
@@ -87,19 +86,19 @@ export const PlateInventoryCalculator: React.FC<PlateInventoryCalculatorProps> =
   };
 
   return (
-    <div className="space-y-6 max-w-full">
+    <div className="space-y-6 w-full max-w-full">
       {/* Top Banner & Total Capacity Metric */}
       <div className="p-6 md:p-8 rounded-3xl bg-surface-100 border border-surface-border space-y-6 shadow-sm">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 mb-2">
               <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-brand-500/15 text-brand-400 border border-brand-500/30">
-                PLATE INVENTORY & BARBELL CALCULATOR
+                BARBELL & PLATE INVENTORY
               </span>
             </div>
-            <h2 className="text-xl md:text-2xl font-black text-foreground">
+            <h1 className="text-xl md:text-2xl font-black text-foreground">
               Weight Plates & Barbell Loading Engine
-            </h2>
+            </h1>
             <p className="text-xs text-zinc-400 mt-1 max-w-2xl">
               {isSimple
                 ? 'Specify the quantity of each plate you own to calculate your maximum capacity and see exact barbell loading instructions.'
@@ -305,7 +304,7 @@ export const PlateInventoryCalculator: React.FC<PlateInventoryCalculatorProps> =
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-surface-border">
           <div className="flex items-center gap-2">
             <Sliders className="w-5 h-5 text-accent-cyan" />
-            <h3 className="text-base font-bold text-foreground">Visual Barbell Plate Loading Simulator</h3>
+            <h2 className="text-base font-bold text-foreground">Visual Barbell Plate Loading Simulator</h2>
           </div>
           <span className="text-xs font-mono text-zinc-400">
             Symmetrical plate loading from your owned inventory
