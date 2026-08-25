@@ -22,10 +22,13 @@ import {
   Heart,
   Smile,
   Sun,
+  ChefHat,
+  BookOpen,
 } from 'lucide-react';
 import { FASTING_CONFIGS } from '@/lib/macro-calculator';
 import { HydrationTracker } from '@/components/dashboard/HydrationTracker';
 import { StepTracker } from '@/components/dashboard/StepTracker';
+import { RecipeEngine } from '@/components/nutrition/RecipeEngine';
 
 export const DashboardOverview: React.FC = () => {
   const {
@@ -51,6 +54,7 @@ export const DashboardOverview: React.FC = () => {
   } = useHealth();
 
   const isSimple = experienceMode === 'simple';
+  const [showDashboardRecipeModal, setShowDashboardRecipeModal] = useState<boolean>(false);
 
   // Find today's workout
   const todayWorkout = workoutPlan.find(
@@ -264,10 +268,10 @@ export const DashboardOverview: React.FC = () => {
                   </div>
 
                   <button
-                    onClick={() => setActiveTab('nutrition')}
+                    onClick={() => setShowDashboardRecipeModal(true)}
                     className="text-xs font-semibold text-brand-400 hover:text-brand-300 flex items-center gap-1 cursor-pointer"
                   >
-                    <span>View All Meals</span>
+                    <span>Browse All Recipes</span>
                     <ChevronRight className="w-4 h-4" />
                   </button>
                 </div>
@@ -667,6 +671,13 @@ export const DashboardOverview: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Recipe Studio Modal Launcher from Today Dashboard */}
+      <RecipeEngine
+        isModal={true}
+        isOpen={showDashboardRecipeModal}
+        onClose={() => setShowDashboardRecipeModal(false)}
+      />
     </div>
   );
 };

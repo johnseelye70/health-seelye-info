@@ -211,6 +211,18 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'Beta 2.2.2',
+      date: '2026-08-25',
+      title: 'Complete Modal Popup Architecture for Recipes, Print Studio & Builders',
+      changes: [
+        'Popup Modal Architecture: Standardized all recipe detail inspections, custom recipe creations, and printing tools into dedicated high-performance modal windows with backdrop blur.',
+        'Recipe Detail Modal (RecipeDetailModal): Clicking any recipe card launches a dedicated popup window featuring batch scaling, step-by-step directions, ingredient checklist, and direct logging.',
+        'Recipe Print Modal (RecipePrintModal): Print trigger launches a dedicated popup window supporting 4x6 index card and 8.5x11 standard letter size with live print preview.',
+        'Custom Recipe Builder Modal (CustomRecipeModal): Multi-ingredient custom recipe creator now pops up in a dedicated clean modal dialog with live macro calculation.',
+        'Today Dashboard Direct Launcher: Added 1-click recipe studio modal launcher directly from the Today Overview screen.',
+      ],
+    },
+    {
       version: 'Beta 2.2.1',
       date: '2026-08-25',
       title: 'Recipe Printing Suite (4x6 Index Card & 8.5x11 Standard Letter Formats)',
@@ -1135,7 +1147,7 @@ export const ProfileSettings: React.FC = () => {
             title="Click to open release changelog modal window"
           >
             <span className="w-2 h-2 rounded-full bg-brand-400 animate-pulse"></span>
-            <span>Active: Beta 2.0.3</span>
+            <span>Active: Beta 2.2.2</span>
             <ChevronRight className="w-3.5 h-3.5 text-brand-400 group-hover:translate-x-0.5 transition-transform" />
           </button>
         </div>
