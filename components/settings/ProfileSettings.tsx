@@ -211,6 +211,17 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'Beta 2.2.1',
+      date: '2026-08-25',
+      title: 'Recipe Printing Suite (4x6 Index Card & 8.5x11 Standard Letter Formats)',
+      changes: [
+        '4" x 6" Kitchen Index Card Printing: Built dedicated 4x6 recipe card print layout with high-contrast borders, ingredient checkboxes, step-by-step instructions, and macro profile.',
+        '8.5" x 11" Full Sheet Printing: Added full-page culinary sheet layout formatted for kitchen binders and clipboard meal planning.',
+        'Live Print Preview & Scaler: Interactive print modal with real-time visual card preview, Imperial/Metric unit switching, and 1x/2x/4x/6x batch ingredient scaling before printing.',
+        'Ink-Friendly Pure B&W Output: Dedicated @media print stylesheet stripping all UI chrome and dark backgrounds for clean, high-contrast monochrome printing.',
+      ],
+    },
+    {
       version: 'Beta 2.2.0',
       date: '2026-08-25',
       title: 'Wholesome Kitchen Recipe Engine & Athlete Meal Prep Studio (Modal & Traditional Measures)',

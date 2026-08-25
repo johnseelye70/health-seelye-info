@@ -18,11 +18,12 @@ import {
   ChefHat,
   Layers,
   Zap,
-  Tag,
   BookOpen,
   X,
   Check,
+  Printer,
 } from 'lucide-react';
+import { RecipePrintModal } from './RecipePrintModal';
 
 interface RecipeEngineProps {
   isOpen?: boolean;
@@ -59,6 +60,7 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
 
   // Success Feedback Toasts / State
   const [actionSuccessMsg, setActionSuccessMsg] = useState<{ id: string; text: string } | null>(null);
+  const [recipeToPrint, setRecipeToPrint] = useState<RecipeItem | null>(null);
 
   // Custom Recipe Creator State (Athlete Mode)
   const [showCustomBuilder, setShowCustomBuilder] = useState<boolean>(false);
@@ -728,6 +730,17 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
                   </button>
 
                   <div className="flex items-center gap-2 w-full sm:w-auto">
+                    {/* Print Recipe Button (4x6 Card or Letter) */}
+                    <button
+                      type="button"
+                      onClick={() => setRecipeToPrint(recipe)}
+                      className="px-3 py-2 rounded-xl bg-surface-200 hover:bg-surface-300 border border-surface-border text-xs font-bold text-zinc-300 hover:text-white flex items-center justify-center gap-1.5 transition-all active:scale-95 cursor-pointer"
+                      title="Print 4x6 Index Card or Standard Letter Sheet"
+                    >
+                      <Printer className="w-3.5 h-3.5 text-brand-400" />
+                      <span>Print</span>
+                    </button>
+
                     {/* Add to Shopping List Button */}
                     <button
                       type="button"
@@ -772,6 +785,13 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
           })
         )}
       </div>
+
+      {/* Recipe Print Modal (Supports 4x6 Index Card and 8.5x11 Standard Letter) */}
+      <RecipePrintModal
+        recipe={recipeToPrint}
+        onClose={() => setRecipeToPrint(null)}
+        defaultUnitPreference={profile.unit_preference}
+      />
     </div>
   );
 

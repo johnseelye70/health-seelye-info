@@ -135,4 +135,30 @@ textarea {
     width: 100% !important;
     color: #000000 !important;
   }
+
+  .print-index-card {
+    display: block !important;
+    width: 6in !important;
+    max-width: 6in !important;
+    min-height: 4in !important;
+    border: 2px solid #000000 !important;
+    padding: 0.1in !important;
+    margin: 0.2in auto !important;
+    page-break-inside: avoid !important;
+    box-sizing: border-box !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+
+  .print-letter {
+    display: block !important;
+    width: 100% !important;
+    max-width: 8in !important;
+    margin: 0 auto !important;
+    padding: 0.25in !important;
+    page-break-inside: avoid !important;
+    box-sizing: border-box !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
 }
