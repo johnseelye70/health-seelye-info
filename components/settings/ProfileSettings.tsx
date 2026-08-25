@@ -212,6 +212,16 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'Beta 2.5.0',
+      date: '2026-08-25',
+      title: 'Fixed Wholesome Home Recipes Header Clipping & Top Margin Architecture',
+      changes: [
+        'Top Header Clipping Resolved: Fixed Wholesome Home Recipes view to use top-aligned document flow with generous safe margins (pt-8/pt-14) preventing the banner and title from clipping under the browser status bar or top viewport.',
+        'Dedicated Sticky Header Bar: Added a clean, pinned header bar with title icon and high-contrast Close button that remains visible without overlapping recipe titles.',
+        'Zero Scroll-Trap Viewport: Completely eliminated fixed 92vh height scroll-locks in favor of full-page fluid scrolling across mobile and desktop displays.',
+      ],
+    },
+    {
       version: 'Beta 2.4.9',
       date: '2026-08-25',
       title: 'Eliminated Recipe Print Modal & Direct High-Contrast Print Pipeline',
@@ -1271,7 +1281,7 @@ export const ProfileSettings: React.FC = () => {
             title="Click to open release changelog modal window"
           >
             <span className="w-2 h-2 rounded-full bg-brand-400 animate-pulse"></span>
-            <span>Active: Beta 2.4.9</span>
+            <span>Active: Beta 2.5.0</span>
             <ChevronRight className="w-3.5 h-3.5 text-brand-400 group-hover:translate-x-0.5 transition-transform" />
           </button>
         </div>

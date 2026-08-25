@@ -161,9 +161,9 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
   const content = (
     <div className="space-y-6">
       {/* Header Shelf Banner */}
-      <div className="p-6 md:p-8 rounded-3xl bg-surface-200/60 border border-surface-border backdrop-blur-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="pr-8">
-          <div className="flex items-center gap-2 mb-2">
+      <div className="p-6 md:p-8 rounded-3xl bg-surface-200/80 border border-surface-border flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="space-y-1.5">
+          <div className="flex items-center gap-2 mb-1 flex-wrap">
             <span className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-brand-500/20 text-brand-300 border border-brand-500/30">
               {isSimple ? 'WHOLESOME KITCHEN RECIPES' : 'MACRO-ENGINEERED FUEL & PREP STUDIO'}
             </span>
@@ -172,11 +172,11 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
               {isImperial ? 'Traditional US Units (Cups/Tbsp/Oz)' : 'Metric Units (Grams/Ml)'}
             </span>
           </div>
-          <h2 className="text-xl md:text-2xl font-black text-white tracking-tight flex items-center gap-2">
+          <h2 className="text-xl md:text-2xl font-black text-foreground tracking-tight flex items-center gap-2">
             <ChefHat className="w-6 h-6 text-brand-400" />
             <span>{isSimple ? 'Wholesome Home Recipes' : 'Macro-Engineered Recipe Matrix'}</span>
           </h2>
-          <p className="text-xs sm:text-sm text-zinc-400 mt-1 max-w-2xl">
+          <p className="text-xs sm:text-sm text-zinc-400 max-w-2xl">
             {isSimple
               ? 'Delicious, balanced meals crafted with real ingredients. Use standard kitchen measurements (cups, tablespoons, ounces) and log with 1 click.'
               : 'Precision macro recipes with batch meal prep scaling (1x, 2x, 4x, 6x), per-serving MPS breakdowns, and custom recipe builder.'}
@@ -496,25 +496,35 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
   if (isModal) {
     return (
       <div
-        className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 overflow-hidden animate-fadeIn select-none"
+        className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-start justify-center p-3 sm:p-6 overflow-y-auto animate-fadeIn select-none pt-8 sm:pt-14 pb-16"
         onClick={onClose}
       >
         <div
-          className="relative w-full max-w-5xl max-h-[92vh] flex flex-col rounded-3xl bg-surface-100/95 border border-surface-border shadow-2xl backdrop-blur-xl text-zinc-100 overflow-hidden"
+          className="relative w-full max-w-5xl rounded-3xl bg-surface-100 border border-surface-border shadow-2xl text-foreground overflow-hidden my-auto"
           onClick={(e) => e.stopPropagation()}
         >
-          {/* Close Button top-right */}
+          {/* Dedicated Header Bar with Pinned Close Controls */}
           {onClose && (
-            <button
-              onClick={onClose}
-              className="absolute top-5 right-5 p-2.5 rounded-2xl text-zinc-400 hover:text-white bg-surface-200/80 hover:bg-surface-200 transition-colors z-20 cursor-pointer"
-              title="Close Recipe Studio"
-            >
-              <X className="w-5 h-5" />
-            </button>
+            <div className="p-4 sm:p-5 border-b border-surface-border bg-surface-100 flex items-center justify-between gap-4 sticky top-0 z-20">
+              <div className="flex items-center gap-2">
+                <span className="text-xl">👨‍🍳</span>
+                <span className="text-xs font-bold font-mono uppercase tracking-wider text-brand-400">
+                  {isSimple ? 'Wholesome Kitchen Recipes & Meal Ideas' : 'Macro-Engineered Recipe Matrix'}
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={onClose}
+                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-surface-200 hover:bg-surface-300 border border-surface-border text-xs font-bold text-zinc-300 hover:text-foreground cursor-pointer shadow-sm active:scale-95 transition-all"
+                title="Close Recipe Studio"
+              >
+                <X className="w-4 h-4" />
+                <span>Close</span>
+              </button>
+            </div>
           )}
 
-          <div className="p-5 sm:p-8 overflow-y-auto flex-1">
+          <div className="p-5 sm:p-8">
             {content}
           </div>
         </div>
