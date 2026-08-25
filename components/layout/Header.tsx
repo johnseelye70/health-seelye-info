@@ -68,20 +68,17 @@ export const Header: React.FC = () => {
   };
 
   return (
-    <header className="sticky top-0 z-20 bg-surface-200/90 backdrop-blur-2xl border-b border-surface-border px-3.5 sm:px-6 md:px-8 pt-[max(env(safe-area-inset-top),12px)] pb-3 flex items-center justify-between">
+    <header className="sticky top-0 z-20 bg-surface-200/90 backdrop-blur-2xl border-b border-surface-border px-2.5 sm:px-6 md:px-8 pt-[max(env(safe-area-inset-top),10px)] pb-2.5 sm:pb-3 flex items-center justify-between w-full max-w-full min-w-0">
       {/* Left: Brand/Date & Experience Mode Segmented Switch */}
-      <div className="flex items-center gap-2.5 sm:gap-4 shrink-0">
+      <div className="flex items-center gap-1.5 sm:gap-4 shrink-0 min-w-0">
         {/* Mobile Brand Icon (Visible on small screens) */}
-        <div className="flex md:hidden items-center gap-2">
+        <div className="flex md:hidden items-center shrink-0">
           <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-brand-500 to-accent-teal flex items-center justify-center shadow-glow">
             <Flame className="w-4 h-4 text-zinc-950 fill-zinc-950" />
           </div>
-          <span className="font-black text-xs tracking-tight text-white font-sans sm:hidden">
-            SEELYE <span className="text-brand-400">HEALTH</span>
-          </span>
         </div>
 
-        <div className="hidden sm:flex items-center gap-2 text-zinc-300 font-medium text-xs sm:text-sm">
+        <div className="hidden sm:flex items-center gap-2 text-zinc-300 font-medium text-xs sm:text-sm shrink-0">
           <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-brand-400" />
           <span>{formattedDate}</span>
         </div>
@@ -93,13 +90,13 @@ export const Header: React.FC = () => {
             id="btn-mode-simple"
             onClick={() => setExperienceMode('simple')}
             title="Switch to Simple Daily Wellness Mode"
-            className={`flex items-center justify-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+            className={`flex items-center justify-center gap-1 px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
               experienceMode === 'simple'
                 ? 'bg-brand-500 text-zinc-950 shadow-glow font-bold'
                 : 'text-zinc-400 hover:text-zinc-200'
             }`}
           >
-            <Sparkles className="w-3.5 h-3.5 shrink-0" />
+            <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0" />
             <span className="text-[11px] sm:text-xs">Simple</span>
           </button>
           <button
@@ -107,20 +104,20 @@ export const Header: React.FC = () => {
             id="btn-mode-athlete"
             onClick={() => setExperienceMode('advanced')}
             title="Switch to High-Tech Athlete Mode"
-            className={`flex items-center justify-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+            className={`flex items-center justify-center gap-1 px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
               experienceMode === 'advanced'
                 ? 'bg-purple-600 text-white shadow-glow font-bold'
                 : 'text-zinc-400 hover:text-zinc-200'
             }`}
           >
-            <Flame className="w-3.5 h-3.5 shrink-0" />
+            <Flame className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0" />
             <span className="text-[11px] sm:text-xs">Athlete</span>
           </button>
         </div>
       </div>
 
       {/* Right: Actions & Fasting / Quick Controls */}
-      <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+      <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
         {/* Fasting / Eating Pill (Static position on right side cluster) */}
         <div
           onClick={() => setActiveTab('fasting')}
@@ -159,17 +156,17 @@ export const Header: React.FC = () => {
           type="button"
           onClick={toggleThemeMode}
           title={themeMode === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-          className="flex items-center gap-1.5 px-2.5 sm:px-3 py-2 rounded-xl bg-surface-100 hover:bg-surface-50 border border-surface-border text-xs font-bold text-zinc-300 transition-all hover:border-brand-500/40 cursor-pointer select-none"
+          className="flex items-center justify-center p-2 sm:px-3 sm:py-2 rounded-xl bg-surface-100 hover:bg-surface-50 border border-surface-border text-xs font-bold text-zinc-300 transition-all hover:border-brand-500/40 cursor-pointer select-none shrink-0"
         >
           {themeMode === 'dark' ? (
             <>
-              <Sun className="w-3.5 h-3.5 text-amber-400" />
-              <span className="hidden sm:inline">Light</span>
+              <Sun className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+              <span className="hidden sm:inline ml-1.5">Light</span>
             </>
           ) : (
             <>
-              <Moon className="w-3.5 h-3.5 text-indigo-500" />
-              <span className="hidden sm:inline">Dark</span>
+              <Moon className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
+              <span className="hidden sm:inline ml-1.5">Dark</span>
             </>
           )}
         </button>
@@ -205,7 +202,7 @@ export const Header: React.FC = () => {
               ? `Signed in as ${authUser.email} (Click to manage sync)`
               : 'Sign in to sync your data across iPhone, iPad & Computer'
           }
-          className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-2 rounded-xl border text-xs font-semibold transition-all cursor-pointer ${
+          className={`flex items-center justify-center p-2 sm:px-3 sm:py-2 rounded-xl border text-xs font-semibold transition-all cursor-pointer shrink-0 ${
             authUser
               ? 'bg-emerald-950/40 border-emerald-500/40 text-emerald-300 hover:bg-emerald-900/50'
               : 'bg-surface-100 hover:bg-surface-50 border-surface-border text-zinc-300 hover:border-brand-500/40'
@@ -213,14 +210,14 @@ export const Header: React.FC = () => {
         >
           {authUser ? (
             <>
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-              <Cloud className="w-3.5 h-3.5 text-emerald-400" />
-              <span className="hidden md:inline font-mono text-[11px]">Synced</span>
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0"></span>
+              <Cloud className="w-3.5 h-3.5 text-emerald-400 shrink-0 ml-1 sm:ml-1.5" />
+              <span className="hidden md:inline font-mono text-[11px] ml-1.5">Synced</span>
             </>
           ) : (
             <>
-              <Cloud className="w-3.5 h-3.5 text-brand-400" />
-              <span className="hidden sm:inline">Sync Cloud</span>
+              <Cloud className="w-3.5 h-3.5 text-brand-400 shrink-0" />
+              <span className="hidden sm:inline ml-1.5">Sync Cloud</span>
             </>
           )}
         </button>
@@ -229,10 +226,10 @@ export const Header: React.FC = () => {
         <button
           id="btn-quick-log-meal"
           onClick={() => setActiveTab('nutrition')}
-          className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-3.5 py-2 rounded-xl bg-gradient-to-r from-brand-500 to-accent-teal hover:from-brand-600 hover:to-accent-teal/90 text-zinc-950 font-bold text-xs shadow-glow transition-all active:scale-95 cursor-pointer"
+          className="flex items-center gap-1 sm:gap-2 px-2.5 py-1.5 sm:px-3.5 sm:py-2 rounded-xl bg-gradient-to-r from-brand-500 to-accent-teal hover:from-brand-600 hover:to-accent-teal/90 text-zinc-950 font-bold text-xs shadow-glow transition-all active:scale-95 cursor-pointer shrink-0"
         >
-          <PlusCircle className="w-4 h-4 stroke-[2.5]" />
-          <span>Log Food</span>
+          <PlusCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[2.5]" />
+          <span className="text-[11px] sm:text-xs">Log Food</span>
         </button>
       </div>
     </header>

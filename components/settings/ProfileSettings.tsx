@@ -211,6 +211,16 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'Beta 2.4.2',
+      date: '2026-08-25',
+      title: 'iPhone Header Viewport Fit & Horizontal Elasticity Fix',
+      changes: [
+        'iPhone Header Fit: Streamlined mobile header layout, element spacing, and button touch bounds to fit 100% within standard iPhone screen widths (320px–390px), completely eliminating side-to-side wiggling.',
+        'Responsive Action Controls: Optimized theme toggle, cloud sync status, and quick log action buttons for compact mobile touch targets.',
+        'Viewport Container Guards: Applied strict boundary width constraints (w-full max-w-full min-w-0) across page wrappers to prevent horizontal content overflow on iOS Safari.',
+      ],
+    },
+    {
       version: 'Beta 2.4.1',
       date: '2026-08-25',
       title: 'Neutral Obsidian Charcoal & Crisp Porcelain Surfaces (Eliminated Blue-on-Blue)',
@@ -1179,7 +1189,7 @@ export const ProfileSettings: React.FC = () => {
             title="Click to open release changelog modal window"
           >
             <span className="w-2 h-2 rounded-full bg-brand-400 animate-pulse"></span>
-            <span>Active: Beta 2.4.1</span>
+            <span>Active: Beta 2.4.2</span>
             <ChevronRight className="w-3.5 h-3.5 text-brand-400 group-hover:translate-x-0.5 transition-transform" />
           </button>
         </div>

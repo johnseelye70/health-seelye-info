@@ -19,17 +19,17 @@ export default function HomePage() {
   const { activeTab } = useHealth();
 
   return (
-    <div className="flex min-h-screen bg-background text-foreground relative">
+    <div className="flex min-h-screen bg-background text-foreground relative w-full max-w-full min-w-0">
       {/* Persistent Responsive Sidebar Navigation (Desktop) */}
       <Sidebar />
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-w-0 pb-24 md:pb-0">
+      <div className="flex-1 flex flex-col min-w-0 pb-24 md:pb-0 w-full max-w-full">
         {/* Persistent Top Header */}
         <Header />
 
         {/* Dynamic Screen View Content */}
-        <main className="flex-1 p-3.5 sm:p-5 md:p-8 max-w-7xl w-full mx-auto">
+        <main className="flex-1 p-3.5 sm:p-5 md:p-8 max-w-7xl w-full min-w-0 mx-auto">
           {activeTab === 'dashboard' && <DashboardOverview />}
           {activeTab === 'nutrition' && <MealPlanner />}
           {activeTab === 'fasting' && <FastingTracker />}
