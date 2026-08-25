@@ -3,21 +3,38 @@
 @tailwind utilities;
 
 :root {
-  --background: #090a0f;
-  --foreground: #f4f4f5;
+  --bg-main: #f8fafc;
+  --text-main: #0f172a;
+  --surface-50: #ffffff;
+  --surface-100: #ffffff;
+  --surface-200: #f1f5f9;
+  --surface-300: #e2e8f0;
+  --surface-border: #cbd5e1;
+  --card-bg: rgba(255, 255, 255, 0.95);
+}
+
+.dark {
+  --bg-main: #090a0f;
+  --text-main: #f4f4f5;
+  --surface-50: #161922;
+  --surface-100: #12141c;
+  --surface-200: #0e1017;
+  --surface-300: #090a0f;
+  --surface-border: #232736;
+  --card-bg: rgba(18, 20, 29, 0.85);
 }
 
 /* Reset & iOS Safari Fluid Layout Constraints */
 html {
-  background-color: #090a0f;
-  color: #f4f4f5;
+  background-color: var(--bg-main);
+  color: var(--text-main);
   font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   -webkit-text-size-adjust: 100%;
 }
 
 body {
-  background-color: #090a0f;
-  color: #f4f4f5;
+  background-color: var(--bg-main);
+  color: var(--text-main);
   min-height: 100vh;
   margin: 0;
   padding: 0;

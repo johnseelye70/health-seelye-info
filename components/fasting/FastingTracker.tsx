@@ -157,7 +157,7 @@ export const FastingTracker: React.FC = () => {
             <span className="text-zinc-600 animate-pulse">:</span>
             <span>{String(remainingMins).padStart(2, '0')}</span>
             <span className="text-zinc-600 animate-pulse">:</span>
-            <span className="text-brand-400">{String(remainingSecs).padStart(2, '0')}</span>
+            <span className="text-accent-purple">{String(remainingSecs).padStart(2, '0')}</span>
           </div>
 
           <div className="text-sm font-semibold text-zinc-400 uppercase tracking-widest mt-1">
@@ -169,8 +169,8 @@ export const FastingTracker: React.FC = () => {
             <div
               className={`h-full rounded-full transition-all duration-500 ${
                 fastingStatus.isFasting
-                  ? 'bg-gradient-to-r from-purple-500 to-indigo-500 shadow-glow'
-                  : 'bg-gradient-to-r from-brand-500 to-accent-teal shadow-glow'
+                  ? 'bg-gradient-to-r from-accent-purple to-indigo-500 shadow-glow'
+                  : 'bg-gradient-to-r from-accent-amber to-emerald-500 shadow-glow'
               }`}
               style={{ width: `${Math.min(100, fastingStatus.progressPercent)}%` }}
             />

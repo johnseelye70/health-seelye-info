@@ -14,6 +14,8 @@ import {
   Cloud,
   User,
   RefreshCw,
+  Sun,
+  Moon,
 } from 'lucide-react';
 
 export const Header: React.FC = () => {
@@ -30,6 +32,8 @@ export const Header: React.FC = () => {
     experienceMode,
     toggleExperienceMode,
     setExperienceMode,
+    themeMode,
+    toggleThemeMode,
     authUser,
     setShowAuthModal,
     syncStatus,
@@ -147,6 +151,27 @@ export const Header: React.FC = () => {
         >
           <Bell className="w-4 h-4" />
           <span className="hidden xl:inline text-[11px]">{notificationsEnabled ? 'Alerts On' : 'Alerts'}</span>
+        </button>
+
+        {/* Theme Mode Toggle (Dark vs Light) */}
+        <button
+          id="btn-toggle-theme-mode"
+          type="button"
+          onClick={toggleThemeMode}
+          title={themeMode === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+          className="flex items-center gap-1.5 px-2.5 sm:px-3 py-2 rounded-xl bg-surface-100 hover:bg-surface-50 border border-surface-border text-xs font-bold text-zinc-300 transition-all hover:border-brand-500/40 cursor-pointer select-none"
+        >
+          {themeMode === 'dark' ? (
+            <>
+              <Sun className="w-3.5 h-3.5 text-amber-400" />
+              <span className="hidden sm:inline">Light</span>
+            </>
+          ) : (
+            <>
+              <Moon className="w-3.5 h-3.5 text-indigo-500" />
+              <span className="hidden sm:inline">Dark</span>
+            </>
+          )}
         </button>
 
         {/* Unit Preference Toggle (Imperial vs Metric) */}

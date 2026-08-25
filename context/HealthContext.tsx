@@ -12,6 +12,7 @@ import {
   EquipmentType,
   FastingProtocol,
   ExperienceMode,
+  ThemeMode,
   WorkoutSessionLog,
   WaterLogEntry,
   StepLogEntry,
@@ -45,6 +46,9 @@ interface HealthContextType {
   experienceMode: ExperienceMode;
   toggleExperienceMode: () => void;
   setExperienceMode: (mode: ExperienceMode) => void;
+  themeMode: ThemeMode;
+  toggleThemeMode: () => void;
+  setThemeMode: (mode: ThemeMode) => void;
   
   // Foods & Logs
   foods: FoodItem[];
@@ -612,6 +616,35 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
 
   const experienceMode = profile.experience_mode || 'simple';
 
+  // Theme Mode: Dark vs Light
+  const [themeMode, setThemeModeState] = useState<ThemeMode>('dark');
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const savedTheme = (localStorage.getItem('sfh_theme_mode') as ThemeMode) || profile.theme_mode || 'dark';
+      setThemeModeState(savedTheme);
+      document.documentElement.classList.toggle('dark', savedTheme === 'dark');
+    }
+  }, [profile.theme_mode]);
+
+  const setThemeMode = useCallback((mode: ThemeMode) => {
+    setThemeModeState(mode);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('sfh_theme_mode', mode);
+      document.documentElement.classList.toggle('dark', mode === 'dark');
+    }
+    setProfile((prev) => ({
+      ...prev,
+      theme_mode: mode,
+      updated_at: new Date().toISOString(),
+    }));
+  }, []);
+
+  const toggleThemeMode = useCallback(() => {
+    const nextMode: ThemeMode = themeMode === 'dark' ? 'light' : 'dark';
+    setThemeMode(nextMode);
+  }, [themeMode, setThemeMode]);
+
   // Update profile and optionally push to cloud
   const updateProfile = useCallback(
     (updates: Partial<UserProfile>) => {
@@ -1025,6 +1058,9 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
         experienceMode,
         toggleExperienceMode,
         setExperienceMode,
+        themeMode,
+        toggleThemeMode,
+        setThemeMode,
         foods,
         addCustomFood,
         foodLogs,

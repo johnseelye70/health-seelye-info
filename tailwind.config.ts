@@ -11,41 +11,44 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        background: "#090a0f",
-        foreground: "#f4f4f5",
+        background: "var(--bg-main)",
+        foreground: "var(--text-main)",
         surface: {
-          50: "#181a20",
-          100: "#14161d",
-          200: "#0f1117",
-          300: "#0b0d13",
-          card: "rgba(18, 20, 29, 0.85)",
-          border: "#272a38",
+          50: "var(--surface-50)",
+          100: "var(--surface-100)",
+          200: "var(--surface-200)",
+          300: "var(--surface-300)",
+          card: "var(--card-bg)",
+          border: "var(--surface-border)",
         },
         brand: {
-          50: "#ecfdf5",
-          100: "#d1fae5",
-          200: "#a7f3d0",
-          300: "#6ee7b7",
-          400: "#34d399",
-          500: "#10b981",
-          600: "#059669",
-          700: "#047857",
-          800: "#065f46",
-          900: "#064e3b",
+          50: "#eff6ff",
+          100: "#dbeafe",
+          200: "#bfdbfe",
+          300: "#93c5fd",
+          400: "#60a5fa",
+          500: "#3b82f6", // Electric Cobalt Blue (Primary Theme Accent)
+          600: "#2563eb",
+          700: "#1d4ed8",
+          800: "#1e40af",
+          900: "#1e3a8a",
         },
         accent: {
-          teal: "#14b8a6",
-          cyan: "#06b6d4",
-          blue: "#0284c7",
-          amber: "#f59e0b",
+          coral: "#ff4757", // Apple Fitness+ Movement / Workout Flame
+          amber: "#f59e0b", // Apple Health Energy / Nutrition Warmth
+          emerald: "#10b981", // Apple Health Vitality / Greens
+          teal: "#14b8a6", // Clean Fitness Teal
+          cyan: "#06b6d4", // Hydration / Precision Telemetry
+          purple: "#8b5cf6", // Fasting / Sleep / Mindfulness
           rose: "#f43f5e",
-          purple: "#8b5cf6",
+          blue: "#0284c7",
         }
       },
       boxShadow: {
-        glow: "0 0 25px -5px rgba(16, 185, 129, 0.25)",
-        "glow-cyan": "0 0 25px -5px rgba(6, 182, 212, 0.25)",
-        "glow-blue": "0 0 25px -5px rgba(2, 132, 199, 0.25)",
+        glow: "0 0 25px -5px rgba(59, 130, 246, 0.3)",
+        "glow-coral": "0 0 25px -5px rgba(255, 71, 87, 0.3)",
+        "glow-cyan": "0 0 25px -5px rgba(6, 182, 212, 0.3)",
+        "glow-emerald": "0 0 25px -5px rgba(16, 185, 129, 0.3)",
       },
       fontFamily: {
         sans: ["var(--font-inter)", "system-ui", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "sans-serif"],

@@ -38,7 +38,7 @@ export const MacroProgressRing: React.FC<MacroProgressRingProps> = ({
             cx={size / 2}
             cy={size / 2}
             r={radius}
-            stroke="#1f2330"
+            className="stroke-surface-300 dark:stroke-surface-50"
             strokeWidth={strokeWidth}
             fill="transparent"
           />

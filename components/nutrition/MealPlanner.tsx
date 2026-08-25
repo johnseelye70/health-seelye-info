@@ -376,28 +376,28 @@ export const MealPlanner: React.FC = () => {
               current={todayMacros.calories}
               target={profile.daily_calorie_target}
               unit="kcal"
-              color="#10b981"
+              color="#3b82f6"
             />
             <MacroProgressRing
               label="Protein"
               current={todayMacros.protein}
               target={profile.protein_target_g}
               unit="g"
-              color="#14b8a6"
+              color="#ff4757"
             />
             <MacroProgressRing
               label="Carbohydrates"
               current={todayMacros.carbs}
               target={profile.carb_target_g}
               unit="g"
-              color="#06b6d4"
+              color="#f59e0b"
             />
             <MacroProgressRing
               label="Healthy Fats"
               current={todayMacros.fat}
               target={profile.fat_target_g}
               unit="g"
-              color="#f59e0b"
+              color="#10b981"
             />
           </div>
 

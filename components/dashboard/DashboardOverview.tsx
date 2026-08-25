@@ -145,17 +145,17 @@ export const DashboardOverview: React.FC = () => {
         <div className="space-y-6">
           {/* Today's 3 Big Visual Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {/* 1. Calorie Balance Card */}
+            {/* 1. Calorie Balance Card (Warm Saffron / Nutrition) */}
             <div className="p-6 rounded-3xl bg-surface-100/90 border border-surface-border backdrop-blur-xl flex flex-col justify-between space-y-4">
               <div className="flex items-center justify-between">
                 <div className="text-xs font-bold text-zinc-400 uppercase tracking-wider">Calorie Balance</div>
-                <div className="w-10 h-10 rounded-2xl bg-brand-500/10 border border-brand-500/20 flex items-center justify-center">
-                  <Flame className="w-5 h-5 text-brand-400 fill-brand-400/20" />
+                <div className="w-10 h-10 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
+                  <Flame className="w-5 h-5 text-accent-amber fill-accent-amber/20" />
                 </div>
               </div>
 
               <div>
-                <div className="text-3xl sm:text-4xl font-black font-mono text-brand-400">
+                <div className="text-3xl sm:text-4xl font-black font-mono text-accent-amber">
                   {todayRemaining.calories} <span className="text-sm font-medium text-zinc-400">kcal left</span>
                 </div>
                 <div className="text-xs text-zinc-400 mt-1">
@@ -163,32 +163,32 @@ export const DashboardOverview: React.FC = () => {
                 </div>
               </div>
 
-              {/* Cheerful Progress Bar */}
+              {/* Progress Bar */}
               <div className="space-y-1.5">
                 <div className="w-full h-3 bg-surface-300 rounded-full overflow-hidden border border-surface-border">
                   <div
-                    className="h-full bg-gradient-to-r from-brand-500 to-accent-teal rounded-full transition-all duration-500"
+                    className="h-full bg-gradient-to-r from-accent-amber to-orange-500 rounded-full transition-all duration-500"
                     style={{ width: `${Math.min(100, Math.round((todayMacros.calories / (profile.daily_calorie_target || 2000)) * 100))}%` }}
                   />
                 </div>
                 <div className="flex justify-between text-[11px] font-mono text-zinc-400">
                   <span>{Math.round((todayMacros.calories / (profile.daily_calorie_target || 2000)) * 100)}% used</span>
-                  <span className="text-brand-300 font-bold">{todayRemaining.calories} remaining</span>
+                  <span className="text-accent-amber font-bold">{todayRemaining.calories} remaining</span>
                 </div>
               </div>
             </div>
 
-            {/* 2. Hydration Cups Card */}
+            {/* 2. Hydration Cups Card (Bio-Aqua Cyan) */}
             <div className="p-6 rounded-3xl bg-surface-100/90 border border-surface-border backdrop-blur-xl flex flex-col justify-between space-y-4">
               <div className="flex items-center justify-between">
                 <div className="text-xs font-bold text-zinc-400 uppercase tracking-wider">Water & Hydration</div>
                 <div className="w-10 h-10 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
-                  <Droplets className="w-5 h-5 text-cyan-400 fill-cyan-400/20" />
+                  <Droplets className="w-5 h-5 text-accent-cyan fill-accent-cyan/20" />
                 </div>
               </div>
 
               <div>
-                <div className="text-3xl sm:text-4xl font-black font-mono text-cyan-400">
+                <div className="text-3xl sm:text-4xl font-black font-mono text-accent-cyan">
                   {todayWaterOz} <span className="text-sm font-medium text-zinc-400">/ {waterGoalOz} oz</span>
                 </div>
                 <div className="text-xs text-zinc-400 mt-1">
@@ -217,17 +217,17 @@ export const DashboardOverview: React.FC = () => {
               </div>
             </div>
 
-            {/* 3. Daily Steps Card */}
+            {/* 3. Daily Movement / Steps Card (Flame Coral) */}
             <div className="p-6 rounded-3xl bg-surface-100/90 border border-surface-border backdrop-blur-xl flex flex-col justify-between space-y-4">
               <div className="flex items-center justify-between">
                 <div className="text-xs font-bold text-zinc-400 uppercase tracking-wider">Daily Movement</div>
-                <div className="w-10 h-10 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
-                  <Heart className="w-5 h-5 text-emerald-400" />
+                <div className="w-10 h-10 rounded-2xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center">
+                  <Heart className="w-5 h-5 text-accent-coral" />
                 </div>
               </div>
 
               <div>
-                <div className="text-3xl sm:text-4xl font-black font-mono text-emerald-400">
+                <div className="text-3xl sm:text-4xl font-black font-mono text-accent-coral">
                   {todaySteps.toLocaleString()} <span className="text-sm font-medium text-zinc-400">steps</span>
                 </div>
                 <div className="text-xs text-zinc-400 mt-1">
@@ -239,13 +239,13 @@ export const DashboardOverview: React.FC = () => {
               <div className="space-y-1.5">
                 <div className="w-full h-3 bg-surface-300 rounded-full overflow-hidden border border-surface-border">
                   <div
-                    className="h-full bg-gradient-to-r from-emerald-500 to-teal-400 rounded-full transition-all duration-500"
+                    className="h-full bg-gradient-to-r from-accent-coral to-rose-500 rounded-full transition-all duration-500"
                     style={{ width: `${Math.min(100, Math.round((todaySteps / (stepGoal || 10000)) * 100))}%` }}
                   />
                 </div>
                 <div className="flex justify-between text-[11px] font-mono text-zinc-400">
                   <span>{Math.min(100, Math.round((todaySteps / (stepGoal || 10000)) * 100))}% of {stepGoal.toLocaleString()} goal</span>
-                  <span className="text-emerald-300 font-bold">{Math.max(0, stepGoal - todaySteps).toLocaleString()} left</span>
+                  <span className="text-accent-coral font-bold">{Math.max(0, stepGoal - todaySteps).toLocaleString()} left</span>
                 </div>
               </div>
             </div>
