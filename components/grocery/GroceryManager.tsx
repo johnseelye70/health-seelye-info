@@ -70,6 +70,8 @@ export const GroceryManager: React.FC = () => {
     swapGroceryItem,
     deleteGroceryItem,
     clearCheckedGrocery,
+    clearAllGrocery,
+    clearStoreGrocery,
     syncGroceryFromMealPlan,
     profile,
     foods,
@@ -89,10 +91,11 @@ export const GroceryManager: React.FC = () => {
   // Search
   const [searchQuery, setSearchQuery] = useState<string>('');
 
-  // Modals
+  // Modals & Confirmation States
   const [showCatalogModal, setShowCatalogModal] = useState<boolean>(false);
   const [showCustomItemModal, setShowCustomItemModal] = useState<boolean>(false);
   const [itemToSwap, setItemToSwap] = useState<GroceryItem | null>(null);
+  const [showClearConfirm, setShowClearConfirm] = useState<boolean>(false);
   const [showCopyToast, setShowCopyToast] = useState<boolean>(false);
   const [toastMessage, setToastMessage] = useState<string>('Copied to clipboard!');
 
@@ -410,6 +413,19 @@ export const GroceryManager: React.FC = () => {
             >
               <Printer className="w-4 h-4 text-brand-400" />
             </button>
+
+            {groceryList.length > 0 && (
+              <button
+                type="button"
+                id="btn-clear-cart-header"
+                onClick={() => setShowClearConfirm(true)}
+                className="flex items-center gap-1.5 px-3 py-2.5 rounded-2xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border border-rose-500/30 text-xs font-semibold transition-all active:scale-95 cursor-pointer"
+                title="Clear your shopping cart or pantry list"
+              >
+                <Trash2 className="w-4 h-4 text-rose-400" />
+                <span>Clear Cart</span>
+              </button>
+            )}
           </div>
         </div>
 
@@ -567,7 +583,7 @@ export const GroceryManager: React.FC = () => {
 
           {/* Progress & Clear Completed */}
           {activeViewMode === 'shopping_list' && (
-            <div className="flex items-center gap-4 text-xs font-mono">
+            <div className="flex items-center gap-3 sm:gap-4 text-xs font-mono flex-wrap">
               <div className="text-zinc-400">
                 Cart Progress: <strong className="text-brand-400 font-bold">{checkedCount}</strong> / {totalShoppingCount} ({progressPercent}%)
               </div>
@@ -575,15 +591,84 @@ export const GroceryManager: React.FC = () => {
                 <button
                   type="button"
                   onClick={clearCheckedGrocery}
-                  className="text-rose-400 hover:underline flex items-center gap-1 cursor-pointer"
+                  className="text-amber-400 hover:underline flex items-center gap-1 cursor-pointer font-sans text-xs font-semibold"
+                  title="Remove completed items from list"
                 >
                   <RotateCcw className="w-3.5 h-3.5" />
-                  <span>Clear Checked</span>
+                  <span>Clear Checked ({checkedCount})</span>
+                </button>
+              )}
+              {totalShoppingCount > 0 && (
+                <button
+                  type="button"
+                  onClick={() => setShowClearConfirm(true)}
+                  className="text-rose-400 hover:underline flex items-center gap-1 cursor-pointer font-sans text-xs font-semibold"
+                  title="Empty your shopping cart"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  <span>Clear Cart</span>
                 </button>
               )}
             </div>
           )}
         </div>
+
+        {/* Inline Confirmation: Empty Shopping Cart */}
+        {showClearConfirm && (
+          <div className="p-4 sm:p-5 rounded-2xl bg-rose-950/40 border border-rose-500/40 text-rose-200 backdrop-blur-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 animate-fadeIn shadow-xl">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-rose-500/20 border border-rose-500/40 flex items-center justify-center shrink-0">
+                <Trash2 className="w-5 h-5 text-rose-400" />
+              </div>
+              <div>
+                <h4 className="text-sm font-bold text-white">Empty Shopping Cart?</h4>
+                <p className="text-xs text-rose-300/80 mt-0.5">
+                  Are you sure you want to clear your cart? You can clear all items or only items from a selected store.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap shrink-0">
+              <button
+                type="button"
+                onClick={() => {
+                  clearAllGrocery();
+                  setShowClearConfirm(false);
+                  setToastMessage('Shopping cart completely cleared! 🛒');
+                  setShowCopyToast(true);
+                  setTimeout(() => setShowCopyToast(false), 3500);
+                }}
+                className="px-4 py-2 rounded-xl bg-rose-500 hover:bg-rose-400 text-white font-bold text-xs shadow-lg transition-all active:scale-95 cursor-pointer"
+              >
+                Yes, Clear All ({groceryList.length} Items)
+              </button>
+
+              {selectedStoreTag !== 'all' && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    clearStoreGrocery(selectedStoreTag);
+                    setShowClearConfirm(false);
+                    setToastMessage(`Cleared all ${selectedStoreTag.toUpperCase()} items from cart! 🛒`);
+                    setShowCopyToast(true);
+                    setTimeout(() => setShowCopyToast(false), 3500);
+                  }}
+                  className="px-3.5 py-2 rounded-xl bg-surface-300 hover:bg-surface-200 text-zinc-200 font-semibold text-xs border border-surface-border transition-all cursor-pointer"
+                >
+                  Clear {selectedStoreTag.toUpperCase()} Only
+                </button>
+              )}
+
+              <button
+                type="button"
+                onClick={() => setShowClearConfirm(false)}
+                className="px-3.5 py-2 rounded-xl bg-surface-200 hover:bg-surface-300 text-zinc-300 hover:text-white font-semibold text-xs transition-all cursor-pointer"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Store Tags Filter Bar */}
         <div className="pt-3 border-t border-surface-border/60 flex items-center gap-1.5 overflow-x-auto pb-1 text-xs">
@@ -841,27 +926,41 @@ export const GroceryManager: React.FC = () => {
                   : 'Your shopping list is empty. Click below to add signature store brand products or browse the master catalog.'}
               </p>
             </div>
-            <div className="flex items-center justify-center gap-3 flex-wrap">
-              <button
-                type="button"
-                onClick={() => handleLoadStoreRun('sams_club')}
-                className="px-4 py-2 rounded-xl bg-surface-200 hover:bg-surface-300 text-zinc-200 font-bold text-xs border border-surface-border cursor-pointer"
-              >
-                📦 + Sam's Club Bulk
-              </button>
+            <div className="flex items-center justify-center gap-2.5 flex-wrap">
               <button
                 type="button"
                 onClick={() => handleLoadStoreRun('aldi')}
-                className="px-4 py-2 rounded-xl bg-surface-200 hover:bg-surface-300 text-zinc-200 font-bold text-xs border border-surface-border cursor-pointer"
+                className="px-3.5 py-2 rounded-xl bg-surface-200 hover:bg-surface-300 text-zinc-200 font-bold text-xs border border-surface-border cursor-pointer transition-all active:scale-95"
               >
                 🛒 + Aldi Organics
               </button>
               <button
                 type="button"
                 onClick={() => handleLoadStoreRun('meijer')}
-                className="px-4 py-2 rounded-xl bg-surface-200 hover:bg-surface-300 text-zinc-200 font-bold text-xs border border-surface-border cursor-pointer"
+                className="px-3.5 py-2 rounded-xl bg-surface-200 hover:bg-surface-300 text-zinc-200 font-bold text-xs border border-surface-border cursor-pointer transition-all active:scale-95"
               >
                 🏷️ + Meijer Weekly
+              </button>
+              <button
+                type="button"
+                onClick={() => handleLoadStoreRun('sams_club')}
+                className="px-3.5 py-2 rounded-xl bg-surface-200 hover:bg-surface-300 text-zinc-200 font-bold text-xs border border-surface-border cursor-pointer transition-all active:scale-95"
+              >
+                📦 + Sam's Club Bulk
+              </button>
+              <button
+                type="button"
+                onClick={() => handleLoadStoreRun('costco')}
+                className="px-3.5 py-2 rounded-xl bg-surface-200 hover:bg-surface-300 text-zinc-200 font-bold text-xs border border-surface-border cursor-pointer transition-all active:scale-95"
+              >
+                🏬 + Costco Wholesale
+              </button>
+              <button
+                type="button"
+                onClick={() => handleLoadStoreRun('walmart')}
+                className="px-3.5 py-2 rounded-xl bg-surface-200 hover:bg-surface-300 text-zinc-200 font-bold text-xs border border-surface-border cursor-pointer transition-all active:scale-95"
+              >
+                🏪 + Walmart Fresh
               </button>
             </div>
           </div>

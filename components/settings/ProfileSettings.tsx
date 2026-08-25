@@ -212,6 +212,17 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'Beta 2.12.0',
+      date: '2026-08-25',
+      title: 'Shopping Cart Clearing Engine & Store-Specific Empty Actions',
+      changes: [
+        '1-Click Clear Cart Button: Added prominent "Clear Cart" actions in the Grocery Manager header and in-list progress toolbar with trash indicator.',
+        'Safe Confirmation Interface: Integrated a non-destructive, inline confirmation prompt allowing users to safely empty their entire shopping list or selectively clear items for the active store filter only.',
+        'Enhanced Empty State: Added 1-click quick-start preset buttons for all 5 major store brand lines (Aldi Organics, Meijer Weekly, Sam’s Club Bulk, Costco Wholesale, and Walmart Fresh) when cart is cleared.',
+        'Context State Handlers: Engineered global clearAllGrocery and clearStoreGrocery methods in HealthContext with instant toast confirmation.',
+      ],
+    },
+    {
       version: 'Beta 2.11.0',
       date: '2026-08-25',
       title: 'Global Shopping List Navigation, Unified Lists & 1-Tap Recipe Jump',
@@ -1390,7 +1401,7 @@ export const ProfileSettings: React.FC = () => {
             title="Click to open release changelog modal window"
           >
             <span className="w-2 h-2 rounded-full bg-brand-400 animate-pulse"></span>
-            <span>Active: Beta 2.11.0</span>
+            <span>Active: Beta 2.12.0</span>
             <ChevronRight className="w-3.5 h-3.5 text-brand-400 group-hover:translate-x-0.5 transition-transform" />
           </button>
         </div>

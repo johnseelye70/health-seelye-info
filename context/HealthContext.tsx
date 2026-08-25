@@ -16,6 +16,7 @@ import {
   WorkoutSessionLog,
   WaterLogEntry,
   StepLogEntry,
+  GroceryStoreTag,
 } from '@/lib/types';
 import {
   INITIAL_PROFILE,
@@ -112,6 +113,8 @@ interface HealthContextType {
   swapGroceryItem: (id: string, replacement: Partial<GroceryItem>) => void;
   deleteGroceryItem: (id: string) => void;
   clearCheckedGrocery: () => void;
+  clearAllGrocery: () => void;
+  clearStoreGrocery: (storeTag: GroceryStoreTag) => void;
   syncGroceryFromMealPlan: () => void;
   
   // Weight & Analytics
@@ -985,6 +988,17 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
     setGroceryList((prev) => prev.filter((item) => !item.is_checked));
   }, []);
 
+  const clearAllGrocery = useCallback(() => {
+    setGroceryList([]);
+  }, []);
+
+  const clearStoreGrocery = useCallback((storeTag: GroceryStoreTag) => {
+    setGroceryList((prev) => {
+      if (storeTag === 'all') return [];
+      return prev.filter((item) => item.store_tag !== storeTag);
+    });
+  }, []);
+
   const syncGroceryFromMealPlan = useCallback(() => {
     const generated = generateSmartGroceryRequisition(groceryMultiplier);
     setGroceryList(generated);
@@ -1196,6 +1210,8 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
         swapGroceryItem,
         deleteGroceryItem,
         clearCheckedGrocery,
+        clearAllGrocery,
+        clearStoreGrocery,
         syncGroceryFromMealPlan,
         weightLogs,
         logWeight,
