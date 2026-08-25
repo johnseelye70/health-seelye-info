@@ -212,6 +212,16 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'Beta 2.5.2',
+      date: '2026-08-25',
+      title: 'Fixed Recipe Print Preview Multi-Page Layout & Unbounded Pagination',
+      changes: [
+        'Unbounded Multi-Page Pagination: Removed rigid single-page constraints and fixed viewport overflow traps from print styles, allowing long recipes, directions, and ingredient lists to cleanly flow across as many printed pages as needed without being clipped.',
+        'Spacious Clean Typography: Redesigned the printable card layout with crisp 2-column ingredients, full-width step-by-step directions, and chef notes with break-inside protection.',
+        'Total Screen UI Stripping: Guaranteed that all modal backdrops, navigation bars, buttons, and screen chrome are stripped during printing for pure paper and PDF generation.',
+      ],
+    },
+    {
       version: 'Beta 2.5.1',
       date: '2026-08-25',
       title: '100% Inline Recipe Detail View & Elimination of Nested Modals',
@@ -1291,7 +1301,7 @@ export const ProfileSettings: React.FC = () => {
             title="Click to open release changelog modal window"
           >
             <span className="w-2 h-2 rounded-full bg-brand-400 animate-pulse"></span>
-            <span>Active: Beta 2.5.1</span>
+            <span>Active: Beta 2.5.2</span>
             <ChevronRight className="w-3.5 h-3.5 text-brand-400 group-hover:translate-x-0.5 transition-transform" />
           </button>
         </div>

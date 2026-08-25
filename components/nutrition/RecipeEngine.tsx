@@ -448,36 +448,49 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
         </div>
 
         {/* Dedicated Printable Area for window.print() */}
-        <div className="hidden print:block printable-area print-letter">
-          <div className="p-4 bg-white text-black font-sans">
-            <div className="border-b-2 border-black pb-2 mb-2 flex items-start justify-between">
+        <div className="hidden print:block printable-area">
+          <div className="p-6 bg-white text-black font-sans max-w-3xl mx-auto space-y-6">
+            {/* Header */}
+            <div className="border-b-2 border-black pb-4 flex items-start justify-between gap-4 print-avoid-break">
               <div>
-                <div className="text-[9px] uppercase font-bold tracking-widest text-zinc-700">
+                <div className="text-[10px] uppercase font-bold tracking-widest text-zinc-600 mb-1">
                   SEELYE FAMILY HEALTH • WHOLESOME RECIPES
                 </div>
-                <h1 className="text-lg font-black text-black leading-tight">
+                <h1 className="text-2xl font-black text-black leading-tight">
                   {detailRecipe.title}
                 </h1>
-                <p className="text-[10px] text-zinc-700 italic">
+                <p className="text-xs text-zinc-700 italic mt-1 max-w-xl">
                   {detailRecipe.description}
                 </p>
               </div>
-              <div className="text-right shrink-0">
-                <div className="text-xs font-black text-black">
+              <div className="text-right shrink-0 border-l-2 border-black pl-4">
+                <div className="text-lg font-black text-black">
                   {detailRecipe.calories_per_serving * batchMultiplier} kcal
                 </div>
-                <div className="text-[9px] text-zinc-700 font-mono">
-                  {detailRecipe.prep_time_minutes + detailRecipe.cook_time_minutes} min • {detailRecipe.servings_yield * batchMultiplier} serving{detailRecipe.servings_yield * batchMultiplier > 1 ? 's' : ''}
+                <div className="text-xs text-zinc-700 font-mono mt-0.5">
+                  Prep: {detailRecipe.prep_time_minutes}m • Cook: {detailRecipe.cook_time_minutes}m
+                </div>
+                <div className="text-xs font-bold text-black mt-0.5">
+                  Yield: {detailRecipe.servings_yield * batchMultiplier} portion{detailRecipe.servings_yield * batchMultiplier > 1 ? 's' : ''}
                 </div>
               </div>
             </div>
 
-            <div className="grid grid-cols-5 gap-3 text-[10.5px]">
-              <div className="col-span-2">
-                <div className="font-bold uppercase text-[10px] border-b border-black pb-0.5 mb-1.5">
-                  Ingredients {batchMultiplier > 1 ? `(${batchMultiplier}x)` : ''}
+            {/* Macro Summary Bar */}
+            <div className="p-3 border border-black flex justify-around text-xs font-mono print-avoid-break">
+              <div><strong>Protein:</strong> {detailRecipe.protein_g_per_serving}g</div>
+              <div><strong>Carbohydrates:</strong> {detailRecipe.carbs_g_per_serving}g</div>
+              <div><strong>Fats:</strong> {detailRecipe.fat_g_per_serving}g</div>
+            </div>
+
+            {/* Content: Ingredients & Directions */}
+            <div className="space-y-6 text-xs">
+              {/* Ingredients Section */}
+              <div className="space-y-2 print-avoid-break">
+                <div className="font-bold uppercase text-xs border-b-2 border-black pb-1">
+                  Ingredients {batchMultiplier > 1 ? `(${batchMultiplier}x Batch)` : ''}
                 </div>
-                <ul className="space-y-1">
+                <div className="grid grid-cols-2 gap-x-6 gap-y-1.5 pt-1">
                   {detailRecipe.ingredients.map((ing, idx) => {
                     const rawMeasure = isImperial ? ing.amount_imperial : ing.amount_metric;
                     let displayMeasure = rawMeasure;
@@ -493,28 +506,25 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
                     }
 
                     return (
-                      <li key={idx} className="flex items-start gap-1">
-                        <span className="inline-block w-2.5 h-2.5 border border-black rounded-none mt-0.5 shrink-0"></span>
-                        <span>
+                      <div key={idx} className="flex items-start gap-2 print-avoid-break py-0.5">
+                        <span className="inline-block w-3.5 h-3.5 border border-black rounded-none mt-0.5 shrink-0"></span>
+                        <span className="leading-snug">
                           <strong>{displayMeasure}</strong> {ing.name}
                         </span>
-                      </li>
+                      </div>
                     );
                   })}
-                </ul>
-
-                <div className="mt-2 p-1.5 border border-black text-[9.5px] font-mono">
-                  <strong>Macros:</strong> {detailRecipe.protein_g_per_serving}g Protein • {detailRecipe.carbs_g_per_serving}g Carbs • {detailRecipe.fat_g_per_serving}g Fat
                 </div>
               </div>
 
-              <div className="col-span-3">
-                <div className="font-bold uppercase text-[10px] border-b border-black pb-0.5 mb-1.5">
+              {/* Directions Section */}
+              <div className="space-y-2">
+                <div className="font-bold uppercase text-xs border-b-2 border-black pb-1 print-avoid-break">
                   Preparation & Directions
                 </div>
-                <ol className="space-y-1.5 text-[10.5px] leading-snug">
+                <ol className="space-y-2.5 pt-1">
                   {detailRecipe.instructions.map((step, sIdx) => (
-                    <li key={sIdx} className="flex gap-1.5">
+                    <li key={sIdx} className="flex gap-2 text-xs leading-relaxed print-avoid-break">
                       <span className="font-bold font-mono shrink-0">{sIdx + 1}.</span>
                       <span>{step}</span>
                     </li>
@@ -522,16 +532,17 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
                 </ol>
 
                 {detailRecipe.chef_notes && (
-                  <div className="mt-2 pt-1 border-t border-zinc-400 text-[9.5px] italic">
-                    <strong>Tip:</strong> {detailRecipe.chef_notes}
+                  <div className="mt-4 p-3 border border-black text-xs italic print-avoid-break">
+                    <strong>Chef's Technique & Advice:</strong> {detailRecipe.chef_notes}
                   </div>
                 )}
               </div>
             </div>
 
-            <div className="mt-3 pt-1 border-t border-zinc-400 text-[8px] font-mono text-zinc-600 flex justify-between">
+            {/* Footer */}
+            <div className="pt-3 border-t border-zinc-400 text-[10px] font-mono text-zinc-600 flex justify-between print-avoid-break">
               <span>health.seelye.info</span>
-              <span>Recipe Print Sheet</span>
+              <span>Wholesome Kitchen Recipe Card</span>
             </div>
           </div>
         </div>

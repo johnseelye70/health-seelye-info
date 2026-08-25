@@ -199,15 +199,45 @@ textarea {
 
 /* Dedicated Print Stylesheet */
 @media print {
+  @page {
+    size: letter portrait;
+    margin: 0.5in;
+  }
+
+  html,
   body {
+    background: #ffffff !important;
     background-color: #ffffff !important;
     color: #000000 !important;
-    font-size: 11pt;
+    font-size: 11pt !important;
+    overflow: visible !important;
+    height: auto !important;
+    min-height: auto !important;
+    max-height: none !important;
+    position: static !important;
+    width: 100% !important;
+  }
+
+  /* Completely reset all overlay containers during printing */
+  div[class*="fixed"],
+  div[class*="overflow-"],
+  div[class*="max-h-"] {
+    position: static !important;
+    overflow: visible !important;
+    height: auto !important;
+    max-height: none !important;
+    background: transparent !important;
+    backdrop-filter: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
   }
 
   aside,
   header,
   nav,
+  button,
   .no-print {
     display: none !important;
   }
@@ -216,37 +246,23 @@ textarea {
     margin: 0 !important;
     padding: 0 !important;
     max-width: 100% !important;
+    width: 100% !important;
   }
 
   .printable-area {
     display: block !important;
     width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
     color: #000000 !important;
+    background: #ffffff !important;
+    page-break-inside: auto !important;
+    break-inside: auto !important;
   }
 
-  .print-index-card {
-    display: block !important;
-    width: 6in !important;
-    max-width: 6in !important;
-    min-height: 4in !important;
-    border: 2px solid #000000 !important;
-    padding: 0.1in !important;
-    margin: 0.2in auto !important;
+  .print-avoid-break {
     page-break-inside: avoid !important;
-    box-sizing: border-box !important;
-    background: #ffffff !important;
-    color: #000000 !important;
-  }
-
-  .print-letter {
-    display: block !important;
-    width: 100% !important;
-    max-width: 8in !important;
-    margin: 0 auto !important;
-    padding: 0.25in !important;
-    page-break-inside: avoid !important;
-    box-sizing: border-box !important;
-    background: #ffffff !important;
-    color: #000000 !important;
+    break-inside: avoid !important;
   }
 }
