@@ -14,7 +14,6 @@ import {
 import { COMPREHENSIVE_RECIPE_DATABASE, RECIPE_SUB_CATEGORIES } from '@/lib/recipe-database';
 import {
   getSmartSwapsForIngredient,
-  getCategoryFoodAlternatives,
   calculateCustomizedRecipe,
 } from '@/lib/recipe-swap-engine';
 import { CustomRecipeModal } from './CustomRecipeModal';
@@ -765,7 +764,7 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
 
               const isChecked = checkedIngredients[idx];
               const smartSwaps = getSmartSwapsForIngredient(originalIng);
-              const categorySwaps = getCategoryFoodAlternatives(originalIng.food_category || 'vegetables', originalIng.name);
+              const hasSwapsAvailable = smartSwaps.length > 0;
 
               return (
                 <div
@@ -838,20 +837,22 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
                           </button>
                         )}
 
-                        <button
-                          type="button"
-                          onClick={() => setOpenSwapIndex(isDrawerOpen ? null : idx)}
-                          className={`px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
-                            isDrawerOpen
-                              ? 'bg-brand-500 text-zinc-950 shadow-glow'
-                              : isSwapped
-                              ? 'bg-brand-500/20 text-brand-300 border border-brand-500/40 hover:bg-brand-500/30'
-                              : 'bg-surface-300 hover:bg-surface-100 text-zinc-300 hover:text-foreground border border-surface-border'
-                          }`}
-                        >
-                          <Repeat className="w-3.5 h-3.5" />
-                          <span>{isSwapped ? 'Change Swap' : 'Swap'}</span>
-                        </button>
+                        {hasSwapsAvailable && (
+                          <button
+                            type="button"
+                            onClick={() => setOpenSwapIndex(isDrawerOpen ? null : idx)}
+                            className={`px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+                              isDrawerOpen
+                                ? 'bg-brand-500 text-zinc-950 shadow-glow'
+                                : isSwapped
+                                ? 'bg-brand-500/20 text-brand-300 border border-brand-500/40 hover:bg-brand-500/30'
+                                : 'bg-surface-300 hover:bg-surface-100 text-zinc-300 hover:text-foreground border border-surface-border'
+                            }`}
+                          >
+                            <Repeat className="w-3.5 h-3.5" />
+                            <span>{isSwapped ? 'Change Swap' : 'Swap'}</span>
+                          </button>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -928,37 +929,6 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
                         </div>
                       </div>
 
-                      {/* Section 2: Broader Category Swaps */}
-                      {categorySwaps.length > 0 && (
-                        <div className="space-y-2 pt-2 border-t border-surface-border/60">
-                          <div className="text-xs font-bold text-zinc-400 uppercase tracking-wider flex items-center gap-1.5">
-                            <SlidersHorizontal className="w-3.5 h-3.5 text-accent-cyan" />
-                            <span>Browse All Foods from this Category:</span>
-                          </div>
-
-                          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                            {categorySwaps.map((catOpt, cIdx) => (
-                              <button
-                                key={cIdx}
-                                type="button"
-                                onClick={() => {
-                                  setActiveSwaps((prev) => ({
-                                    ...prev,
-                                    [idx]: catOpt,
-                                  }));
-                                  setOpenSwapIndex(null);
-                                }}
-                                className="p-2 rounded-xl border border-surface-border bg-surface-200/50 hover:bg-surface-300 hover:border-brand-500/40 text-left transition-all cursor-pointer"
-                              >
-                                <div className="text-xs font-bold text-foreground truncate">{catOpt.name}</div>
-                                <div className="text-[10px] font-mono text-brand-400 mt-0.5">
-                                  {catOpt.calories} kcal • {catOpt.protein_g}g P
-                                </div>
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-                      )}
                     </div>
                   )}
                 </div>

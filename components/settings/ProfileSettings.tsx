@@ -212,6 +212,15 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'Beta 2.9.1',
+      date: '2026-08-25',
+      title: 'Authentic Culinary Role-Based Swap Mapping & Sauce Engine',
+      changes: [
+        'Culinary Role-Based Swapping: Replaced broad generic category matching with strictly curated, authentic culinary swaps (e.g. Tomatoes swap for San Marzano Plum Tomatoes, Fire-Roasted Tomatoes, Tomatillo Salsa Verde, Roasted Red Pepper Purée, or Herb Marinara; Onions swap for Shallots, Red Onions, Vidalia Onions, or Leeks).',
+        'Eliminated Incompatible Suggestions: Ingredients without legitimate direct culinary substitutes are marked as core essentials rather than offering mismatched vegetables.',
+      ],
+    },
+    {
       version: 'Beta 2.9.0',
       date: '2026-08-25',
       title: 'Context-Aware Culinary Instruction Adaptation & Step Rewriter',
@@ -1360,7 +1369,7 @@ export const ProfileSettings: React.FC = () => {
             title="Click to open release changelog modal window"
           >
             <span className="w-2 h-2 rounded-full bg-brand-400 animate-pulse"></span>
-            <span>Active: Beta 2.9.0</span>
+            <span>Active: Beta 2.9.1</span>
             <ChevronRight className="w-3.5 h-3.5 text-brand-400 group-hover:translate-x-0.5 transition-transform" />
           </button>
         </div>
