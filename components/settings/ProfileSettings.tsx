@@ -212,6 +212,16 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'Beta 2.14.0',
+      date: '2026-08-25',
+      title: 'Recipe Card Grid Footer Size Optimization & Contained Multi-Row Layout',
+      changes: [
+        'Size-Optimized Card Footer: Completely re-architected recipe card action footers into a sleek 2-row layout, completely eliminating horizontal button overflow and grid card collision on all screen viewports.',
+        'Contained Action Flow: Placed "View Recipe ➔", compact "Print", and "+ List" actions on the upper tool row, giving "Cooked This Meal!" and Athlete Meal Slot selectors dedicated full-width space.',
+        'Strict Grid Boundary Isolation: Added overflow-hidden constraints to recipe card parent containers to prevent visual overlap across columns.',
+      ],
+    },
+    {
       version: 'Beta 2.13.0',
       date: '2026-08-25',
       title: 'Expansion to 75 Authentic Chef-Crafted Wholesome Recipes',
@@ -1412,7 +1422,7 @@ export const ProfileSettings: React.FC = () => {
             title="Click to open release changelog modal window"
           >
             <span className="w-2 h-2 rounded-full bg-brand-400 animate-pulse"></span>
-            <span>Active: Beta 2.13.0</span>
+            <span>Active: Beta 2.14.0</span>
             <ChevronRight className="w-3.5 h-3.5 text-brand-400 group-hover:translate-x-0.5 transition-transform" />
           </button>
         </div>

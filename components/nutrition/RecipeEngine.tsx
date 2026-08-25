@@ -1378,7 +1378,7 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
             return (
               <div
                 key={recipe.id}
-                className="rounded-3xl bg-surface-100/90 border border-surface-border p-5 flex flex-col justify-between hover:border-brand-500/40 transition-all group"
+                className="rounded-3xl bg-surface-100/90 border border-surface-border p-5 flex flex-col justify-between hover:border-brand-500/40 transition-all group overflow-hidden"
               >
                 <div>
                   {/* Card Top Row: Emoji, Category, Times */}
@@ -1489,72 +1489,77 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
                   </div>
                 </div>
 
-                {/* Card Bottom Actions */}
-                <div className="pt-3 border-t border-surface-border/80 flex flex-col sm:flex-row items-center justify-between gap-2 mt-4">
-                  {/* View Recipe Button (100% Inline Detail Transition) */}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setSelectedRecipeDetail(recipe);
-                      setActiveSwaps({});
-                      setOpenSwapIndex(null);
-                    }}
-                    className="text-xs font-bold text-brand-400 hover:text-brand-300 flex items-center gap-1 cursor-pointer self-start sm:self-auto py-1"
-                  >
-                    <BookOpen className="w-3.5 h-3.5" />
-                    <span>View & Customize</span>
-                  </button>
-
-                  <div className="flex items-center gap-2 w-full sm:w-auto">
-                    {/* Print Recipe Button (Opens Print Preview Studio) */}
+                {/* Card Bottom Actions (Clean Contained 2-Row Layout) */}
+                <div className="pt-3.5 border-t border-surface-border/80 space-y-2.5 mt-4">
+                  {/* Top Row: View Recipe Link & Quick Action Pills */}
+                  <div className="flex items-center justify-between gap-2">
                     <button
                       type="button"
-                      onClick={() => handleOpenPrintPreview(recipe, 1)}
-                      className="px-3 py-2 rounded-xl bg-surface-200 hover:bg-surface-300 border border-surface-border text-xs font-bold text-zinc-300 hover:text-white flex items-center justify-center gap-1.5 transition-all active:scale-95 cursor-pointer"
-                      title="Print 4x6 Index Card or Standard Letter Sheet"
+                      onClick={() => {
+                        setSelectedRecipeDetail(recipe);
+                        setActiveSwaps({});
+                        setOpenSwapIndex(null);
+                      }}
+                      className="text-xs font-bold text-brand-400 hover:text-brand-300 flex items-center gap-1 cursor-pointer py-1 group/btn"
                     >
-                      <Printer className="w-3.5 h-3.5 text-brand-400" />
-                      <span>Print Card</span>
+                      <BookOpen className="w-3.5 h-3.5" />
+                      <span>View Recipe</span>
+                      <span className="text-[10px] text-brand-500 group-hover/btn:translate-x-0.5 transition-transform">➔</span>
                     </button>
 
-                    {/* Add to Shopping List Button (Store Tagged) */}
-                    <button
-                      type="button"
-                      onClick={() => handleSyncGrocery(recipe, !isSimple ? batchMultiplier : 1)}
-                      className="flex-1 sm:flex-none px-3 py-2 rounded-xl bg-surface-200 hover:bg-surface-300 border border-surface-border text-xs font-bold text-zinc-200 flex items-center justify-center gap-1.5 transition-all active:scale-95 cursor-pointer"
-                      title={`Add all ingredients to ${activeStoreLabel} list`}
-                    >
-                      <ShoppingCart className="w-3.5 h-3.5 text-accent-cyan" />
-                      <span>+ {selectedTargetStore !== 'all' ? activeStoreLabel : 'Grocery'}</span>
-                    </button>
-
-                    {/* Simple Mode: 1-Tap Cooked This Meal */}
-                    {isSimple ? (
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      {/* Print Button */}
                       <button
                         type="button"
-                        onClick={() => handleLogRecipe(recipe, 1)}
-                        className="flex-1 sm:flex-none px-4 py-2 rounded-xl bg-brand-500 hover:bg-brand-400 text-zinc-950 text-xs font-bold shadow-glow transition-all active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer"
+                        onClick={() => handleOpenPrintPreview(recipe, 1)}
+                        className="px-2.5 py-1.5 rounded-xl bg-surface-200 hover:bg-surface-300 border border-surface-border text-xs font-semibold text-zinc-300 hover:text-white flex items-center gap-1 transition-all active:scale-95 cursor-pointer"
+                        title="Print 4x6 Index Card or Letter Sheet"
                       >
-                        <UtensilsCrossed className="w-3.5 h-3.5 stroke-[2.5]" />
-                        <span>Cooked!</span>
+                        <Printer className="w-3.5 h-3.5 text-brand-400" />
+                        <span className="text-[11px]">Print</span>
                       </button>
-                    ) : (
-                      /* Athlete Mode: Log to Meal Slot Selection */
-                      <div className="flex items-center gap-1 bg-surface-200 p-1 rounded-xl border border-surface-border">
+
+                      {/* Grocery Add Button */}
+                      <button
+                        type="button"
+                        onClick={() => handleSyncGrocery(recipe, !isSimple ? batchMultiplier : 1)}
+                        className="px-2.5 py-1.5 rounded-xl bg-surface-200 hover:bg-surface-300 border border-surface-border text-xs font-semibold text-zinc-200 flex items-center gap-1 transition-all active:scale-95 cursor-pointer"
+                        title={`Add ingredients to ${activeStoreLabel} shopping list`}
+                      >
+                        <ShoppingCart className="w-3.5 h-3.5 text-accent-cyan" />
+                        <span className="text-[11px]">+ List</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Bottom Row: 1-Tap Cooked / Log Action */}
+                  {isSimple ? (
+                    <button
+                      type="button"
+                      onClick={() => handleLogRecipe(recipe, 1)}
+                      className="w-full py-2 px-3 rounded-2xl bg-gradient-to-r from-brand-500 to-accent-teal hover:from-brand-600 hover:to-accent-teal/90 text-zinc-950 text-xs font-bold shadow-glow transition-all active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer"
+                    >
+                      <UtensilsCrossed className="w-3.5 h-3.5 stroke-[2.5]" />
+                      <span>Cooked This Meal!</span>
+                    </button>
+                  ) : (
+                    <div className="flex items-center justify-between gap-1 p-1 rounded-2xl bg-surface-200/90 border border-surface-border">
+                      <span className="text-[10px] font-mono font-bold text-zinc-400 pl-2">Log to:</span>
+                      <div className="flex items-center gap-1">
                         {[1, 2, 3].map((slot) => (
                           <button
                             key={slot}
                             type="button"
                             onClick={() => handleLogRecipe(recipe, slot)}
-                            className="px-2.5 py-1 rounded-lg bg-surface-300 hover:bg-brand-500 hover:text-zinc-950 text-brand-300 text-[11px] font-mono font-bold transition-all active:scale-95 cursor-pointer"
+                            className="px-3 py-1 rounded-xl bg-surface-300 hover:bg-brand-500 hover:text-zinc-950 text-brand-300 text-xs font-mono font-bold transition-all active:scale-95 cursor-pointer"
                             title={`Log 1 serving to Meal ${slot}`}
                           >
-                            + M{slot}
+                            Meal {slot}
                           </button>
                         ))}
                       </div>
-                    )}
-                  </div>
+                    </div>
+                  )}
                 </div>
               </div>
             );
