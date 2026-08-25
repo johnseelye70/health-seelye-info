@@ -36,94 +36,7 @@ export const INITIAL_FOOD_LOGS: FoodLogEntry[] = [];
 
 export const INITIAL_WEIGHT_LOGS: WeightLog[] = [];
 
-export const INITIAL_WORKOUT_LOGS: WorkoutSessionLog[] = [
-  {
-    id: 'log-001',
-    program_id: 'stronglifts_5x5',
-    program_title: 'StrongLifts 5×5 Strength Program',
-    day_title: 'Workout A (Squat, Bench, Row)',
-    logged_date: '2026-08-20',
-    duration_minutes: 52,
-    total_volume_lbs: 9875,
-    total_sets_completed: 15,
-    energy_rating: 5,
-    notes: 'Hit all 5x5 reps cleanly with 90s rest intervals. Felt strong on bench press.',
-    exercises: [
-      {
-        exercise_id: 'sl-sq-1',
-        exercise_name: 'Barbell Back Squat',
-        target_muscle: 'quads',
-        sets: [
-          { set_number: 1, reps: 5, weight_lbs: 185, rpe: 7, completed: true },
-          { set_number: 2, reps: 5, weight_lbs: 185, rpe: 7, completed: true },
-          { set_number: 3, reps: 5, weight_lbs: 185, rpe: 8, completed: true },
-          { set_number: 4, reps: 5, weight_lbs: 185, rpe: 8, completed: true },
-          { set_number: 5, reps: 5, weight_lbs: 185, rpe: 8.5, completed: true },
-        ],
-      },
-      {
-        exercise_id: 'sl-bp-1',
-        exercise_name: 'Barbell Flat Bench Press',
-        target_muscle: 'chest',
-        sets: [
-          { set_number: 1, reps: 5, weight_lbs: 145, rpe: 7, completed: true },
-          { set_number: 2, reps: 5, weight_lbs: 145, rpe: 7.5, completed: true },
-          { set_number: 3, reps: 5, weight_lbs: 145, rpe: 8, completed: true },
-          { set_number: 4, reps: 5, weight_lbs: 145, rpe: 8, completed: true },
-          { set_number: 5, reps: 5, weight_lbs: 145, rpe: 8.5, completed: true },
-        ],
-      },
-      {
-        exercise_id: 'sl-br-1',
-        exercise_name: 'Barbell Pendlay Row',
-        target_muscle: 'back',
-        sets: [
-          { set_number: 1, reps: 5, weight_lbs: 135, rpe: 7, completed: true },
-          { set_number: 2, reps: 5, weight_lbs: 135, rpe: 7, completed: true },
-          { set_number: 3, reps: 5, weight_lbs: 135, rpe: 7.5, completed: true },
-          { set_number: 4, reps: 5, weight_lbs: 135, rpe: 8, completed: true },
-          { set_number: 5, reps: 5, weight_lbs: 135, rpe: 8, completed: true },
-        ],
-      },
-    ],
-    created_at: '2026-08-20T17:30:00Z',
-  },
-  {
-    id: 'log-002',
-    program_id: 'p90x_classic',
-    program_title: 'P90X® Classic 90-Day Extreme',
-    day_title: 'Chest & Back + Ab Ripper X',
-    logged_date: '2026-08-22',
-    duration_minutes: 65,
-    total_volume_lbs: 4200,
-    total_sets_completed: 18,
-    energy_rating: 4,
-    notes: 'Intense pump! Push-up volume was challenging on the last superset.',
-    exercises: [
-      {
-        exercise_id: 'p90x-cb-1',
-        exercise_name: 'Standard Push-Ups (Max Reps)',
-        target_muscle: 'chest',
-        sets: [
-          { set_number: 1, reps: 30, weight_lbs: 0, rpe: 8, completed: true },
-          { set_number: 2, reps: 25, weight_lbs: 0, rpe: 8.5, completed: true },
-          { set_number: 3, reps: 22, weight_lbs: 0, rpe: 9, completed: true },
-        ],
-      },
-      {
-        exercise_id: 'p90x-cb-2',
-        exercise_name: 'Wide Front Pull-Ups',
-        target_muscle: 'back',
-        sets: [
-          { set_number: 1, reps: 10, weight_lbs: 0, rpe: 8, completed: true },
-          { set_number: 2, reps: 8, weight_lbs: 0, rpe: 8.5, completed: true },
-          { set_number: 3, reps: 7, weight_lbs: 0, rpe: 9.5, completed: true },
-        ],
-      },
-    ],
-    created_at: '2026-08-22T08:15:00Z',
-  },
-];
+export const INITIAL_WORKOUT_LOGS: WorkoutSessionLog[] = [];
 
 /**
  * Dynamic 4-Week Workout Split Generator filtered strictly by available equipment
@@ -180,8 +93,8 @@ export function generateWorkoutPlanSplit(availableEquipment: string[]): WorkoutP
       day_title: 'Push Power & Hypertrophy',
       split_type: 'push',
       exercises: [
-        { id: `w${week}-d1-e1`, exercise_id: pushEx1.id, exercise: pushEx1, target_sets: 4, target_reps: '8-10', rest_seconds: 90, order_index: 1, completed: week === 1 },
-        { id: `w${week}-d1-e2`, exercise_id: pushEx2.id, exercise: pushEx2, target_sets: 3, target_reps: '10-12', rest_seconds: 60, order_index: 2, completed: week === 1 },
+        { id: `w${week}-d1-e1`, exercise_id: pushEx1.id, exercise: pushEx1, target_sets: 4, target_reps: '8-10', rest_seconds: 90, order_index: 1, completed: false },
+        { id: `w${week}-d1-e2`, exercise_id: pushEx2.id, exercise: pushEx2, target_sets: 3, target_reps: '10-12', rest_seconds: 60, order_index: 2, completed: false },
         { id: `w${week}-d1-e3`, exercise_id: pushEx3.id, exercise: pushEx3, target_sets: 3, target_reps: '12-15', rest_seconds: 60, order_index: 3, completed: false },
         { id: `w${week}-d1-e4`, exercise_id: pushEx4.id, exercise: pushEx4, target_sets: 3, target_reps: '15-20', rest_seconds: 45, order_index: 4, completed: false },
       ],

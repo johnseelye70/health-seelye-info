@@ -145,17 +145,17 @@ interface HealthContextType {
 
 const HealthContext = createContext<HealthContextType | undefined>(undefined);
 
-const LOCAL_STORAGE_KEY = 'health_seelye_app_state_v6';
+const LOCAL_STORAGE_KEY = 'health_seelye_app_state_v7';
 
 export function HealthProvider({ children }: { children: React.ReactNode }) {
   const [profile, setProfile] = useState<UserProfile>(INITIAL_PROFILE);
   const [foods, setFoods] = useState<FoodItem[]>(DEFAULT_FOODS);
   const [foodLogs, setFoodLogs] = useState<FoodLogEntry[]>(INITIAL_FOOD_LOGS);
   const [workoutPlan, setWorkoutPlan] = useState<WorkoutPlanDay[]>(() => generateWorkoutPlanSplit(INITIAL_PROFILE.equipment_inventory));
-  const [groceryList, setGroceryList] = useState<GroceryItem[]>(() => compileGroceryList(DEFAULT_FOODS));
+  const [groceryList, setGroceryList] = useState<GroceryItem[]>([]);
   const [groceryMultiplier, setGroceryMultiplier] = useState<number>(1);
   const [weightLogs, setWeightLogs] = useState<WeightLog[]>(INITIAL_WEIGHT_LOGS);
-  const [workoutLogs, setWorkoutLogs] = useState<WorkoutSessionLog[]>(INITIAL_WORKOUT_LOGS);
+  const [workoutLogs, setWorkoutLogs] = useState<WorkoutSessionLog[]>([]);
   const [activeProgramId, setActiveProgramId] = useState<string | null>(null);
   
   const [activeWeek, setActiveWeek] = useState<number>(1);
@@ -999,6 +999,7 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
         localStorage.removeItem('health_seelye_app_state_v4');
         localStorage.removeItem('health_seelye_app_state_v5');
         localStorage.removeItem('health_seelye_app_state_v6');
+        localStorage.removeItem('health_seelye_app_state_v7');
       } catch (e) {
         // ignore
       }
@@ -1007,8 +1008,11 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
     setFoods(DEFAULT_FOODS);
     setFoodLogs([]);
     setWorkoutPlan(generateWorkoutPlanSplit(INITIAL_PROFILE.equipment_inventory));
-    setGroceryList(compileGroceryList(DEFAULT_FOODS));
+    setGroceryList([]);
     setWeightLogs([]);
+    setWorkoutLogs([]);
+    setWaterLogs([]);
+    setStepLogs([]);
   }, []);
 
   return (

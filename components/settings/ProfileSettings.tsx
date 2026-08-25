@@ -211,6 +211,16 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'Beta 2.0.1',
+      date: '2026-08-24',
+      title: 'Full User Control & System-Wide Default State Purge',
+      changes: [
+        'Removed Hardcoded Exercise Checks: Fixed exercise split generator so no workout exercises are pre-checked as completed upon initialization.',
+        'Zero-Default System State: Purged mock default workout history logs and initialized grocery lists cleanly to give the user 100% control over all daily choices.',
+        'Upgraded Local State Storage: Migrated state schema to v7 to ensure fresh, clean un-checked state across all connected devices.',
+      ],
+    },
+    {
       version: 'Beta 2.0.0',
       date: '2026-08-23',
       title: 'Landmark Milestone: Radical Dual-Mode Architecture (Ultra-Simple vs High-Tech Athlete)',
@@ -1072,7 +1082,7 @@ export const ProfileSettings: React.FC = () => {
             title="Click to open release changelog modal window"
           >
             <span className="w-2 h-2 rounded-full bg-brand-400 animate-pulse"></span>
-            <span>Active: Beta 2.0.0</span>
+            <span>Active: Beta 2.0.1</span>
             <ChevronRight className="w-3.5 h-3.5 text-brand-400 group-hover:translate-x-0.5 transition-transform" />
           </button>
         </div>
