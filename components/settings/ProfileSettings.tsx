@@ -212,6 +212,16 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'Beta 2.5.3',
+      date: '2026-08-25',
+      title: 'Dedicated Recipe Print Preview Studio & Isolated Card Canvas',
+      changes: [
+        'Interactive Print Preview Studio: Added a dedicated, 100% inline print preview studio with format options for 4" x 6" Kitchen Index Cards and 8.5" x 11" Standard Letter binder sheets.',
+        '100% Pure Recipe Print Isolation: Configured isolated print canvas rules so only the ink-friendly recipe card or sheet prints to your printer/PDF with zero screen chrome, sidebars, headers, or buttons.',
+        'Live On-Screen Visual Simulation: Preview your exact physical kitchen card or letter sheet on screen with interactive unit toggles (US/Metric) and batch multipliers (1x-6x).',
+      ],
+    },
+    {
       version: 'Beta 2.5.2',
       date: '2026-08-25',
       title: 'Fixed Recipe Print Preview Multi-Page Layout & Unbounded Pagination',
@@ -1301,7 +1311,7 @@ export const ProfileSettings: React.FC = () => {
             title="Click to open release changelog modal window"
           >
             <span className="w-2 h-2 rounded-full bg-brand-400 animate-pulse"></span>
-            <span>Active: Beta 2.5.2</span>
+            <span>Active: Beta 2.5.3</span>
             <ChevronRight className="w-3.5 h-3.5 text-brand-400 group-hover:translate-x-0.5 transition-transform" />
           </button>
         </div>

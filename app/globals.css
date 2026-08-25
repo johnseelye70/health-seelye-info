@@ -200,8 +200,8 @@ textarea {
 /* Dedicated Print Stylesheet */
 @media print {
   @page {
-    size: letter portrait;
-    margin: 0.5in;
+    size: auto;
+    margin: 0.35in;
   }
 
   html,
@@ -216,49 +216,54 @@ textarea {
     max-height: none !important;
     position: static !important;
     width: 100% !important;
-  }
-
-  /* Completely reset all overlay containers during printing */
-  div[class*="fixed"],
-  div[class*="overflow-"],
-  div[class*="max-h-"] {
-    position: static !important;
-    overflow: visible !important;
-    height: auto !important;
-    max-height: none !important;
-    background: transparent !important;
-    backdrop-filter: none !important;
-    border: none !important;
-    box-shadow: none !important;
-    padding: 0 !important;
-    margin: 0 !important;
-  }
-
-  aside,
-  header,
-  nav,
-  button,
-  .no-print {
-    display: none !important;
-  }
-
-  main {
     margin: 0 !important;
     padding: 0 !important;
-    max-width: 100% !important;
-    width: 100% !important;
   }
 
-  .printable-area {
+  /* Hide entire website chrome */
+  body * {
+    visibility: hidden !important;
+  }
+
+  /* Exclusively reveal and print the pure recipe print canvas */
+  #recipe-print-canvas,
+  #recipe-print-canvas * {
+    visibility: visible !important;
+  }
+
+  #recipe-print-canvas {
     display: block !important;
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
     width: 100% !important;
     max-width: 100% !important;
     margin: 0 !important;
     padding: 0 !important;
-    color: #000000 !important;
     background: #ffffff !important;
+    color: #000000 !important;
     page-break-inside: auto !important;
-    break-inside: auto !important;
+  }
+
+  /* 4" x 6" Kitchen Index Card Output on Paper */
+  .print-canvas-4x6 {
+    width: 6in !important;
+    max-width: 6in !important;
+    min-height: 4in !important;
+    margin: 0 auto !important;
+    padding: 0.15in !important;
+    border: 2px solid #000000 !important;
+    box-sizing: border-box !important;
+    page-break-inside: avoid !important;
+  }
+
+  /* 8.5" x 11" Standard Letter Output on Paper */
+  .print-canvas-letter {
+    width: 100% !important;
+    max-width: 7.5in !important;
+    margin: 0 auto !important;
+    padding: 0.2in !important;
+    box-sizing: border-box !important;
   }
 
   .print-avoid-break {
