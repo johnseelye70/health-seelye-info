@@ -212,6 +212,16 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'Beta 2.7.0',
+      date: '2026-08-25',
+      title: '290+ Healthy Recipe Mega Library & High-Performance Catalog Browser',
+      changes: [
+        'Massive 290+ Healthy Recipe Library: Scaled the platform recipe collection to 290 complete healthy meals, snacks, and batch prep staples spanning all culinary cuisines and dietary profiles.',
+        'High-Performance Smooth Pagination: Implemented seamless 36-item incremental pagination with "Load More" and "Show All" controls for instant loading and zero lag across mobile and desktop.',
+        'Universal Kitchen Studio Compatibility: Every single one of the 290 recipes features precision US & Metric measurements, 1-tap grocery list sync, 1-tap meal logging, multi-batch yield scaling (1x-6x), and instant 4" x 6" index card / 8.5" x 11" letter print studio support.',
+      ],
+    },
+    {
       version: 'Beta 2.6.0',
       date: '2026-08-25',
       title: 'Massive Recipe Expansion & Sub-Category Architecture',
@@ -1330,7 +1340,7 @@ export const ProfileSettings: React.FC = () => {
             title="Click to open release changelog modal window"
           >
             <span className="w-2 h-2 rounded-full bg-brand-400 animate-pulse"></span>
-            <span>Active: Beta 2.6.0</span>
+            <span>Active: Beta 2.7.0</span>
             <ChevronRight className="w-3.5 h-3.5 text-brand-400 group-hover:translate-x-0.5 transition-transform" />
           </button>
         </div>

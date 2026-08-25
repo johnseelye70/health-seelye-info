@@ -1,37 +1,4 @@
-import { RecipeItem, RecipeCategory, RecipeSubCategory, RecipeSubCategoryMeta } from './types';
-
-export const RECIPE_SUB_CATEGORIES: RecipeSubCategoryMeta[] = [
-  // Breakfast
-  { id: 'high_protein_eggs', category: 'breakfast', name: 'Eggs & Scrambles', emoji: '🍳', description: 'High-protein omelets, scrambles, and breakfast skillets' },
-  { id: 'oats_pancakes', category: 'breakfast', name: 'Oats & Pancakes', emoji: '🥞', description: 'Protein-packed pancakes, overnight oats, and baked porridge' },
-  { id: 'smoothies_bowls', category: 'breakfast', name: 'Smoothies & Bowls', emoji: '🥤', description: 'Quick superfood shakes, protein fluffs, and yogurt bowls' },
-  { id: 'quick_grab_go', category: 'breakfast', name: 'Grab & Go', emoji: '🧁', description: 'Prep-ahead egg muffins, breakfast wraps, and sandwiches' },
-
-  // Lunch
-  { id: 'power_bowls', category: 'lunch', name: 'Power Bowls', emoji: '🥗', description: 'Macro-balanced grain, protein, and vegetable fuel bowls' },
-  { id: 'wraps_sandwiches', category: 'lunch', name: 'Wraps & Pockets', emoji: '🌯', description: 'Crisp wraps, loaded pita pockets, and panini sandwiches' },
-  { id: 'fresh_salads', category: 'lunch', name: 'Crisp Salads', emoji: '🥗', description: 'Hearty protein salads with homemade light vinaigrettes' },
-  { id: 'soups_chilis', category: 'lunch', name: 'Soups & Chilis', emoji: '🍲', description: 'Comforting, high-protein stews and hearty chilis' },
-
-  // Dinner
-  { id: 'poultry_dishes', category: 'dinner', name: 'Poultry & Chicken', emoji: '🍗', description: 'Air-fried cutlets, skillet chicken, and turkey entrees' },
-  { id: 'beef_steaks', category: 'dinner', name: 'Steaks & Sirloin', emoji: '🥩', description: 'Cast-iron seared steaks, lean beef roasts, and smash burgers' },
-  { id: 'seafood_fish', category: 'dinner', name: 'Seafood & Fish', emoji: '🐟', description: 'Omega-3 wild salmon, blackened mahi, shrimp, and cod' },
-  { id: 'pasta_comfort', category: 'dinner', name: 'Pastas & Bakes', emoji: '🍝', description: 'High-protein bolognese, cottage cheese alfredo, and lasagnas' },
-
-  // Bulk Meal Prep
-  { id: 'sheet_pan_meals', category: 'bulk_meal_prep', name: 'Sheet-Pan Preps', emoji: '🥘', description: '1-pan oven roasted proteins and vegetables for the week' },
-  { id: 'slow_cooker_instant_pot', category: 'bulk_meal_prep', name: 'Slow Cooker & Pot', emoji: '🍲', description: 'Set-and-forget shredded meats, curries, and carnitas' },
-  { id: 'casseroles_bakes', category: 'bulk_meal_prep', name: 'Casserole Bakes', emoji: '🥧', description: 'Hearty baked casseroles, shepherd pies, and enchilada bakes' },
-  { id: 'prepped_proteins_sides', category: 'bulk_meal_prep', name: 'Proteins & Grains', emoji: '🍚', description: 'Bulk batch grilled chicken, sweet potatoes, and brown rice' },
-
-  // Snacks & Desserts
-  { id: 'protein_bites_bars', category: 'snack_dessert', name: 'Bars & Bites', emoji: '🍫', description: 'No-bake protein balls, homemade bars, and energy bites' },
-  { id: 'sweet_treats', category: 'snack_dessert', name: 'Sweet Treats', emoji: '🍨', description: 'Anabolic protein fluff, yogurt bark, and mug cakes' },
-  { id: 'savory_crunch', category: 'snack_dessert', name: 'Savory Crunches', emoji: '🧆', description: 'Crispy chickpeas, edamame, and whipped cottage cheese dips' },
-];
-
-export const COMPREHENSIVE_RECIPE_DATABASE: RecipeItem[] = [
+[
   {
     "title": "Spinach, Feta & Sun-Dried Tomato Scramble",
     "description": "Fluffy whole egg and liquid egg white scramble with baby spinach, Greek feta, and sun-dried tomatoes.",
@@ -19468,4 +19435,4 @@ export const COMPREHENSIVE_RECIPE_DATABASE: RecipeItem[] = [
     "chef_notes": "Prepping the roasted turkey tenderloin cutlets in advance cuts total cook time down to under 10 minutes for fast weekday fuel.",
     "id": "recipe-mediterranean-roasted-turkey-tenderloin-cutlets-hearty-protein-stew"
   }
-];
+]

@@ -72,6 +72,9 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
   const [customRecipes, setCustomRecipes] = useState<RecipeItem[]>([]);
   const [checkedIngredients, setCheckedIngredients] = useState<Record<number, boolean>>({});
 
+  // Smooth pagination for 290+ recipe catalog
+  const [visibleLimit, setVisibleLimit] = useState<number>(36);
+
   // Athlete Mode: Batch Scaler Multiplier (1x, 2x, 4x, 6x)
   const [batchMultiplier, setBatchMultiplier] = useState<number>(1);
 
@@ -980,7 +983,7 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
             <p className="text-xs text-zinc-500 mt-1">Try clearing filters or search query.</p>
           </div>
         ) : (
-          filteredRecipes.map((recipe) => {
+          filteredRecipes.slice(0, visibleLimit).map((recipe) => {
             const subMeta = RECIPE_SUB_CATEGORIES.find((s) => s.id === recipe.sub_category);
 
             return (
@@ -1157,6 +1160,32 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
           })
         )}
       </div>
+
+      {/* Pagination & Load More Controls */}
+      {filteredRecipes.length > visibleLimit && (
+        <div className="p-4 rounded-2xl bg-surface-200/60 border border-surface-border flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
+          <div className="text-xs text-zinc-400 font-mono">
+            Showing <strong className="text-foreground">{Math.min(visibleLimit, filteredRecipes.length)}</strong> of <strong className="text-brand-400">{filteredRecipes.length}</strong> recipes
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setVisibleLimit((prev) => prev + 36)}
+              className="px-5 py-2 rounded-xl bg-brand-500 hover:bg-brand-400 text-zinc-950 font-bold text-xs shadow-glow transition-all active:scale-95 cursor-pointer"
+            >
+              Load 36 More Recipes (+36)
+            </button>
+            <button
+              type="button"
+              onClick={() => setVisibleLimit(filteredRecipes.length)}
+              className="px-4 py-2 rounded-xl bg-surface-300 hover:bg-surface-100 text-zinc-300 hover:text-foreground font-bold text-xs border border-surface-border transition-all active:scale-95 cursor-pointer"
+            >
+              Show All ({filteredRecipes.length})
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Custom Recipe Modal Popup Window (Athlete Mode) */}
       <CustomRecipeModal
