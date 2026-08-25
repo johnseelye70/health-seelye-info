@@ -239,23 +239,10 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
             setProfile(prof);
           }
 
-          if (parsed.foods && Array.isArray(parsed.foods) && parsed.foods.length >= DEFAULT_FOODS.length) {
-            setFoods(
-              parsed.foods.map((f: FoodItem) => {
-                const defaultMatch = DEFAULT_FOODS.find((df) => df.id === f.id);
-                return {
-                  ...f,
-                  category: normalizeFoodCategory(f.category),
-                  sub_category: f.sub_category || defaultMatch?.sub_category,
-                };
-              })
-            );
-          } else {
-            const customFoods = (parsed.foods || []).filter(
-              (f: FoodItem) => !DEFAULT_FOODS.some((df) => df.id === f.id)
-            );
-            setFoods([...DEFAULT_FOODS, ...customFoods]);
-          }
+          const customFoods = (parsed.foods && Array.isArray(parsed.foods))
+            ? parsed.foods.filter((f: FoodItem) => f.id.startsWith('cf-') || (!DEFAULT_FOODS.some((df) => df.id === f.id) && !f.id.includes('-v')))
+            : [];
+          setFoods([...DEFAULT_FOODS, ...customFoods]);
 
           if (parsed.foodLogs) setFoodLogs(parsed.foodLogs);
           if (parsed.workoutPlan) setWorkoutPlan(parsed.workoutPlan);

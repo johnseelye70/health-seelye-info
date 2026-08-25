@@ -212,6 +212,17 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'Beta 2.17.0',
+      date: '2026-08-25',
+      title: 'Realistic Master Food Database Overhaul & Multi-Category Expansion',
+      changes: [
+        'Eliminated Synthetic Multipliers & Artificial Suffixes: Purged all 22 artificial cooking variations and duplicate permutations (e.g. "(Air-Fried Crisp)", "(Meal-Prep Steamed)") across the entire food catalog.',
+        '1,000+ Distinct Authentic Whole Foods: Expanded master food catalog across 10 complete nutritional domains to 1,012 genuine grocery staples, fresh cuts, wild seafood species, heirloom grains, artisan breads, real produce, and pantry essentials with 0 synthetic duplicates.',
+        'Clean Canonical State Hydration: Upgraded HealthContext local storage loader to automatically synchronize canonical authentic food items while flawlessly preserving custom user foods.',
+        'Realistic Multi-Variety Search: Searching common foods (e.g. Strawberries, Bananas, Apples, Eggs, Salmon, Oats) now returns concise, authentic grocery varieties (fresh, frozen, freeze-dried, organic) with zero redundant permutations.',
+      ],
+    },
+    {
       version: 'Beta 2.16.0',
       date: '2026-08-25',
       title: 'High-Contrast Search Readability & Instant Debounced Filtering Engine',
@@ -1443,7 +1454,7 @@ export const ProfileSettings: React.FC = () => {
             title="Click to open release changelog modal window"
           >
             <span className="w-2 h-2 rounded-full bg-brand-400 animate-pulse"></span>
-            <span>Active: Beta 2.16.0</span>
+            <span>Active: Beta 2.17.0</span>
             <ChevronRight className="w-3.5 h-3.5 text-brand-400 group-hover:translate-x-0.5 transition-transform" />
           </button>
         </div>
