@@ -212,6 +212,16 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'Beta 2.8.0',
+      date: '2026-08-25',
+      title: 'Dynamic Ingredient Swapping Engine & Live Macro Recalculation',
+      changes: [
+        'Dynamic Ingredient Swapping: For any ingredient in any recipe, instantly swap out items with 1-tap recommended alternatives (e.g. 2% Milk ↔ Whole Milk ↔ Almond Milk ↔ Fairlife, Chicken Breast ↔ Flank Steak ↔ Salmon ↔ Tofu) or browse whole foods across any category (e.g. Green Beans ↔ Asparagus ↔ Broccoli).',
+        'Live Automatic Macro & Stats Recalculation: Swapping any ingredient automatically recalculates Calories, Protein (g), Carbs (g), and Fat (g) in real-time with visual delta badges.',
+        'Seamless Platform Integration: 1-Tap Meal Logging, 1-Tap Grocery List Sync, and 4" x 6" Card / 8.5" x 11" Letter Print Previews all dynamically consume the exact customized ingredients and updated macros.',
+      ],
+    },
+    {
       version: 'Beta 2.7.0',
       date: '2026-08-25',
       title: '290+ Healthy Recipe Mega Library & High-Performance Catalog Browser',
@@ -1340,7 +1350,7 @@ export const ProfileSettings: React.FC = () => {
             title="Click to open release changelog modal window"
           >
             <span className="w-2 h-2 rounded-full bg-brand-400 animate-pulse"></span>
-            <span>Active: Beta 2.7.0</span>
+            <span>Active: Beta 2.8.0</span>
             <ChevronRight className="w-3.5 h-3.5 text-brand-400 group-hover:translate-x-0.5 transition-transform" />
           </button>
         </div>

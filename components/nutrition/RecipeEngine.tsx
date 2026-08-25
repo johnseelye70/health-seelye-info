@@ -2,8 +2,21 @@
 
 import React, { useState, useMemo } from 'react';
 import { useHealth } from '@/context/HealthContext';
-import { RecipeItem, RecipeCategory, RecipeSubCategory, FoodItem, UnitPreference } from '@/lib/types';
+import {
+  RecipeItem,
+  RecipeCategory,
+  RecipeSubCategory,
+  RecipeIngredient,
+  RecipeIngredientSwapOption,
+  FoodItem,
+  UnitPreference,
+} from '@/lib/types';
 import { COMPREHENSIVE_RECIPE_DATABASE, RECIPE_SUB_CATEGORIES } from '@/lib/recipe-database';
+import {
+  getSmartSwapsForIngredient,
+  getCategoryFoodAlternatives,
+  calculateCustomizedRecipe,
+} from '@/lib/recipe-swap-engine';
 import { CustomRecipeModal } from './CustomRecipeModal';
 import {
   UtensilsCrossed,
@@ -25,7 +38,11 @@ import {
   CreditCard,
   FileText,
   Filter,
-  Tag,
+  RefreshCw,
+  Repeat,
+  SlidersHorizontal,
+  Info,
+  RotateCcw,
 } from 'lucide-react';
 
 interface RecipeEngineProps {
@@ -41,12 +58,7 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
   onClose,
   isModal = true,
 }) => {
-  const {
-    profile,
-    experienceMode,
-    logFood,
-    addGroceryItem,
-  } = useHealth();
+  const { profile, experienceMode, logFood, addGroceryItem } = useHealth();
 
   const isSimple = experienceMode === 'simple';
   const isImperial = profile.unit_preference === 'imperial';
@@ -58,10 +70,15 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
   const [selectedCategory, setSelectedCategory] = useState<RecipeCategory>('all');
   const [selectedSubCategory, setSelectedSubCategory] = useState<RecipeSubCategory | 'all'>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
-  
+
   // Selected recipe for 100% Inline Detail View
   const [selectedRecipeDetail, setSelectedRecipeDetail] = useState<RecipeItem | null>(null);
-  
+
+  // Dynamic Ingredient Swaps State (keyed by ingredient index in selected recipe)
+  const [activeSwaps, setActiveSwaps] = useState<Record<number, RecipeIngredientSwapOption>>({});
+  const [openSwapIndex, setOpenSwapIndex] = useState<number | null>(null);
+  const [categorySearchQuery, setCategorySearchQuery] = useState<string>('');
+
   // Selected recipe for Dedicated Print Preview Studio
   const [recipeForPrintPreview, setRecipeForPrintPreview] = useState<RecipeItem | null>(null);
   const [printFormat, setPrintFormat] = useState<PrintFormat>('index_card_4x6');
@@ -71,9 +88,6 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
   const [showCustomModal, setShowCustomModal] = useState<boolean>(false);
   const [customRecipes, setCustomRecipes] = useState<RecipeItem[]>([]);
   const [checkedIngredients, setCheckedIngredients] = useState<Record<number, boolean>>({});
-
-  // Smooth pagination for 290+ recipe catalog
-  const [visibleLimit, setVisibleLimit] = useState<number>(36);
 
   // Athlete Mode: Batch Scaler Multiplier (1x, 2x, 4x, 6x)
   const [batchMultiplier, setBatchMultiplier] = useState<number>(1);
@@ -97,10 +111,8 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
   // Filtered recipes
   const filteredRecipes = useMemo(() => {
     return allRecipes.filter((recipe) => {
-      const matchesCat =
-        selectedCategory === 'all' || recipe.category === selectedCategory;
-      const matchesSubCat =
-        selectedSubCategory === 'all' || recipe.sub_category === selectedSubCategory;
+      const matchesCat = selectedCategory === 'all' || recipe.category === selectedCategory;
+      const matchesSubCat = selectedSubCategory === 'all' || recipe.sub_category === selectedSubCategory;
       const matchesQuery =
         searchQuery.trim() === '' ||
         recipe.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -133,6 +145,12 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
       setActionSuccessMsg((prev) => (prev?.id === recipeId ? null : prev));
     }, 3500);
   };
+
+  // Compute live customized recipe with all ingredient swaps and batch multiplier applied
+  const customizedDetailRecipe = useMemo(() => {
+    if (!selectedRecipeDetail) return null;
+    return calculateCustomizedRecipe(selectedRecipeDetail, activeSwaps, batchMultiplier);
+  }, [selectedRecipeDetail, activeSwaps, batchMultiplier]);
 
   // 1-Tap Log Meal
   const handleLogRecipe = (recipe: RecipeItem, mealIndex: number = 1) => {
@@ -173,8 +191,7 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
     let countAdded = 0;
     recipe.ingredients.forEach((ing) => {
       const baseMeasure = isImperial ? ing.amount_imperial : ing.amount_metric;
-      const scaledMeasure =
-        multiplier > 1 ? `${multiplier}x (${baseMeasure})` : baseMeasure;
+      const scaledMeasure = multiplier > 1 ? `${multiplier}x (${baseMeasure})` : baseMeasure;
 
       addGroceryItem({
         item_name: ing.name,
@@ -184,7 +201,7 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
         department: ing.department || 'produce',
         is_checked: false,
         in_pantry: false,
-        notes: `For ${recipe.title} (${scaledMeasure})`,
+        notes: `For ${recipe.title} (${scaledMeasure})${ing.notes ? ` - ${ing.notes}` : ''}`,
       });
       countAdded++;
     });
@@ -227,7 +244,7 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
               className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-surface-300 hover:bg-surface-100 border border-surface-border text-xs font-bold text-zinc-300 hover:text-foreground cursor-pointer transition-all shadow-sm active:scale-95"
             >
               <ArrowLeft className="w-4 h-4" />
-              <span>← Back</span>
+              <span>← Back to Recipe</span>
             </button>
 
             <div>
@@ -236,7 +253,7 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
                 <span>Recipe Print Preview Studio</span>
               </h2>
               <p className="text-[11px] text-zinc-400">
-                Preview exact output for physical kitchen cards or standard letter binder sheets
+                Preview exact output with your active ingredient swaps and custom macro totals
               </p>
             </div>
           </div>
@@ -521,8 +538,10 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
     );
   };
 
-  // View: 100% INLINE Recipe Detail View
-  const renderInlineRecipeDetail = (detailRecipe: RecipeItem) => {
+  // View: 100% INLINE Recipe Detail View with Live Ingredient Swapping & Macro Recalculation
+  const renderInlineRecipeDetail = (baseRecipe: RecipeItem) => {
+    if (!customizedDetailRecipe) return null;
+    const detailRecipe = customizedDetailRecipe;
     const detailCalories = detailRecipe.calories_per_serving * batchMultiplier;
 
     return (
@@ -531,7 +550,11 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
         <div className="flex items-center justify-between gap-4 flex-wrap pb-2 border-b border-surface-border">
           <button
             type="button"
-            onClick={() => setSelectedRecipeDetail(null)}
+            onClick={() => {
+              setSelectedRecipeDetail(null);
+              setActiveSwaps({});
+              setOpenSwapIndex(null);
+            }}
             className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-surface-200 hover:bg-surface-300 border border-surface-border text-xs font-bold text-zinc-300 hover:text-foreground cursor-pointer transition-all shadow-sm active:scale-95"
           >
             <ArrowLeft className="w-4 h-4" />
@@ -539,6 +562,21 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
           </button>
 
           <div className="flex items-center gap-2">
+            {detailRecipe.hasSwaps && (
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveSwaps({});
+                  setOpenSwapIndex(null);
+                }}
+                className="flex items-center gap-1.5 px-3 py-2 rounded-2xl bg-brand-500/10 hover:bg-brand-500/20 text-brand-300 border border-brand-500/30 text-xs font-bold cursor-pointer transition-all active:scale-95"
+                title="Reset all ingredients to original recipe"
+              >
+                <RotateCcw className="w-3.5 h-3.5" />
+                <span>Reset Swaps</span>
+              </button>
+            )}
+
             <button
               type="button"
               onClick={() => handleOpenPrintPreview(detailRecipe, batchMultiplier)}
@@ -571,6 +609,12 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
                 {detailRecipe.sub_category.replace(/_/g, ' ')}
               </span>
             )}
+            {detailRecipe.hasSwaps && (
+              <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center gap-1 animate-pulse">
+                <Sparkles className="w-3 h-3" />
+                <span>{detailRecipe.swapCount} Custom Swap{detailRecipe.swapCount > 1 ? 's' : ''} Active</span>
+              </span>
+            )}
             {detailRecipe.tags.map((tag, idx) => (
               <span
                 key={idx}
@@ -598,6 +642,11 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
             <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-surface-300 border border-surface-border text-brand-400 font-bold">
               <Flame className="w-3.5 h-3.5" />
               <span>{detailRecipe.calories_per_serving} kcal / serving</span>
+              {detailRecipe.hasSwaps && detailRecipe.macroDeltas.calories !== 0 && (
+                <span className={`text-[10px] ml-1 ${detailRecipe.macroDeltas.calories < 0 ? 'text-emerald-400' : 'text-amber-400'}`}>
+                  ({detailRecipe.macroDeltas.calories > 0 ? '+' : ''}{detailRecipe.macroDeltas.calories} kcal)
+                </span>
+              )}
             </div>
 
             <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-surface-300 border border-surface-border">
@@ -642,34 +691,49 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
           </div>
         </div>
 
-        {/* Macronutrient Profile */}
+        {/* Macronutrient Profile with Live Swapped Deltas */}
         <div className="p-4 sm:p-6 rounded-2xl bg-surface-200/50 border border-surface-border space-y-2">
           <div className="flex items-center justify-between text-xs font-mono">
-            <span className="text-zinc-400">Macronutrient Breakdown (Per Serving):</span>
+            <span className="text-zinc-400">Live Macronutrient Breakdown (Per Serving):</span>
             <span className="font-bold text-brand-400">{detailRecipe.calories_per_serving} kcal</span>
           </div>
           <div className="grid grid-cols-3 gap-2 text-center text-xs font-mono">
             <div className="p-2.5 rounded-xl bg-surface-300/80 border border-surface-border/50">
               <span className="text-brand-400 font-black text-sm">{detailRecipe.protein_g_per_serving}g</span>
               <span className="text-zinc-400 block text-[10px] uppercase font-sans mt-0.5">Protein</span>
+              {detailRecipe.hasSwaps && detailRecipe.macroDeltas.protein !== 0 && (
+                <span className={`text-[10px] ${detailRecipe.macroDeltas.protein > 0 ? 'text-emerald-400 font-bold' : 'text-zinc-500'}`}>
+                  {detailRecipe.macroDeltas.protein > 0 ? '+' : ''}{detailRecipe.macroDeltas.protein}g
+                </span>
+              )}
             </div>
             <div className="p-2.5 rounded-xl bg-surface-300/80 border border-surface-border/50">
               <span className="text-cyan-400 font-black text-sm">{detailRecipe.carbs_g_per_serving}g</span>
               <span className="text-zinc-400 block text-[10px] uppercase font-sans mt-0.5">Carbohydrates</span>
+              {detailRecipe.hasSwaps && detailRecipe.macroDeltas.carbs !== 0 && (
+                <span className={`text-[10px] ${detailRecipe.macroDeltas.carbs < 0 ? 'text-emerald-400 font-bold' : 'text-zinc-500'}`}>
+                  {detailRecipe.macroDeltas.carbs > 0 ? '+' : ''}{detailRecipe.macroDeltas.carbs}g
+                </span>
+              )}
             </div>
             <div className="p-2.5 rounded-xl bg-surface-300/80 border border-surface-border/50">
               <span className="text-amber-400 font-black text-sm">{detailRecipe.fat_g_per_serving}g</span>
               <span className="text-zinc-400 block text-[10px] uppercase font-sans mt-0.5">Healthy Fats</span>
+              {detailRecipe.hasSwaps && detailRecipe.macroDeltas.fat !== 0 && (
+                <span className={`text-[10px] ${detailRecipe.macroDeltas.fat < 0 ? 'text-emerald-400 font-bold' : 'text-zinc-500'}`}>
+                  {detailRecipe.macroDeltas.fat > 0 ? '+' : ''}{detailRecipe.macroDeltas.fat}g
+                </span>
+              )}
             </div>
           </div>
         </div>
 
-        {/* Ingredients Checklist */}
+        {/* Dynamic Ingredients Checklist with Interactive Swap Studio */}
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-bold text-foreground uppercase tracking-wider flex items-center gap-2">
               <UtensilsCrossed className="w-4 h-4 text-brand-400" />
-              <span>Ingredients ({isImperial ? 'Standard Culinary Measures' : 'Metric Measures'})</span>
+              <span>Ingredients & Smart Swaps ({isImperial ? 'Standard Culinary Measures' : 'Metric Measures'})</span>
             </h3>
             {batchMultiplier > 1 && (
               <span className="text-[11px] font-mono text-brand-400 font-bold bg-brand-500/10 px-2 py-0.5 rounded-full border border-brand-500/20">
@@ -678,54 +742,225 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
             )}
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-            {detailRecipe.ingredients.map((ing, idx) => {
-              const rawMeasure = isImperial ? ing.amount_imperial : ing.amount_metric;
+          <p className="text-[11px] text-zinc-400">
+            Click <strong>🔁 Swap</strong> on any ingredient to customize dairy (e.g. 2% vs Whole vs Almond Milk), proteins, or vegetables with automatic live macro recalculation!
+          </p>
+
+          <div className="space-y-3">
+            {baseRecipe.ingredients.map((originalIng, idx) => {
+              const currentIng = detailRecipe.ingredients[idx];
+              const isSwapped = !!activeSwaps[idx];
+              const isDrawerOpen = openSwapIndex === idx;
+
+              const rawMeasure = isImperial ? currentIng.amount_imperial : currentIng.amount_metric;
               let displayMeasure = rawMeasure;
 
-              if (batchMultiplier > 1 && ing.raw_weight_grams_base) {
-                const totalGrams = ing.raw_weight_grams_base * batchMultiplier;
+              if (batchMultiplier > 1 && currentIng.raw_weight_grams_base) {
+                const totalGrams = currentIng.raw_weight_grams_base * batchMultiplier;
                 const totalOz = (totalGrams * 0.03527).toFixed(1);
-                displayMeasure = isImperial
-                  ? `${totalOz} oz (${totalGrams}g)`
-                  : `${totalGrams}g`;
+                displayMeasure = isImperial ? `${totalOz} oz (${totalGrams}g)` : `${totalGrams}g`;
               } else if (batchMultiplier > 1) {
                 displayMeasure = `${batchMultiplier}x (${rawMeasure})`;
               }
 
               const isChecked = checkedIngredients[idx];
+              const smartSwaps = getSmartSwapsForIngredient(originalIng);
+              const categorySwaps = getCategoryFoodAlternatives(originalIng.food_category || 'vegetables', originalIng.name);
 
               return (
                 <div
                   key={idx}
-                  onClick={() => {
-                    setCheckedIngredients((prev) => ({
-                      ...prev,
-                      [idx]: !prev[idx],
-                    }));
-                  }}
-                  className={`p-3 rounded-2xl border transition-all cursor-pointer flex items-center justify-between gap-3 ${
-                    isChecked
-                      ? 'bg-brand-500/10 border-brand-500/30 text-zinc-400 line-through'
-                      : 'bg-surface-200/70 border-surface-border text-foreground hover:border-zinc-700'
+                  className={`rounded-2xl border transition-all overflow-hidden ${
+                    isSwapped
+                      ? 'border-brand-500/60 bg-brand-500/5 shadow-sm'
+                      : 'bg-surface-200/70 border-surface-border'
                   }`}
                 >
-                  <div className="flex items-center gap-2.5 min-w-0">
+                  {/* Ingredient Row */}
+                  <div className="p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <div
-                      className={`w-5 h-5 rounded-lg border flex items-center justify-center shrink-0 transition-colors ${
-                        isChecked
-                          ? 'bg-brand-500 border-brand-500 text-zinc-950'
-                          : 'border-zinc-600 bg-surface-300'
-                      }`}
+                      onClick={() => {
+                        setCheckedIngredients((prev) => ({
+                          ...prev,
+                          [idx]: !prev[idx],
+                        }));
+                      }}
+                      className="flex items-center gap-2.5 min-w-0 cursor-pointer flex-1"
                     >
-                      {isChecked && <Check className="w-3.5 h-3.5 stroke-[3]" />}
+                      <div
+                        className={`w-5 h-5 rounded-lg border flex items-center justify-center shrink-0 transition-colors ${
+                          isChecked
+                            ? 'bg-brand-500 border-brand-500 text-zinc-950'
+                            : 'border-zinc-600 bg-surface-300'
+                        }`}
+                      >
+                        {isChecked && <Check className="w-3.5 h-3.5 stroke-[3]" />}
+                      </div>
+
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className={`font-bold text-xs sm:text-sm text-foreground ${isChecked ? 'line-through text-zinc-500' : ''}`}>
+                            {currentIng.name}
+                          </span>
+                          {isSwapped && (
+                            <span className="px-2 py-0.2 rounded-full text-[10px] font-bold bg-brand-500/20 text-brand-300 border border-brand-500/40">
+                              Swapped from {originalIng.name}
+                            </span>
+                          )}
+                        </div>
+                        {currentIng.notes && (
+                          <p className="text-[11px] text-zinc-400 italic">{currentIng.notes}</p>
+                        )}
+                      </div>
                     </div>
-                    <span className="font-medium truncate">{ing.name}</span>
+
+                    {/* Right Side: Quantity & Swap Action */}
+                    <div className="flex items-center justify-between sm:justify-end gap-3 shrink-0">
+                      <span className="font-mono text-xs font-bold text-brand-400">
+                        {displayMeasure}
+                      </span>
+
+                      <div className="flex items-center gap-1.5">
+                        {isSwapped && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setActiveSwaps((prev) => {
+                                const copy = { ...prev };
+                                delete copy[idx];
+                                return copy;
+                              });
+                            }}
+                            className="p-1.5 rounded-xl bg-surface-300 hover:bg-surface-100 text-zinc-400 hover:text-foreground text-xs transition-all cursor-pointer"
+                            title={`Revert to ${originalIng.name}`}
+                          >
+                            <RotateCcw className="w-3.5 h-3.5" />
+                          </button>
+                        )}
+
+                        <button
+                          type="button"
+                          onClick={() => setOpenSwapIndex(isDrawerOpen ? null : idx)}
+                          className={`px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+                            isDrawerOpen
+                              ? 'bg-brand-500 text-zinc-950 shadow-glow'
+                              : isSwapped
+                              ? 'bg-brand-500/20 text-brand-300 border border-brand-500/40 hover:bg-brand-500/30'
+                              : 'bg-surface-300 hover:bg-surface-100 text-zinc-300 hover:text-foreground border border-surface-border'
+                          }`}
+                        >
+                          <Repeat className="w-3.5 h-3.5" />
+                          <span>{isSwapped ? 'Change Swap' : 'Swap'}</span>
+                        </button>
+                      </div>
+                    </div>
                   </div>
 
-                  <span className="font-mono text-xs font-bold text-brand-400 shrink-0">
-                    {displayMeasure}
-                  </span>
+                  {/* Inline Swap Studio Accordion */}
+                  {isDrawerOpen && (
+                    <div className="p-4 bg-surface-100/95 border-t border-surface-border/80 space-y-4 animate-fadeIn">
+                      {/* Section 1: Recommended Direct Swaps */}
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="font-bold text-zinc-300 uppercase tracking-wider flex items-center gap-1.5">
+                            <Sparkles className="w-3.5 h-3.5 text-brand-400" />
+                            <span>Recommended Options for {originalIng.name}:</span>
+                          </span>
+                          <span className="text-[11px] text-zinc-400">1-Tap to apply</span>
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                          {smartSwaps.map((opt, sIdx) => {
+                            const isCurrentSwap = activeSwaps[idx]?.name === opt.name;
+                            const isOriginalMatch = originalIng.name.toLowerCase() === opt.name.toLowerCase();
+
+                            return (
+                              <button
+                                key={sIdx}
+                                type="button"
+                                onClick={() => {
+                                  if (isOriginalMatch) {
+                                    setActiveSwaps((prev) => {
+                                      const copy = { ...prev };
+                                      delete copy[idx];
+                                      return copy;
+                                    });
+                                  } else {
+                                    setActiveSwaps((prev) => ({
+                                      ...prev,
+                                      [idx]: opt,
+                                    }));
+                                  }
+                                  setOpenSwapIndex(null);
+                                }}
+                                className={`p-2.5 rounded-xl border text-left flex flex-col justify-between gap-1 transition-all cursor-pointer ${
+                                  isCurrentSwap || (isOriginalMatch && !isSwapped)
+                                    ? 'border-brand-500 bg-brand-500/15 shadow-sm'
+                                    : 'border-surface-border bg-surface-200/80 hover:bg-surface-300 hover:border-zinc-600'
+                                }`}
+                              >
+                                <div className="flex items-center justify-between gap-2">
+                                  <span className="font-bold text-xs text-foreground truncate">
+                                    {opt.name}
+                                  </span>
+                                  {opt.tag && (
+                                    <span className="text-[9px] px-1.5 py-0.2 rounded-full font-semibold bg-brand-500/20 text-brand-300 border border-brand-500/30 whitespace-nowrap">
+                                      {opt.tag}
+                                    </span>
+                                  )}
+                                </div>
+
+                                <div className="flex items-center justify-between text-[10px] font-mono text-zinc-400">
+                                  <span>{isImperial ? opt.amount_imperial : opt.amount_metric}</span>
+                                  <span className="text-brand-400 font-bold">
+                                    {opt.calories} kcal • {opt.protein_g}g P • {opt.carbs_g}g C • {opt.fat_g}g F
+                                  </span>
+                                </div>
+
+                                {opt.reason && (
+                                  <div className="text-[10px] text-zinc-500 italic mt-0.5 line-clamp-1">
+                                    {opt.reason}
+                                  </div>
+                                )}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+
+                      {/* Section 2: Broader Category Swaps */}
+                      {categorySwaps.length > 0 && (
+                        <div className="space-y-2 pt-2 border-t border-surface-border/60">
+                          <div className="text-xs font-bold text-zinc-400 uppercase tracking-wider flex items-center gap-1.5">
+                            <SlidersHorizontal className="w-3.5 h-3.5 text-accent-cyan" />
+                            <span>Browse All Foods from this Category:</span>
+                          </div>
+
+                          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                            {categorySwaps.map((catOpt, cIdx) => (
+                              <button
+                                key={cIdx}
+                                type="button"
+                                onClick={() => {
+                                  setActiveSwaps((prev) => ({
+                                    ...prev,
+                                    [idx]: catOpt,
+                                  }));
+                                  setOpenSwapIndex(null);
+                                }}
+                                className="p-2 rounded-xl border border-surface-border bg-surface-200/50 hover:bg-surface-300 hover:border-brand-500/40 text-left transition-all cursor-pointer"
+                              >
+                                <div className="text-xs font-bold text-foreground truncate">{catOpt.name}</div>
+                                <div className="text-[10px] font-mono text-brand-400 mt-0.5">
+                                  {catOpt.calories} kcal • {catOpt.protein_g}g P
+                                </div>
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               );
             })}
@@ -768,7 +1003,11 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
         <div className="p-4 sm:p-5 rounded-2xl border border-surface-border bg-surface-200 flex flex-col sm:flex-row items-center justify-between gap-3">
           <button
             type="button"
-            onClick={() => setSelectedRecipeDetail(null)}
+            onClick={() => {
+              setSelectedRecipeDetail(null);
+              setActiveSwaps({});
+              setOpenSwapIndex(null);
+            }}
             className="w-full sm:w-auto px-4 py-2.5 rounded-2xl bg-surface-300 hover:bg-surface-100 border border-surface-border text-xs font-bold text-zinc-300 hover:text-foreground flex items-center justify-center gap-2 transition-all active:scale-95 cursor-pointer shadow-sm"
           >
             <ArrowLeft className="w-4 h-4" />
@@ -836,8 +1075,8 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
           </h2>
           <p className="text-xs sm:text-sm text-zinc-400 max-w-2xl">
             {isSimple
-              ? 'Delicious, balanced meals crafted with real ingredients. Use standard kitchen measurements (cups, tablespoons, ounces) and log with 1 click.'
-              : 'Precision macro recipes with batch meal prep scaling (1x, 2x, 4x, 6x), per-serving MPS breakdowns, and custom recipe builder.'}
+              ? 'Distinct, chef-crafted meals with instant ingredient swapping (e.g. 2% vs Whole milk, asparagus vs green beans) with live updated nutritional stats!'
+              : 'Precision macro recipes with batch meal prep scaling (1x, 2x, 4x, 6x), per-serving MPS breakdowns, live ingredient swapping, and custom recipe builder.'}
           </p>
         </div>
 
@@ -879,9 +1118,11 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
               >
                 <span>{cat.emoji}</span>
                 <span>{cat.label}</span>
-                <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono ${
-                  isSelected ? 'bg-zinc-950/20 text-zinc-950' : 'bg-surface-300 text-zinc-500'
-                }`}>
+                <span
+                  className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono ${
+                    isSelected ? 'bg-zinc-950/20 text-zinc-950' : 'bg-surface-300 text-zinc-500'
+                  }`}
+                >
                   {count}
                 </span>
               </button>
@@ -896,7 +1137,7 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search ingredients, subcategory..."
+            placeholder="Search ingredients, recipes..."
             className="w-full pl-9 pr-8 py-2 rounded-xl bg-surface-200/80 border border-surface-border text-xs text-zinc-100 placeholder:text-zinc-500 focus:outline-none focus:border-brand-500/50"
           />
           {searchQuery && (
@@ -947,9 +1188,11 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
               >
                 <span>{sub.emoji}</span>
                 <span>{sub.name}</span>
-                <span className={`text-[10px] px-1 rounded-full font-mono ${
-                  isSubSelected ? 'bg-zinc-950/20 text-zinc-950' : 'bg-surface-200 text-zinc-500'
-                }`}>
+                <span
+                  className={`text-[10px] px-1 rounded-full font-mono ${
+                    isSubSelected ? 'bg-zinc-950/20 text-zinc-950' : 'bg-surface-200 text-zinc-500'
+                  }`}
+                >
                   {subCount}
                 </span>
               </button>
@@ -965,10 +1208,7 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
             <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
             <span>{actionSuccessMsg.text}</span>
           </div>
-          <button
-            onClick={() => setActionSuccessMsg(null)}
-            className="text-emerald-400 hover:text-emerald-200 p-1"
-          >
+          <button onClick={() => setActionSuccessMsg(null)} className="text-emerald-400 hover:text-emerald-200 p-1">
             <X className="w-3.5 h-3.5" />
           </button>
         </div>
@@ -983,7 +1223,7 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
             <p className="text-xs text-zinc-500 mt-1">Try clearing filters or search query.</p>
           </div>
         ) : (
-          filteredRecipes.slice(0, visibleLimit).map((recipe) => {
+          filteredRecipes.map((recipe) => {
             const subMeta = RECIPE_SUB_CATEGORIES.find((s) => s.id === recipe.sub_category);
 
             return (
@@ -1026,9 +1266,13 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
 
                   {/* Title & Description */}
                   <h3
-                    onClick={() => setSelectedRecipeDetail(recipe)}
+                    onClick={() => {
+                      setSelectedRecipeDetail(recipe);
+                      setActiveSwaps({});
+                      setOpenSwapIndex(null);
+                    }}
                     className="text-base font-bold text-white group-hover:text-brand-300 transition-colors leading-snug line-clamp-1 cursor-pointer"
-                    title="Click to view recipe details"
+                    title="Click to view recipe details and customize ingredient swaps"
                   >
                     {recipe.title}
                   </h3>
@@ -1061,7 +1305,7 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
                     <div className="text-xs font-bold text-zinc-300 flex items-center justify-between">
                       <span>Key Ingredients:</span>
                       <span className="text-[10px] text-brand-400 font-normal">
-                        {recipe.ingredients.length} items
+                        {recipe.ingredients.length} items (Swappable)
                       </span>
                     </div>
 
@@ -1082,10 +1326,14 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
                       })}
                       {recipe.ingredients.length > 3 && (
                         <div
-                          onClick={() => setSelectedRecipeDetail(recipe)}
+                          onClick={() => {
+                            setSelectedRecipeDetail(recipe);
+                            setActiveSwaps({});
+                            setOpenSwapIndex(null);
+                          }}
                           className="text-[11px] text-brand-400 hover:underline cursor-pointer pt-0.5 text-center font-medium"
                         >
-                          + {recipe.ingredients.length - 3} more ingredients (View Recipe)
+                          + {recipe.ingredients.length - 3} more items • Click to Customize Swaps
                         </div>
                       )}
                     </div>
@@ -1097,11 +1345,15 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
                   {/* View Recipe Button (100% Inline Detail Transition) */}
                   <button
                     type="button"
-                    onClick={() => setSelectedRecipeDetail(recipe)}
+                    onClick={() => {
+                      setSelectedRecipeDetail(recipe);
+                      setActiveSwaps({});
+                      setOpenSwapIndex(null);
+                    }}
                     className="text-xs font-bold text-brand-400 hover:text-brand-300 flex items-center gap-1 cursor-pointer self-start sm:self-auto py-1"
                   >
                     <BookOpen className="w-3.5 h-3.5" />
-                    <span>View Recipe</span>
+                    <span>View & Customize</span>
                   </button>
 
                   <div className="flex items-center gap-2 w-full sm:w-auto">
@@ -1124,7 +1376,7 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
                       title="Add all ingredients to shopping list"
                     >
                       <ShoppingCart className="w-3.5 h-3.5 text-accent-cyan" />
-                      <span>+ Grocery List</span>
+                      <span>+ Grocery</span>
                     </button>
 
                     {/* Simple Mode: 1-Tap Cooked This Meal */}
@@ -1160,32 +1412,6 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
           })
         )}
       </div>
-
-      {/* Pagination & Load More Controls */}
-      {filteredRecipes.length > visibleLimit && (
-        <div className="p-4 rounded-2xl bg-surface-200/60 border border-surface-border flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
-          <div className="text-xs text-zinc-400 font-mono">
-            Showing <strong className="text-foreground">{Math.min(visibleLimit, filteredRecipes.length)}</strong> of <strong className="text-brand-400">{filteredRecipes.length}</strong> recipes
-          </div>
-
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => setVisibleLimit((prev) => prev + 36)}
-              className="px-5 py-2 rounded-xl bg-brand-500 hover:bg-brand-400 text-zinc-950 font-bold text-xs shadow-glow transition-all active:scale-95 cursor-pointer"
-            >
-              Load 36 More Recipes (+36)
-            </button>
-            <button
-              type="button"
-              onClick={() => setVisibleLimit(filteredRecipes.length)}
-              className="px-4 py-2 rounded-xl bg-surface-300 hover:bg-surface-100 text-zinc-300 hover:text-foreground font-bold text-xs border border-surface-border transition-all active:scale-95 cursor-pointer"
-            >
-              Show All ({filteredRecipes.length})
-            </button>
-          </div>
-        </div>
-      )}
 
       {/* Custom Recipe Modal Popup Window (Athlete Mode) */}
       <CustomRecipeModal
@@ -1242,9 +1468,7 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
             </div>
           )}
 
-          <div className="p-5 sm:p-8">
-            {mainContent}
-          </div>
+          <div className="p-5 sm:p-8">{mainContent}</div>
         </div>
       </div>
     );

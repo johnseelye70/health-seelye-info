@@ -465,14 +465,37 @@ export interface RecipeSubCategoryMeta {
   description: string;
 }
 
+export interface RecipeIngredientSwapOption {
+  id?: string;
+  name: string;
+  amount_imperial: string;
+  amount_metric: string;
+  raw_weight_grams_base?: number;
+  calories: number; // calculated calories for this serving portion
+  protein_g: number;
+  carbs_g: number;
+  fat_g: number;
+  department?: GroceryDepartment;
+  food_category?: FoodCategory;
+  tag?: string; // e.g. "Lower Calorie", "Higher Protein", "Dairy-Free", "Plant-Based", "Gluten-Free"
+  reason?: string;
+}
+
 export interface RecipeIngredient {
+  id?: string;
   food_id?: string;
   name: string;
   amount_imperial: string; // e.g. "6 oz", "1/2 cup", "1 tbsp", "2 whole"
   amount_metric: string; // e.g. "170g", "120ml", "15ml", "2 whole"
   raw_weight_grams_base?: number; // base raw weight in grams per serving
+  calories_base?: number; // base calories for this ingredient in 1 serving
+  protein_g_base?: number;
+  carbs_g_base?: number;
+  fat_g_base?: number;
   department?: GroceryDepartment;
+  food_category?: FoodCategory;
   notes?: string;
+  recommended_swaps?: RecipeIngredientSwapOption[];
 }
 
 export interface RecipeItem {
