@@ -6,6 +6,7 @@ import { MacroProgressRing } from './MacroProgressRing';
 import { FoodItem } from '@/lib/types';
 import { calculateSwapEquivalentGrams } from '@/lib/macro-calculator';
 import { FoodDatabaseBrowser } from './FoodDatabaseBrowser';
+import { RecipeEngine } from './RecipeEngine';
 import {
   UtensilsCrossed,
   Search,
@@ -21,6 +22,8 @@ import {
   ChevronDown,
   ChevronUp,
   X,
+  BookOpen,
+  ChefHat,
 } from 'lucide-react';
 import { NumberStepper } from '@/components/ui/NumberStepper';
 
@@ -117,6 +120,7 @@ export const MealPlanner: React.FC = () => {
 
   // Search & Logging Modal State
   const [selectedMealIndex, setSelectedMealIndex] = useState<number | null>(null);
+  const [showRecipeModal, setShowRecipeModal] = useState<boolean>(false);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [selectedCategoryFilter, setSelectedCategoryFilter] = useState<string>('all');
   const [selectedFoodForLog, setSelectedFoodForLog] = useState<FoodItem | null>(null);
@@ -289,84 +293,33 @@ export const MealPlanner: React.FC = () => {
             </div>
           </div>
 
-          {/* 1-Click Wholesome Meal Presets Bar */}
-          <div className="p-6 rounded-3xl bg-surface-100/90 border border-surface-border backdrop-blur-xl space-y-4">
-            <div className="flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-brand-400" />
-              <h2 className="text-base font-bold text-zinc-100">1-Click Wholesome Meal Ideas</h2>
-            </div>
-            <p className="text-xs text-zinc-400">
-              Tap any balanced meal to instantly add it to your daily food log with verified natural ingredients.
-            </p>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 pt-2">
-              {WHOLESOME_PRESETS.map((preset) => (
-                <div
-                  key={preset.id}
-                  className="p-4 rounded-2xl bg-surface-200/80 border border-surface-border hover:border-brand-500/40 transition-all flex flex-col justify-between space-y-3 group"
-                >
-                  <div className="space-y-1">
-                    <div className="text-sm font-bold text-zinc-100 group-hover:text-brand-300 transition-colors">
-                      {preset.name}
-                    </div>
-                    <p className="text-xs text-zinc-400 leading-relaxed">
-                      {preset.desc}
-                    </p>
-                  </div>
-
-                  <div className="flex items-center justify-between pt-2 border-t border-surface-border/60">
-                    <span className="text-xs font-mono font-bold text-brand-400">
-                      +{preset.cals} kcal
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => handleLogWholesomePreset(preset)}
-                      className="px-3 py-1.5 rounded-xl bg-brand-500 hover:bg-brand-400 text-zinc-950 text-xs font-black shadow-glow transition-all cursor-pointer active:scale-95 flex items-center gap-1.5"
-                    >
-                      <Plus className="w-3.5 h-3.5 stroke-[3]" />
-                      <span>+ Log Meal</span>
-                    </button>
-                  </div>
+          {/* Wholesome Kitchen Recipes Action Card */}
+          <div className="p-6 md:p-8 rounded-3xl bg-gradient-to-r from-surface-100 to-surface-200/90 border border-brand-500/30 backdrop-blur-xl flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-brand-500/15 border border-brand-500/30 flex items-center justify-center text-2xl shrink-0">
+                👨‍🍳
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h3 className="text-base font-bold text-white">Wholesome Recipes & Meal Ideas</h3>
+                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-brand-500/20 text-brand-300 font-mono font-bold uppercase">
+                    Standard Measures
+                  </span>
                 </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Visual Hand-Portion Sizing Guide */}
-          <div className="p-6 rounded-3xl bg-surface-100/90 border border-surface-border backdrop-blur-xl space-y-4">
-            <div className="flex items-center gap-2">
-              <UtensilsCrossed className="w-4 h-4 text-brand-400" />
-              <h2 className="text-base font-bold text-zinc-100">Simple Hand Portion Guide (Zero Scale Math)</h2>
-            </div>
-            <p className="text-xs text-zinc-400">
-              No need to weigh foods on a digital scale. Use your hand as an intuitive visual portion guide:
-            </p>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-2">
-              <div className="p-4 rounded-2xl bg-surface-200/70 border border-surface-border space-y-1">
-                <div className="text-2xl">🥩</div>
-                <div className="text-xs font-bold text-zinc-100">1 Palm = Lean Protein</div>
-                <div className="text-[11px] text-zinc-400">Chicken, fish, beef, tofu (~25-30g protein, ~180-220 kcal)</div>
-              </div>
-
-              <div className="p-4 rounded-2xl bg-surface-200/70 border border-surface-border space-y-1">
-                <div className="text-2xl">🥦</div>
-                <div className="text-xs font-bold text-zinc-100">1 Fist = Crisp Veggies</div>
-                <div className="text-[11px] text-zinc-400">Broccoli, spinach, peppers, asparagus (~25-40 kcal)</div>
-              </div>
-
-              <div className="p-4 rounded-2xl bg-surface-200/70 border border-surface-border space-y-1">
-                <div className="text-2xl">🍚</div>
-                <div className="text-xs font-bold text-zinc-100">1 Cupped Hand = Carbs</div>
-                <div className="text-[11px] text-zinc-400">Jasmine rice, oats, sweet potato, quinoa (~150-200 kcal)</div>
-              </div>
-
-              <div className="p-4 rounded-2xl bg-surface-200/70 border border-surface-border space-y-1">
-                <div className="text-2xl">🥑</div>
-                <div className="text-xs font-bold text-zinc-100">1 Thumb = Healthy Fats</div>
-                <div className="text-[11px] text-zinc-400">Olive oil, avocado, almonds, walnuts (~80-120 kcal)</div>
+                <p className="text-xs text-zinc-400 mt-1 max-w-xl">
+                  Explore 15-minute dinners, breakfasts, and energy bowls with traditional culinary measurements (cups, tbsp, oz, grams) and 1-tap logging.
+                </p>
               </div>
             </div>
+
+            <button
+              type="button"
+              onClick={() => setShowRecipeModal(true)}
+              className="w-full sm:w-auto px-5 py-3 rounded-2xl bg-gradient-to-r from-brand-500 to-accent-teal hover:from-brand-600 hover:to-accent-teal/90 text-zinc-950 font-bold text-xs shadow-glow transition-all active:scale-95 flex items-center justify-center gap-2 cursor-pointer shrink-0"
+            >
+              <BookOpen className="w-4 h-4 stroke-[2.5]" />
+              <span>Browse Recipes & Cook</span>
+            </button>
           </div>
 
           {/* Today's Logged Food Items List */}
@@ -461,25 +414,36 @@ export const MealPlanner: React.FC = () => {
                 </p>
               </div>
 
-              {/* Meal Count Switcher Buttons */}
-              <div className="flex items-center gap-2 bg-surface-200/90 p-1.5 rounded-2xl border border-surface-border">
-                {[2, 3, 4].map((count) => {
-                  const isSelected = profile.meal_count === count;
-                  return (
-                    <button
-                      key={count}
-                      id={`btn-meal-count-${count}`}
-                      onClick={() => handleMealCountChange(count)}
-                      className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-                        isSelected
-                          ? 'bg-gradient-to-r from-brand-500 to-accent-teal text-zinc-950 shadow-glow font-bold'
-                          : 'text-zinc-400 hover:text-zinc-200'
-                      }`}
-                    >
-                      {count} Meals / Day
-                    </button>
-                  );
-                })}
+              {/* Meal Count Switcher Buttons & Recipe Studio */}
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowRecipeModal(true)}
+                  className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-brand-500/15 hover:bg-brand-500/25 border border-brand-500/30 text-brand-300 text-xs font-bold transition-all active:scale-95 cursor-pointer shadow-glow"
+                >
+                  <ChefHat className="w-4 h-4 text-brand-400" />
+                  <span>Recipe Studio</span>
+                </button>
+
+                <div className="flex items-center gap-1 bg-surface-200/90 p-1 rounded-xl border border-surface-border">
+                  {[2, 3, 4].map((count) => {
+                    const isSelected = profile.meal_count === count;
+                    return (
+                      <button
+                        key={count}
+                        id={`btn-meal-count-${count}`}
+                        onClick={() => handleMealCountChange(count)}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                          isSelected
+                            ? 'bg-brand-500 text-zinc-950 shadow-glow font-bold'
+                            : 'text-zinc-400 hover:text-zinc-200'
+                        }`}
+                      >
+                        {count} Meals
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
             </div>
 
@@ -967,6 +931,13 @@ export const MealPlanner: React.FC = () => {
           </form>
         </div>
       )}
+
+      {/* Modal: Recipe Engine Studio */}
+      <RecipeEngine
+        isModal={true}
+        isOpen={showRecipeModal}
+        onClose={() => setShowRecipeModal(false)}
+      />
     </div>
   );
 };

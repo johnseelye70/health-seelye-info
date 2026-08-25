@@ -1,7 +1,7 @@
 # Seelye Family Health — Precision Fitness & Nutrition Application
-**Version: Beta 2.1.0** | **Production Domain: https://health.seelye.info**
+**Version: Beta 2.2.0** | **Production Domain: https://health.seelye.info**
 
-High-performance, dark-mode first athletic health and nutrition platform engineered with Next.js (App Router), TypeScript, Tailwind CSS, and Supabase (PostgreSQL).
+High-performance, dark-mode first athletic health and nutrition platform engineered with Next.js (App Router), TypeScript, Tailwind CSS, Supabase (PostgreSQL), and integrated Wholesome Recipe & Meal Prep Engine.
 
 ---
 

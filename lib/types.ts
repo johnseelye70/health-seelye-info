@@ -419,3 +419,42 @@ export interface StepLogEntry {
   source: 'phone_sensor' | 'apple_health' | 'garmin' | 'fitbit' | 'manual';
   logged_at: string;
 }
+
+export type RecipeCategory =
+  | 'all'
+  | 'breakfast'
+  | 'lunch'
+  | 'dinner'
+  | 'snack_dessert'
+  | 'bulk_meal_prep';
+
+export interface RecipeIngredient {
+  food_id?: string;
+  name: string;
+  amount_imperial: string; // e.g. "6 oz", "1/2 cup", "1 tbsp", "2 whole"
+  amount_metric: string; // e.g. "170g", "120ml", "15ml", "2 whole"
+  raw_weight_grams_base?: number; // base raw weight in grams per serving
+  department?: GroceryDepartment;
+  notes?: string;
+}
+
+export interface RecipeItem {
+  id: string;
+  title: string;
+  description: string;
+  category: 'breakfast' | 'lunch' | 'dinner' | 'snack_dessert' | 'bulk_meal_prep';
+  prep_time_minutes: number;
+  cook_time_minutes: number;
+  servings_yield: number;
+  difficulty: 'easy' | 'moderate' | 'advanced';
+  tags: string[];
+  calories_per_serving: number;
+  protein_g_per_serving: number;
+  carbs_g_per_serving: number;
+  fat_g_per_serving: number;
+  ingredients: RecipeIngredient[];
+  instructions: string[];
+  chef_notes?: string;
+  icon_emoji?: string;
+  is_custom?: boolean;
+}

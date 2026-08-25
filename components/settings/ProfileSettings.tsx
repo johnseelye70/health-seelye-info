@@ -211,6 +211,18 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'Beta 2.2.0',
+      date: '2026-08-25',
+      title: 'Wholesome Kitchen Recipe Engine & Athlete Meal Prep Studio (Modal & Traditional Measures)',
+      changes: [
+        'Wholesome Kitchen Recipe Engine: Integrated curated database of wholesome, nutrient-dense recipes across breakfast, lunch, dinner, snacks, and meal prep.',
+        'Traditional Culinary Measurements: Built recipe system using standard kitchen units (cups, tablespoons, teaspoons, ounces, grams) with dynamic Imperial/Metric unit adaptation.',
+        'Recipe Studio Modal Window: Built accessible backdrop-blurred modal window with category filters, step-by-step cooking instructions, and chef notes.',
+        '1-Tap Direct Logging & Grocery Sync: 1-click "Cooked This!" direct logging to daily energy balance and 1-tap "Add to Shopping List" ingredient synchronization.',
+        'Athlete Batch Prep Scaler & Custom Creator: Engineered 1x, 2x, 4x, 6x meal prep batch scaler with raw ingredient grams, MPS macro blueprint, and custom multi-food recipe builder.',
+      ],
+    },
+    {
       version: 'Beta 2.1.0',
       date: '2026-08-25',
       title: 'Radical Simplification of Simple Mode (4 Core Tabs & Zero Math)',
