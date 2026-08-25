@@ -42,13 +42,16 @@ const config: Config = {
           purple: "#8b5cf6", // Fasting / Sleep / Mindfulness
           rose: "#f43f5e",
           blue: "#0284c7",
+          indigo: "#6366f1",
         }
       },
       boxShadow: {
-        glow: "0 0 25px -5px rgba(59, 130, 246, 0.3)",
-        "glow-coral": "0 0 25px -5px rgba(255, 71, 87, 0.3)",
-        "glow-cyan": "0 0 25px -5px rgba(6, 182, 212, 0.3)",
-        "glow-emerald": "0 0 25px -5px rgba(16, 185, 129, 0.3)",
+        glow: "0 0 25px -5px rgba(59, 130, 246, 0.35)",
+        "glow-coral": "0 0 25px -5px rgba(255, 71, 87, 0.35)",
+        "glow-cyan": "0 0 25px -5px rgba(6, 182, 212, 0.35)",
+        "glow-emerald": "0 0 25px -5px rgba(16, 185, 129, 0.35)",
+        "glow-amber": "0 0 25px -5px rgba(245, 158, 11, 0.35)",
+        "glow-purple": "0 0 25px -5px rgba(139, 92, 246, 0.35)",
       },
       fontFamily: {
         sans: ["var(--font-inter)", "system-ui", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "sans-serif"],

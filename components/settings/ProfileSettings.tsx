@@ -211,6 +211,17 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'Beta 2.4.0',
+      date: '2026-08-25',
+      title: 'Obsidian Slate Dark Mode, High-Contrast Light Mode & Rich Multi-Color Overhaul',
+      changes: [
+        'Obsidian Slate Dark Mode: Replaced flat pitch-black background with a deep, rich indigo-slate canvas (#0c121e) with layered surfaces (#131d2e, #1b263b), crisp slate-blue borders (#233554), and subtle ambient glow.',
+        'High-Contrast Light Mode: Overhauled light mode with a soft, glare-free slate canvas (#edf2f7), elevated crisp white cards (#ffffff), distinct borders (#cbd5e1), and dark, legible slate typography (#0f172a / #334155 / #475569) passing WCAG AAA contrast.',
+        'Vibrant Multi-Metric Palette: Enhanced all metric gauges, macro rings, and telemetry with distinct luminous colors — Warm Amber Flame for Calories, Electric Cobalt for Protein, Vitality Emerald for Carbs, Royal Amethyst for Healthy Fats, Ocean Aqua for Hydration, and Crimson Coral for Movement.',
+        'Light Mode Contrast Guards: Implemented global CSS overrides preventing pale gray washout on white backgrounds across all sub-components.',
+      ],
+    },
+    {
       version: 'Beta 2.3.0',
       date: '2026-08-25',
       title: 'Apple Health Multi-Metric Color Overhaul & Dynamic Light/Dark Mode Switcher',

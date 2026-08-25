@@ -100,21 +100,21 @@ export const DashboardOverview: React.FC = () => {
               </span>
             </div>
 
-            <h1 className="text-2xl md:text-3xl font-black text-white tracking-tight">
+            <h1 className="text-2xl md:text-3xl font-black text-foreground tracking-tight">
               {isSimple ? `Good day, ${firstName}! ✨` : `Welcome back, ${profile.full_name}`}
             </h1>
             
-            <p className="text-zinc-400 text-sm mt-1 max-w-xl">
+            <p className="text-zinc-500 dark:text-zinc-400 text-sm mt-1 max-w-xl">
               {isSimple ? (
                 <>
-                  You have <strong className="text-brand-400 font-bold">{todayRemaining.calories} calories</strong> remaining today across <strong className="text-zinc-200">{profile.meal_count} wholesome meals</strong>. Take your time, enjoy your food, and stay hydrated!
+                  You have <strong className="text-brand-500 dark:text-brand-400 font-bold">{todayRemaining.calories} calories</strong> remaining today across <strong className="text-foreground">{profile.meal_count} wholesome meals</strong>. Take your time, enjoy your food, and stay hydrated!
                 </>
               ) : (
                 <>
                   Your Mifflin-St Jeor TDEE target is configured for{' '}
-                  <strong className="text-zinc-200">{profile.daily_calorie_target} kcal</strong> across{' '}
-                  <strong className="text-brand-400">{profile.meal_count} scheduled meals</strong> within your{' '}
-                  <strong className="text-accent-teal">{currentFastingConfig.name}</strong> window.
+                  <strong className="text-foreground">{profile.daily_calorie_target} kcal</strong> across{' '}
+                  <strong className="text-brand-500 dark:text-brand-400 font-bold">{profile.meal_count} scheduled meals</strong> within your{' '}
+                  <strong className="text-accent-teal font-bold">{currentFastingConfig.name}</strong> window.
                 </>
               )}
             </p>
@@ -398,7 +398,7 @@ export const DashboardOverview: React.FC = () => {
               current={todayMacros.calories}
               target={profile.daily_calorie_target}
               unit="kcal"
-              color="#10b981"
+              color="#f59e0b"
               sublabel={`${todayRemaining.calories} kcal remaining`}
             />
             <MacroProgressRing
@@ -406,7 +406,7 @@ export const DashboardOverview: React.FC = () => {
               current={todayMacros.protein}
               target={profile.protein_target_g}
               unit="g"
-              color="#14b8a6"
+              color="#3b82f6"
               sublabel={`${todayRemaining.protein}g left (1.0g/lb lean)`}
             />
             <MacroProgressRing
@@ -414,7 +414,7 @@ export const DashboardOverview: React.FC = () => {
               current={todayMacros.carbs}
               target={profile.carb_target_g}
               unit="g"
-              color="#06b6d4"
+              color="#10b981"
               sublabel={`${todayRemaining.carbs}g left (Complex Fuel)`}
             />
             <MacroProgressRing
@@ -422,7 +422,7 @@ export const DashboardOverview: React.FC = () => {
               current={todayMacros.fat}
               target={profile.fat_target_g}
               unit="g"
-              color="#f59e0b"
+              color="#8b5cf6"
               sublabel={`${todayRemaining.fat}g left (25% Total)`}
             />
           </div>
