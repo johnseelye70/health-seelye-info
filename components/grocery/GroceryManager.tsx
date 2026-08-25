@@ -127,8 +127,25 @@ export const GroceryManager: React.FC = () => {
   // Items for active list & active view mode
   const currentListItems = useMemo(() => {
     return groceryList.filter((item) => {
-      // List check
-      const matchesList = !item.list_id || item.list_id === activeListId;
+      // List check: 'main' displays all active shopping items. Specific store run tabs filter by store tag or list_id.
+      let matchesList = true;
+      if (activeListId === 'main') {
+        matchesList = true;
+      } else if (activeListId === 'aldi_run') {
+        matchesList = item.list_id === 'aldi_run' || item.store_tag === 'aldi';
+      } else if (activeListId === 'meijer_run') {
+        matchesList = item.list_id === 'meijer_run' || item.store_tag === 'meijer';
+      } else if (activeListId === 'sams_club_bulk') {
+        matchesList = item.list_id === 'sams_club_bulk' || item.store_tag === 'sams_club';
+      } else if (activeListId === 'costco_bulk') {
+        matchesList = item.list_id === 'costco_bulk' || item.store_tag === 'costco';
+      } else if (activeListId === 'walmart_run') {
+        matchesList = item.list_id === 'walmart_run' || item.store_tag === 'walmart';
+      } else if (activeListId === 'prep_day') {
+        matchesList = item.list_id === 'prep_day';
+      } else {
+        matchesList = !item.list_id || item.list_id === activeListId;
+      }
       if (!matchesList) return false;
 
       // Pantry vs Shopping Mode
@@ -166,10 +183,10 @@ export const GroceryManager: React.FC = () => {
   }, [currentListItems]);
 
   // Overall Statistics
-  const shoppingItems = groceryList.filter((item) => (!item.list_id || item.list_id === activeListId) && !item.in_pantry);
-  const pantryItems = groceryList.filter((item) => (!item.list_id || item.list_id === activeListId) && item.in_pantry);
-  const checkedCount = shoppingItems.filter((item) => item.is_checked).length;
-  const totalShoppingCount = shoppingItems.length;
+  const shoppingItems = groceryList.filter((item) => !item.in_pantry);
+  const pantryItems = groceryList.filter((item) => item.in_pantry);
+  const checkedCount = currentListItems.filter((item) => item.is_checked).length;
+  const totalShoppingCount = currentListItems.length;
   const progressPercent = totalShoppingCount > 0 ? Math.round((checkedCount / totalShoppingCount) * 100) : 0;
 
   // Catalog filtered items for Quick-Add Modal

@@ -212,6 +212,17 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'Beta 2.11.0',
+      date: '2026-08-25',
+      title: 'Global Shopping List Navigation, Unified Lists & 1-Tap Recipe Jump',
+      changes: [
+        'Simple & Athlete Mode Navigation: Added explicit, persistent "Shopping List" navigation across both desktop Sidebar and mobile BottomNav in Simple and Athlete modes, complete with live unpurchased item badges.',
+        'Top Header Quick-Access: Added dedicated Shopping List shortcut button in the top navigation header displaying live cart item counts.',
+        '1-Tap "Open Shopping List" Action: Added instant "Open Shopping List ➔" action buttons inside recipe toast feedback banners, detail headers, and bottom toolbars to immediately jump to the store checklist.',
+        'Unified List Matching: Resolved list isolation so newly added ingredients with store tags (Aldi, Meijer, Sam’s Club, Costco, Walmart) appear seamlessly on the master shopping list as well as dedicated store run tabs.',
+      ],
+    },
+    {
       version: 'Beta 2.10.0',
       date: '2026-08-25',
       title: 'Multi-Store Recipe Grocery Routing (Aldi, Meijer, Sam’s Club, Costco, Walmart)',
@@ -1379,7 +1390,7 @@ export const ProfileSettings: React.FC = () => {
             title="Click to open release changelog modal window"
           >
             <span className="w-2 h-2 rounded-full bg-brand-400 animate-pulse"></span>
-            <span>Active: Beta 2.10.0</span>
+            <span>Active: Beta 2.11.0</span>
             <ChevronRight className="w-3.5 h-3.5 text-brand-400 group-hover:translate-x-0.5 transition-transform" />
           </button>
         </div>

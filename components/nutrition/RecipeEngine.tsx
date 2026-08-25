@@ -59,7 +59,7 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
   onClose,
   isModal = true,
 }) => {
-  const { profile, experienceMode, logFood, addGroceryItem } = useHealth();
+  const { profile, experienceMode, logFood, addGroceryItem, setActiveTab } = useHealth();
 
   const isSimple = experienceMode === 'simple';
   const isImperial = profile.unit_preference === 'imperial';
@@ -96,7 +96,7 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
   const [batchMultiplier, setBatchMultiplier] = useState<number>(1);
 
   // Success Feedback Toasts / State
-  const [actionSuccessMsg, setActionSuccessMsg] = useState<{ id: string; text: string } | null>(null);
+  const [actionSuccessMsg, setActionSuccessMsg] = useState<{ id: string; text: string; showGroceryLink?: boolean } | null>(null);
 
   // All combined recipes
   const allRecipes = useMemo(() => {
@@ -142,11 +142,11 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
   };
 
   // Trigger feedback banner
-  const triggerSuccessFeedback = (recipeId: string, text: string) => {
-    setActionSuccessMsg({ id: recipeId, text });
+  const triggerSuccessFeedback = (recipeId: string, text: string, showGroceryLink: boolean = false) => {
+    setActionSuccessMsg({ id: recipeId, text, showGroceryLink });
     setTimeout(() => {
       setActionSuccessMsg((prev) => (prev?.id === recipeId ? null : prev));
-    }, 3500);
+    }, 6000);
   };
 
   // Compute live customized recipe with all ingredient swaps and batch multiplier applied
@@ -238,7 +238,8 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
 
     triggerSuccessFeedback(
       recipe.id,
-      `Added ${countAdded} ingredients from "${recipe.title}" ${multiplier > 1 ? `(${multiplier}x batch)` : ''} to your ${storeLabel} List! 🛒`
+      `Added ${countAdded} ingredients from "${recipe.title}" ${multiplier > 1 ? `(${multiplier}x batch)` : ''} to your ${storeLabel} List! 🛒`,
+      true
     );
   };
 
@@ -648,6 +649,18 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
               >
                 <ShoppingCart className="w-3.5 h-3.5" />
                 <span>+ Grocery</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveTab('grocery');
+                  onClose?.();
+                }}
+                className="px-2.5 py-1.5 rounded-xl bg-surface-300 hover:bg-surface-100 text-zinc-300 hover:text-foreground text-xs font-bold transition-all cursor-pointer flex items-center gap-1"
+                title="Go to Shopping List"
+              >
+                <span className="hidden sm:inline">View</span> List
               </button>
             </div>
           </div>
@@ -1103,6 +1116,18 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
                 <ShoppingCart className="w-3.5 h-3.5 text-accent-cyan" />
                 <span>+ List</span>
               </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveTab('grocery');
+                  onClose?.();
+                }}
+                className="px-2.5 py-1.5 rounded-xl bg-surface-200 hover:bg-surface-100 text-zinc-300 hover:text-foreground text-xs font-bold transition-all cursor-pointer flex items-center gap-1"
+                title="Go to Shopping List"
+              >
+                <span>View List</span>
+              </button>
             </div>
 
             {isSimple ? (
@@ -1310,14 +1335,30 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
 
       {/* Action Toast Feedback Banner */}
       {actionSuccessMsg && (
-        <div className="p-3 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-xs font-semibold flex items-center justify-between animate-fadeIn">
+        <div className="p-3.5 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-xs font-semibold flex flex-col sm:flex-row sm:items-center justify-between gap-3 animate-fadeIn">
           <div className="flex items-center gap-2">
             <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
             <span>{actionSuccessMsg.text}</span>
           </div>
-          <button onClick={() => setActionSuccessMsg(null)} className="text-emerald-400 hover:text-emerald-200 p-1">
-            <X className="w-3.5 h-3.5" />
-          </button>
+
+          <div className="flex items-center gap-2 shrink-0">
+            {actionSuccessMsg.showGroceryLink && (
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveTab('grocery');
+                  onClose?.();
+                }}
+                className="px-3.5 py-1.5 rounded-xl bg-emerald-400 hover:bg-emerald-300 text-zinc-950 font-bold text-xs shadow-glow transition-all active:scale-95 cursor-pointer flex items-center gap-1.5"
+              >
+                <ShoppingCart className="w-3.5 h-3.5 stroke-[2.5]" />
+                <span>Open Shopping List ➔</span>
+              </button>
+            )}
+            <button onClick={() => setActionSuccessMsg(null)} className="text-emerald-400 hover:text-emerald-200 p-1">
+              <X className="w-3.5 h-3.5" />
+            </button>
+          </div>
         </div>
       )}
 

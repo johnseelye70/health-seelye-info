@@ -23,14 +23,17 @@ export const Sidebar: React.FC = () => {
     experienceMode,
     authUser,
     setShowAuthModal,
+    groceryList,
   } = useHealth();
 
   const isSimple = experienceMode === 'simple';
+  const unpurchasedGroceryCount = groceryList.filter((i) => !i.is_checked && !i.in_pantry).length;
 
   const navItems = isSimple
     ? ([
         { id: 'dashboard', label: 'Today', icon: Sparkles, color: 'text-brand-400', activeBg: 'bg-brand-500/15 border-brand-500/40 text-brand-400', badge: null },
         { id: 'nutrition', label: 'Food & Meals', icon: UtensilsCrossed, color: 'text-accent-amber', activeBg: 'bg-accent-amber/15 border-accent-amber/40 text-accent-amber', badge: null },
+        { id: 'grocery', label: 'Shopping List', icon: ShoppingCart, color: 'text-accent-emerald', activeBg: 'bg-accent-emerald/15 border-accent-emerald/40 text-accent-emerald', badge: unpurchasedGroceryCount > 0 ? `${unpurchasedGroceryCount}` : null },
         { id: 'workouts', label: 'Movement', icon: Dumbbell, color: 'text-accent-coral', activeBg: 'bg-accent-coral/15 border-accent-coral/40 text-accent-coral', badge: null },
         { id: 'trends', label: 'Progress & Goals', icon: TrendingUp, color: 'text-accent-cyan', activeBg: 'bg-accent-cyan/15 border-accent-cyan/40 text-accent-cyan', badge: null },
       ] as const)
@@ -39,7 +42,7 @@ export const Sidebar: React.FC = () => {
         { id: 'nutrition', label: 'Macro Split & Foods', icon: UtensilsCrossed, color: 'text-accent-amber', activeBg: 'bg-accent-amber/15 border-accent-amber/40 text-accent-amber', badge: `${profile.meal_count} Meals` },
         { id: 'fasting', label: 'Fasting Telemetry', icon: Timer, color: 'text-accent-purple', activeBg: 'bg-accent-purple/15 border-accent-purple/40 text-accent-purple', badge: fastingStatus.isFasting ? 'Fasting' : 'Eating Window' },
         { id: 'workouts', label: 'Workout Split & Math', icon: Dumbbell, color: 'text-accent-coral', activeBg: 'bg-accent-coral/15 border-accent-coral/40 text-accent-coral', badge: '4-Week' },
-        { id: 'grocery', label: 'Macro Requisition', icon: ShoppingCart, color: 'text-accent-emerald', activeBg: 'bg-accent-emerald/15 border-accent-emerald/40 text-accent-emerald', badge: 'Auto' },
+        { id: 'grocery', label: 'Shopping List & Pantry', icon: ShoppingCart, color: 'text-accent-emerald', activeBg: 'bg-accent-emerald/15 border-accent-emerald/40 text-accent-emerald', badge: unpurchasedGroceryCount > 0 ? `${unpurchasedGroceryCount}` : 'Auto' },
         { id: 'trends', label: 'Biometric Analytics', icon: TrendingUp, color: 'text-accent-cyan', activeBg: 'bg-accent-cyan/15 border-accent-cyan/40 text-accent-cyan', badge: null },
         { id: 'settings', label: 'BMR & System Settings', icon: SlidersHorizontal, color: 'text-indigo-400', activeBg: 'bg-indigo-500/15 border-indigo-500/40 text-indigo-400', badge: null },
       ] as const);
@@ -133,7 +136,7 @@ export const Sidebar: React.FC = () => {
       <div className="p-4 border-t border-surface-border text-xs text-zinc-500 bg-surface-300/30 flex items-center justify-between">
         <div className="flex items-center gap-1.5">
           <span className="w-2 h-2 rounded-full bg-brand-500 animate-pulse"></span>
-          <span className="font-mono text-[11px] text-foreground font-semibold">Beta 2.10.0</span>
+          <span className="font-mono text-[11px] text-foreground font-semibold">Beta 2.11.0</span>
         </div>
         <span className="text-[10px] text-zinc-400 font-mono">health.seelye.info</span>
       </div>

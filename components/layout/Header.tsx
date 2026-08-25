@@ -16,6 +16,7 @@ import {
   RefreshCw,
   Sun,
   Moon,
+  ShoppingCart,
 } from 'lucide-react';
 
 export const Header: React.FC = () => {
@@ -25,6 +26,7 @@ export const Header: React.FC = () => {
     todayMacros,
     fastingStatus,
     setShowOnboardingModal,
+    activeTab,
     setActiveTab,
     notificationsEnabled,
     setNotificationsEnabled,
@@ -37,7 +39,10 @@ export const Header: React.FC = () => {
     authUser,
     setShowAuthModal,
     syncStatus,
+    groceryList,
   } = useHealth();
+
+  const unpurchasedCount = groceryList.filter((i) => !i.is_checked && !i.in_pantry).length;
 
   const formattedDate = new Intl.DateTimeFormat('en-US', {
     weekday: 'short',
@@ -181,6 +186,33 @@ export const Header: React.FC = () => {
           <span className={profile.unit_preference === 'imperial' ? 'text-brand-400 font-bold' : 'text-zinc-500'}>LBS</span>
           <span className="text-zinc-600">/</span>
           <span className={profile.unit_preference === 'metric' ? 'text-accent-cyan font-bold' : 'text-zinc-500'}>KG</span>
+        </button>
+
+        {/* Quick Shopping List Button */}
+        <button
+          id="btn-header-shopping-list"
+          type="button"
+          onClick={() => setActiveTab('grocery')}
+          title="Open Shopping & Requisition List"
+          className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-2 rounded-xl border text-xs font-semibold transition-all cursor-pointer ${
+            activeTab === 'grocery'
+              ? 'bg-brand-500 text-zinc-950 font-bold border-brand-400 shadow-glow'
+              : 'bg-surface-100 hover:bg-surface-50 border-surface-border text-zinc-200 hover:border-brand-500/40'
+          }`}
+        >
+          <ShoppingCart className={`w-3.5 h-3.5 ${activeTab === 'grocery' ? 'text-zinc-950 stroke-[2.5]' : 'text-accent-cyan'}`} />
+          <span className="hidden sm:inline">Shopping</span>
+          {unpurchasedCount > 0 && (
+            <span
+              className={`px-1.5 py-0.2 rounded-full text-[10px] font-mono font-bold ${
+                activeTab === 'grocery'
+                  ? 'bg-zinc-950 text-brand-300'
+                  : 'bg-brand-500/20 text-brand-300 border border-brand-500/40'
+              }`}
+            >
+              {unpurchasedCount}
+            </span>
+          )}
         </button>
 
         {/* Macro Calculator & Onboarding trigger */}

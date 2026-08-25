@@ -12,26 +12,35 @@ import {
   SlidersHorizontal,
 } from 'lucide-react';
 
-export const BottomNav: React.FC = () => {
-  const { activeTab, setActiveTab, experienceMode } = useHealth();
-  const isSimple = experienceMode === 'simple';
+interface NavItem {
+  id: 'dashboard' | 'nutrition' | 'fasting' | 'workouts' | 'grocery' | 'trends' | 'settings';
+  label: string;
+  icon: React.ComponentType<{ className?: string }>;
+  badge?: number | string | null;
+}
 
-  const navItems = isSimple
-    ? ([
+export const BottomNav: React.FC = () => {
+  const { activeTab, setActiveTab, experienceMode, groceryList } = useHealth();
+  const isSimple = experienceMode === 'simple';
+  const unpurchasedCount = groceryList.filter((i) => !i.is_checked && !i.in_pantry).length;
+
+  const navItems: NavItem[] = isSimple
+    ? [
         { id: 'dashboard', label: 'Today', icon: LayoutDashboard },
         { id: 'nutrition', label: 'Meals', icon: UtensilsCrossed },
+        { id: 'grocery', label: 'Shopping', icon: ShoppingCart, badge: unpurchasedCount > 0 ? unpurchasedCount : null },
         { id: 'workouts', label: 'Movement', icon: Dumbbell },
         { id: 'trends', label: 'Progress', icon: TrendingUp },
-      ] as const)
-    : ([
+      ]
+    : [
         { id: 'dashboard', label: 'Home', icon: LayoutDashboard },
         { id: 'nutrition', label: 'Meals', icon: UtensilsCrossed },
         { id: 'fasting', label: 'Fast', icon: Timer },
         { id: 'workouts', label: 'Fitness', icon: Dumbbell },
-        { id: 'grocery', label: 'Grocery', icon: ShoppingCart },
+        { id: 'grocery', label: 'Shopping', icon: ShoppingCart, badge: unpurchasedCount > 0 ? unpurchasedCount : null },
         { id: 'trends', label: 'Stats', icon: TrendingUp },
         { id: 'settings', label: 'Profile', icon: SlidersHorizontal },
-      ] as const);
+      ];
 
   return (
     <nav
@@ -53,11 +62,18 @@ export const BottomNav: React.FC = () => {
                 : 'text-zinc-400 hover:text-zinc-200'
             }`}
           >
-            <Icon
-              className={`w-5 h-5 transition-transform ${
-                isActive ? 'text-brand-400 stroke-[2.5] scale-110' : 'text-zinc-400'
-              }`}
-            />
+            <div className="relative">
+              <Icon
+                className={`w-5 h-5 transition-transform ${
+                  isActive ? 'text-brand-400 stroke-[2.5] scale-110' : 'text-zinc-400'
+                }`}
+              />
+              {item.badge && (
+                <span className="absolute -top-1 -right-2 px-1 py-0.2 bg-brand-500 text-zinc-950 text-[8px] font-mono font-black rounded-full leading-none shadow-sm">
+                  {item.badge}
+                </span>
+              )}
+            </div>
             <span
               className={`text-[9px] mt-0.5 font-sans tracking-tight ${
                 isActive ? 'font-black text-brand-300' : 'font-medium text-zinc-400'

@@ -24,6 +24,7 @@ import {
   X,
   BookOpen,
   ChefHat,
+  ShoppingCart,
 } from 'lucide-react';
 import { NumberStepper } from '@/components/ui/NumberStepper';
 
@@ -40,10 +41,13 @@ export const MealPlanner: React.FC = () => {
     deleteFoodLog,
     addCustomFood,
     experienceMode,
+    setActiveTab,
+    groceryList,
   } = useHealth();
 
   const isSimple = experienceMode === 'simple';
   const isImperial = profile.unit_preference === 'imperial';
+  const unpurchasedGroceryCount = groceryList.filter((i) => !i.is_checked && !i.in_pantry).length;
 
   // 1-Click Wholesome Meal Presets for Simple Mode
   const WHOLESOME_PRESETS = [
@@ -239,23 +243,50 @@ export const MealPlanner: React.FC = () => {
             </p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+            {/* Quick Access to Recipe Studio */}
+            <button
+              type="button"
+              onClick={() => setShowRecipeModal(true)}
+              className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-2xl bg-surface-200 hover:bg-surface-300 border border-surface-border text-xs font-semibold text-zinc-200 transition-all hover:border-brand-500/40 cursor-pointer"
+            >
+              <ChefHat className="w-4 h-4 text-brand-400" />
+              <span>{isSimple ? 'Recipes & Ideas' : 'Recipe Engine Matrix'}</span>
+            </button>
+
+            {/* Quick Access to Shopping List */}
+            <button
+              type="button"
+              onClick={() => setActiveTab('grocery')}
+              className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-2xl bg-surface-200 hover:bg-surface-300 border border-surface-border text-xs font-semibold text-zinc-200 transition-all hover:border-accent-emerald/40 cursor-pointer"
+            >
+              <ShoppingCart className="w-4 h-4 text-accent-emerald" />
+              <span>Shopping List</span>
+              {unpurchasedGroceryCount > 0 && (
+                <span className="px-1.5 py-0.2 rounded-full text-[10px] font-mono font-bold bg-brand-500/20 text-brand-300 border border-brand-500/40">
+                  {unpurchasedGroceryCount}
+                </span>
+              )}
+            </button>
+
             {!isSimple && (
               <button
+                type="button"
                 onClick={() => setShowSwapModal(true)}
-                className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-surface-200 hover:bg-surface-300 border border-surface-border text-xs font-semibold text-zinc-200 transition-all hover:border-zinc-700"
+                className="flex items-center gap-2 px-3.5 py-2.5 rounded-2xl bg-surface-200 hover:bg-surface-300 border border-surface-border text-xs font-semibold text-zinc-200 transition-all hover:border-zinc-700 cursor-pointer"
               >
                 <ArrowRightLeft className="w-4 h-4 text-accent-cyan" />
-                <span>Real-Time Food Swap</span>
+                <span>Food Swap</span>
               </button>
             )}
             {!isSimple && (
               <button
+                type="button"
                 onClick={() => setShowCustomFoodModal(true)}
-                className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-gradient-to-r from-brand-500 to-accent-teal hover:from-brand-600 hover:to-accent-teal/90 text-zinc-950 text-xs font-bold shadow-glow transition-all active:scale-95"
+                className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-gradient-to-r from-brand-500 to-accent-teal hover:from-brand-600 hover:to-accent-teal/90 text-zinc-950 text-xs font-bold shadow-glow transition-all active:scale-95 cursor-pointer"
               >
                 <Plus className="w-4 h-4 stroke-[2.5]" />
-                <span>Add Custom Food</span>
+                <span>Add Food</span>
               </button>
             )}
           </div>
@@ -293,33 +324,67 @@ export const MealPlanner: React.FC = () => {
             </div>
           </div>
 
-          {/* Wholesome Kitchen Recipes Action Card */}
-          <div className="p-6 md:p-8 rounded-3xl bg-gradient-to-r from-surface-100 to-surface-200/90 border border-brand-500/30 backdrop-blur-xl flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-2xl bg-brand-500/15 border border-brand-500/30 flex items-center justify-center text-2xl shrink-0">
-                👨‍🍳
-              </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <h3 className="text-base font-bold text-white">Wholesome Recipes & Meal Ideas</h3>
-                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-brand-500/20 text-brand-300 font-mono font-bold uppercase">
-                    Standard Measures
-                  </span>
+          {/* Quick Hub: Wholesome Recipes & Shopping List Navigation Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Wholesome Kitchen Recipes Action Card */}
+            <div className="p-6 rounded-3xl bg-gradient-to-r from-surface-100 to-surface-200/90 border border-brand-500/30 backdrop-blur-xl flex flex-col justify-between gap-4">
+              <div className="flex items-start gap-3.5">
+                <div className="w-11 h-11 rounded-2xl bg-brand-500/15 border border-brand-500/30 flex items-center justify-center text-xl shrink-0">
+                  👨‍🍳
                 </div>
-                <p className="text-xs text-zinc-400 mt-1 max-w-xl">
-                  Explore 15-minute dinners, breakfasts, and energy bowls with traditional culinary measurements (cups, tbsp, oz, grams) and 1-tap logging.
-                </p>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-base font-bold text-white">Wholesome Recipes</h3>
+                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-brand-500/20 text-brand-300 font-mono font-bold uppercase">
+                      Swappable
+                    </span>
+                  </div>
+                  <p className="text-xs text-zinc-400 mt-1 leading-relaxed">
+                    Explore distinct chef-crafted meals with instant ingredient swapping (e.g. 2% vs Whole milk) and live macro totals.
+                  </p>
+                </div>
               </div>
+
+              <button
+                type="button"
+                onClick={() => setShowRecipeModal(true)}
+                className="w-full py-2.5 rounded-2xl bg-gradient-to-r from-brand-500 to-accent-teal hover:from-brand-600 hover:to-accent-teal/90 text-zinc-950 font-bold text-xs shadow-glow transition-all active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <BookOpen className="w-4 h-4 stroke-[2.5]" />
+                <span>Browse Recipes & Cook</span>
+              </button>
             </div>
 
-            <button
-              type="button"
-              onClick={() => setShowRecipeModal(true)}
-              className="w-full sm:w-auto px-5 py-3 rounded-2xl bg-gradient-to-r from-brand-500 to-accent-teal hover:from-brand-600 hover:to-accent-teal/90 text-zinc-950 font-bold text-xs shadow-glow transition-all active:scale-95 flex items-center justify-center gap-2 cursor-pointer shrink-0"
-            >
-              <BookOpen className="w-4 h-4 stroke-[2.5]" />
-              <span>Browse Recipes & Cook</span>
-            </button>
+            {/* Shopping List Action Card */}
+            <div className="p-6 rounded-3xl bg-gradient-to-r from-surface-100 to-surface-200/90 border border-accent-emerald/30 backdrop-blur-xl flex flex-col justify-between gap-4">
+              <div className="flex items-start gap-3.5">
+                <div className="w-11 h-11 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-xl shrink-0">
+                  🛒
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-base font-bold text-white">Grocery & Shopping List</h3>
+                    {unpurchasedGroceryCount > 0 && (
+                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-mono font-bold">
+                        {unpurchasedGroceryCount} to buy
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-xs text-zinc-400 mt-1 leading-relaxed">
+                    View and check off your ingredients sorted by store (Aldi, Meijer, Sam's Club, Costco, Walmart).
+                  </p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setActiveTab('grocery')}
+                className="w-full py-2.5 rounded-2xl bg-surface-200 hover:bg-surface-300 border border-surface-border text-zinc-100 font-bold text-xs transition-all active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <ShoppingCart className="w-4 h-4 text-accent-emerald" />
+                <span>Open Shopping List</span>
+              </button>
+            </div>
           </div>
 
           {/* Today's Logged Food Items List */}
