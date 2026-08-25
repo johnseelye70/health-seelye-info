@@ -59,7 +59,7 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
   onClose,
   isModal = true,
 }) => {
-  const { profile, experienceMode, logFood, addGroceryItem, setActiveTab } = useHealth();
+  const { profile, experienceMode, logFood, deleteFoodLog, addGroceryItem, setActiveTab } = useHealth();
 
   const isSimple = experienceMode === 'simple';
   const isImperial = profile.unit_preference === 'imperial';
@@ -96,7 +96,14 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
   const [batchMultiplier, setBatchMultiplier] = useState<number>(1);
 
   // Success Feedback Toasts / State
-  const [actionSuccessMsg, setActionSuccessMsg] = useState<{ id: string; text: string; showGroceryLink?: boolean } | null>(null);
+  const [actionSuccessMsg, setActionSuccessMsg] = useState<{
+    id: string;
+    text: string;
+    showGroceryLink?: boolean;
+    loggedFoodId?: string;
+    foodName?: string;
+    showNutritionLink?: boolean;
+  } | null>(null);
 
   // All combined recipes
   const allRecipes = useMemo(() => {
@@ -142,11 +149,18 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
   };
 
   // Trigger feedback banner
-  const triggerSuccessFeedback = (recipeId: string, text: string, showGroceryLink: boolean = false) => {
-    setActionSuccessMsg({ id: recipeId, text, showGroceryLink });
+  const triggerSuccessFeedback = (
+    recipeId: string,
+    text: string,
+    showGroceryLink: boolean = false,
+    loggedFoodId?: string,
+    foodName?: string,
+    showNutritionLink: boolean = false
+  ) => {
+    setActionSuccessMsg({ id: recipeId, text, showGroceryLink, loggedFoodId, foodName, showNutritionLink });
     setTimeout(() => {
       setActionSuccessMsg((prev) => (prev?.id === recipeId ? null : prev));
-    }, 6000);
+    }, 7000);
   };
 
   // Compute live customized recipe with all ingredient swaps and batch multiplier applied
@@ -172,7 +186,7 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
       storage_type: 'fresh_weekly',
     };
 
-    logFood({
+    const newLogId = logFood({
       user_id: profile.id,
       food: recipeFoodItem,
       food_name: recipe.title,
@@ -185,7 +199,11 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
       recipe.id,
       isSimple
         ? `Logged "${recipe.title}" (+${recipe.calories_per_serving} kcal) to today's meals! 🍽️`
-        : `Logged 1 serving of "${recipe.title}" to Meal ${mealIndex} (${recipe.protein_g_per_serving}g P / ${recipe.carbs_g_per_serving}g C / ${recipe.fat_g_per_serving}g F) ⚡`
+        : `Logged 1 serving of "${recipe.title}" to Meal ${mealIndex} (${recipe.protein_g_per_serving}g P / ${recipe.carbs_g_per_serving}g C / ${recipe.fat_g_per_serving}g F) ⚡`,
+      false,
+      newLogId,
+      recipe.title,
+      true
     );
   };
 
@@ -665,6 +683,69 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
             </div>
           </div>
         </div>
+
+        {/* Action Toast Feedback Banner */}
+        {actionSuccessMsg && (
+          <div className="p-3.5 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-xs font-semibold flex flex-col sm:flex-row sm:items-center justify-between gap-3 animate-fadeIn">
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+              <span>{actionSuccessMsg.text}</span>
+            </div>
+
+            <div className="flex items-center gap-2 shrink-0 flex-wrap">
+              {actionSuccessMsg.loggedFoodId && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    deleteFoodLog(actionSuccessMsg.loggedFoodId!);
+                    setActionSuccessMsg({
+                      id: 'undo-' + Date.now(),
+                      text: `Undone! Removed "${actionSuccessMsg.foodName || 'recipe'}" from today's meals. ↩️`,
+                    });
+                    setTimeout(() => setActionSuccessMsg(null), 4000);
+                  }}
+                  className="px-3 py-1.5 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/40 font-bold text-xs transition-all active:scale-95 cursor-pointer flex items-center gap-1.5 shadow-sm"
+                  title="Undo this meal log"
+                >
+                  <RotateCcw className="w-3.5 h-3.5 text-rose-400" />
+                  <span>Undo Log</span>
+                </button>
+              )}
+
+              {actionSuccessMsg.showNutritionLink && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActiveTab('nutrition');
+                    onClose?.();
+                  }}
+                  className="px-3.5 py-1.5 rounded-xl bg-surface-300 hover:bg-surface-100 text-zinc-200 border border-surface-border font-bold text-xs transition-all active:scale-95 cursor-pointer flex items-center gap-1.5"
+                  title="Open Daily Nutrition & Meals"
+                >
+                  <UtensilsCrossed className="w-3.5 h-3.5 text-brand-400" />
+                  <span>View in Nutrition ➔</span>
+                </button>
+              )}
+
+              {actionSuccessMsg.showGroceryLink && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActiveTab('grocery');
+                    onClose?.();
+                  }}
+                  className="px-3.5 py-1.5 rounded-xl bg-emerald-400 hover:bg-emerald-300 text-zinc-950 font-bold text-xs shadow-glow transition-all active:scale-95 cursor-pointer flex items-center gap-1.5"
+                >
+                  <ShoppingCart className="w-3.5 h-3.5 stroke-[2.5]" />
+                  <span>Open Shopping List ➔</span>
+                </button>
+              )}
+              <button onClick={() => setActionSuccessMsg(null)} className="text-emerald-400 hover:text-emerald-200 p-1">
+                <X className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Recipe Hero Banner */}
         <div className="p-6 md:p-8 rounded-3xl bg-surface-200/80 border border-surface-border space-y-3">
@@ -1341,7 +1422,41 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
             <span>{actionSuccessMsg.text}</span>
           </div>
 
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex items-center gap-2 shrink-0 flex-wrap">
+            {actionSuccessMsg.loggedFoodId && (
+              <button
+                type="button"
+                onClick={() => {
+                  deleteFoodLog(actionSuccessMsg.loggedFoodId!);
+                  setActionSuccessMsg({
+                    id: 'undo-' + Date.now(),
+                    text: `Undone! Removed "${actionSuccessMsg.foodName || 'recipe'}" from today's meals. ↩️`,
+                  });
+                  setTimeout(() => setActionSuccessMsg(null), 4000);
+                }}
+                className="px-3 py-1.5 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/40 font-bold text-xs transition-all active:scale-95 cursor-pointer flex items-center gap-1.5 shadow-sm"
+                title="Undo this meal log"
+              >
+                <RotateCcw className="w-3.5 h-3.5 text-rose-400" />
+                <span>Undo Log</span>
+              </button>
+            )}
+
+            {actionSuccessMsg.showNutritionLink && (
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveTab('nutrition');
+                  onClose?.();
+                }}
+                className="px-3.5 py-1.5 rounded-xl bg-surface-200 hover:bg-surface-300 text-zinc-200 border border-surface-border font-bold text-xs transition-all active:scale-95 cursor-pointer flex items-center gap-1.5"
+                title="Open Daily Nutrition & Meals"
+              >
+                <UtensilsCrossed className="w-3.5 h-3.5 text-brand-400" />
+                <span>View in Nutrition ➔</span>
+              </button>
+            )}
+
             {actionSuccessMsg.showGroceryLink && (
               <button
                 type="button"
@@ -1355,7 +1470,12 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
                 <span>Open Shopping List ➔</span>
               </button>
             )}
-            <button onClick={() => setActionSuccessMsg(null)} className="text-emerald-400 hover:text-emerald-200 p-1">
+
+            <button
+              onClick={() => setActionSuccessMsg(null)}
+              className="text-emerald-400 hover:text-emerald-200 p-1"
+              title="Dismiss notification"
+            >
               <X className="w-3.5 h-3.5" />
             </button>
           </div>

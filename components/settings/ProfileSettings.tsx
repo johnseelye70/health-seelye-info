@@ -212,6 +212,16 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'Beta 2.15.0',
+      date: '2026-08-25',
+      title: 'Instant Meal Log Undo Engine & 1-Tap Nutrition Jump',
+      changes: [
+        '1-Tap Toast Undo Action: Added an immediate "[ ↩️ Undo Log ]" button inside recipe action toasts that allows users to instantly remove accidentally logged meals without leaving the recipe view.',
+        'Direct Nutrition Navigation: Added a 1-tap "[ View in Nutrition ➔ ]" shortcut inside the feedback banner to jump directly to daily meal logs.',
+        'Nutrition Tab Meal Log Management: Logged meals remain fully manageable and removable at any time with individual delete icons in Simple Mode ("Today’s Meals") and Athlete Mode ("Meal 1 / Meal 2 / Meal 3" cards).',
+      ],
+    },
+    {
       version: 'Beta 2.14.0',
       date: '2026-08-25',
       title: 'Recipe Card Grid Footer Size Optimization & Contained Multi-Row Layout',
@@ -1422,7 +1432,7 @@ export const ProfileSettings: React.FC = () => {
             title="Click to open release changelog modal window"
           >
             <span className="w-2 h-2 rounded-full bg-brand-400 animate-pulse"></span>
-            <span>Active: Beta 2.14.0</span>
+            <span>Active: Beta 2.15.0</span>
             <ChevronRight className="w-3.5 h-3.5 text-brand-400 group-hover:translate-x-0.5 transition-transform" />
           </button>
         </div>

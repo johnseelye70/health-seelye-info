@@ -59,7 +59,7 @@ interface HealthContextType {
   foods: FoodItem[];
   addCustomFood: (food: Omit<FoodItem, 'id'>) => void;
   foodLogs: FoodLogEntry[];
-  logFood: (entry: Omit<FoodLogEntry, 'id' | 'created_at' | 'calories' | 'protein_g' | 'carbs_g' | 'fat_g'> & { food: FoodItem }) => void;
+  logFood: (entry: Omit<FoodLogEntry, 'id' | 'created_at' | 'calories' | 'protein_g' | 'carbs_g' | 'fat_g'> & { food: FoodItem }) => string;
   deleteFoodLog: (id: string) => void;
   
   // Calculated Nutrition State
@@ -862,6 +862,8 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
           })
           .then(() => {});
       }
+
+      return newEntry.id;
     },
     []
   );
