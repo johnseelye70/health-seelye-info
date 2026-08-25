@@ -156,7 +156,7 @@ export const Header: React.FC = () => {
           type="button"
           onClick={toggleThemeMode}
           title={themeMode === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-          className="flex items-center justify-center p-2 sm:px-3 sm:py-2 rounded-xl bg-surface-100 hover:bg-surface-50 border border-surface-border text-xs font-bold text-zinc-300 transition-all hover:border-brand-500/40 cursor-pointer select-none shrink-0"
+          className="flex items-center justify-center w-8 h-8 sm:w-auto sm:px-3 sm:py-2 rounded-xl bg-surface-100 hover:bg-surface-50 border border-surface-border text-xs font-bold text-zinc-300 transition-all hover:border-brand-500/40 cursor-pointer select-none shrink-0"
         >
           {themeMode === 'dark' ? (
             <>
@@ -193,7 +193,7 @@ export const Header: React.FC = () => {
           <span className="hidden lg:inline">Macro Calc</span>
         </button>
 
-        {/* Cloud Account & Cross-Device Sync Button */}
+        {/* Cloud Account & Cross-Device Sync Button (Fixed Mobile Width) */}
         <button
           id="btn-cloud-sync-header"
           onClick={() => setShowAuthModal(true)}
@@ -202,7 +202,7 @@ export const Header: React.FC = () => {
               ? `Signed in as ${authUser.email} (Click to manage sync)`
               : 'Sign in to sync your data across iPhone, iPad & Computer'
           }
-          className={`flex items-center justify-center p-2 sm:px-3 sm:py-2 rounded-xl border text-xs font-semibold transition-all cursor-pointer shrink-0 ${
+          className={`flex items-center justify-center w-8 h-8 sm:w-auto sm:px-3 sm:py-2 rounded-xl border text-xs font-semibold transition-all cursor-pointer shrink-0 ${
             authUser
               ? 'bg-emerald-950/40 border-emerald-500/40 text-emerald-300 hover:bg-emerald-900/50'
               : 'bg-surface-100 hover:bg-surface-50 border-surface-border text-zinc-300 hover:border-brand-500/40'
@@ -210,14 +210,14 @@ export const Header: React.FC = () => {
         >
           {authUser ? (
             <>
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0"></span>
-              <Cloud className="w-3.5 h-3.5 text-emerald-400 shrink-0 ml-1 sm:ml-1.5" />
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0 hidden sm:inline-block"></span>
+              <Cloud className="w-3.5 h-3.5 text-emerald-400 shrink-0 sm:ml-1.5" />
               <span className="hidden md:inline font-mono text-[11px] ml-1.5">Synced</span>
             </>
           ) : (
             <>
               <Cloud className="w-3.5 h-3.5 text-brand-400 shrink-0" />
-              <span className="hidden sm:inline ml-1.5">Sync Cloud</span>
+              <span className="hidden sm:inline ml-1.5">Sync</span>
             </>
           )}
         </button>

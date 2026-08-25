@@ -211,6 +211,16 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'Beta 2.4.4',
+      date: '2026-08-25',
+      title: 'Authenticated Mobile Viewport & Background Blur Offset Fix for iOS',
+      changes: [
+        'Authenticated Header Fix: Locked action buttons (Cloud Sync & Theme Toggle) to fixed compact dimensions (w-8 h-8) on mobile screens, preventing the header from expanding horizontally upon cloud login.',
+        'Eliminated Negative Blur Offsets: Removed all negative margins and coordinate offsets (-mr-20, -top-24, -right-24) on background ambient blur nodes across Dashboard and Fasting views, strictly adhering to iOS Safari layout boundaries.',
+        'Zero Side-to-Side Elasticity: Guaranteed zero horizontal wiggle on iPhone viewports both before and after authenticating.',
+      ],
+    },
+    {
       version: 'Beta 2.4.3',
       date: '2026-08-25',
       title: 'Zero Forced Biometrics & Inline Biometrics Studio in Progress Section',
@@ -1200,7 +1210,7 @@ export const ProfileSettings: React.FC = () => {
             title="Click to open release changelog modal window"
           >
             <span className="w-2 h-2 rounded-full bg-brand-400 animate-pulse"></span>
-            <span>Active: Beta 2.4.3</span>
+            <span>Active: Beta 2.4.4</span>
             <ChevronRight className="w-3.5 h-3.5 text-brand-400 group-hover:translate-x-0.5 transition-transform" />
           </button>
         </div>

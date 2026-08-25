@@ -133,7 +133,7 @@ export const FastingTracker: React.FC = () => {
         {/* Left 2 Columns: Live Countdown Ring */}
         <div className="lg:col-span-2 rounded-3xl bg-surface-100/90 border border-surface-border p-6 md:p-8 backdrop-blur-xl flex flex-col items-center justify-center text-center relative overflow-hidden">
           <div
-            className={`absolute -top-24 -right-24 w-72 h-72 rounded-full blur-3xl pointer-events-none ${
+            className={`absolute top-0 right-0 w-64 h-64 rounded-full blur-3xl pointer-events-none ${
               fastingStatus.isFasting ? 'bg-purple-600/10' : 'bg-brand-500/10'
             }`}
           />
