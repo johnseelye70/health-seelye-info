@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useHealth } from '@/context/HealthContext';
 import {
   ExerciseCategory,
@@ -31,6 +31,10 @@ import {
   Play,
   Layers,
   Scale,
+  Filter,
+  Zap,
+  Target,
+  Compass,
 } from 'lucide-react';
 
 interface ExerciseDatabaseBrowserProps {
@@ -45,7 +49,29 @@ export const ExerciseDatabaseBrowser: React.FC<ExerciseDatabaseBrowserProps> = (
   const { profile, toggleEquipment, experienceMode } = useHealth();
   const isSimple = experienceMode === 'simple';
 
+  // Fast Instant-Response Debounced Search State
+  const [inputValue, setInputValue] = useState<string>('');
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [isSearching, setIsSearching] = useState<boolean>(false);
+  const [visibleCount, setVisibleCount] = useState<number>(36);
+
+  // 120ms debounce effect so typing is 100% instant and non-blocking
+  useEffect(() => {
+    if (inputValue === searchQuery) return;
+    setIsSearching(true);
+    const timer = setTimeout(() => {
+      setSearchQuery(inputValue);
+      setVisibleCount(36);
+      if (inputValue.trim().length > 0) {
+        setSelectedCategory(null);
+        setSelectedSubCategory(null);
+      }
+      setIsSearching(false);
+    }, 120);
+
+    return () => clearTimeout(timer);
+  }, [inputValue, searchQuery]);
+
   const [selectedCategory, setSelectedCategory] = useState<ExerciseCategory | null>(null);
   const [selectedSubCategory, setSelectedSubCategory] = useState<string | null>(null);
   const [selectedExerciseDetail, setSelectedExerciseDetail] = useState<ExerciseItem | null>(null);
@@ -339,29 +365,36 @@ export const ExerciseDatabaseBrowser: React.FC<ExerciseDatabaseBrowserProps> = (
 
         {/* Global Instant Search */}
         <div className="relative">
-          <Search className="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400" />
+          <Search className={`w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 transition-colors ${isSearching ? 'text-brand-400 animate-pulse' : 'text-zinc-400'}`} />
           <input
             type="text"
             id="exercise-global-search"
-            value={searchQuery}
-            onChange={(e) => {
-              setSearchQuery(e.target.value);
-              if (e.target.value.trim().length > 0) {
-                setSelectedCategory(null);
-                setSelectedSubCategory(null);
-              }
-            }}
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
             placeholder="Search exercises by name, muscle (e.g. bench press, pull-ups, squats, lateral raise, deadlift)..."
-            className="w-full pl-12 pr-10 py-3.5 rounded-2xl bg-surface-200/90 border border-surface-border text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 transition-all shadow-inner"
+            className="w-full pl-12 pr-24 py-3.5 rounded-2xl bg-surface-100 dark:bg-surface-100 border-2 border-surface-border hover:border-brand-500/40 text-base sm:text-sm font-semibold text-white dark:text-white placeholder:text-zinc-500 focus:outline-none focus:border-brand-400 focus:ring-4 focus:ring-brand-500/20 transition-all shadow-inner caret-brand-400"
           />
-          {searchQuery.length > 0 && (
-            <button
-              onClick={() => setSearchQuery('')}
-              className="absolute right-3.5 top-1/2 -translate-y-1/2 p-1 rounded-lg text-zinc-400 hover:text-white bg-surface-300 cursor-pointer"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          )}
+          <div className="absolute right-3.5 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
+            {isSearching && (
+              <span className="text-[10px] font-mono text-brand-400 bg-brand-500/10 px-2 py-0.5 rounded-full border border-brand-500/20 animate-pulse hidden sm:inline">
+                Searching...
+              </span>
+            )}
+            {inputValue.length > 0 && (
+              <button
+                type="button"
+                onClick={() => {
+                  setInputValue('');
+                  setSearchQuery('');
+                  setVisibleCount(36);
+                }}
+                className="p-1.5 rounded-xl text-zinc-400 hover:text-white bg-surface-300 hover:bg-surface-200 cursor-pointer transition-all active:scale-95 shadow-sm"
+                title="Clear search query"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
@@ -601,7 +634,7 @@ export const ExerciseDatabaseBrowser: React.FC<ExerciseDatabaseBrowserProps> = (
 
           {/* Exercise Cards Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
-            {filteredExercises.map((ex) => {
+            {filteredExercises.slice(0, visibleCount).map((ex) => {
               const isAvailable = isExerciseAvailable(ex);
               const missingGear = (ex.required_equipment_ids || [ex.equipment_required]).filter(
                 (id) => id !== 'bodyweight' && !ownedEquipmentIds.has(id)
@@ -633,7 +666,7 @@ export const ExerciseDatabaseBrowser: React.FC<ExerciseDatabaseBrowserProps> = (
                         </div>
                       </div>
 
-                      {/* Symbiotic Availability Status Pill */}
+                      {/* Availability Pill */}
                       <span
                         className={`text-[10px] font-mono px-2 py-0.5 rounded-full font-bold border flex-shrink-0 ${
                           isAvailable
@@ -645,33 +678,21 @@ export const ExerciseDatabaseBrowser: React.FC<ExerciseDatabaseBrowserProps> = (
                       </span>
                     </div>
 
-                    {/* Instructions Cues */}
+                    {/* Instructions / Cues */}
                     <p className="text-xs text-zinc-400 mt-3 leading-relaxed line-clamp-2">
                       {ex.instructions || 'Follow biomechanical cues for optimal muscle recruitment and joint safety.'}
                     </p>
 
-                    {/* Missing Equipment Warning & 1-Click Quick Add */}
-                    {!isAvailable && missingGear.length > 0 && (
-                      <div className="mt-3 p-2 rounded-xl bg-amber-500/10 border border-amber-500/20 text-[11px] text-amber-300 flex items-center justify-between gap-2">
-                        <div className="flex items-center gap-1.5 truncate">
-                          <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
-                          <span className="truncate">Requires: {missingGear.join(', ')}</span>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            missingGear.forEach((g) => toggleEquipment(g));
-                          }}
-                          className="px-2 py-0.5 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 border border-amber-500/40 text-[10px] font-bold cursor-pointer whitespace-nowrap"
-                        >
-                          + Add to Gym
-                        </button>
-                      </div>
-                    )}
+                    {/* Equipment Pill */}
+                    <div className="mt-3 flex items-center gap-1.5 text-xs text-zinc-400">
+                      <Dumbbell className="w-3.5 h-3.5 text-brand-400 shrink-0" />
+                      <span className="truncate">
+                        Required: <strong className="text-zinc-200 capitalize">{ex.equipment_required.replace(/_/g, ' ')}</strong>
+                      </span>
+                    </div>
                   </div>
 
-                  {/* Card Footer */}
+                  {/* Card Bottom Actions */}
                   <div className="mt-4 pt-3 border-t border-surface-border/60 flex items-center justify-between text-xs">
                     <span className="text-[11px] text-zinc-400 font-mono capitalize">
                       {ex.category.replace('_', ' ')} • {ex.difficulty}
@@ -684,7 +705,7 @@ export const ExerciseDatabaseBrowser: React.FC<ExerciseDatabaseBrowserProps> = (
                           e.stopPropagation();
                           onSelectExercise(ex);
                         }}
-                        className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-brand-500 text-zinc-950 font-bold text-xs shadow-glow active:scale-95 cursor-pointer"
+                        className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-brand-500 text-zinc-950 text-xs font-bold shadow-glow hover:bg-brand-400 transition-all active:scale-95 cursor-pointer"
                       >
                         <Plus className="w-3.5 h-3.5" />
                         <span>Select</span>
@@ -707,6 +728,20 @@ export const ExerciseDatabaseBrowser: React.FC<ExerciseDatabaseBrowserProps> = (
               );
             })}
           </div>
+
+          {/* Load More Pagination Control */}
+          {filteredExercises.length > visibleCount && (
+            <div className="text-center pt-4 pb-2">
+              <button
+                type="button"
+                onClick={() => setVisibleCount((prev) => prev + 36)}
+                className="px-6 py-3 rounded-2xl bg-surface-200 hover:bg-surface-300 border border-surface-border text-xs font-bold text-brand-300 hover:text-brand-200 transition-all shadow-md active:scale-95 cursor-pointer inline-flex items-center gap-2"
+              >
+                <span>Load More Exercises ({filteredExercises.length - visibleCount} remaining)</span>
+                <ChevronRight className="w-4 h-4 text-brand-400" />
+              </button>
+            </div>
+          )}
         </div>
       )}
 

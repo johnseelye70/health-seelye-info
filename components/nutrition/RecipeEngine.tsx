@@ -1311,19 +1311,19 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
         </div>
 
         {/* Search Input Bar */}
-        <div className="relative w-full sm:w-64">
+        <div className="relative w-full sm:w-72">
           <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search ingredients, recipes..."
-            className="w-full pl-9 pr-8 py-2 rounded-xl bg-surface-200/80 border border-surface-border text-xs text-zinc-100 placeholder:text-zinc-500 focus:outline-none focus:border-brand-500/50"
+            className="w-full pl-9 pr-8 py-2 rounded-xl bg-surface-100 dark:bg-surface-100 border border-surface-border hover:border-brand-500/40 text-xs font-semibold text-white dark:text-white placeholder:text-zinc-500 focus:outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-500/20 caret-brand-400 transition-all shadow-inner"
           />
           {searchQuery && (
             <button
               onClick={() => setSearchQuery('')}
-              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-200"
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-white p-0.5 cursor-pointer"
             >
               <X className="w-3.5 h-3.5" />
             </button>

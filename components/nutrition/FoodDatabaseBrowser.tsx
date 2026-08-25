@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { FoodItem, FoodCategory } from '@/lib/types';
 import {
   FOOD_CATEGORIES,
@@ -26,6 +26,7 @@ import {
   Leaf,
   Apple,
   Zap,
+  Loader2,
 } from 'lucide-react';
 
 interface FoodDatabaseBrowserProps {
@@ -43,7 +44,29 @@ export const FoodDatabaseBrowser: React.FC<FoodDatabaseBrowserProps> = ({
   const isImperial = profile.unit_preference === 'imperial';
   const isSimple = experienceMode === 'simple';
 
+  // Fast Instant-Response Debounced Search State
+  const [inputValue, setInputValue] = useState<string>('');
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [isSearching, setIsSearching] = useState<boolean>(false);
+  const [visibleCount, setVisibleCount] = useState<number>(36);
+
+  // 120ms debounce effect so typing is 100% instant and non-blocking
+  useEffect(() => {
+    if (inputValue === searchQuery) return;
+    setIsSearching(true);
+    const timer = setTimeout(() => {
+      setSearchQuery(inputValue);
+      setVisibleCount(36);
+      if (inputValue.trim().length > 0) {
+        setSelectedCategory(null);
+        setSelectedSubCategory(null);
+      }
+      setIsSearching(false);
+    }, 120);
+
+    return () => clearTimeout(timer);
+  }, [inputValue, searchQuery]);
+
   const [selectedCategory, setSelectedCategory] = useState<FoodCategory | null>(null);
   const [selectedSubCategory, setSelectedSubCategory] = useState<string | null>(null);
   const [selectedFoodDetail, setSelectedFoodDetail] = useState<FoodItem | null>(null);
@@ -133,6 +156,11 @@ export const FoodDatabaseBrowser: React.FC<FoodDatabaseBrowserProps> = ({
   const hasActiveDietaryFilters = activeFiltersCount > 0;
 
   const resetAllFilters = () => {
+    setInputValue('');
+    setSearchQuery('');
+    setVisibleCount(36);
+    setSelectedCategory(null);
+    setSelectedSubCategory(null);
     setFilterHighProtein(false);
     setFilterGlutenFree(false);
     setFilterDairyFree(false);
@@ -407,29 +435,36 @@ export const FoodDatabaseBrowser: React.FC<FoodDatabaseBrowserProps> = ({
 
         {/* Global Instant Search Bar */}
         <div className="relative">
-          <Search className="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400" />
+          <Search className={`w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 transition-colors ${isSearching ? 'text-brand-400 animate-pulse' : 'text-zinc-400'}`} />
           <input
             type="text"
             id="food-database-global-search"
-            value={searchQuery}
-            onChange={(e) => {
-              setSearchQuery(e.target.value);
-              if (e.target.value.trim().length > 0) {
-                setSelectedCategory(null);
-                setSelectedSubCategory(null);
-              }
-            }}
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
             placeholder="Search any food globally (e.g. chicken breast, sirloin, wild salmon, rolled oats, avocado)..."
-            className="w-full pl-12 pr-10 py-3.5 rounded-2xl bg-surface-200/90 border border-surface-border text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 transition-all shadow-inner"
+            className="w-full pl-12 pr-24 py-3.5 rounded-2xl bg-surface-100 dark:bg-surface-100 border-2 border-surface-border hover:border-brand-500/40 text-base sm:text-sm font-semibold text-white dark:text-white placeholder:text-zinc-500 focus:outline-none focus:border-brand-400 focus:ring-4 focus:ring-brand-500/20 transition-all shadow-inner caret-brand-400"
           />
-          {searchQuery.length > 0 && (
-            <button
-              onClick={() => setSearchQuery('')}
-              className="absolute right-3.5 top-1/2 -translate-y-1/2 p-1 rounded-lg text-zinc-400 hover:text-white bg-surface-300 cursor-pointer"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          )}
+          <div className="absolute right-3.5 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
+            {isSearching && (
+              <span className="text-[10px] font-mono text-brand-400 bg-brand-500/10 px-2 py-0.5 rounded-full border border-brand-500/20 animate-pulse hidden sm:inline">
+                Searching...
+              </span>
+            )}
+            {inputValue.length > 0 && (
+              <button
+                type="button"
+                onClick={() => {
+                  setInputValue('');
+                  setSearchQuery('');
+                  setVisibleCount(36);
+                }}
+                className="p-1.5 rounded-xl text-zinc-400 hover:text-white bg-surface-300 hover:bg-surface-200 cursor-pointer transition-all active:scale-95 shadow-sm"
+                title="Clear search query"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Active Filters Pill Bar (Simple, dismissible tags) */}
@@ -698,7 +733,9 @@ export const FoodDatabaseBrowser: React.FC<FoodDatabaseBrowserProps> = ({
                 onClick={() => {
                   setSelectedCategory(null);
                   setSelectedSubCategory(null);
+                  setInputValue('');
                   setSearchQuery('');
+                  setVisibleCount(36);
                 }}
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-surface-200 hover:bg-surface-300 border border-surface-border font-semibold text-zinc-200 hover:text-white transition-all active:scale-95 cursor-pointer"
               >
@@ -774,7 +811,7 @@ export const FoodDatabaseBrowser: React.FC<FoodDatabaseBrowserProps> = ({
 
           {/* Food Cards Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
-            {filteredFoods.map((item) => (
+            {filteredFoods.slice(0, visibleCount).map((item) => (
               <div
                 key={item.id}
                 id={`food-card-${item.id}`}
@@ -887,6 +924,20 @@ export const FoodDatabaseBrowser: React.FC<FoodDatabaseBrowserProps> = ({
               </div>
             ))}
           </div>
+
+          {/* Load More Pagination Control */}
+          {filteredFoods.length > visibleCount && (
+            <div className="text-center pt-4 pb-2">
+              <button
+                type="button"
+                onClick={() => setVisibleCount((prev) => prev + 36)}
+                className="px-6 py-3 rounded-2xl bg-surface-200 hover:bg-surface-300 border border-surface-border text-xs font-bold text-brand-300 hover:text-brand-200 transition-all shadow-md active:scale-95 cursor-pointer inline-flex items-center gap-2"
+              >
+                <span>Load More Foods ({filteredFoods.length - visibleCount} remaining)</span>
+                <ChevronRight className="w-4 h-4 text-brand-400" />
+              </button>
+            </div>
+          )}
         </div>
       )}
 
