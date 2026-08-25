@@ -128,9 +128,7 @@ export const Header: React.FC = () => {
         >
           <Clock className="w-3.5 h-3.5" />
           <span className="font-semibold">
-            {experienceMode === 'simple'
-              ? (fastingStatus.isFasting ? 'Fasting' : 'Eating')
-              : (fastingStatus.isFasting ? 'FASTING' : 'EATING WINDOW')}
+            {fastingStatus.isFasting ? 'Fasting' : 'Eating Window'}
           </span>
           <span className="text-[10px] text-zinc-400">
             {Math.floor(fastingStatus.remainingSeconds / 3600)}h {Math.floor((fastingStatus.remainingSeconds % 3600) / 60)}m

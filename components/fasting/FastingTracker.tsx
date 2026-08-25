@@ -146,8 +146,8 @@ export const FastingTracker: React.FC = () => {
             />
             <span className="font-bold text-zinc-200">
               {fastingStatus.isFasting
-                ? (isSimple ? 'Fasting Time • Resting & Digesting' : 'FASTING PHASE ACTIVE')
-                : (isSimple ? 'Eating Window • Time for Healthy Food' : 'EATING WINDOW ACTIVE')}
+                ? (isSimple ? 'Fasting Time • Resting & Digesting' : 'Fasting Phase Active')
+                : (isSimple ? 'Eating Window • Time for Healthy Food' : 'Eating Window Active')}
             </span>
           </div>
 

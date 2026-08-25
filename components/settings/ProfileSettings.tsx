@@ -211,6 +211,15 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'Beta 2.0.3',
+      date: '2026-08-24',
+      title: 'Consistent Title-Case Fasting State Labels Across All Modes',
+      changes: [
+        'Clean Title Case: Replaced uppercase FASTING and EATING WINDOW text in Athlete Mode with clean Title Case ("Fasting" and "Eating Window") matching Simple Mode.',
+        'Unified Fasting Indicators: Standardized live status indicators across both the header pill and the circadian fasting tracker screen.',
+      ],
+    },
+    {
       version: 'Beta 2.0.2',
       date: '2026-08-24',
       title: 'Static Anchored Header Toggle for Simple vs Athlete Mode',
@@ -1091,7 +1100,7 @@ export const ProfileSettings: React.FC = () => {
             title="Click to open release changelog modal window"
           >
             <span className="w-2 h-2 rounded-full bg-brand-400 animate-pulse"></span>
-            <span>Active: Beta 2.0.2</span>
+            <span>Active: Beta 2.0.3</span>
             <ChevronRight className="w-3.5 h-3.5 text-brand-400 group-hover:translate-x-0.5 transition-transform" />
           </button>
         </div>
