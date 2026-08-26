@@ -74,7 +74,7 @@ export const Header: React.FC = () => {
 
   return (
     <header className="sticky top-0 z-20 bg-surface-200/90 backdrop-blur-2xl border-b border-surface-border px-2.5 sm:px-6 md:px-8 pt-[max(env(safe-area-inset-top),10px)] pb-2.5 sm:pb-3 flex items-center justify-between w-full max-w-full min-w-0 overflow-x-hidden">
-      {/* Left: Brand/Date, Version Badge & Experience Mode Segmented Switch */}
+      {/* Left: Brand/Date, Compact Version Badge & Unified 1-Button Mode Toggle */}
       <div className="flex items-center gap-1.5 sm:gap-3 shrink-0 min-w-0">
         {/* Mobile Brand Icon */}
         <div className="flex md:hidden items-center shrink-0">
@@ -83,9 +83,9 @@ export const Header: React.FC = () => {
           </div>
         </div>
 
-        {/* Prominent Version Badge (Mobile & Desktop) */}
+        {/* Compact Version Badge (Mobile & Desktop) */}
         <span className="font-mono text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-surface-100 border border-surface-border text-brand-400 shrink-0 select-none shadow-sm">
-          Beta 2.18.0
+          b2.19.0
         </span>
 
         <div className="hidden sm:flex items-center gap-2 text-zinc-300 font-medium text-xs sm:text-sm shrink-0">
@@ -93,37 +93,34 @@ export const Header: React.FC = () => {
           <span>{formattedDate}</span>
         </div>
 
-        {/* Static, Non-Moving Experience Mode Segmented Switch */}
-        <div className="flex items-center p-0.5 rounded-xl bg-surface-100 border border-surface-border select-none shrink-0 shadow-inner">
-          <button
-            type="button"
-            id="btn-mode-simple"
-            onClick={() => setExperienceMode('simple')}
-            title="Switch to Simple Daily Wellness Mode"
-            className={`flex items-center justify-center gap-1 px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-              experienceMode === 'simple'
-                ? 'bg-brand-500 text-zinc-950 shadow-glow font-bold'
-                : 'text-zinc-400 hover:text-zinc-200'
-            }`}
-          >
-            <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0" />
-            <span className="text-[11px] sm:text-xs">Simple</span>
-          </button>
-          <button
-            type="button"
-            id="btn-mode-athlete"
-            onClick={() => setExperienceMode('advanced')}
-            title="Switch to High-Tech Athlete Mode"
-            className={`flex items-center justify-center gap-1 px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-              experienceMode === 'advanced'
-                ? 'bg-purple-600 text-white shadow-glow font-bold'
-                : 'text-zinc-400 hover:text-zinc-200'
-            }`}
-          >
-            <Flame className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0" />
-            <span className="text-[11px] sm:text-xs">Athlete</span>
-          </button>
-        </div>
+        {/* Unified 1-Button Experience Mode Toggle (Simple ↔ Athlete) */}
+        <button
+          type="button"
+          id="btn-toggle-experience-mode"
+          onClick={toggleExperienceMode}
+          title={
+            experienceMode === 'simple'
+              ? 'Current: Simple Mode (Click to switch to Athlete Mode)'
+              : 'Current: Athlete Mode (Click to switch to Simple Mode)'
+          }
+          className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl border text-xs font-bold transition-all cursor-pointer select-none active:scale-95 shadow-sm shrink-0 ${
+            experienceMode === 'simple'
+              ? 'bg-brand-500/15 hover:bg-brand-500/25 border-brand-500/40 text-brand-300'
+              : 'bg-purple-950/40 hover:bg-purple-900/50 border-purple-500/40 text-purple-300'
+          }`}
+        >
+          {experienceMode === 'simple' ? (
+            <>
+              <Sparkles className="w-3.5 h-3.5 text-brand-400 shrink-0" />
+              <span className="text-[11px] sm:text-xs">Simple</span>
+            </>
+          ) : (
+            <>
+              <Flame className="w-3.5 h-3.5 text-purple-400 shrink-0" />
+              <span className="text-[11px] sm:text-xs">Athlete</span>
+            </>
+          )}
+        </button>
       </div>
 
       {/* Right: Actions & Fasting / Quick Controls */}

@@ -212,6 +212,16 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'b2.19.0',
+      date: '2026-08-25',
+      title: 'Unified 1-Button Mode Toggle & Compact Version Badge Branding',
+      changes: [
+        'Unified 1-Button Experience Toggle: Replaced the dual-segment switch with a single compact, reactive mode toggle button (✨ Simple ↔ 🔥 Athlete), cutting 55px of horizontal header width and maximizing space on mobile screens.',
+        'Compact "b2.19.0" Version Formatting: Adopted the streamlined "b2.19.0" badge format across the mobile header, home dashboard banner, sidebar, and document footer for a sleeker footprint.',
+        'Zero Horizontal Header Drift: Combined compact mode switching and bounded touch targets to ensure a perfectly centered, rock-solid header on iPhone and mobile viewports.',
+      ],
+    },
+    {
       version: 'Beta 2.18.0',
       date: '2026-08-25',
       title: 'iPhone Header Width Optimization & Universal Mobile Version Display',
@@ -1464,7 +1474,7 @@ export const ProfileSettings: React.FC = () => {
             title="Click to open release changelog modal window"
           >
             <span className="w-2 h-2 rounded-full bg-brand-400 animate-pulse"></span>
-            <span>Active: Beta 2.18.0</span>
+            <span>Active: b2.19.0</span>
             <ChevronRight className="w-3.5 h-3.5 text-brand-400 group-hover:translate-x-0.5 transition-transform" />
           </button>
         </div>
