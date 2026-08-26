@@ -44,7 +44,7 @@ export const BottomNav: React.FC = () => {
 
   return (
     <nav
-      className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-surface-200/95 backdrop-blur-2xl border-t border-surface-border px-1.5 pt-1.5 pb-[max(env(safe-area-inset-bottom),10px)] flex items-center justify-around select-none shadow-2xl"
+      className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-surface-200/95 backdrop-blur-2xl border-t border-surface-border px-1.5 pt-1.5 pb-[max(env(safe-area-inset-bottom),10px)] flex items-center justify-around select-none shadow-2xl overflow-hidden"
       aria-label="Mobile Navigation"
     >
       {navItems.map((item) => {
@@ -62,14 +62,14 @@ export const BottomNav: React.FC = () => {
                 : 'text-zinc-400 hover:text-zinc-200'
             }`}
           >
-            <div className="relative">
+            <div className="relative flex items-center justify-center">
               <Icon
                 className={`w-5 h-5 transition-transform ${
                   isActive ? 'text-brand-400 stroke-[2.5] scale-110' : 'text-zinc-400'
                 }`}
               />
               {item.badge && (
-                <span className="absolute -top-1 -right-2 px-1 py-0.2 bg-brand-500 text-zinc-950 text-[8px] font-mono font-black rounded-full leading-none shadow-sm">
+                <span className="absolute -top-1 -right-1 px-1 py-0.2 bg-brand-500 text-zinc-950 text-[8px] font-mono font-black rounded-full leading-none shadow-sm">
                   {item.badge}
                 </span>
               )}

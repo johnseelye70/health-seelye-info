@@ -86,7 +86,7 @@ export const DashboardOverview: React.FC = () => {
         <div className="absolute top-0 right-0 w-64 h-64 bg-brand-500/10 rounded-full blur-3xl pointer-events-none"></div>
         <div className="relative z-10 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
           <div>
-            <div className="flex items-center gap-2 mb-2">
+            <div className="flex flex-wrap items-center gap-2 mb-2">
               <span className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-brand-500/20 text-brand-300 border border-brand-500/30 flex items-center gap-1.5">
                 {isSimple ? (
                   <>
@@ -100,7 +100,10 @@ export const DashboardOverview: React.FC = () => {
                   </>
                 )}
               </span>
-              <span className="text-zinc-500 text-xs">•</span>
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-surface-200 border border-surface-border text-brand-400">
+                Beta 2.18.0
+              </span>
+              <span className="text-zinc-500 text-xs hidden sm:inline">•</span>
               <span className="text-zinc-400 text-xs font-mono">
                 {isSimple ? 'Healthy Balanced Plan' : (profile.goal === 'cut_500' ? '500 kcal Deficit (Fat Oxidation)' : profile.goal.replace('_', ' ').toUpperCase())}
               </span>

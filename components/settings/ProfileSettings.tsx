@@ -212,6 +212,16 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'Beta 2.18.0',
+      date: '2026-08-25',
+      title: 'iPhone Header Width Optimization & Universal Mobile Version Display',
+      changes: [
+        'Resolved iPhone Horizontal Slop: Re-architected mobile header action cluster with responsive touch targets (32x32px square icon buttons for Log Food and Shopping List), guaranteeing zero horizontal boundary overflow and eliminating side-to-side elasticity on narrow iPhone screens (iPhone SE, 12/13/14/15/16).',
+        'Universal Mobile Version Info: Prominently integrated the system version badge ("Beta 2.18.0") directly into the persistent mobile header brand bar, home dashboard welcome banner, and mobile document stream footer so you can immediately see the active version on iPhone without searching.',
+        'Strict Viewport Overflow Guards: Added overflow-x-hidden constraints and bounded mobile bottom navigation badge coordinates, ensuring full-screen layout stability across iOS Safari.',
+      ],
+    },
+    {
       version: 'Beta 2.17.0',
       date: '2026-08-25',
       title: 'Realistic Master Food Database Overhaul & Multi-Category Expansion',
@@ -1454,7 +1464,7 @@ export const ProfileSettings: React.FC = () => {
             title="Click to open release changelog modal window"
           >
             <span className="w-2 h-2 rounded-full bg-brand-400 animate-pulse"></span>
-            <span>Active: Beta 2.17.0</span>
+            <span>Active: Beta 2.18.0</span>
             <ChevronRight className="w-3.5 h-3.5 text-brand-400 group-hover:translate-x-0.5 transition-transform" />
           </button>
         </div>
