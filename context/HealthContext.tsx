@@ -129,13 +129,15 @@ interface HealthContextType {
   logWaterOz: (amountOz: number, container?: string) => void;
   resetTodayWater: () => void;
 
-  // Step Tracker & Sensor Engine
+  // Step Tracker & Automated Watch / Apple Health Sync
   stepGoal: number;
   setStepGoal: (goal: number) => void;
   stepLogs: StepLogEntry[];
   todaySteps: number;
   todayStepMiles: number;
   todayStepCalories: number;
+  lastStepSyncTimestamp: string | null;
+  stepSyncSource: StepLogEntry['source'];
   logSteps: (steps: number, source?: StepLogEntry['source'], distanceMiles?: number, caloriesBurned?: number) => void;
   resetTodaySteps: () => void;
   
@@ -191,6 +193,8 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
   const [waterLogs, setWaterLogs] = useState<WaterLogEntry[]>([]);
   const [stepGoal, setStepGoal] = useState<number>(10000);
   const [stepLogs, setStepLogs] = useState<StepLogEntry[]>([]);
+  const [lastStepSyncTimestamp, setLastStepSyncTimestamp] = useState<string | null>(null);
+  const [stepSyncSource, setStepSyncSource] = useState<StepLogEntry['source']>('apple_health');
   const [simpleMovementActivities, setSimpleMovementActivities] = useState<SimpleMovementActivity[]>(DEFAULT_SIMPLE_DAILY_CHOICES);
 
   // Cloud Auth & Sync States
@@ -1092,7 +1096,7 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
     return Math.round(todaySteps * 0.04);
   }, [todaySteps]);
 
-  const logSteps = useCallback((steps: number, source: StepLogEntry['source'] = 'manual', distanceMiles?: number, caloriesBurned?: number) => {
+  const logSteps = useCallback((steps: number, source: StepLogEntry['source'] = 'apple_health', distanceMiles?: number, caloriesBurned?: number) => {
     const dist = distanceMiles ?? Number((steps * 0.00045).toFixed(2));
     const cals = caloriesBurned ?? Math.round(steps * 0.04);
     const entry: StepLogEntry = {
@@ -1103,6 +1107,8 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
       source,
       logged_at: todayDate,
     };
+    setLastStepSyncTimestamp(new Date().toISOString());
+    setStepSyncSource(source);
     setStepLogs((prev) => {
       const filtered = prev.filter((s) => s.logged_at !== todayDate);
       return [entry, ...filtered];
@@ -1111,7 +1117,53 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
 
   const resetTodaySteps = useCallback(() => {
     setStepLogs((prev) => prev.filter((s) => s.logged_at !== todayDate));
+    setLastStepSyncTimestamp(null);
   }, [todayDate]);
+
+  // Automated Apple Health & Watch Sync (URL Params, Lifecycle, and Tab Visibility Triggers)
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const checkUrlStepSync = () => {
+      try {
+        const urlParams = new URLSearchParams(window.location.search);
+        const stepsParam = urlParams.get('sync_steps') || urlParams.get('steps');
+        if (stepsParam) {
+          const parsed = parseInt(stepsParam.replace(/,/g, '').trim(), 10);
+          if (!isNaN(parsed) && parsed >= 0) {
+            logSteps(parsed, 'apple_health');
+            // Clean URL query parameters without reloading
+            const cleanUrl = window.location.pathname;
+            window.history.replaceState({}, document.title, cleanUrl);
+          }
+        }
+      } catch {
+        // Safe fail
+      }
+    };
+
+    // Check on initial load
+    checkUrlStepSync();
+
+    // Check on tab visibility / phone unlock
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        checkUrlStepSync();
+      }
+    };
+
+    const handleFocus = () => {
+      checkUrlStepSync();
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('focus', handleFocus);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, [logSteps]);
 
   const resetAllData = useCallback(() => {
     if (typeof window !== 'undefined') {
@@ -1213,13 +1265,15 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
         logWaterOz,
         resetTodayWater,
 
-        // Step Tracker & Sensor Engine
+        // Step Tracker & Automated Watch / Apple Health Sync
         stepGoal,
         setStepGoal,
         stepLogs,
         todaySteps,
         todayStepMiles,
         todayStepCalories,
+        lastStepSyncTimestamp,
+        stepSyncSource,
         logSteps,
         resetTodaySteps,
 

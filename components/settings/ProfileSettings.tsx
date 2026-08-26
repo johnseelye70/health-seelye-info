@@ -212,6 +212,17 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'b2.20.0',
+      date: '2026-08-26',
+      title: 'Automated Apple Health & Watch Background Step Sync Engine',
+      changes: [
+        'Automated Apple Health & Watch Sync: Replaced the battery-draining live accelerometer sensor with a seamless background sync engine that automatically pulls deduplicated Apple Watch and iPhone movement steps on app launch, phone unlock, and tab refocus.',
+        'Zero Battery & Zero CPU Overhead: Eliminated in-browser continuous motion calculations (DeviceMotionEvent), relying on iOS hardware-level M-series motion aggregation for 100% accurate step metrics with 0% idle battery drain.',
+        'Automated Sync API & URL Handlers: Integrated Next.js /api/sync/steps endpoint with smart query param handlers (?sync_steps=) and 1-minute iOS Shortcut automation guidance.',
+        'Streamlined Step Tracker Dashboard: Upgraded StepTracker UI with live sync timestamps, quick-refresh action, and instant increment logging chips (+1,000, +2,500, +5,000).',
+      ],
+    },
+    {
       version: 'b2.19.0',
       date: '2026-08-25',
       title: 'Unified 1-Button Mode Toggle & Compact Version Badge Branding',
@@ -1474,7 +1485,7 @@ export const ProfileSettings: React.FC = () => {
             title="Click to open release changelog modal window"
           >
             <span className="w-2 h-2 rounded-full bg-brand-400 animate-pulse"></span>
-            <span>Active: b2.19.0</span>
+            <span>Active: b2.20.0</span>
             <ChevronRight className="w-3.5 h-3.5 text-brand-400 group-hover:translate-x-0.5 transition-transform" />
           </button>
         </div>
