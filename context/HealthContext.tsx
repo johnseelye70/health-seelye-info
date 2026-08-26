@@ -1156,10 +1156,18 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
       checkUrlStepSync();
     };
 
+    // Periodic refresh while app is actively open on screen (every 60s)
+    const intervalId = setInterval(() => {
+      if (document.visibilityState === 'visible') {
+        checkUrlStepSync();
+      }
+    }, 60000);
+
     document.addEventListener('visibilitychange', handleVisibilityChange);
     window.addEventListener('focus', handleFocus);
 
     return () => {
+      clearInterval(intervalId);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       window.removeEventListener('focus', handleFocus);
     };
