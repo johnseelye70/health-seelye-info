@@ -268,7 +268,7 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
           if (parsed.waterLogs && Array.isArray(parsed.waterLogs)) setWaterLogs(parsed.waterLogs);
           if (parsed.stepGoal) setStepGoal(parsed.stepGoal);
           if (parsed.stepLogs && Array.isArray(parsed.stepLogs)) {
-            loadedStepLogs = parsed.stepLogs;
+            loadedStepLogs = parsed.stepLogs.filter((s: StepLogEntry) => !(s.steps === 8 && s.source === 'apple_health'));
           }
           if (parsed.simpleMovementActivities && Array.isArray(parsed.simpleMovementActivities) && parsed.simpleMovementActivities.length > 0) {
             setSimpleMovementActivities(parsed.simpleMovementActivities);
@@ -1375,9 +1375,16 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
   const todaySteps = useMemo(() => {
     const localToday = getLocalDateString();
     const utcToday = new Date().toISOString().split('T')[0];
-    return stepLogs
-      .filter((s) => s.logged_at === localToday || s.logged_at === utcToday || s.logged_at.startsWith(localToday) || s.logged_at.startsWith(utcToday))
-      .reduce((sum, s) => sum + s.steps, 0);
+    const todayLogs = stepLogs.filter(
+      (s) =>
+        s.logged_at === localToday ||
+        s.logged_at === utcToday ||
+        s.logged_at.startsWith(localToday) ||
+        s.logged_at.startsWith(utcToday)
+    );
+    if (todayLogs.length === 0) return 0;
+    // Use maximum recorded daily total to prevent duplicate summing and eliminate lower stale entries
+    return Math.max(...todayLogs.map((s) => s.steps));
   }, [stepLogs, getLocalDateString]);
 
   const todayStepMiles = useMemo(() => {
@@ -1404,7 +1411,15 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
     setLastStepSyncTimestamp(new Date().toISOString());
     setStepSyncSource(source);
     setStepLogs((prev) => {
-      const filtered = prev.filter((s) => s.logged_at !== localToday && s.logged_at !== utcToday);
+      // Remove all today logs and any 8-step artifacts
+      const filtered = prev.filter(
+        (s) =>
+          s.logged_at !== localToday &&
+          s.logged_at !== utcToday &&
+          !s.logged_at.startsWith(localToday) &&
+          !s.logged_at.startsWith(utcToday) &&
+          !(s.steps === 8 && s.source === 'apple_health')
+      );
       return [entry, ...filtered];
     });
   }, [getLocalDateString]);
@@ -1412,7 +1427,16 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
   const resetTodaySteps = useCallback(() => {
     const localToday = getLocalDateString();
     const utcToday = new Date().toISOString().split('T')[0];
-    setStepLogs((prev) => prev.filter((s) => s.logged_at !== localToday && s.logged_at !== utcToday));
+    setStepLogs((prev) =>
+      prev.filter(
+        (s) =>
+          s.logged_at !== localToday &&
+          s.logged_at !== utcToday &&
+          !s.logged_at.startsWith(localToday) &&
+          !s.logged_at.startsWith(utcToday) &&
+          !(s.steps === 8 && s.source === 'apple_health')
+      )
+    );
     setLastStepSyncTimestamp(null);
   }, [getLocalDateString]);
 

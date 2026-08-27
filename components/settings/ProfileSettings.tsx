@@ -225,6 +225,15 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'b2.29.0',
+      date: '2026-08-26',
+      title: 'Legacy Step Artifact Purge & Max Daily Value Evaluation',
+      changes: [
+        'Corrupted 8-Step Auto-Purge: Added an automated cleansing layer on boot and sync that permanently clears any legacy 8-step artifact from local storage.',
+        'Max Daily Value Aggregation: Upgraded todaySteps metric resolution to compute the maximum validated daily total, preventing stale lower counts from masking updated Apple Watch numbers.',
+      ],
+    },
+    {
       version: 'b2.28.0',
       date: '2026-08-26',
       title: 'Precision Parameter Hygiene & Zero-False Fallback Extraction',
@@ -1578,7 +1587,7 @@ export const ProfileSettings: React.FC = () => {
             title="Click to open release changelog modal window"
           >
             <span className="w-2 h-2 rounded-full bg-brand-400 animate-pulse"></span>
-            <span>Active: b2.28.0</span>
+            <span>Active: b2.29.0</span>
             <ChevronRight className="w-3.5 h-3.5 text-brand-400 group-hover:translate-x-0.5 transition-transform" />
           </button>
         </div>
