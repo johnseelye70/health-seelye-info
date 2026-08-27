@@ -225,6 +225,16 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'b2.27.0',
+      date: '2026-08-26',
+      title: 'Timezone-Aligned Step Logging & Initial State Mounting Race Fix',
+      changes: [
+        'Timezone Alignment: Resolved UTC vs Local date boundary discrepancy (getLocalDateString) so that evening step synchronizations (e.g. 10 PM) properly match and display in the current day view.',
+        'Initial State Race Fix: Unified URL step parsing directly within the primary local storage state loader, guaranteeing that step totals from Apple Shortcuts are never overwritten by cached empty state upon page load.',
+        'Multi-Date Fallback Matching: Enabled dual-date verification (Local & UTC timestamps) in todaySteps calculation for foolproof movement metric aggregation.',
+      ],
+    },
+    {
       version: 'b2.26.0',
       date: '2026-08-26',
       title: 'Resilient Multi-Variant Step Query Parsing & Digit Extraction',
@@ -1559,7 +1569,7 @@ export const ProfileSettings: React.FC = () => {
             title="Click to open release changelog modal window"
           >
             <span className="w-2 h-2 rounded-full bg-brand-400 animate-pulse"></span>
-            <span>Active: b2.26.0</span>
+            <span>Active: b2.27.0</span>
             <ChevronRight className="w-3.5 h-3.5 text-brand-400 group-hover:translate-x-0.5 transition-transform" />
           </button>
         </div>

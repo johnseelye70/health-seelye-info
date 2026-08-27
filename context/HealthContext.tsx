@@ -204,7 +204,14 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
   const [syncStatus, setSyncStatus] = useState<SyncStatusType>(isSupabaseConfigured ? 'synced' : 'local_only');
   const [lastSyncedAt, setLastSyncedAt] = useState<string | null>(null);
   
-  const todayDate = useMemo(() => new Date().toISOString().split('T')[0], []);
+  const getLocalDateString = useCallback((d: Date = new Date()) => {
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }, []);
+
+  const todayDate = useMemo(() => getLocalDateString(), [getLocalDateString]);
   
   // Real-time ticking for fasting timer
   const [nowTick, setNowTick] = useState<number>(Date.now());
@@ -213,7 +220,7 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
     return () => clearInterval(timer);
   }, []);
 
-  // 1. Initial Load from LocalStorage
+  // 1. Initial Load from LocalStorage & Immediate URL Step Ingestion
   useEffect(() => {
     if (typeof window !== 'undefined') {
       try {
@@ -223,6 +230,8 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
           localStorage.getItem('health_seelye_app_state_v6') ||
           localStorage.getItem('health_seelye_app_state_v5') ||
           localStorage.getItem('health_seelye_app_state_v4');
+
+        let loadedStepLogs: StepLogEntry[] = [];
 
         if (saved) {
           const parsed = JSON.parse(saved);
@@ -258,7 +267,9 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
           if (parsed.waterGoalOz) setWaterGoalOz(parsed.waterGoalOz);
           if (parsed.waterLogs && Array.isArray(parsed.waterLogs)) setWaterLogs(parsed.waterLogs);
           if (parsed.stepGoal) setStepGoal(parsed.stepGoal);
-          if (parsed.stepLogs && Array.isArray(parsed.stepLogs)) setStepLogs(parsed.stepLogs);
+          if (parsed.stepLogs && Array.isArray(parsed.stepLogs)) {
+            loadedStepLogs = parsed.stepLogs;
+          }
           if (parsed.simpleMovementActivities && Array.isArray(parsed.simpleMovementActivities) && parsed.simpleMovementActivities.length > 0) {
             setSimpleMovementActivities(parsed.simpleMovementActivities);
           }
@@ -266,12 +277,54 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
           setFoods(DEFAULT_FOODS);
           setWorkoutLogs(INITIAL_WORKOUT_LOGS);
         }
+
+        // Direct check for incoming step sync in URL parameters
+        try {
+          const fullUrl = window.location.href;
+          const urlParams = new URLSearchParams(window.location.search);
+          let rawParam = urlParams.get('sync_steps') || urlParams.get('steps') || urlParams.get('step_count') || urlParams.get('count');
+
+          if (!rawParam && window.location.hash) {
+            const hashQuery = window.location.hash.replace(/^#\??/, '');
+            const hashParams = new URLSearchParams(hashQuery);
+            rawParam = hashParams.get('sync_steps') || hashParams.get('steps') || hashParams.get('step_count') || hashParams.get('count');
+          }
+
+          if (!rawParam) {
+            const match = fullUrl.match(/(?:sync_steps|steps|step_count|count)[=:\/]([\d,\.\s]+)/i);
+            if (match && match[1]) rawParam = match[1];
+          }
+
+          if (rawParam) {
+            const cleanedDigits = String(rawParam).replace(/[^\d]/g, '');
+            const parsedSteps = parseInt(cleanedDigits, 10);
+            if (!isNaN(parsedSteps) && parsedSteps >= 0) {
+              const localDate = getLocalDateString();
+              const newEntry: StepLogEntry = {
+                id: `stp-${Date.now()}`,
+                steps: parsedSteps,
+                distance_miles: Number((parsedSteps * 0.00045).toFixed(2)),
+                calories_burned: Math.round(parsedSteps * 0.04),
+                source: 'apple_health',
+                logged_at: localDate,
+              };
+              loadedStepLogs = [newEntry, ...loadedStepLogs.filter((s) => s.logged_at !== localDate && s.logged_at !== new Date().toISOString().split('T')[0])];
+              setLastStepSyncTimestamp(new Date().toISOString());
+              setStepSyncSource('apple_health');
+              window.history.replaceState({}, document.title, '/');
+            }
+          }
+        } catch {
+          // Safe fail
+        }
+
+        setStepLogs(loadedStepLogs);
       } catch (err) {
         console.warn('Failed to load local state:', err);
         setFoods(DEFAULT_FOODS);
       }
     }
-  }, []);
+  }, [getLocalDateString]);
 
   // 2. Persist to LocalStorage
   useEffect(() => {
@@ -1326,10 +1379,12 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
 
   // Step Tracker Engine
   const todaySteps = useMemo(() => {
+    const localToday = getLocalDateString();
+    const utcToday = new Date().toISOString().split('T')[0];
     return stepLogs
-      .filter((s) => s.logged_at.startsWith(todayDate))
+      .filter((s) => s.logged_at === localToday || s.logged_at === utcToday || s.logged_at.startsWith(localToday) || s.logged_at.startsWith(utcToday))
       .reduce((sum, s) => sum + s.steps, 0);
-  }, [stepLogs, todayDate]);
+  }, [stepLogs, getLocalDateString]);
 
   const todayStepMiles = useMemo(() => {
     return Number((todaySteps * 0.00045).toFixed(2));
@@ -1340,6 +1395,8 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
   }, [todaySteps]);
 
   const logSteps = useCallback((steps: number, source: StepLogEntry['source'] = 'apple_health', distanceMiles?: number, caloriesBurned?: number) => {
+    const localToday = getLocalDateString();
+    const utcToday = new Date().toISOString().split('T')[0];
     const dist = distanceMiles ?? Number((steps * 0.00045).toFixed(2));
     const cals = caloriesBurned ?? Math.round(steps * 0.04);
     const entry: StepLogEntry = {
@@ -1348,20 +1405,22 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
       distance_miles: dist,
       calories_burned: cals,
       source,
-      logged_at: todayDate,
+      logged_at: localToday,
     };
     setLastStepSyncTimestamp(new Date().toISOString());
     setStepSyncSource(source);
     setStepLogs((prev) => {
-      const filtered = prev.filter((s) => s.logged_at !== todayDate);
+      const filtered = prev.filter((s) => s.logged_at !== localToday && s.logged_at !== utcToday);
       return [entry, ...filtered];
     });
-  }, [todayDate]);
+  }, [getLocalDateString]);
 
   const resetTodaySteps = useCallback(() => {
-    setStepLogs((prev) => prev.filter((s) => s.logged_at !== todayDate));
+    const localToday = getLocalDateString();
+    const utcToday = new Date().toISOString().split('T')[0];
+    setStepLogs((prev) => prev.filter((s) => s.logged_at !== localToday && s.logged_at !== utcToday));
     setLastStepSyncTimestamp(null);
-  }, [todayDate]);
+  }, [getLocalDateString]);
 
   // Automated Apple Health & Watch Sync (URL Params, Lifecycle, and Tab Visibility Triggers)
   useEffect(() => {
