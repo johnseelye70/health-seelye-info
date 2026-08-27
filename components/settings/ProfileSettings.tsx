@@ -225,6 +225,17 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'b2.34.0',
+      date: '2026-08-26',
+      title: 'Expanded Hypertrophy, PPL & Bodybuilding Master Suite',
+      changes: [
+        'Added German Volume Training (GVT 10x10 Method): Charles Poliquin\'s rapid hypertrophy 10-set compound protocol with exact 4-0-2-0 tempos and antagonistic super-sets.',
+        'Added Dorian Yates "Blood & Guts" (HIT System): 6x Mr. Olympia beyond-failure training with warm-ups, 1 single all-out work set, rest-pause, and forced reps.',
+        'Added Arnold Schwarzenegger Classic Double-Split: Venice Gold\'s Gym 6-day chest/back and bicep/tricep antagonistic high-volume blueprint.',
+        'Added Upper / Lower 4-Day Hypertrophy Split: Scientific 2x/week frequency periodization balancing horizontal/vertical planes and quad/posterior chain loads.',
+      ],
+    },
+    {
       version: 'b2.33.0',
       date: '2026-08-26',
       title: 'Added Insanity & Beachbody Classic Master Worksheet Library',
@@ -1630,7 +1641,7 @@ export const ProfileSettings: React.FC = () => {
             title="Click to open release changelog modal window"
           >
             <span className="w-2 h-2 rounded-full bg-brand-400 animate-pulse"></span>
-            <span>Active: b2.33.0</span>
+            <span>Active: b2.34.0</span>
             <ChevronRight className="w-3.5 h-3.5 text-brand-400 group-hover:translate-x-0.5 transition-transform" />
           </button>
         </div>
