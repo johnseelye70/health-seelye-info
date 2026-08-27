@@ -225,6 +225,15 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'b2.26.0',
+      date: '2026-08-26',
+      title: 'Resilient Multi-Variant Step Query Parsing & Digit Extraction',
+      changes: [
+        'Resilient Digit Extraction: Upgraded URL step parsing with a multi-variant regular expression extractor, capturing step counts regardless of formatting, spacing, commas, or labels attached by Apple Shortcuts.',
+        'Immediate Memory Sync: Ensured incoming step counts from iOS Shortcuts immediately update reactive dashboard metrics and persist reliably to local storage and user history.',
+      ],
+    },
+    {
       version: 'b2.25.0',
       date: '2026-08-26',
       title: 'Universal 404 Prevention Rewrite & Flexible URL Step Parsing',
@@ -1550,7 +1559,7 @@ export const ProfileSettings: React.FC = () => {
             title="Click to open release changelog modal window"
           >
             <span className="w-2 h-2 rounded-full bg-brand-400 animate-pulse"></span>
-            <span>Active: b2.25.0</span>
+            <span>Active: b2.26.0</span>
             <ChevronRight className="w-3.5 h-3.5 text-brand-400 group-hover:translate-x-0.5 transition-transform" />
           </button>
         </div>

@@ -85,7 +85,7 @@ export const Header: React.FC = () => {
 
         {/* Compact Version Badge (Mobile & Desktop) */}
         <span className="font-mono text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-surface-100 border border-surface-border text-brand-400 shrink-0 select-none shadow-sm">
-          b2.25.0
+          b2.26.0
         </span>
 
         <div className="hidden sm:flex items-center gap-2 text-zinc-300 font-medium text-xs sm:text-sm shrink-0">

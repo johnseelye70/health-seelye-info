@@ -1369,26 +1369,36 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
 
     const checkUrlStepSync = () => {
       try {
+        const fullUrl = window.location.href;
         const urlParams = new URLSearchParams(window.location.search);
-        let stepsParam = urlParams.get('sync_steps') || urlParams.get('steps');
+        let rawParam = urlParams.get('sync_steps') || urlParams.get('steps') || urlParams.get('step_count') || urlParams.get('count');
 
         // Check hash parameters if query was passed in hash
-        if (!stepsParam && window.location.hash) {
+        if (!rawParam && window.location.hash) {
           const hashQuery = window.location.hash.replace(/^#\??/, '');
           const hashParams = new URLSearchParams(hashQuery);
-          stepsParam = hashParams.get('sync_steps') || hashParams.get('steps');
+          rawParam = hashParams.get('sync_steps') || hashParams.get('steps') || hashParams.get('step_count') || hashParams.get('count');
         }
 
-        // Check path numbers if shortcut passed path like /sync_steps/8432 or /8432
-        if (!stepsParam && window.location.pathname && window.location.pathname !== '/') {
-          const pathMatch = window.location.pathname.match(/(\d{3,6})/);
-          if (pathMatch && pathMatch[1]) {
-            stepsParam = pathMatch[1];
+        // Broad regex match: look for ?sync_steps=1234 or &sync_steps=1234 or steps=1234 anywhere in href
+        if (!rawParam) {
+          const match = fullUrl.match(/(?:sync_steps|steps|step_count|count)[=:\/]([\d,\.\s]+)/i);
+          if (match && match[1]) {
+            rawParam = match[1];
           }
         }
 
-        if (stepsParam) {
-          const parsed = parseInt(stepsParam.replace(/,/g, '').trim(), 10);
+        // Check path numbers if shortcut passed path like /sync_steps/8432 or /8432
+        if (!rawParam && window.location.pathname && window.location.pathname !== '/') {
+          const pathMatch = window.location.pathname.match(/(\d{3,6})/);
+          if (pathMatch && pathMatch[1]) {
+            rawParam = pathMatch[1];
+          }
+        }
+
+        if (rawParam) {
+          const cleanedDigits = String(rawParam).replace(/[^\d]/g, '');
+          const parsed = parseInt(cleanedDigits, 10);
           if (!isNaN(parsed) && parsed >= 0) {
             logSteps(parsed, 'apple_health');
             // Clean URL query parameters and path without reloading
