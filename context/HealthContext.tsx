@@ -328,6 +328,7 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
         }
 
         setStepLogs(loadedStepLogs);
+        stepLogsRef.current = loadedStepLogs;
       } catch (err) {
         console.warn('Failed to load local state:', err);
         setFoods(DEFAULT_FOODS);
@@ -441,10 +442,21 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
     try {
       const client = supabase;
 
+      // Always fetch fresh user metadata from server so cross-device updates propagate immediately
+      let liveUser = user;
+      try {
+        const { data: freshUserData } = await client.auth.getUser();
+        if (freshUserData?.user) {
+          liveUser = freshUserData.user;
+          setAuthUser(liveUser);
+          authUserRef.current = liveUser;
+        }
+      } catch {}
+
       // A. Profile Reconciliation (Strict Zero-Default Guard)
       const { data: cloudProfile, error: profileErr } = await (client.from('profiles') as any)
         .select('*')
-        .eq('id', user.id)
+        .eq('id', liveUser.id)
         .maybeSingle();
 
       const localProf = profileRef.current;
@@ -469,9 +481,9 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
           // ADOPT CLOUD BIOMETRICS ON THIS FRESH DEVICE:
           setProfile((prev) => ({
             ...prev,
-            id: user.id,
-            email: user.email || cloudProfile.email || prev.email,
-            full_name: cloudProfile.full_name || user.user_metadata?.full_name || prev.full_name || 'Athlete',
+            id: liveUser.id,
+            email: liveUser.email || cloudProfile.email || prev.email,
+            full_name: cloudProfile.full_name || liveUser.user_metadata?.full_name || prev.full_name || 'Athlete',
             age: cloudProfile.age ?? prev.age,
             height_cm: cloudHeight,
             current_weight_kg: cloudWeight,
@@ -493,11 +505,11 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
         } else if (!cloudHasBiometrics && localHasBiometrics) {
           // Local device (Laptop) has real configured biometrics, but cloud was empty.
           // PUSH LOCAL BIOMETRICS TO CLOUD:
-          await pushLocalProfileToCloud(client, user, localProf);
+          await pushLocalProfileToCloud(client, liveUser, localProf);
           setProfile((prev) => ({
             ...prev,
-            id: user.id,
-            email: user.email || prev.email,
+            id: liveUser.id,
+            email: liveUser.email || prev.email,
           }));
         } else if (cloudHasBiometrics && localHasBiometrics) {
           // Both have configured biometrics. Compare updated_at timestamps.
@@ -505,13 +517,13 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
           const cloudTime = cloudProfile.updated_at ? new Date(cloudProfile.updated_at).getTime() : 0;
 
           if (localTime > cloudTime) {
-            await pushLocalProfileToCloud(client, user, localProf);
+            await pushLocalProfileToCloud(client, liveUser, localProf);
           } else {
             setProfile((prev) => ({
               ...prev,
-              id: user.id,
-              email: user.email || cloudProfile.email || prev.email,
-              full_name: cloudProfile.full_name || user.user_metadata?.full_name || prev.full_name || 'Athlete',
+              id: liveUser.id,
+              email: liveUser.email || cloudProfile.email || prev.email,
+              full_name: cloudProfile.full_name || liveUser.user_metadata?.full_name || prev.full_name || 'Athlete',
               age: cloudProfile.age ?? prev.age,
               height_cm: cloudHeight,
               current_weight_kg: cloudWeight,
@@ -535,9 +547,9 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
           // Neither has biometrics configured yet -> Strictly keep 0
           setProfile((prev) => ({
             ...prev,
-            id: user.id,
-            email: user.email || prev.email,
-            full_name: cloudProfile.full_name || user.user_metadata?.full_name || prev.full_name || 'Athlete',
+            id: liveUser.id,
+            email: liveUser.email || prev.email,
+            full_name: cloudProfile.full_name || liveUser.user_metadata?.full_name || prev.full_name || 'Athlete',
             height_cm: 0,
             current_weight_kg: 0,
             target_weight_kg: 0,
@@ -547,12 +559,12 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
       } else {
         // Cloud profile row does not exist yet!
         if (localHasBiometrics) {
-          await pushLocalProfileToCloud(client, user, localProf);
+          await pushLocalProfileToCloud(client, liveUser, localProf);
         } else {
           await (client.from('profiles') as any).upsert({
-            id: user.id,
-            email: user.email,
-            full_name: user.user_metadata?.full_name || localProf.full_name || 'Athlete',
+            id: liveUser.id,
+            email: liveUser.email,
+            full_name: liveUser.user_metadata?.full_name || localProf.full_name || 'Athlete',
             age: localProf.age || 35,
             height_cm: 0,
             current_weight_kg: 0,
@@ -576,7 +588,7 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
       // B. Food Logs Sync (Merge Cloud & Local Non-Destructively)
       const { data: cloudFoodLogs } = await (client.from('food_logs') as any)
         .select('*')
-        .eq('user_id', user.id);
+        .eq('user_id', liveUser.id);
 
       if (cloudFoodLogs && Array.isArray(cloudFoodLogs)) {
         const cloudIds = new Set(cloudFoodLogs.map((c: any) => c.id));
@@ -586,7 +598,7 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
         if (localOnlyLogs.length > 0) {
           const rowsToInsert = localOnlyLogs.map((l) => ({
             id: l.id.startsWith('log-') ? undefined : l.id,
-            user_id: user.id,
+            user_id: liveUser.id,
             food_id: l.food_id,
             food_name: l.food_name,
             grams_consumed: l.grams_consumed,
@@ -623,7 +635,7 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
       // C. Weight Logs Sync
       const { data: cloudWeightLogs } = await (client.from('weight_logs') as any)
         .select('*')
-        .eq('user_id', user.id)
+        .eq('user_id', liveUser.id)
         .order('logged_at', { ascending: false });
 
       if (cloudWeightLogs && Array.isArray(cloudWeightLogs)) {
@@ -633,7 +645,7 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
 
         if (localOnlyWeights.length > 0) {
           const weightRows = localOnlyWeights.map((w) => ({
-            user_id: user.id,
+            user_id: liveUser.id,
             weight_kg: w.weight_kg,
             body_fat_percentage: w.body_fat_percentage,
             logged_at: w.logged_at,
@@ -658,8 +670,8 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
         const cloudStepEntries: any[] = [];
 
         // Source 1: Auth User Metadata (zero-migration guarantee, always works across devices)
-        if (user.user_metadata?.step_logs && Array.isArray(user.user_metadata.step_logs)) {
-          user.user_metadata.step_logs.forEach((s: any) => {
+        if (liveUser.user_metadata?.step_logs && Array.isArray(liveUser.user_metadata.step_logs)) {
+          liveUser.user_metadata.step_logs.forEach((s: any) => {
             if (s && typeof s === 'object') cloudStepEntries.push(s);
           });
         }
@@ -668,7 +680,7 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
         try {
           const { data: cloudStepLogs, error: stepFetchErr } = await (client.from('step_logs') as any)
             .select('*')
-            .eq('user_id', user.id)
+            .eq('user_id', liveUser.id)
             .order('logged_at', { ascending: false });
 
           if (!stepFetchErr && cloudStepLogs && Array.isArray(cloudStepLogs)) {
@@ -695,7 +707,23 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
           }
         });
 
-        const currentLocalSteps = stepLogsRef.current || [];
+        // Ensure we load from localStorage fallback if stepLogsRef hasn't rendered yet
+        let currentLocalSteps = stepLogsRef.current || [];
+        if (currentLocalSteps.length === 0 && typeof window !== 'undefined') {
+          try {
+            const saved =
+              localStorage.getItem(LOCAL_STORAGE_KEY) ||
+              localStorage.getItem('health_seelye_app_state_v7') ||
+              localStorage.getItem('health_seelye_app_state_v6');
+            if (saved) {
+              const parsed = JSON.parse(saved);
+              if (parsed.stepLogs && Array.isArray(parsed.stepLogs)) {
+                currentLocalSteps = parsed.stepLogs.filter((s: StepLogEntry) => !(s.steps === 8 && s.source === 'apple_health'));
+              }
+            }
+          } catch {}
+        }
+
         const localMap = new Map<string, StepLogEntry>();
         currentLocalSteps.forEach((ls) => {
           const dateKey = String(ls.logged_at).split('T')[0];
@@ -735,7 +763,7 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
               (client.from('step_logs') as any)
                 .upsert({
                   id: cloudEntry.id,
-                  user_id: user.id,
+                  user_id: liveUser.id,
                   steps: localCount,
                   distance_miles: localEntry.distance_miles ?? Number((localCount * 0.00045).toFixed(2)),
                   calories_burned: localEntry.calories_burned ?? Math.round(localCount * 0.04),
@@ -769,7 +797,7 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
 
               (client.from('step_logs') as any)
                 .insert({
-                  user_id: user.id,
+                  user_id: liveUser.id,
                   steps: stepCount,
                   distance_miles: localEntry.distance_miles ?? Number((stepCount * 0.00045).toFixed(2)),
                   calories_burned: localEntry.calories_burned ?? Math.round(stepCount * 0.04),
@@ -798,7 +826,7 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
           setLastStepSyncTimestamp(new Date().toISOString());
         }
 
-        if (hasLocalUpdateForCloud || (mergedSteps.length > 0 && (!user.user_metadata?.step_logs || user.user_metadata.step_logs.length !== mergedSteps.length))) {
+        if (hasLocalUpdateForCloud || (mergedSteps.length > 0 && (!liveUser.user_metadata?.step_logs || liveUser.user_metadata.step_logs.length !== mergedSteps.length))) {
           client.auth.updateUser({
             data: {
               step_logs: mergedSteps,

@@ -43,6 +43,8 @@ export const StepTracker: React.FC = () => {
     logSteps,
     resetTodaySteps,
     syncWithCloud,
+    authUser,
+    setShowAuthModal,
   } = useHealth();
 
   const [showGoalModal, setShowGoalModal] = useState<boolean>(false);
@@ -79,6 +81,10 @@ export const StepTracker: React.FC = () => {
 
   // Manual Refresh Trigger with Live Cloud Reconciliation
   const handleManualRefresh = async () => {
+    if (!authUser) {
+      setShowAuthModal(true);
+      return;
+    }
     setIsRefreshing(true);
     setSyncStatusMsg('Syncing step stream across devices with cloud...');
     try {
