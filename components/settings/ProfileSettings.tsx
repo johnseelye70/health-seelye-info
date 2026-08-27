@@ -225,6 +225,16 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'b2.24.0',
+      date: '2026-08-26',
+      title: 'Streamlined Apple Watch & Health Sync Hub with 1-Tap Copy Setup',
+      changes: [
+        'Streamlined 3-Step Shortcut Guide: Redesigned the Apple Watch & Health Auto-Sync modal with a 1-minute 3-step setup guide with 1-tap copy buttons for seamless shortcut configuration.',
+        'Zero-Friction Step Streaming: Enabled direct URL parameter and background sync handling (?sync_steps=) so Apple Watch movement totals effortlessly stream into the dashboard on app open.',
+        'Clean Modal Aesthetics: Upgraded step tracker status cues and manual entry inputs for an intuitive, hassle-free user experience.',
+      ],
+    },
+    {
       version: 'b2.23.0',
       date: '2026-08-26',
       title: 'Real-Time Cross-Device Profile Synchronization & Lifecycle Focus Listeners',
@@ -1530,7 +1540,7 @@ export const ProfileSettings: React.FC = () => {
             title="Click to open release changelog modal window"
           >
             <span className="w-2 h-2 rounded-full bg-brand-400 animate-pulse"></span>
-            <span>Active: b2.23.0</span>
+            <span>Active: b2.24.0</span>
             <ChevronRight className="w-3.5 h-3.5 text-brand-400 group-hover:translate-x-0.5 transition-transform" />
           </button>
         </div>

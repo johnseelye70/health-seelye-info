@@ -19,6 +19,8 @@ import {
   ExternalLink,
   ShieldCheck,
   ChevronRight,
+  Copy,
+  Check,
 } from 'lucide-react';
 
 const STEP_GOAL_PRESETS = [
@@ -48,6 +50,16 @@ export const StepTracker: React.FC = () => {
   const [syncPasteText, setSyncPasteText] = useState<string>('');
   const [syncStatusMsg, setSyncStatusMsg] = useState<string | null>(null);
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
+
+  const [copiedKey, setCopiedKey] = useState<string | null>(null);
+
+  const handleCopyText = (key: string, text: string) => {
+    if (typeof navigator !== 'undefined' && navigator.clipboard) {
+      navigator.clipboard.writeText(text);
+      setCopiedKey(key);
+      setTimeout(() => setCopiedKey(null), 2500);
+    }
+  };
 
   const progressPercent = Math.min(200, Math.round((todaySteps / (stepGoal || 10000)) * 100));
   const remainingSteps = Math.max(0, stepGoal - todaySteps);
@@ -125,7 +137,7 @@ export const StepTracker: React.FC = () => {
             title="Setup or manage Apple Health & Watch automatic synchronization"
           >
             <Watch className="w-3.5 h-3.5 text-accent-teal" />
-            <span className="hidden sm:inline">Apple Health Sync</span>
+            <span className="hidden sm:inline">Apple Watch Sync</span>
           </button>
           <button
             type="button"
@@ -230,7 +242,7 @@ export const StepTracker: React.FC = () => {
               <span>Apple Watch & Health Auto-Sync</span>
               <span className="px-2 py-0.2 rounded-full text-[9px] font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center gap-1">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                <span>ACTIVE</span>
+                <span>READY</span>
               </span>
             </div>
             <p className="text-[11px] text-zinc-400 mt-0.5">
@@ -260,7 +272,7 @@ export const StepTracker: React.FC = () => {
             title="Configure 1-Minute Apple Health Automation"
           >
             <Zap className="w-3.5 h-3.5 fill-current" />
-            <span className="text-[11px]">Auto-Sync Setup</span>
+            <span className="text-[11px]">Setup Guide</span>
           </button>
         </div>
       </div>
@@ -406,10 +418,10 @@ export const StepTracker: React.FC = () => {
                 </div>
                 <div>
                   <h3 className="text-base font-bold text-white">
-                    Apple Watch & Health Auto-Sync
+                    Apple Watch & iPhone Auto-Sync
                   </h3>
                   <p className="text-xs text-zinc-400">
-                    Seamless 100% automated background step tracking
+                    Effortless automatic background step tracking
                   </p>
                 </div>
               </div>
@@ -427,48 +439,73 @@ export const StepTracker: React.FC = () => {
             <div className="p-4 rounded-2xl bg-surface-200/80 border border-surface-border space-y-2">
               <div className="flex items-center gap-2 text-xs font-bold text-emerald-400">
                 <ShieldCheck className="w-4 h-4" />
-                <span>How Apple Health Aggregates Watch & iPhone Steps:</span>
+                <span>How Apple Aggregates Watch + iPhone Steps:</span>
               </div>
               <p className="text-[11px] text-zinc-300 leading-relaxed">
-                Apple Health automatically merges and deduplicates movement timestamps between your Apple Watch and iPhone with zero double-counting.
+                Apple Health automatically combines your Apple Watch and iPhone steps with native hardware deduplication. The 1-minute automation below reads that combined total and pushes it directly into your health dashboard.
               </p>
             </div>
 
             {/* 1-Minute Automated Setup Steps */}
             <div className="space-y-3">
-              <h4 className="text-xs font-bold text-zinc-200 uppercase tracking-wider">
-                1-Minute Automated iOS Setup:
-              </h4>
+              <div className="flex items-center justify-between">
+                <h4 className="text-xs font-bold text-zinc-200 uppercase tracking-wider">
+                  3-Step iOS Shortcut Setup (1 Minute):
+                </h4>
+                <span className="text-[10px] text-brand-400 font-mono font-bold">One-Time Setup</span>
+              </div>
 
               <div className="p-3.5 rounded-2xl bg-surface-200 border border-surface-border flex items-start gap-3">
-                <div className="w-6 h-6 rounded-full bg-brand-500/20 text-brand-300 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">
+                <div className="w-6 h-6 rounded-full bg-brand-500 text-zinc-950 font-black text-xs flex items-center justify-center shrink-0 mt-0.5 shadow-sm">
                   1
                 </div>
-                <div className="text-xs text-zinc-300 leading-relaxed">
-                  Open the <strong>Shortcuts</strong> app on your iPhone and tap the <strong>Automation</strong> tab at the bottom.
+                <div className="text-xs text-zinc-200 leading-relaxed space-y-1">
+                  <div>Open the built-in <strong>Shortcuts</strong> app on your iPhone.</div>
+                  <div className="text-[11px] text-zinc-400">
+                    Tap the <strong>Automation</strong> tab at the bottom ➔ Tap <strong>+ (New Automation)</strong> ➔ Select <strong>"App"</strong> ➔ Choose <strong>Safari</strong> (or Seelye Health) ➔ Select <strong>"Is Opened"</strong> and check <strong>"Run Immediately"</strong>.
+                  </div>
                 </div>
               </div>
 
               <div className="p-3.5 rounded-2xl bg-surface-200 border border-surface-border flex items-start gap-3">
-                <div className="w-6 h-6 rounded-full bg-brand-500/20 text-brand-300 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">
+                <div className="w-6 h-6 rounded-full bg-brand-500 text-zinc-950 font-black text-xs flex items-center justify-center shrink-0 mt-0.5 shadow-sm">
                   2
                 </div>
-                <div className="text-xs text-zinc-300 leading-relaxed">
-                  Tap <strong>+ (New Automation)</strong> ➔ Select <strong>"App"</strong> ➔ Choose <strong>Seelye Health</strong> (or Safari) ➔ Select <strong>"Is Opened"</strong> and <strong>"Run Immediately"</strong>.
+                <div className="text-xs text-zinc-200 leading-relaxed space-y-1">
+                  <div>Add Action: <strong>"Find Health Samples"</strong></div>
+                  <div className="text-[11px] text-zinc-400">
+                    Set Type to <strong>Steps</strong> and Date to <strong>Today</strong>. Next, add action <strong>"Calculate Statistics"</strong> (Operation: <strong>Sum</strong>).
+                  </div>
                 </div>
               </div>
 
               <div className="p-3.5 rounded-2xl bg-surface-200 border border-surface-border flex items-start gap-3">
-                <div className="w-6 h-6 rounded-full bg-brand-500/20 text-brand-300 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">
+                <div className="w-6 h-6 rounded-full bg-brand-500 text-zinc-950 font-black text-xs flex items-center justify-center shrink-0 mt-0.5 shadow-sm">
                   3
                 </div>
-                <div className="text-xs text-zinc-300 leading-relaxed">
-                  Add Action: <strong>"Get Health Samples (Steps today)"</strong> ➔ Add Action: <strong>"Open URLs: https://health.seelye.info/?sync_steps=[Step Count]"</strong>.
+                <div className="text-xs text-zinc-200 leading-relaxed space-y-1.5">
+                  <div>Add Action: <strong>"Open URLs"</strong></div>
+                  <div className="text-[11px] text-zinc-400">
+                    Paste this sync URL and attach the <strong>[Sum of Steps]</strong> variable at the end:
+                  </div>
+                  <div className="flex items-center gap-2 pt-1">
+                    <code className="flex-1 px-2.5 py-1.5 rounded-xl bg-surface-300 border border-surface-border text-[11px] font-mono text-emerald-300 truncate select-all">
+                      https://health.seelye.info/?sync_steps=
+                    </code>
+                    <button
+                      type="button"
+                      onClick={() => handleCopyText('url_sync', 'https://health.seelye.info/?sync_steps=')}
+                      className="px-3 py-1.5 rounded-xl bg-brand-500 hover:bg-brand-400 text-zinc-950 text-xs font-bold flex items-center gap-1.5 shrink-0 transition-all active:scale-95 cursor-pointer shadow-glow"
+                    >
+                      {copiedKey === 'url_sync' ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                      <span>{copiedKey === 'url_sync' ? 'Copied!' : 'Copy URL'}</span>
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
 
-            {/* Manual Sync Fallback */}
+            {/* Quick Test / Manual Sync Fallback */}
             <div className="p-4 rounded-2xl bg-surface-200/60 border border-surface-border space-y-2">
               <div className="text-xs font-bold text-zinc-300">
                 Direct / Manual Step Entry:
@@ -476,7 +513,7 @@ export const StepTracker: React.FC = () => {
               <div className="flex items-center gap-2">
                 <input
                   type="text"
-                  placeholder="e.g. 8,432 steps"
+                  placeholder="e.g. 8,432"
                   value={syncPasteText}
                   onChange={(e) => setSyncPasteText(e.target.value)}
                   onKeyDown={(e) => {
