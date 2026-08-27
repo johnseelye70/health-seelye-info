@@ -308,9 +308,10 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
               window.history.replaceState({}, document.title, '/');
 
               if (supabase) {
-                supabase.auth.getSession().then(({ data: { session } }) => {
+                const client = supabase;
+                client.auth.getSession().then(({ data: { session } }) => {
                   if (session?.user) {
-                    supabase.auth.updateUser({
+                    client.auth.updateUser({
                       data: {
                         step_logs: loadedStepLogs,
                         latest_steps: parsedSteps,
@@ -1606,8 +1607,9 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
     // Push directly to cloud across Auth metadata & database for multi-device sync
     const user = authUserRef.current;
     if (supabase && user) {
+      const client = supabase;
       // 1. Auth user_metadata push (instant, zero-migration guarantee across all devices)
-      supabase.auth.updateUser({
+      client.auth.updateUser({
         data: {
           step_logs: updatedLogs,
           latest_steps_today: steps,
@@ -1618,14 +1620,14 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
       // 2. Database table push
       (async () => {
         try {
-          const { data: existing } = await (supabase.from('step_logs') as any)
+          const { data: existing } = await (client.from('step_logs') as any)
             .select('id, steps')
             .eq('user_id', user.id)
             .eq('logged_at', localToday)
             .maybeSingle();
 
           if (existing) {
-            await (supabase.from('step_logs') as any)
+            await (client.from('step_logs') as any)
               .update({
                 steps,
                 distance_miles: dist,
@@ -1635,7 +1637,7 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
               })
               .eq('id', existing.id);
           } else {
-            await (supabase.from('step_logs') as any).insert({
+            await (client.from('step_logs') as any).insert({
               user_id: user.id,
               steps,
               distance_miles: dist,
@@ -1671,7 +1673,8 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
 
     const user = authUserRef.current;
     if (supabase && user) {
-      supabase.auth.updateUser({
+      const client = supabase;
+      client.auth.updateUser({
         data: {
           step_logs: remainingLogs,
           latest_steps_today: 0,
@@ -1681,7 +1684,7 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
 
       (async () => {
         try {
-          await (supabase.from('step_logs') as any)
+          await (client.from('step_logs') as any)
             .delete()
             .eq('user_id', user.id)
             .eq('logged_at', localToday);
