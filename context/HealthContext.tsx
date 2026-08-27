@@ -1889,7 +1889,7 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
             target_steps: templateDay.target_steps || 10000,
             target_calories: targetCalories,
             target_protein_g: profile.protein_target_g || 160,
-            target_carbs_g: profile.carbs_target_g || 200,
+            target_carbs_g: profile.carb_target_g || 200,
             target_fat_g: profile.fat_target_g || 65,
             planned_meals: plannedMeals,
             fasting_protocol: templateDay.fasting_protocol || '16_8',

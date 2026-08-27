@@ -227,6 +227,15 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'b3.1.1',
+      date: '2026-08-27',
+      title: 'Type Safety & Build Optimization',
+      changes: [
+        'Resolved TypeScript strict type definitions for UserProfile carbohydrate targets in RollingSchedulePlanner.',
+        'Verified clean compiler build and automated continuous deployment.',
+      ],
+    },
+    {
       version: 'b3.1.0',
       date: '2026-08-27',
       title: 'Rolling 90-Day Master Schedule & Holistic Wellness Planner',

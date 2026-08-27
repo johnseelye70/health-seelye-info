@@ -114,7 +114,7 @@ export const RollingSchedulePlanner: React.FC = () => {
       setEditWorkoutCategory(activePlan.workout_category || 'strength_5x5');
       setEditTargetCalories(activePlan.target_calories || profile.daily_calorie_target || 2000);
       setEditTargetProtein(activePlan.target_protein_g || profile.protein_target_g || 160);
-      setEditTargetCarbs(activePlan.target_carbs_g || profile.carbs_target_g || 200);
+      setEditTargetCarbs(activePlan.target_carbs_g || profile.carb_target_g || 200);
       setEditTargetFat(activePlan.target_fat_g || profile.fat_target_g || 65);
       setEditFastingProtocol(activePlan.fasting_protocol || profile.fasting_protocol || '16_8');
       setEditWaterOz(activePlan.water_goal_oz || 100);
@@ -128,7 +128,7 @@ export const RollingSchedulePlanner: React.FC = () => {
       setEditWorkoutCategory('strength_5x5');
       setEditTargetCalories(profile.daily_calorie_target || 2000);
       setEditTargetProtein(profile.protein_target_g || 160);
-      setEditTargetCarbs(profile.carbs_target_g || 200);
+      setEditTargetCarbs(profile.carb_target_g || 200);
       setEditTargetFat(profile.fat_target_g || 65);
       setEditFastingProtocol(profile.fasting_protocol || '16_8');
       setEditWaterOz(100);
@@ -969,7 +969,7 @@ export const RollingSchedulePlanner: React.FC = () => {
                 </h3>
                 <p className="text-xs text-zinc-400 mt-0.5">
                   P: <strong className="text-foreground">{activePlan?.target_protein_g || profile.protein_target_g}g</strong> • 
-                  C: <strong className="text-foreground">{activePlan?.target_carbs_g || profile.carbs_target_g}g</strong> • 
+                  C: <strong className="text-foreground">{activePlan?.target_carbs_g || profile.carb_target_g}g</strong> • 
                   F: <strong className="text-foreground">{activePlan?.target_fat_g || profile.fat_target_g}g</strong>
                 </p>
               </div>
