@@ -225,6 +225,17 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'b2.35.0',
+      date: '2026-08-26',
+      title: 'Expanded Mind-Body, Qigong, Yoga & Mobility Library',
+      changes: [
+        'Added Yi Jin Jing (Muscle-Tendon Changing Classic): 1,500-year-old Shaolin internal tendon-strengthening sequence with 12 complete classic forms.',
+        'Added Wu Qin Xi (Five Animal Frolics Qigong): Hua Tuo\'s 1,800-year-old animal longevity system (Tiger, Deer, Bear, Monkey, Crane) for 5-organ vitality.',
+        'Added Full-Body Joint Mobility & Decompression (CARs & FRC): Controlled Articular Rotations for neck, thoracic spine, hips, shoulders, and ankles.',
+        'Added Hatha Vinyasa Yoga & Active Recovery: Sun Salutations, Warrior flows, deep hip openers (Lizard/Pigeon), and parasympathetic down-regulation.',
+      ],
+    },
+    {
       version: 'b2.34.0',
       date: '2026-08-26',
       title: 'Expanded Hypertrophy, PPL & Bodybuilding Master Suite',
@@ -1641,7 +1652,7 @@ export const ProfileSettings: React.FC = () => {
             title="Click to open release changelog modal window"
           >
             <span className="w-2 h-2 rounded-full bg-brand-400 animate-pulse"></span>
-            <span>Active: b2.34.0</span>
+            <span>Active: b2.35.0</span>
             <ChevronRight className="w-3.5 h-3.5 text-brand-400 group-hover:translate-x-0.5 transition-transform" />
           </button>
         </div>
