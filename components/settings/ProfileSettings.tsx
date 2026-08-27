@@ -225,6 +225,15 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'b2.28.0',
+      date: '2026-08-26',
+      title: 'Precision Parameter Hygiene & Zero-False Fallback Extraction',
+      changes: [
+        'Precision Parameter Hygiene: Eliminated loose regex matching fallbacks that previously captured internal configuration values (like 8-hour eating windows) when URLs arrived with empty parameters.',
+        'Strict Numerical Query Validation: Ensured step synchronizations strictly ingest positive step integers directly following ?sync_steps= or ?steps=, preventing accidental default number injections.',
+      ],
+    },
+    {
       version: 'b2.27.0',
       date: '2026-08-26',
       title: 'Timezone-Aligned Step Logging & Initial State Mounting Race Fix',
@@ -1569,7 +1578,7 @@ export const ProfileSettings: React.FC = () => {
             title="Click to open release changelog modal window"
           >
             <span className="w-2 h-2 rounded-full bg-brand-400 animate-pulse"></span>
-            <span>Active: b2.27.0</span>
+            <span>Active: b2.28.0</span>
             <ChevronRight className="w-3.5 h-3.5 text-brand-400 group-hover:translate-x-0.5 transition-transform" />
           </button>
         </div>
