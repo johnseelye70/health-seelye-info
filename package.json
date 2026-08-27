@@ -1,6 +1,6 @@
 {
   "name": "health-seelye-info",
-  "version": "3.2.1",
+  "version": "3.2.2",
   "private": true,
   "scripts": {
     "dev": "next dev",

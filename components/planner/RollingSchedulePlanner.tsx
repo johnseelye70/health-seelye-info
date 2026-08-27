@@ -389,7 +389,7 @@ export const RollingSchedulePlanner: React.FC = () => {
       )}
 
       {/* View Switcher Controls */}
-      <div className="flex flex-wrap items-center justify-between gap-3 p-2 rounded-2xl bg-surface-200/80 border border-surface-border">
+      <div className="flex flex-wrap items-center justify-between gap-3 p-2 rounded-2xl bg-surface-200/80 border border-surface-border relative z-30">
         <div className="flex items-center gap-1.5 overflow-x-auto max-w-full">
           <button
             type="button"
@@ -771,7 +771,7 @@ export const RollingSchedulePlanner: React.FC = () => {
 
       {/* ================= VIEW 4: MASTER TEMPLATE DEPLOYMENT WIZARD ================= */}
       {viewMode === 'template_deployer' && (
-        <div className="space-y-6 rounded-3xl bg-surface-100/90 border border-surface-border p-6 md:p-8 backdrop-blur-xl">
+        <div className="space-y-6 rounded-3xl bg-surface-100/90 border border-surface-border p-6 md:p-8 backdrop-blur-xl relative z-30">
           <div className="border-b border-surface-border pb-4">
             <span className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-brand-500/20 text-brand-300 border border-brand-500/30">
               MULTI-WEEK PROGRAM STAGING
@@ -817,7 +817,7 @@ export const RollingSchedulePlanner: React.FC = () => {
           </div>
 
           {/* Deployment Settings */}
-          <div className="p-5 rounded-2xl bg-surface-200/60 border border-surface-border space-y-4">
+          <div className="p-5 rounded-2xl bg-surface-200/60 border border-surface-border space-y-4 relative z-40">
             <h3 className="text-sm font-bold text-foreground">Deployment Parameters</h3>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -876,7 +876,7 @@ export const RollingSchedulePlanner: React.FC = () => {
       )}
 
       {/* ================= INLINE DAY INSPECTOR & LIVE CUSTOMIZER ================= */}
-      <div className="rounded-3xl bg-surface-100/90 border border-surface-border p-6 md:p-8 backdrop-blur-xl space-y-6">
+      <div className="rounded-3xl bg-surface-100/90 border border-surface-border p-6 md:p-8 backdrop-blur-xl space-y-6 relative z-10">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-surface-border">
           <div>
             <div className="flex items-center gap-2 mb-1">

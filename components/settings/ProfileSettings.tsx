@@ -227,6 +227,14 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'b3.2.2',
+      date: '2026-08-27',
+      title: 'Z-Index Foreground Stacking Elevation',
+      changes: [
+        'Elevated CalendarDatePicker stacking context to max foreground (z-[9999] popover and z-[999] container), ensuring the calendar dropdown renders completely above all downstream dashboard cards and active plan sections.',
+      ],
+    },
+    {
       version: 'b3.2.1',
       date: '2026-08-27',
       title: 'Enhanced Calendar Dropdown Opacity & Contrast',

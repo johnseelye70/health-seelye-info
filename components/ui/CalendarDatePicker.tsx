@@ -160,7 +160,7 @@ export const CalendarDatePicker: React.FC<CalendarDatePickerProps> = ({
   };
 
   return (
-    <div ref={containerRef} className={`relative inline-block w-full ${className}`}>
+    <div ref={containerRef} className={`relative inline-block w-full ${isOpen ? 'z-[999]' : 'z-auto'} ${className}`}>
       {label && <label className="text-xs text-zinc-400 font-semibold block mb-1">{label}</label>}
 
       {/* Trigger Button */}
@@ -178,9 +178,9 @@ export const CalendarDatePicker: React.FC<CalendarDatePickerProps> = ({
         </span>
       </button>
 
-      {/* Calendar Dropdown Popover (100% Solid Opaque Background) */}
+      {/* Calendar Dropdown Popover (100% Solid Opaque Background & Max Foreground Z-Index) */}
       {isOpen && (
-        <div className="absolute top-full left-0 mt-2 z-50 w-full min-w-[290px] sm:min-w-[320px] p-3.5 rounded-2xl bg-zinc-950 border border-zinc-700 shadow-[0_20px_60px_rgba(0,0,0,0.95)] space-y-3 animate-fadeIn">
+        <div className="absolute top-full left-0 mt-2 z-[9999] w-full min-w-[290px] sm:min-w-[320px] p-3.5 rounded-2xl bg-zinc-950 border border-zinc-700 shadow-[0_25px_70px_rgba(0,0,0,0.98)] space-y-3 animate-fadeIn">
           {/* Quick Picks Row */}
           {quickPicks && (
             <div className="flex items-center gap-1.5 overflow-x-auto pb-2 border-b border-zinc-800 text-[11px]">
