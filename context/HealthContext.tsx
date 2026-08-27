@@ -17,7 +17,11 @@ import {
   WaterLogEntry,
   StepLogEntry,
   GroceryStoreTag,
+  ScheduledDayPlan,
+  ScheduledPlannedMeal,
+  MasterScheduleTemplate,
 } from '@/lib/types';
+import { MASTER_SCHEDULE_TEMPLATES } from '@/lib/schedule-templates';
 import {
   INITIAL_PROFILE,
   DEFAULT_FOODS,
@@ -141,10 +145,18 @@ interface HealthContextType {
   logSteps: (steps: number, source?: StepLogEntry['source'], distanceMiles?: number, caloriesBurned?: number) => void;
   resetTodaySteps: () => void;
   
+  // 90-Day Rolling Master Schedule & Planner
+  scheduledPlans: Record<string, ScheduledDayPlan>;
+  saveScheduledDayPlan: (dateStr: string, planUpdates: Partial<ScheduledDayPlan>) => void;
+  deployMasterScheduleTemplate: (templateId: string, startDateStr: string, durationWeeks?: number, preserveOverrides?: boolean) => void;
+  deleteScheduledDayPlan: (dateStr: string) => void;
+  clearScheduledRange: (startDateStr: string, endDateStr: string) => void;
+  generateGroceryFromScheduledRange: (startDateStr: string, endDateStr: string) => number;
+
   // App State & Modals
   isDemoMode: boolean;
-  activeTab: 'dashboard' | 'nutrition' | 'fasting' | 'workouts' | 'grocery' | 'trends' | 'settings';
-  setActiveTab: (tab: 'dashboard' | 'nutrition' | 'fasting' | 'workouts' | 'grocery' | 'trends' | 'settings') => void;
+  activeTab: 'dashboard' | 'planner' | 'nutrition' | 'fasting' | 'workouts' | 'grocery' | 'trends' | 'settings';
+  setActiveTab: (tab: 'dashboard' | 'planner' | 'nutrition' | 'fasting' | 'workouts' | 'grocery' | 'trends' | 'settings') => void;
   showOnboardingModal: boolean;
   setShowOnboardingModal: (show: boolean) => void;
   resetAllData: () => void;
@@ -196,6 +208,7 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
   const [lastStepSyncTimestamp, setLastStepSyncTimestamp] = useState<string | null>(null);
   const [stepSyncSource, setStepSyncSource] = useState<StepLogEntry['source']>('apple_health');
   const [simpleMovementActivities, setSimpleMovementActivities] = useState<SimpleMovementActivity[]>(DEFAULT_SIMPLE_DAILY_CHOICES);
+  const [scheduledPlans, setScheduledPlans] = useState<Record<string, ScheduledDayPlan>>({});
 
   // Cloud Auth & Sync States
   const [authUser, setAuthUser] = useState<any | null>(null);
@@ -272,6 +285,9 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
           }
           if (parsed.simpleMovementActivities && Array.isArray(parsed.simpleMovementActivities) && parsed.simpleMovementActivities.length > 0) {
             setSimpleMovementActivities(parsed.simpleMovementActivities);
+          }
+          if (parsed.scheduledPlans && typeof parsed.scheduledPlans === 'object') {
+            setScheduledPlans(parsed.scheduledPlans);
           }
         } else {
           setFoods(DEFAULT_FOODS);
@@ -355,13 +371,14 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
           stepGoal,
           stepLogs,
           simpleMovementActivities,
+          scheduledPlans,
         };
         localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(stateToPersist));
       } catch (err) {
         console.warn('Failed to persist state:', err);
       }
     }
-  }, [profile, foods, foodLogs, workoutPlan, groceryList, weightLogs, workoutLogs, activeProgramId, notificationsEnabled, waterGoalOz, waterLogs, stepGoal, stepLogs, simpleMovementActivities]);
+  }, [profile, foods, foodLogs, workoutPlan, groceryList, weightLogs, workoutLogs, activeProgramId, notificationsEnabled, waterGoalOz, waterLogs, stepGoal, stepLogs, simpleMovementActivities, scheduledPlans]);
 
   // Refs to decouple async synchronization from React state render cycles
   const profileRef = useRef<UserProfile>(profile);
@@ -1795,6 +1812,157 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
     };
   }, [logSteps]);
 
+  // 90-Day Master Schedule Planner Functions
+  const saveScheduledDayPlan = useCallback((dateStr: string, planUpdates: Partial<ScheduledDayPlan>) => {
+    setScheduledPlans((prev) => {
+      const existing = prev[dateStr] || { date: dateStr };
+      const updated: ScheduledDayPlan = {
+        ...existing,
+        ...planUpdates,
+        date: dateStr,
+        is_custom_override: true,
+        updated_at: new Date().toISOString(),
+      };
+      return { ...prev, [dateStr]: updated };
+    });
+  }, []);
+
+  const deployMasterScheduleTemplate = useCallback(
+    (templateId: string, startDateStr: string, durationWeeks: number = 12, preserveOverrides: boolean = true) => {
+      const template = MASTER_SCHEDULE_TEMPLATES.find((t) => t.id === templateId) || MASTER_SCHEDULE_TEMPLATES[0];
+      if (!template) return;
+
+      const [sYear, sMonth, sDay] = startDateStr.split('-').map((n) => parseInt(n, 10));
+      const startDate = new Date(sYear, sMonth - 1, sDay);
+
+      setScheduledPlans((prev) => {
+        const nextPlans = { ...prev };
+        const totalDays = durationWeeks * 7;
+
+        for (let i = 0; i < totalDays; i++) {
+          const currDate = new Date(startDate);
+          currDate.setDate(startDate.getDate() + i);
+
+          const y = currDate.getFullYear();
+          const m = String(currDate.getMonth() + 1).padStart(2, '0');
+          const d = String(currDate.getDate()).padStart(2, '0');
+          const dateKey = `${y}-${m}-${d}`;
+
+          // If preserveOverrides is true and this day is an explicit custom override, keep it intact
+          if (preserveOverrides && nextPlans[dateKey]?.is_custom_override) {
+            continue;
+          }
+
+          // get day of week (1=Mon ... 7=Sun)
+          const jsDay = currDate.getDay();
+          const dayOfWeek = jsDay === 0 ? 7 : jsDay;
+
+          const templateDay = template.weekly_rhythm.find((r) => r.day_of_week === dayOfWeek) || template.weekly_rhythm[0];
+
+          const baseCalories = profile.daily_calorie_target || 2000;
+          const targetCalories = Math.max(1200, baseCalories + (templateDay.calorie_offset || 0));
+
+          // Generate planned meals from preset names if available
+          const plannedMeals: ScheduledPlannedMeal[] = (templateDay.planned_meal_names || []).map((mealName, idx) => {
+            const mealType: 'breakfast' | 'lunch' | 'dinner' | 'snack' = idx === 0 ? 'breakfast' : idx === 1 ? 'lunch' : 'dinner';
+            const calories = Math.round(targetCalories / (templateDay.planned_meal_names?.length || 3));
+            return {
+              id: `pm-${dateKey}-${idx}`,
+              meal_type: mealType,
+              meal_title: mealName,
+              calories,
+              protein_g: Math.round((calories * 0.3) / 4),
+              carbs_g: Math.round((calories * 0.4) / 4),
+              fat_g: Math.round((calories * 0.3) / 9),
+              is_batch_prep: templateDay.is_batch_prep_day && idx === 1,
+            };
+          });
+
+          nextPlans[dateKey] = {
+            date: dateKey,
+            is_custom_override: false,
+            workout_title: templateDay.workout_title,
+            workout_category: templateDay.workout_category,
+            program_id: templateDay.program_id,
+            workout_day_title: `${templateDay.day_label} — ${templateDay.workout_title}`,
+            exercises: templateDay.exercises || [],
+            target_steps: templateDay.target_steps || 10000,
+            target_calories: targetCalories,
+            target_protein_g: profile.protein_target_g || 160,
+            target_carbs_g: profile.carbs_target_g || 200,
+            target_fat_g: profile.fat_target_g || 65,
+            planned_meals: plannedMeals,
+            fasting_protocol: templateDay.fasting_protocol || '16_8',
+            fasting_start_time: profile.fasting_start_time || '20:00',
+            water_goal_oz: templateDay.water_goal_oz || 100,
+            is_grocery_shopping_day: templateDay.is_grocery_day || false,
+            is_batch_prep_day: templateDay.is_batch_prep_day || false,
+            day_notes: templateDay.notes,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          };
+        }
+
+        return nextPlans;
+      });
+    },
+    [profile]
+  );
+
+  const deleteScheduledDayPlan = useCallback((dateStr: string) => {
+    setScheduledPlans((prev) => {
+      const next = { ...prev };
+      delete next[dateStr];
+      return next;
+    });
+  }, []);
+
+  const clearScheduledRange = useCallback((startDateStr: string, endDateStr: string) => {
+    setScheduledPlans((prev) => {
+      const next = { ...prev };
+      Object.keys(next).forEach((k) => {
+        if (k >= startDateStr && k <= endDateStr) {
+          delete next[k];
+        }
+      });
+      return next;
+    });
+  }, []);
+
+  const generateGroceryFromScheduledRange = useCallback(
+    (startDateStr: string, endDateStr: string) => {
+      let addedCount = 0;
+      const daysInRange = Object.values(scheduledPlans).filter(
+        (plan) => plan.date >= startDateStr && plan.date <= endDateStr
+      );
+
+      const itemsToAdd: GroceryItem[] = [];
+
+      daysInRange.forEach((plan) => {
+        (plan.planned_meals || []).forEach((meal) => {
+          itemsToAdd.push({
+            id: `groc-sch-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+            name: meal.meal_title,
+            department: 'prepared_deli',
+            amount: '1 serving',
+            is_checked: false,
+            in_pantry: false,
+            source: 'schedule_planner',
+            store_tag: 'sams_club',
+          });
+          addedCount++;
+        });
+      });
+
+      if (itemsToAdd.length > 0) {
+        setGroceryList((prev) => [...prev, ...itemsToAdd]);
+      }
+
+      return addedCount;
+    },
+    [scheduledPlans]
+  );
+
   const resetAllData = useCallback(() => {
     if (typeof window !== 'undefined') {
       try {
@@ -1818,6 +1986,7 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
     setWorkoutLogs([]);
     setWaterLogs([]);
     setStepLogs([]);
+    setScheduledPlans({});
   }, []);
 
   return (
@@ -1906,6 +2075,14 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
         stepSyncSource,
         logSteps,
         resetTodaySteps,
+
+        // 90-Day Master Schedule Planner
+        scheduledPlans,
+        saveScheduledDayPlan,
+        deployMasterScheduleTemplate,
+        deleteScheduledDayPlan,
+        clearScheduledRange,
+        generateGroceryFromScheduledRange,
 
         isDemoMode: !authUser && !isSupabaseConfigured,
         activeTab,

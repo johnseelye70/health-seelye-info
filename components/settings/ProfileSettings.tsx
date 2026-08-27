@@ -227,6 +227,18 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'b3.1.0',
+      date: '2026-08-27',
+      title: 'Rolling 90-Day Master Schedule & Holistic Wellness Planner',
+      changes: [
+        'Added Rolling 90-Day Master Schedule: Continuous forward planning engine staging workouts, daily target macros, planned meals, 16:8 fasting windows, and step targets up to 90 days out.',
+        '100% Day-by-Day Customization: Complete modular freedom to edit or override any individual calendar day (swap exercises, change meals, tweak fasting, or add day notes) without breaking the rest of the schedule.',
+        'Master Template Deployment Studio: 1-click deployment of StrongLifts 5x5 + Concept2 Hybrid, Hypertrophy PPL, or Daily Wellness routines across 4, 8, or 12 weeks with custom start date picker.',
+        'Multi-View Calendar & Agenda: Switch dynamically between Rolling 90-Day Timeline, Monthly Calendar Grid, and Weekly Detailed Agenda.',
+        'Forward Grocery Requisition Sync: 1-click aggregation pulling all planned meals from upcoming scheduled days directly into your Aisle-by-Aisle shopping list.',
+      ],
+    },
+    {
       version: 'b3.0.0',
       date: '2026-08-27',
       title: '3-Mode Architecture: Standard, Advanced & Interactive Hand-Held Tutorial',

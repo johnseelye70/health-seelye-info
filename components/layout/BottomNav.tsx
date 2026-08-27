@@ -10,10 +10,11 @@ import {
   ShoppingCart,
   TrendingUp,
   SlidersHorizontal,
+  Calendar,
 } from 'lucide-react';
 
 interface NavItem {
-  id: 'dashboard' | 'nutrition' | 'fasting' | 'workouts' | 'grocery' | 'trends' | 'settings';
+  id: 'dashboard' | 'planner' | 'nutrition' | 'fasting' | 'workouts' | 'grocery' | 'trends' | 'settings';
   label: string;
   icon: React.ComponentType<{ className?: string }>;
   badge?: number | string | null;
@@ -28,17 +29,19 @@ export const BottomNav: React.FC = () => {
   const navItems: NavItem[] = (isStandard || isTutorial)
     ? [
         { id: 'dashboard', label: isTutorial ? 'Guide' : 'Today', icon: LayoutDashboard },
+        { id: 'planner', label: 'Plan', icon: Calendar },
         { id: 'nutrition', label: 'Meals', icon: UtensilsCrossed },
-        { id: 'grocery', label: 'Shopping', icon: ShoppingCart, badge: unpurchasedCount > 0 ? unpurchasedCount : null },
-        { id: 'workouts', label: 'Movement', icon: Dumbbell },
-        { id: 'trends', label: 'Progress', icon: TrendingUp },
+        { id: 'grocery', label: 'Cart', icon: ShoppingCart, badge: unpurchasedCount > 0 ? unpurchasedCount : null },
+        { id: 'workouts', label: 'Move', icon: Dumbbell },
+        { id: 'trends', label: 'Stats', icon: TrendingUp },
       ]
     : [
         { id: 'dashboard', label: 'Home', icon: LayoutDashboard },
-        { id: 'nutrition', label: 'Meals', icon: UtensilsCrossed },
+        { id: 'planner', label: 'Plan', icon: Calendar },
+        { id: 'nutrition', label: 'Macros', icon: UtensilsCrossed },
         { id: 'fasting', label: 'Fast', icon: Timer },
-        { id: 'workouts', label: 'Fitness', icon: Dumbbell },
-        { id: 'grocery', label: 'Shopping', icon: ShoppingCart, badge: unpurchasedCount > 0 ? unpurchasedCount : null },
+        { id: 'workouts', label: 'Train', icon: Dumbbell },
+        { id: 'grocery', label: 'Cart', icon: ShoppingCart, badge: unpurchasedCount > 0 ? unpurchasedCount : null },
         { id: 'trends', label: 'Stats', icon: TrendingUp },
         { id: 'settings', label: 'Profile', icon: SlidersHorizontal },
       ];

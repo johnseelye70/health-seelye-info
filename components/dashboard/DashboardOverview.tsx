@@ -25,6 +25,7 @@ import {
   Sun,
   ChefHat,
   BookOpen,
+  Calendar,
 } from 'lucide-react';
 import { FASTING_CONFIGS } from '@/lib/macro-calculator';
 import { HydrationTracker } from '@/components/dashboard/HydrationTracker';
@@ -132,15 +133,22 @@ export const DashboardOverview: React.FC = () => {
 
           <div className="flex flex-wrap items-center gap-3">
             <button
+              onClick={() => setActiveTab('planner')}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-surface-200/90 hover:bg-surface-300 border border-surface-border text-xs font-semibold text-zinc-200 transition-all cursor-pointer"
+            >
+              <Calendar className="w-4 h-4 text-brand-400" />
+              <span>90-Day Schedule</span>
+            </button>
+            <button
               onClick={() => setActiveTab('fasting')}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-surface-200/90 hover:bg-surface-300 border border-surface-border text-xs font-semibold text-zinc-200 transition-all"
+              className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-surface-200/90 hover:bg-surface-300 border border-surface-border text-xs font-semibold text-zinc-200 transition-all cursor-pointer"
             >
               <Timer className="w-4 h-4 text-brand-400" />
               <span>{fastingStatus.isFasting ? 'Fasting Time' : 'Eating Window Active'}</span>
             </button>
             <button
               onClick={() => setActiveTab('workouts')}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-gradient-to-r from-brand-500 to-accent-teal hover:from-brand-600 hover:to-accent-teal/90 text-zinc-950 text-xs font-bold shadow-glow transition-all active:scale-95"
+              className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-gradient-to-r from-brand-500 to-accent-teal hover:from-brand-600 hover:to-accent-teal/90 text-zinc-950 text-xs font-bold shadow-glow transition-all active:scale-95 cursor-pointer"
             >
               <Dumbbell className="w-4 h-4" />
               <span>{isStandard ? "Today's Routine" : "Start Today's Workout"}</span>

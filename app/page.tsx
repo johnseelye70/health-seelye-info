@@ -13,6 +13,7 @@ import { GroceryManager } from '@/components/grocery/GroceryManager';
 import { ProgressTrends } from '@/components/analytics/ProgressTrends';
 import { ProfileSettings } from '@/components/settings/ProfileSettings';
 import { TutorialMasterHub } from '@/components/tutorial/TutorialMasterHub';
+import { RollingSchedulePlanner } from '@/components/planner/RollingSchedulePlanner';
 import { OnboardingModal } from '@/components/onboarding/OnboardingModal';
 import { AuthModal } from '@/components/auth/AuthModal';
 import { APP_VERSION_SHORT } from '@/lib/version';
@@ -33,6 +34,7 @@ export default function HomePage() {
         {/* Dynamic Screen View Content */}
         <main className="flex-1 p-3.5 sm:p-5 md:p-8 max-w-7xl w-full min-w-0 mx-auto overflow-x-hidden">
           {activeTab === 'dashboard' && (experienceMode === 'tutorial' ? <TutorialMasterHub /> : <DashboardOverview />)}
+          {activeTab === 'planner' && <RollingSchedulePlanner />}
           {activeTab === 'nutrition' && <MealPlanner />}
           {activeTab === 'fasting' && <FastingTracker />}
           {activeTab === 'workouts' && <WorkoutGenerator />}

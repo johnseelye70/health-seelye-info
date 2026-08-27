@@ -523,3 +523,89 @@ export interface RecipeItem {
   icon_emoji?: string;
   is_custom?: boolean;
 }
+
+export type AppNavigationTab =
+  | 'dashboard'
+  | 'planner'
+  | 'nutrition'
+  | 'fasting'
+  | 'workouts'
+  | 'grocery'
+  | 'trends'
+  | 'settings';
+
+export interface ScheduledPlannedMeal {
+  id: string;
+  meal_type: 'breakfast' | 'lunch' | 'dinner' | 'snack';
+  recipe_id?: string;
+  food_id?: string;
+  meal_title: string;
+  calories: number;
+  protein_g: number;
+  carbs_g: number;
+  fat_g: number;
+  is_batch_prep?: boolean;
+  notes?: string;
+}
+
+export interface ScheduledDayPlan {
+  date: string; // ISO format: "YYYY-MM-DD"
+  is_custom_override?: boolean;
+  day_notes?: string;
+
+  // 1. Workout & Fitness Plan
+  workout_title?: string;
+  workout_category?: string;
+  program_id?: string;
+  workout_day_title?: string;
+  exercises?: ProgramExerciseTemplate[];
+  target_steps?: number;
+
+  // 2. Nutrition & Target Macros
+  target_calories?: number;
+  target_protein_g?: number;
+  target_carbs_g?: number;
+  target_fat_g?: number;
+  planned_meals?: ScheduledPlannedMeal[];
+
+  // 3. Fasting & Hydration
+  fasting_protocol?: FastingProtocol;
+  fasting_start_time?: string;
+  water_goal_oz?: number;
+
+  // 4. Logistics & Milestones
+  is_grocery_shopping_day?: boolean;
+  is_batch_prep_day?: boolean;
+
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface MasterScheduleTemplateDay {
+  day_of_week: number; // 1 = Mon ... 7 = Sun
+  day_label: string; // e.g. "Monday"
+  workout_title: string;
+  workout_category: string;
+  program_id?: string;
+  exercises: ProgramExerciseTemplate[];
+  target_steps: number;
+  calorie_offset: number; // e.g. +200 on training days, -200 on rest days
+  carb_focus: 'high' | 'moderate' | 'low';
+  fasting_protocol: FastingProtocol;
+  water_goal_oz: number;
+  planned_meal_names?: string[];
+  is_grocery_day?: boolean;
+  is_batch_prep_day?: boolean;
+  notes?: string;
+}
+
+export interface MasterScheduleTemplate {
+  id: string;
+  title: string;
+  subtitle: string;
+  description: string;
+  icon: string;
+  accent_color: string;
+  recommended_duration_weeks: number;
+  weekly_rhythm: MasterScheduleTemplateDay[];
+}
