@@ -14,6 +14,7 @@ import { ProgressTrends } from '@/components/analytics/ProgressTrends';
 import { ProfileSettings } from '@/components/settings/ProfileSettings';
 import { OnboardingModal } from '@/components/onboarding/OnboardingModal';
 import { AuthModal } from '@/components/auth/AuthModal';
+import { APP_VERSION_SHORT } from '@/lib/version';
 
 export default function HomePage() {
   const { activeTab } = useHealth();
@@ -42,7 +43,7 @@ export default function HomePage() {
           <footer className="md:hidden text-center pt-8 pb-4 text-xs text-zinc-500 flex flex-col items-center justify-center gap-1 border-t border-surface-border/40 mt-8 select-none">
             <div className="flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-brand-500 animate-pulse"></span>
-              <span className="font-mono text-xs text-zinc-200 font-bold">Health.Seelye b2.35.0</span>
+              <span className="font-mono text-xs text-zinc-200 font-bold">Health.Seelye {APP_VERSION_SHORT}</span>
             </div>
             <span className="text-[10px] text-zinc-400 font-mono">Precision Nutrition & Adaptive Fitness Engine</span>
           </footer>

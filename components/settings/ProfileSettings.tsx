@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useHealth } from '@/context/HealthContext';
+import { APP_VERSION_SHORT } from '@/lib/version';
 import {
   ActivityLevel,
   BiologicalSex,
@@ -1674,7 +1675,7 @@ export const ProfileSettings: React.FC = () => {
             title="Click to open release changelog modal window"
           >
             <span className="w-2 h-2 rounded-full bg-brand-400 animate-pulse"></span>
-            <span>Active: b2.36.1</span>
+            <span>Active: {APP_VERSION_SHORT}</span>
             <ChevronRight className="w-3.5 h-3.5 text-brand-400 group-hover:translate-x-0.5 transition-transform" />
           </button>
         </div>

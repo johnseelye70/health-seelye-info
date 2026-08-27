@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useHealth } from '@/context/HealthContext';
+import { APP_VERSION_SHORT } from '@/lib/version';
 import { MacroProgressRing } from '@/components/nutrition/MacroProgressRing';
 import {
   Flame,
@@ -101,7 +102,7 @@ export const DashboardOverview: React.FC = () => {
                 )}
               </span>
               <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-surface-200 border border-surface-border text-brand-400">
-                b2.36.1
+                {APP_VERSION_SHORT}
               </span>
               <span className="text-zinc-500 text-xs hidden sm:inline">•</span>
               <span className="text-zinc-400 text-xs font-mono">
