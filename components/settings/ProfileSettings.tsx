@@ -227,6 +227,14 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'b3.1.2',
+      date: '2026-08-27',
+      title: 'Grocery Department & Requisition Type Strictness',
+      changes: [
+        'Aligned GroceryItem interface types with standard catalog departments and item_name properties in schedule-to-grocery requisition generator.',
+      ],
+    },
+    {
       version: 'b3.1.1',
       date: '2026-08-27',
       title: 'Type Safety & Build Optimization',

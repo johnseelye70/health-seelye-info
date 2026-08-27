@@ -1942,13 +1942,14 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
         (plan.planned_meals || []).forEach((meal) => {
           itemsToAdd.push({
             id: `groc-sch-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
-            name: meal.meal_title,
-            department: 'prepared_deli',
-            amount: '1 serving',
+            item_name: meal.meal_title,
+            category: 'fresh_weekly',
+            department: 'meat_seafood',
+            quantity: 1,
+            unit: 'serving',
             is_checked: false,
             in_pantry: false,
-            source: 'schedule_planner',
-            store_tag: 'sams_club',
+            store_tag: 'all',
           });
           addedCount++;
         });
