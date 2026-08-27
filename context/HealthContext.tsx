@@ -833,6 +833,13 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
               latest_step_sync: new Date().toISOString(),
             },
           }).catch(() => {});
+
+          (client.from('profiles') as any).update({
+            equipment_inventory: {
+              step_logs: mergedSteps,
+            },
+            updated_at: new Date().toISOString(),
+          }).eq('id', liveUser.id).catch(() => {});
         }
       } catch (stepErr) {
         console.warn('Step logs sync warning:', stepErr);
