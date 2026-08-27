@@ -892,6 +892,198 @@ export const PREMADE_WORKOUT_PROGRAMS: PreMadeWorkoutProgram[] = [
       },
     ],
   },
+  {
+    id: 'crossfit_new_girls',
+    title: 'CrossFit® "The New Girls" Benchmarks',
+    subtitle: 'Gwen, Amanda, Nicole, Lynne, Megan & Hope',
+    creator: 'CrossFit HQ & Dave Castro',
+    category: 'crossfit_benchmarks',
+    difficulty: 'advanced',
+    equipment_needed: ['barbells', 'weight_plates', 'pull_up_bar', 'rings', 'flat_bench', 'jump_rope'],
+    duration_weeks: 6,
+    days_per_week: 3,
+    description:
+      'The second generation of official CrossFit benchmark workouts designed to test Olympic weightlifting cycling, gymnastic ring skill, and relentless work capacity.',
+    icon: '⚡',
+    accent_color: '#ec4899',
+    schedule: [
+      {
+        day_number: 1,
+        day_title: '1. "GWEN" (Clean & Jerk Unbroken 15-12-9)',
+        focus: 'Touch-and-Go Olympic Barbell Cycling',
+        duration_minutes: 25,
+        exercises: [
+          { id: 'cf-ng-1', name: 'Clean & Jerk (Touch-and-Go, Unbroken Sets)', target_muscle: 'quads', suggested_sets: 3, suggested_reps: '15-12-9 unbroken reps', instructions: 'Find max load for 15, 12, and 9 unbroken clean and jerks. Rest as needed between sets.' },
+          { id: 'cf-ng-2', name: 'GHD Sit-Ups / V-Ups', target_muscle: 'core', suggested_sets: 3, suggested_reps: '15 reps', instructions: 'Full hip extension and explosive toe touch.' },
+        ],
+      },
+      {
+        day_number: 2,
+        day_title: '2. "AMANDA" (9-7-5 Muscle-Ups & Snatches)',
+        focus: 'Ring Muscle-Ups & 135# Squat Snatches',
+        duration_minutes: 15,
+        exercises: [
+          { id: 'cf-ng-3', name: 'Ring Muscle-Ups', target_muscle: 'back', suggested_sets: 3, suggested_reps: '9-7-5 reps', instructions: 'Smooth turnover on rings, press out to full lockout.' },
+          { id: 'cf-ng-4', name: 'Barbell Squat Snatches @ 135 lbs / 61 kg', target_muscle: 'quads', suggested_sets: 3, suggested_reps: '9-7-5 reps', instructions: 'Catch in deep overhead squat.' },
+        ],
+      },
+      {
+        day_number: 3,
+        day_title: '3. "LYNNE" (5 Rounds Max Bench & Pull-Ups)',
+        focus: 'Bodyweight Bench Press to Failure & Max Pull-Ups',
+        duration_minutes: 30,
+        exercises: [
+          { id: 'cf-ng-5', name: 'Barbell Flat Bench Press @ Bodyweight', target_muscle: 'chest', suggested_sets: 5, suggested_reps: 'Max Unbroken Reps', instructions: 'Load 100% bodyweight on bar, bench to technical failure.' },
+          { id: 'cf-ng-6', name: 'Strict or Kipping Pull-Ups', target_muscle: 'back', suggested_sets: 5, suggested_reps: 'Max Unbroken Reps', instructions: 'Chin clearly over bar. Rest as needed between rounds.' },
+        ],
+      },
+      {
+        day_number: 4,
+        day_title: '4. "NICOLE" (20-Min AMRAP 400m + Pull-Ups)',
+        focus: 'Track Sprinting & Upper Calisthenic Stamina',
+        duration_minutes: 20,
+        exercises: [
+          { id: 'cf-ng-7', name: '400m Track Sprint Run', target_muscle: 'full_body_cardio', suggested_sets: 5, suggested_reps: '400 meters', instructions: 'Fast threshold pace.' },
+          { id: 'cf-ng-8', name: 'Max Unbroken Pull-Ups', target_muscle: 'back', suggested_sets: 5, suggested_reps: 'Max Reps', instructions: 'Drop off bar ends round. Log total pull-up reps.' },
+        ],
+      },
+      {
+        day_number: 5,
+        day_title: '5. "MEGAN" (21-15-9 Burpees, KB Swings, DUs)',
+        focus: 'High-Velocity Aerobic Chipper',
+        duration_minutes: 12,
+        exercises: [
+          { id: 'cf-ng-9', name: 'Burpees to 6" Overhead Target', target_muscle: 'full_body_cardio', suggested_sets: 3, suggested_reps: '21-15-9 reps', instructions: 'Chest touches deck.' },
+          { id: 'cf-ng-10', name: 'Kettlebell Swings @ 53 lbs / 24 kg', target_muscle: 'hamstrings', suggested_sets: 3, suggested_reps: '21-15-9 reps', instructions: 'Full American overhead lockout.' },
+          { id: 'cf-ng-11', name: 'Double-Unders', target_muscle: 'calves', suggested_sets: 3, suggested_reps: '21-15-9 reps', instructions: 'Fast rope speed.' },
+        ],
+      },
+      {
+        day_number: 6,
+        day_title: '6. "HOPE" (3 Rounds: 1 Min Each Station)',
+        focus: 'Burpees, Power Snatches 75#, Box Jumps 24", Thrusters 75#, C2B',
+        duration_minutes: 17,
+        exercises: [
+          { id: 'cf-ng-12', name: 'Burpees (1 min max reps)', target_muscle: 'full_body_cardio', suggested_sets: 3, suggested_reps: '1 min max reps', instructions: 'Max pace.' },
+          { id: 'cf-ng-13', name: 'Power Snatches @ 75 lbs (1 min max reps)', target_muscle: 'back', suggested_sets: 3, suggested_reps: '1 min max reps', instructions: 'Fast cycling.' },
+          { id: 'cf-ng-14', name: 'Box Jumps on 24" Box (1 min max reps)', target_muscle: 'quads', suggested_sets: 3, suggested_reps: '1 min max reps', instructions: 'Full hip extension on top.' },
+          { id: 'cf-ng-15', name: 'Thrusters @ 75 lbs (1 min max reps)', target_muscle: 'quads', suggested_sets: 3, suggested_reps: '1 min max reps', instructions: 'Deep squat into overhead press.' },
+          { id: 'cf-ng-16', name: 'Chest-to-Bar Pull-Ups (1 min max reps)', target_muscle: 'back', suggested_sets: 3, suggested_reps: '1 min max reps', instructions: 'Sternum touches bar (1 min rest follows).' },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'crossfit_heavy_strength_wods',
+    title: 'CrossFit® Heavy Barbell & Strength WODs',
+    subtitle: 'CrossFit Total, King Kong, Linda & Bear Complex',
+    creator: 'CrossFit Strength & Conditioning',
+    category: 'crossfit_benchmarks',
+    difficulty: 'advanced',
+    equipment_needed: ['barbells', 'weight_plates', 'power_rack', 'flat_bench', 'rings'],
+    duration_weeks: 6,
+    days_per_week: 3,
+    description:
+      'The heaviest, raw strength-focused barbell workouts in CrossFit history. Built to test absolute maximum power, 1RM compound limits, and barbell endurance under heavy loads.',
+    icon: '🏋️',
+    accent_color: '#b91c1c',
+    schedule: [
+      {
+        day_number: 1,
+        day_title: '1. "THE CROSSFIT TOTAL" (1RM Squat, Press, Deadlift)',
+        focus: 'Absolute 1RM Compound Power (Sum of 3 Lifts)',
+        duration_minutes: 60,
+        exercises: [
+          { id: 'cf-hvy-1', name: 'Back Squat (1RM Find)', target_muscle: 'quads', suggested_sets: 3, suggested_reps: '1 Rep Max (3 attempts)', instructions: '3 attempts to establish your heaviest 1RM back squat below parallel.' },
+          { id: 'cf-hvy-2', name: 'Standing Shoulder Press (1RM Find)', target_muscle: 'shoulders', suggested_sets: 3, suggested_reps: '1 Rep Max (3 attempts)', instructions: 'Strict press without any knee bend or hip drive.' },
+          { id: 'cf-hvy-3', name: 'Conventional Deadlift (1RM Find)', target_muscle: 'back', suggested_sets: 3, suggested_reps: '1 Rep Max (3 attempts)', instructions: 'Heaviest single pull. Sum all 3 lifts for your CrossFit Total score.' },
+        ],
+      },
+      {
+        day_number: 2,
+        day_title: '2. "LINDA" (Three Bars of Death: 10-to-1 For Time)',
+        focus: 'Deadlift 1.5x BW, Bench Press 1.0x BW, Clean 0.75x BW',
+        duration_minutes: 35,
+        exercises: [
+          { id: 'cf-hvy-4', name: 'Barbell Deadlift @ 1.5x Bodyweight', target_muscle: 'back', suggested_sets: 10, suggested_reps: '10-9-8-7-6-5-4-3-2-1 reps', instructions: 'Loaded with 150% of your bodyweight.' },
+          { id: 'cf-hvy-5', name: 'Barbell Bench Press @ 1.0x Bodyweight', target_muscle: 'chest', suggested_sets: 10, suggested_reps: '10-9-8-7-6-5-4-3-2-1 reps', instructions: 'Loaded with 100% of your bodyweight.' },
+          { id: 'cf-hvy-6', name: 'Barbell Squat Clean @ 0.75x Bodyweight', target_muscle: 'quads', suggested_sets: 10, suggested_reps: '10-9-8-7-6-5-4-3-2-1 reps', instructions: 'Loaded with 75% of bodyweight, catch in full deep squat.' },
+        ],
+      },
+      {
+        day_number: 3,
+        day_title: '3. "THE BEAR COMPLEX" (5 Rounds: 7 Unbroken Cycles)',
+        focus: 'Clean, Front Squat, Push Press, Back Squat, Back Press',
+        duration_minutes: 30,
+        exercises: [
+          { id: 'cf-hvy-7', name: 'The Bear Complex Barbell Flow', target_muscle: 'quads', suggested_sets: 5, suggested_reps: '7 Unbroken Cycles', instructions: '1 Cycle = Power Clean + Front Squat + Push Press + Back Squat + Behind-the-Neck Push Press. 7 unbroken cycles without setting the bar down = 1 round. Increase load each round.' },
+        ],
+      },
+      {
+        day_number: 4,
+        day_title: '4. "KING KONG" (3 Rounds For Time)',
+        focus: '455# Deadlift, Ring Muscle-Ups, 250# Cleans, Deficit HSPU',
+        duration_minutes: 20,
+        exercises: [
+          { id: 'cf-hvy-8', name: 'Deadlift @ 455 lbs / 206 kg', target_muscle: 'back', suggested_sets: 3, suggested_reps: '1 rep', instructions: 'Heavy monster pull.' },
+          { id: 'cf-hvy-9', name: 'Ring Muscle-Ups', target_muscle: 'back', suggested_sets: 3, suggested_reps: '2 reps', instructions: 'Strict or kipping.' },
+          { id: 'cf-hvy-10', name: 'Squat Cleans @ 250 lbs / 113 kg', target_muscle: 'quads', suggested_sets: 3, suggested_reps: '3 reps', instructions: 'Full squat clean from floor.' },
+          { id: 'cf-hvy-11', name: 'Deficit Handstand Push-Ups', target_muscle: 'shoulders', suggested_sets: 3, suggested_reps: '4 reps', instructions: 'Strict deficit HSPU on parallettes or plates.' },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'crossfit_semifinals_suite',
+    title: 'CrossFit® Semifinals & Championship Test Suite',
+    subtitle: 'The Ranch Mini-Chipper, 2023 Test 3 & Semifinal Grendel',
+    creator: 'CrossFit Competition Committee',
+    category: 'crossfit_benchmarks',
+    difficulty: 'advanced',
+    equipment_needed: ['barbells', 'dumbbells', 'pull_up_bar', 'rower', 'air_bike', 'weight_plates', 'plyo_box'],
+    duration_weeks: 6,
+    days_per_week: 3,
+    description:
+      'Championship-caliber workouts from the CrossFit Games Semifinals and In-Person Finals. Built for elite functional conditioning, heavy dumbbell work, and pacing mastery.',
+    icon: '🏅',
+    accent_color: '#0284c7',
+    schedule: [
+      {
+        day_number: 1,
+        day_title: '1. "THE RANCH MINI-CHIPPER" (For Time)',
+        focus: '50 GHD Sit-Ups, 50 Pistols, 50 Cal Row, 50 DB Push Presses 50#',
+        duration_minutes: 22,
+        exercises: [
+          { id: 'cf-semi-1', name: 'GHD Sit-Ups / Weighted V-Ups', target_muscle: 'core', suggested_sets: 1, suggested_reps: '50 reps', instructions: 'Fast cycling.' },
+          { id: 'cf-semi-2', name: 'Single-Leg Squats (Pistols)', target_muscle: 'quads', suggested_sets: 1, suggested_reps: '50 reps (alternating)', instructions: 'Full depth single-leg balance.' },
+          { id: 'cf-semi-3', name: 'Concept2 Row for Calories', target_muscle: 'full_body_cardio', suggested_sets: 1, suggested_reps: '50 Calories', instructions: 'Hard aerobic power.' },
+          { id: 'cf-semi-4', name: 'Dual Dumbbell Push Presses @ 50 lbs / 22.5 kg', target_muscle: 'shoulders', suggested_sets: 1, suggested_reps: '50 reps', instructions: 'Dual dumbbell lockout.' },
+        ],
+      },
+      {
+        day_number: 2,
+        day_title: '2. "2023 SEMIFINALS TEST 3" (5 Rounds For Time)',
+        focus: 'Echo Bike Calories, Ring Muscle-Ups, 70# DB Snatches',
+        duration_minutes: 20,
+        exercises: [
+          { id: 'cf-semi-5', name: 'Echo Bike / Assault Bike Calories', target_muscle: 'full_body_cardio', suggested_sets: 5, suggested_reps: '15 / 12 Calories', instructions: 'Max wattage sprint.' },
+          { id: 'cf-semi-6', name: 'Ring Muscle-Ups', target_muscle: 'back', suggested_sets: 5, suggested_reps: '5 reps', instructions: 'Unbroken transitions.' },
+          { id: 'cf-semi-7', name: 'Heavy Alternating DB Snatches @ 70 lbs / 32 kg', target_muscle: 'back', suggested_sets: 5, suggested_reps: '10 reps (alternating)', instructions: 'Heavy dumbbell pull from floor.' },
+        ],
+      },
+      {
+        day_number: 3,
+        day_title: '3. "2021 SEMIFINAL GRENDEL" (3 Rounds For Time)',
+        focus: '7 Power Cleans 225#, 14 Strict HSPU, 21 Burpees Over Bar',
+        duration_minutes: 18,
+        exercises: [
+          { id: 'cf-semi-8', name: 'Barbell Power Cleans @ 225 lbs / 102 kg', target_muscle: 'back', suggested_sets: 3, suggested_reps: '7 reps', instructions: 'Heavy power cleans from floor.' },
+          { id: 'cf-semi-9', name: 'Strict Handstand Push-Ups', target_muscle: 'shoulders', suggested_sets: 3, suggested_reps: '14 reps', instructions: 'Heels against wall, strict press.' },
+          { id: 'cf-semi-10', name: 'Burpees Over the Barbell', target_muscle: 'full_body_cardio', suggested_sets: 3, suggested_reps: '21 reps', instructions: 'Lateral two-foot jump over bar.' },
+        ],
+      },
+    ],
+  },
 
   // =========================================================================
   // 7. STRENGTH & BARBELL PROGRESSION (COMPLETE SHEETS)

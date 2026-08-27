@@ -225,6 +225,16 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'b2.31.0',
+      date: '2026-08-26',
+      title: 'Expanded CrossFit Benchmark & Championship Suite',
+      changes: [
+        'Added CrossFit "The New Girls" Benchmarks: Gwen (15-12-9 touch-and-go clean & jerks), Amanda (muscle-ups + 135# snatches), Lynne (bodyweight bench + pull-ups), Nicole (400m + pull-ups), Megan, and Hope.',
+        'Added CrossFit Heavy Barbell & Strength WODs: The CrossFit Total (1RM Squat, Press, Deadlift), Linda (Three Bars of Death), The Bear Complex (5 rounds of 7 unbroken cycles), and King Kong (455# deadlifts, muscle-ups, 250# squat cleans).',
+        'Added CrossFit Semifinals & Championship Test Suite: The Ranch Mini-Chipper (pistols, row, 50# DB push presses), 2023 Semifinals Test 3 (Echo Bike, muscle-ups, 70# DB snatches), and 2021 Semifinal Grendel (225# power cleans, HSPU, burpees).',
+      ],
+    },
+    {
       version: 'b2.30.0',
       date: '2026-08-26',
       title: 'Expanded Pre-Made Strength & Barbell Program Library',
@@ -1597,7 +1607,7 @@ export const ProfileSettings: React.FC = () => {
             title="Click to open release changelog modal window"
           >
             <span className="w-2 h-2 rounded-full bg-brand-400 animate-pulse"></span>
-            <span>Active: b2.30.0</span>
+            <span>Active: b2.31.0</span>
             <ChevronRight className="w-3.5 h-3.5 text-brand-400 group-hover:translate-x-0.5 transition-transform" />
           </button>
         </div>
