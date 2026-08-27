@@ -225,6 +225,16 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'b2.23.0',
+      date: '2026-08-26',
+      title: 'Real-Time Cross-Device Profile Synchronization & Lifecycle Focus Listeners',
+      changes: [
+        'Real-Time Cross-Device Sync: Added automatic lifecycle listeners (visibilitychange, pageshow, focus, and 30s background poller) so when profile biometrics are saved on a laptop, they immediately populate on iPhone and iPad upon unlocking or switching back to the app.',
+        'Schema Payload Compatibility: Sanitized Supabase upsert payloads to use standard PostgreSQL profiles schema columns, preventing REST API validation rejections and guaranteeing profile updates persist reliably.',
+        'Seamless Biometric Propagation: Re-engineered cloud reconciliation so any non-zero metric values saved on one device are instantly adopted by other devices logged into the same account without requiring manual page refreshes.',
+      ],
+    },
+    {
       version: 'b2.22.0',
       date: '2026-08-26',
       title: 'Complete Zero-Default Biometric Enforcement & Input Placeholder Cleansing',
@@ -1520,7 +1530,7 @@ export const ProfileSettings: React.FC = () => {
             title="Click to open release changelog modal window"
           >
             <span className="w-2 h-2 rounded-full bg-brand-400 animate-pulse"></span>
-            <span>Active: b2.22.0</span>
+            <span>Active: b2.23.0</span>
             <ChevronRight className="w-3.5 h-3.5 text-brand-400 group-hover:translate-x-0.5 transition-transform" />
           </button>
         </div>

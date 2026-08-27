@@ -327,9 +327,8 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
   const pushLocalProfileToCloud = async (client: any, user: any, p: UserProfile) => {
     try {
       const isConfigured = Boolean(
-        p.has_configured_biometrics &&
-        Number(p.height_cm) > 0 &&
-        Number(p.current_weight_kg) > 0
+        (Number(p.height_cm) > 0 || Number(p.current_weight_kg) > 0) &&
+        !(Number(p.height_cm) === 178 && Number(p.current_weight_kg) === 80 && Number(p.target_weight_kg) === 75)
       );
 
       const payload = {
@@ -340,18 +339,17 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
         height_cm: isConfigured ? Number(p.height_cm) : 0,
         current_weight_kg: isConfigured ? Number(p.current_weight_kg) : 0,
         target_weight_kg: isConfigured ? Number(p.target_weight_kg) : 0,
-        has_configured_biometrics: isConfigured,
-        sex: p.sex,
-        activity_level: p.activity_level,
-        goal: p.goal,
-        unit_preference: p.unit_preference,
-        daily_calorie_target: p.daily_calorie_target,
-        protein_target_g: p.protein_target_g,
-        carb_target_g: p.carb_target_g,
-        fat_target_g: p.fat_target_g,
-        fasting_protocol: p.fasting_protocol,
-        fasting_start_time: p.fasting_start_time,
-        meal_count: p.meal_count,
+        sex: p.sex || 'male',
+        activity_level: p.activity_level || 'moderate',
+        goal: p.goal || 'cut_500',
+        unit_preference: p.unit_preference || 'imperial',
+        daily_calorie_target: p.daily_calorie_target || 2000,
+        protein_target_g: p.protein_target_g || 150,
+        carb_target_g: p.carb_target_g || 200,
+        fat_target_g: p.fat_target_g || 60,
+        fasting_protocol: p.fasting_protocol || '16_8',
+        fasting_start_time: p.fasting_start_time || '20:00',
+        meal_count: p.meal_count || 3,
         updated_at: p.updated_at || new Date().toISOString(),
       };
 
@@ -384,37 +382,23 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
 
       const localProf = profileRef.current;
       const localHasBiometrics = Boolean(
-        localProf.has_configured_biometrics &&
-        Number(localProf.height_cm) > 0 &&
-        Number(localProf.current_weight_kg) > 0
+        (Number(localProf.height_cm) > 0 || Number(localProf.current_weight_kg) > 0) &&
+        !(Number(localProf.height_cm) === 178 && Number(localProf.current_weight_kg) === 80 && Number(localProf.target_weight_kg) === 75)
       );
 
       if (cloudProfile && !profileErr) {
-        // Strict guard against SQL schema placeholder defaults (178cm, 80kg, 75kg) or unconfigured records
-        const cloudIsConfigured = Boolean(
-          cloudProfile.has_configured_biometrics === true &&
-          Number(cloudProfile.height_cm) > 0 &&
-          Number(cloudProfile.current_weight_kg) > 0 &&
-          !(Number(cloudProfile.height_cm) === 178 && Number(cloudProfile.current_weight_kg) === 80)
+        const cloudHeight = Number(cloudProfile.height_cm) || 0;
+        const cloudWeight = Number(cloudProfile.current_weight_kg) || 0;
+        const cloudTarget = Number(cloudProfile.target_weight_kg) || 0;
+
+        // Any cloud profile that has real biometrics (>0) and not the old 178/80/75 placeholder is valid
+        const cloudHasBiometrics = Boolean(
+          (cloudHeight > 0 || cloudWeight > 0) &&
+          !(cloudHeight === 178 && cloudWeight === 80 && cloudTarget === 75)
         );
 
-        let cloudHeight = cloudIsConfigured ? (Number(cloudProfile.height_cm) || 0) : 0;
-        let cloudWeight = cloudIsConfigured ? (Number(cloudProfile.current_weight_kg) || 0) : 0;
-        let cloudTarget = cloudIsConfigured ? (Number(cloudProfile.target_weight_kg) || 0) : 0;
-        const cloudHasBiometrics = cloudIsConfigured;
-
-        // If cloud had dummy unconfigured biometrics, cleanse database row in Supabase
-        if (!cloudIsConfigured && (Number(cloudProfile.height_cm) > 0 || Number(cloudProfile.current_weight_kg) > 0 || Number(cloudProfile.target_weight_kg) > 0)) {
-          (client.from('profiles') as any).update({
-            height_cm: 0,
-            current_weight_kg: 0,
-            target_weight_kg: 0,
-            has_configured_biometrics: false,
-          }).eq('id', user.id).then(() => {});
-        }
-
         if (cloudHasBiometrics && !localHasBiometrics) {
-          // Cloud has real biometrics, local device is fresh/unconfigured.
+          // Cloud has real biometrics, local device (iPhone/iPad) is fresh/unconfigured.
           // ADOPT CLOUD BIOMETRICS ON THIS FRESH DEVICE:
           setProfile((prev) => ({
             ...prev,
@@ -440,7 +424,7 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
             updated_at: cloudProfile.updated_at || prev.updated_at,
           }));
         } else if (!cloudHasBiometrics && localHasBiometrics) {
-          // Local device has real configured biometrics, but cloud was empty.
+          // Local device (Laptop) has real configured biometrics, but cloud was empty.
           // PUSH LOCAL BIOMETRICS TO CLOUD:
           await pushLocalProfileToCloud(client, user, localProf);
           setProfile((prev) => ({
@@ -506,7 +490,6 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
             height_cm: 0,
             current_weight_kg: 0,
             target_weight_kg: 0,
-            has_configured_biometrics: false,
             sex: localProf.sex || 'male',
             activity_level: localProf.activity_level || 'moderate',
             goal: localProf.goal || 'cut_500',
@@ -653,6 +636,35 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
     return () => subscription.unsubscribe();
   }, [performCloudSync]);
 
+  // 5. Automatic Cross-Device Poller & Lifecycle Sync (Tab Focus, App Open, Page Visibility)
+  useEffect(() => {
+    if (!isSupabaseConfigured || !supabase || !authUser) return;
+
+    const handleLifecycleSync = () => {
+      if (document.visibilityState === 'visible') {
+        performCloudSync();
+      }
+    };
+
+    window.addEventListener('focus', handleLifecycleSync);
+    window.addEventListener('pageshow', handleLifecycleSync);
+    document.addEventListener('visibilitychange', handleLifecycleSync);
+
+    // Background interval check every 30s
+    const interval = setInterval(() => {
+      if (document.visibilityState === 'visible') {
+        performCloudSync();
+      }
+    }, 30000);
+
+    return () => {
+      window.removeEventListener('focus', handleLifecycleSync);
+      window.removeEventListener('pageshow', handleLifecycleSync);
+      document.removeEventListener('visibilitychange', handleLifecycleSync);
+      clearInterval(interval);
+    };
+  }, [authUser, performCloudSync]);
+
   // Auth Methods
   const signInWithPassword = async (email: string, password: string) => {
     if (!supabase) return { error: { message: 'Cloud database not configured' } };
@@ -716,6 +728,18 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
     );
   }, [profile.fasting_protocol, profile.fasting_start_time, profile.eating_window_duration_hours, nowTick]);
 
+  // Macro Calculation Engine
+  const calculatedMacros = useMemo(() => {
+    return calculateMacroTargets({
+      weightKg: profile.current_weight_kg,
+      heightCm: profile.height_cm,
+      age: profile.age,
+      sex: profile.sex,
+      activityLevel: profile.activity_level,
+      goal: profile.goal,
+    });
+  }, [profile.current_weight_kg, profile.height_cm, profile.age, profile.sex, profile.activity_level, profile.goal]);
+
   // Compute Dynamic Meal Splits (2, 3, or 4 meals)
   const mealSplitTargets = useMemo(() => {
     return calculateMealSplitTargets(
@@ -772,11 +796,14 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const toggleExperienceMode = useCallback(() => {
-    setProfile((prev) => ({
-      ...prev,
-      experience_mode: prev.experience_mode === 'simple' ? 'advanced' : 'simple',
-      updated_at: new Date().toISOString(),
-    }));
+    setProfile((prev) => {
+      const nextMode: ExperienceMode = (prev.experience_mode || 'simple') === 'simple' ? 'advanced' : 'simple';
+      return {
+        ...prev,
+        experience_mode: nextMode,
+        updated_at: new Date().toISOString(),
+      };
+    });
   }, []);
 
   const setExperienceMode = useCallback((mode: ExperienceMode) => {
@@ -877,7 +904,6 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
               height_cm: p.height_cm,
               current_weight_kg: p.current_weight_kg,
               target_weight_kg: p.target_weight_kg,
-              has_configured_biometrics: Boolean(p.has_configured_biometrics && p.height_cm > 0 && p.current_weight_kg > 0),
               sex: p.sex,
               activity_level: p.activity_level,
               goal: p.goal,
@@ -948,7 +974,6 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
             height_cm: p.height_cm,
             current_weight_kg: p.current_weight_kg,
             target_weight_kg: p.target_weight_kg,
-            has_configured_biometrics: Boolean(p.has_configured_biometrics && p.height_cm > 0 && p.current_weight_kg > 0),
             sex: p.sex,
             activity_level: p.activity_level,
             goal: p.goal,
