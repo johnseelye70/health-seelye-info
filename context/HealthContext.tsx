@@ -306,6 +306,20 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
               setLastStepSyncTimestamp(new Date().toISOString());
               setStepSyncSource('apple_health');
               window.history.replaceState({}, document.title, '/');
+
+              if (supabase) {
+                supabase.auth.getSession().then(({ data: { session } }) => {
+                  if (session?.user) {
+                    supabase.auth.updateUser({
+                      data: {
+                        step_logs: loadedStepLogs,
+                        latest_steps: parsedSteps,
+                        last_step_sync: new Date().toISOString(),
+                      },
+                    }).catch(() => {});
+                  }
+                });
+              }
             }
           }
         } catch {
@@ -638,98 +652,98 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
         setWeightLogs(mergedWeights);
       }
 
-      // D. Step Logs Sync (Cloud <-> Local Non-Destructive Bidirectional Sync)
+      // D. Step Logs Sync (Triple-Resilient Cloud <-> Local Non-Destructive Bidirectional Sync)
       try {
-        const { data: cloudStepLogs, error: stepFetchErr } = await (client.from('step_logs') as any)
-          .select('*')
-          .eq('user_id', user.id)
-          .order('logged_at', { ascending: false });
+        const cloudStepEntries: any[] = [];
 
-        if (!stepFetchErr && cloudStepLogs && Array.isArray(cloudStepLogs)) {
-          const currentLocalSteps = stepLogsRef.current || [];
-          const cloudMap = new Map<string, any>();
-          cloudStepLogs.forEach((cs: any) => {
-            const dateKey = String(cs.logged_at).split('T')[0];
-            cloudMap.set(dateKey, cs);
+        // Source 1: Auth User Metadata (zero-migration guarantee, always works across devices)
+        if (user.user_metadata?.step_logs && Array.isArray(user.user_metadata.step_logs)) {
+          user.user_metadata.step_logs.forEach((s: any) => {
+            if (s && typeof s === 'object') cloudStepEntries.push(s);
           });
+        }
 
-          const localMap = new Map<string, StepLogEntry>();
-          currentLocalSteps.forEach((ls) => {
-            const dateKey = String(ls.logged_at).split('T')[0];
-            const existing = localMap.get(dateKey);
-            if (!existing || (ls.steps > existing.steps)) {
-              localMap.set(dateKey, ls);
-            }
-          });
+        // Source 2: Step Logs Database Table (if table exists)
+        try {
+          const { data: cloudStepLogs, error: stepFetchErr } = await (client.from('step_logs') as any)
+            .select('*')
+            .eq('user_id', user.id)
+            .order('logged_at', { ascending: false });
 
-          const allDates = new Set<string>();
-          cloudMap.forEach((_, k) => allDates.add(k));
-          localMap.forEach((_, k) => allDates.add(k));
-          const mergedSteps: StepLogEntry[] = [];
-          const dateKeys = Array.from(allDates);
+          if (!stepFetchErr && cloudStepLogs && Array.isArray(cloudStepLogs)) {
+            cloudStepLogs.forEach((cs: any) => cloudStepEntries.push(cs));
+          }
+        } catch {
+          // Table might not exist yet
+        }
 
-          for (const dateKey of dateKeys) {
-            const cloudEntry = cloudMap.get(dateKey);
-            const localEntry = localMap.get(dateKey);
+        // Source 3: Cloud Profile Metadata fallback
+        if (cloudProfile && cloudProfile.equipment_inventory && typeof cloudProfile.equipment_inventory === 'object') {
+          if (Array.isArray((cloudProfile.equipment_inventory as any).step_logs)) {
+            (cloudProfile.equipment_inventory as any).step_logs.forEach((s: any) => cloudStepEntries.push(s));
+          }
+        }
 
-            if (cloudEntry && localEntry) {
-              const cloudCount = Number(cloudEntry.steps) || 0;
-              const localCount = Number(localEntry.steps) || 0;
+        const cloudMap = new Map<string, any>();
+        cloudStepEntries.forEach((cs: any) => {
+          const dateKey = String(cs.logged_at).split('T')[0];
+          const existing = cloudMap.get(dateKey);
+          const steps = Number(cs.steps) || 0;
+          if (!existing || steps > (Number(existing.steps) || 0)) {
+            cloudMap.set(dateKey, { ...cs, steps, logged_at: dateKey });
+          }
+        });
 
-              if (localCount > cloudCount) {
-                // Local is higher -> push update to cloud
-                await (client.from('step_logs') as any).update({
-                  steps: localCount,
-                  distance_miles: localEntry.distance_miles ?? Number((localCount * 0.00045).toFixed(2)),
-                  calories_burned: localEntry.calories_burned ?? Math.round(localCount * 0.04),
-                  source: localEntry.source || 'apple_health',
-                  updated_at: new Date().toISOString(),
-                }).eq('id', cloudEntry.id);
+        const currentLocalSteps = stepLogsRef.current || [];
+        const localMap = new Map<string, StepLogEntry>();
+        currentLocalSteps.forEach((ls) => {
+          const dateKey = String(ls.logged_at).split('T')[0];
+          const existing = localMap.get(dateKey);
+          const steps = Number(ls.steps) || 0;
+          if (!existing || steps > (Number(existing.steps) || 0)) {
+            localMap.set(dateKey, { ...ls, steps, logged_at: dateKey });
+          }
+        });
 
-                mergedSteps.push({
-                  id: cloudEntry.id || localEntry.id,
-                  steps: localCount,
-                  distance_miles: localEntry.distance_miles ?? Number((localCount * 0.00045).toFixed(2)),
-                  calories_burned: localEntry.calories_burned ?? Math.round(localCount * 0.04),
-                  source: localEntry.source || 'apple_health',
-                  logged_at: dateKey,
-                });
-              } else {
-                // Cloud is higher or equal -> adopt cloud
-                mergedSteps.push({
+        const allDates = new Set<string>();
+        cloudMap.forEach((_, k) => allDates.add(k));
+        localMap.forEach((_, k) => allDates.add(k));
+        const mergedSteps: StepLogEntry[] = [];
+        const dateKeys = Array.from(allDates);
+        let hasLocalUpdateForCloud = false;
+
+        for (const dateKey of dateKeys) {
+          const cloudEntry = cloudMap.get(dateKey);
+          const localEntry = localMap.get(dateKey);
+
+          if (cloudEntry && localEntry) {
+            const cloudCount = Number(cloudEntry.steps) || 0;
+            const localCount = Number(localEntry.steps) || 0;
+
+            if (localCount > cloudCount) {
+              hasLocalUpdateForCloud = true;
+              mergedSteps.push({
+                id: cloudEntry.id || localEntry.id,
+                steps: localCount,
+                distance_miles: localEntry.distance_miles ?? Number((localCount * 0.00045).toFixed(2)),
+                calories_burned: localEntry.calories_burned ?? Math.round(localCount * 0.04),
+                source: localEntry.source || 'apple_health',
+                logged_at: dateKey,
+              });
+
+              (client.from('step_logs') as any)
+                .upsert({
                   id: cloudEntry.id,
-                  steps: cloudCount,
-                  distance_miles: cloudEntry.distance_miles ? Number(cloudEntry.distance_miles) : Number((cloudCount * 0.00045).toFixed(2)),
-                  calories_burned: cloudEntry.calories_burned ? Number(cloudEntry.calories_burned) : Math.round(cloudCount * 0.04),
-                  source: cloudEntry.source || 'apple_health',
-                  logged_at: dateKey,
-                });
-              }
-            } else if (localEntry && !cloudEntry) {
-              // Local only -> push to cloud
-              const stepCount = Number(localEntry.steps) || 0;
-              if (stepCount > 0) {
-                const { data: insertedStep } = await (client.from('step_logs') as any).insert({
                   user_id: user.id,
-                  steps: stepCount,
-                  distance_miles: localEntry.distance_miles ?? Number((stepCount * 0.00045).toFixed(2)),
-                  calories_burned: localEntry.calories_burned ?? Math.round(stepCount * 0.04),
+                  steps: localCount,
+                  distance_miles: localEntry.distance_miles ?? Number((localCount * 0.00045).toFixed(2)),
+                  calories_burned: localEntry.calories_burned ?? Math.round(localCount * 0.04),
                   source: localEntry.source || 'apple_health',
                   logged_at: dateKey,
-                }).select().maybeSingle();
-
-                mergedSteps.push({
-                  id: insertedStep?.id || localEntry.id,
-                  steps: stepCount,
-                  distance_miles: localEntry.distance_miles ?? Number((stepCount * 0.00045).toFixed(2)),
-                  calories_burned: localEntry.calories_burned ?? Math.round(stepCount * 0.04),
-                  source: localEntry.source || 'apple_health',
-                  logged_at: dateKey,
-                });
-              }
-            } else if (cloudEntry && !localEntry) {
-              // Cloud only -> adopt into local state
-              const cloudCount = Number(cloudEntry.steps) || 0;
+                  updated_at: new Date().toISOString(),
+                }, { onConflict: 'user_id,logged_at' })
+                .catch(() => {});
+            } else {
               mergedSteps.push({
                 id: cloudEntry.id,
                 steps: cloudCount,
@@ -739,17 +753,60 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
                 logged_at: dateKey,
               });
             }
-          }
+          } else if (localEntry && !cloudEntry) {
+            const stepCount = Number(localEntry.steps) || 0;
+            if (stepCount > 0) {
+              hasLocalUpdateForCloud = true;
+              mergedSteps.push({
+                id: localEntry.id,
+                steps: stepCount,
+                distance_miles: localEntry.distance_miles ?? Number((stepCount * 0.00045).toFixed(2)),
+                calories_burned: localEntry.calories_burned ?? Math.round(stepCount * 0.04),
+                source: localEntry.source || 'apple_health',
+                logged_at: dateKey,
+              });
 
-          // Sort by logged_at descending
-          mergedSteps.sort((a, b) => b.logged_at.localeCompare(a.logged_at));
-          setStepLogs(mergedSteps);
-          if (mergedSteps.length > 0) {
-            setLastStepSyncTimestamp(new Date().toISOString());
+              (client.from('step_logs') as any)
+                .insert({
+                  user_id: user.id,
+                  steps: stepCount,
+                  distance_miles: localEntry.distance_miles ?? Number((stepCount * 0.00045).toFixed(2)),
+                  calories_burned: localEntry.calories_burned ?? Math.round(stepCount * 0.04),
+                  source: localEntry.source || 'apple_health',
+                  logged_at: dateKey,
+                })
+                .catch(() => {});
+            }
+          } else if (cloudEntry && !localEntry) {
+            const cloudCount = Number(cloudEntry.steps) || 0;
+            mergedSteps.push({
+              id: cloudEntry.id,
+              steps: cloudCount,
+              distance_miles: cloudEntry.distance_miles ? Number(cloudEntry.distance_miles) : Number((cloudCount * 0.00045).toFixed(2)),
+              calories_burned: cloudEntry.calories_burned ? Number(cloudEntry.calories_burned) : Math.round(cloudCount * 0.04),
+              source: cloudEntry.source || 'apple_health',
+              logged_at: dateKey,
+            });
           }
         }
+
+        mergedSteps.sort((a, b) => b.logged_at.localeCompare(a.logged_at));
+        setStepLogs(mergedSteps);
+        stepLogsRef.current = mergedSteps;
+        if (mergedSteps.length > 0) {
+          setLastStepSyncTimestamp(new Date().toISOString());
+        }
+
+        if (hasLocalUpdateForCloud || (mergedSteps.length > 0 && (!user.user_metadata?.step_logs || user.user_metadata.step_logs.length !== mergedSteps.length))) {
+          client.auth.updateUser({
+            data: {
+              step_logs: mergedSteps,
+              latest_step_sync: new Date().toISOString(),
+            },
+          }).catch(() => {});
+        }
       } catch (stepErr) {
-        console.warn('Step logs sync error:', stepErr);
+        console.warn('Step logs sync warning:', stepErr);
       }
 
       setSyncStatus('synced');
@@ -1529,6 +1586,8 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
     };
     setLastStepSyncTimestamp(new Date().toISOString());
     setStepSyncSource(source);
+
+    let updatedLogs: StepLogEntry[] = [];
     setStepLogs((prev) => {
       // Remove all today logs and any 8-step artifacts
       const filtered = prev.filter(
@@ -1539,12 +1598,24 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
           !s.logged_at.startsWith(utcToday) &&
           !(s.steps === 8 && s.source === 'apple_health')
       );
-      return [entry, ...filtered];
+      updatedLogs = [entry, ...filtered];
+      stepLogsRef.current = updatedLogs;
+      return updatedLogs;
     });
 
-    // Push directly to cloud for seamless multi-device synchronization (iPhone -> Cloud -> Laptop/Desktop)
+    // Push directly to cloud across Auth metadata & database for multi-device sync
     const user = authUserRef.current;
     if (supabase && user) {
+      // 1. Auth user_metadata push (instant, zero-migration guarantee across all devices)
+      supabase.auth.updateUser({
+        data: {
+          step_logs: updatedLogs,
+          latest_steps_today: steps,
+          last_step_sync: new Date().toISOString(),
+        },
+      }).catch(() => {});
+
+      // 2. Database table push
       (async () => {
         try {
           const { data: existing } = await (supabase.from('step_logs') as any)
@@ -1574,7 +1645,7 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
             });
           }
         } catch (err) {
-          console.warn('Could not push step count to cloud:', err);
+          console.warn('Database step table sync warning:', err);
         }
       })();
     }
@@ -1583,20 +1654,31 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
   const resetTodaySteps = useCallback(() => {
     const localToday = getLocalDateString();
     const utcToday = new Date().toISOString().split('T')[0];
-    setStepLogs((prev) =>
-      prev.filter(
+    let remainingLogs: StepLogEntry[] = [];
+    setStepLogs((prev) => {
+      remainingLogs = prev.filter(
         (s) =>
           s.logged_at !== localToday &&
           s.logged_at !== utcToday &&
           !s.logged_at.startsWith(localToday) &&
           !s.logged_at.startsWith(utcToday) &&
           !(s.steps === 8 && s.source === 'apple_health')
-      )
-    );
+      );
+      stepLogsRef.current = remainingLogs;
+      return remainingLogs;
+    });
     setLastStepSyncTimestamp(null);
 
     const user = authUserRef.current;
     if (supabase && user) {
+      supabase.auth.updateUser({
+        data: {
+          step_logs: remainingLogs,
+          latest_steps_today: 0,
+          last_step_sync: new Date().toISOString(),
+        },
+      }).catch(() => {});
+
       (async () => {
         try {
           await (supabase.from('step_logs') as any)
