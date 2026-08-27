@@ -36,14 +36,15 @@ export const NumberStepper: React.FC<NumberStepperProps> = ({
 }) => {
   const handleDecrement = (e: React.MouseEvent) => {
     e.preventDefault();
-    const currentVal = value || min;
-    const nextVal = Math.max(min, Number((currentVal - step).toFixed(decimals || 2)));
+    const currentVal = typeof value === 'number' && !isNaN(value) ? value : 0;
+    const effectiveMin = allowEmptyZero ? 0 : min;
+    const nextVal = Math.max(effectiveMin, Number((currentVal - step).toFixed(decimals || 2)));
     onChange(nextVal);
   };
 
   const handleIncrement = (e: React.MouseEvent) => {
     e.preventDefault();
-    const currentVal = value || (min > 0 ? min : 0);
+    const currentVal = typeof value === 'number' && !isNaN(value) ? value : 0;
     const nextVal = Math.min(max, Number((currentVal + step).toFixed(decimals || 2)));
     onChange(nextVal);
   };
@@ -55,7 +56,8 @@ export const NumberStepper: React.FC<NumberStepperProps> = ({
     }
     const num = parseFloat(e.target.value);
     if (!isNaN(num)) {
-      onChange(Math.max(0, Math.min(max, num)));
+      const effectiveMin = allowEmptyZero ? 0 : min;
+      onChange(Math.max(effectiveMin, Math.min(max, num)));
     }
   };
 

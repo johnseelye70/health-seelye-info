@@ -228,12 +228,12 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
           const parsed = JSON.parse(saved);
           if (parsed.profile) {
             const prof = { ...parsed.profile };
-            // Purge legacy hardcoded defaults (178cm / 80kg / 75kg) if user hasn't explicitly configured custom biometrics
+            // Purge all legacy or unconfigured default biometrics (ensure 0 unless explicitly configured)
             if (
-              !prof.has_configured_biometrics &&
-              (prof.height_cm === 178 || !prof.height_cm) &&
-              (prof.current_weight_kg === 80 || !prof.current_weight_kg) &&
-              (prof.target_weight_kg === 75 || !prof.target_weight_kg)
+              !prof.has_configured_biometrics ||
+              (prof.height_cm === 178 && prof.current_weight_kg === 80) ||
+              !prof.height_cm ||
+              !prof.current_weight_kg
             ) {
               prof.height_cm = 0;
               prof.current_weight_kg = 0;
@@ -326,14 +326,21 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
   // Helper to push local profile to cloud safely via UPSERT with onConflict: 'id'
   const pushLocalProfileToCloud = async (client: any, user: any, p: UserProfile) => {
     try {
+      const isConfigured = Boolean(
+        p.has_configured_biometrics &&
+        Number(p.height_cm) > 0 &&
+        Number(p.current_weight_kg) > 0
+      );
+
       const payload = {
         id: user.id,
         email: user.email || p.email,
         full_name: p.full_name || user.user_metadata?.full_name || 'Athlete',
-        age: p.age,
-        height_cm: p.height_cm,
-        current_weight_kg: p.current_weight_kg,
-        target_weight_kg: p.target_weight_kg,
+        age: p.age || 35,
+        height_cm: isConfigured ? Number(p.height_cm) : 0,
+        current_weight_kg: isConfigured ? Number(p.current_weight_kg) : 0,
+        target_weight_kg: isConfigured ? Number(p.target_weight_kg) : 0,
+        has_configured_biometrics: isConfigured,
         sex: p.sex,
         activity_level: p.activity_level,
         goal: p.goal,
@@ -369,7 +376,7 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
     try {
       const client = supabase;
 
-      // A. Profile Reconciliation (Non-Destructive Bidirectional Merge)
+      // A. Profile Reconciliation (Strict Zero-Default Guard)
       const { data: cloudProfile, error: profileErr } = await (client.from('profiles') as any)
         .select('*')
         .eq('id', user.id)
@@ -377,15 +384,34 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
 
       const localProf = profileRef.current;
       const localHasBiometrics = Boolean(
-        localProf.has_configured_biometrics ||
-        (Number(localProf.height_cm) > 0 && Number(localProf.current_weight_kg) > 0)
+        localProf.has_configured_biometrics &&
+        Number(localProf.height_cm) > 0 &&
+        Number(localProf.current_weight_kg) > 0
       );
 
       if (cloudProfile && !profileErr) {
-        const cloudHeight = Number(cloudProfile.height_cm) || 0;
-        const cloudWeight = Number(cloudProfile.current_weight_kg) || 0;
-        const cloudTarget = Number(cloudProfile.target_weight_kg) || 0;
-        const cloudHasBiometrics = Boolean(cloudHeight > 0 || cloudWeight > 0);
+        // Strict guard against SQL schema placeholder defaults (178cm, 80kg, 75kg) or unconfigured records
+        const cloudIsConfigured = Boolean(
+          cloudProfile.has_configured_biometrics === true &&
+          Number(cloudProfile.height_cm) > 0 &&
+          Number(cloudProfile.current_weight_kg) > 0 &&
+          !(Number(cloudProfile.height_cm) === 178 && Number(cloudProfile.current_weight_kg) === 80)
+        );
+
+        let cloudHeight = cloudIsConfigured ? (Number(cloudProfile.height_cm) || 0) : 0;
+        let cloudWeight = cloudIsConfigured ? (Number(cloudProfile.current_weight_kg) || 0) : 0;
+        let cloudTarget = cloudIsConfigured ? (Number(cloudProfile.target_weight_kg) || 0) : 0;
+        const cloudHasBiometrics = cloudIsConfigured;
+
+        // If cloud had dummy unconfigured biometrics, cleanse database row in Supabase
+        if (!cloudIsConfigured && (Number(cloudProfile.height_cm) > 0 || Number(cloudProfile.current_weight_kg) > 0 || Number(cloudProfile.target_weight_kg) > 0)) {
+          (client.from('profiles') as any).update({
+            height_cm: 0,
+            current_weight_kg: 0,
+            target_weight_kg: 0,
+            has_configured_biometrics: false,
+          }).eq('id', user.id).then(() => {});
+        }
 
         if (cloudHasBiometrics && !localHasBiometrics) {
           // Cloud has real biometrics, local device is fresh/unconfigured.
@@ -415,7 +441,7 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
           }));
         } else if (!cloudHasBiometrics && localHasBiometrics) {
           // Local device has real configured biometrics, but cloud was empty.
-          // PUSH LOCAL BIOMETRICS TO CLOUD (NEVER OVERWRITE LOCAL WITH EMPTY CLOUD!):
+          // PUSH LOCAL BIOMETRICS TO CLOUD:
           await pushLocalProfileToCloud(client, user, localProf);
           setProfile((prev) => ({
             ...prev,
@@ -428,10 +454,8 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
           const cloudTime = cloudProfile.updated_at ? new Date(cloudProfile.updated_at).getTime() : 0;
 
           if (localTime > cloudTime) {
-            // Local is newer: push local to cloud
             await pushLocalProfileToCloud(client, user, localProf);
           } else {
-            // Cloud is newer: adopt cloud profile
             setProfile((prev) => ({
               ...prev,
               id: user.id,
@@ -457,12 +481,16 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
             }));
           }
         } else {
-          // Neither has biometrics configured yet
+          // Neither has biometrics configured yet -> Strictly keep 0
           setProfile((prev) => ({
             ...prev,
             id: user.id,
             email: user.email || prev.email,
             full_name: cloudProfile.full_name || user.user_metadata?.full_name || prev.full_name || 'Athlete',
+            height_cm: 0,
+            current_weight_kg: 0,
+            target_weight_kg: 0,
+            has_configured_biometrics: false,
           }));
         }
       } else {
@@ -478,6 +506,7 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
             height_cm: 0,
             current_weight_kg: 0,
             target_weight_kg: 0,
+            has_configured_biometrics: false,
             sex: localProf.sex || 'male',
             activity_level: localProf.activity_level || 'moderate',
             goal: localProf.goal || 'cut_500',
@@ -848,6 +877,7 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
               height_cm: p.height_cm,
               current_weight_kg: p.current_weight_kg,
               target_weight_kg: p.target_weight_kg,
+              has_configured_biometrics: Boolean(p.has_configured_biometrics && p.height_cm > 0 && p.current_weight_kg > 0),
               sex: p.sex,
               activity_level: p.activity_level,
               goal: p.goal,
@@ -918,6 +948,7 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
             height_cm: p.height_cm,
             current_weight_kg: p.current_weight_kg,
             target_weight_kg: p.target_weight_kg,
+            has_configured_biometrics: Boolean(p.has_configured_biometrics && p.height_cm > 0 && p.current_weight_kg > 0),
             sex: p.sex,
             activity_level: p.activity_level,
             goal: p.goal,

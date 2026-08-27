@@ -227,9 +227,11 @@ export const OnboardingModal: React.FC = () => {
                     label="Height (Feet)"
                     value={formData.height_ft}
                     onChange={(val) => setFormData({ ...formData, height_ft: val })}
-                    min={3}
+                    min={0}
                     max={7}
                     step={1}
+                    allowEmptyZero={true}
+                    placeholder="0"
                     unit="ft"
                   />
                   <NumberStepper
@@ -239,6 +241,8 @@ export const OnboardingModal: React.FC = () => {
                     min={0}
                     max={11}
                     step={1}
+                    allowEmptyZero={true}
+                    placeholder="0"
                     unit="in"
                   />
                 </div>
@@ -248,9 +252,11 @@ export const OnboardingModal: React.FC = () => {
                     label="Height (cm)"
                     value={formData.height_cm}
                     onChange={(val) => setFormData({ ...formData, height_cm: val })}
-                    min={100}
+                    min={0}
                     max={250}
                     step={1}
+                    allowEmptyZero={true}
+                    placeholder="0"
                     unit="cm"
                   />
                 </div>
@@ -262,10 +268,12 @@ export const OnboardingModal: React.FC = () => {
                   label={`Weight (${unitPref === 'imperial' ? 'lbs' : 'kg'})`}
                   value={formData.current_weight_input}
                   onChange={(val) => setFormData({ ...formData, current_weight_input: val })}
-                  min={unitPref === 'imperial' ? 60 : 30}
+                  min={0}
                   max={unitPref === 'imperial' ? 600 : 300}
                   step={0.5}
                   decimals={1}
+                  allowEmptyZero={true}
+                  placeholder="0.0"
                   unit={unitPref === 'imperial' ? 'lbs' : 'kg'}
                 />
               </div>
@@ -276,10 +284,12 @@ export const OnboardingModal: React.FC = () => {
                 label={`Target Goal Weight (${unitPref === 'imperial' ? 'lbs' : 'kg'})`}
                 value={formData.target_weight_input}
                 onChange={(val) => setFormData({ ...formData, target_weight_input: val })}
-                min={unitPref === 'imperial' ? 60 : 30}
+                min={0}
                 max={unitPref === 'imperial' ? 600 : 300}
                 step={0.5}
                 decimals={1}
+                allowEmptyZero={true}
+                placeholder="0.0"
                 unit={unitPref === 'imperial' ? 'lbs' : 'kg'}
               />
             </div>

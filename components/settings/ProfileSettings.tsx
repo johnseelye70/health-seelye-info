@@ -225,6 +225,17 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'b2.22.0',
+      date: '2026-08-26',
+      title: 'Complete Zero-Default Biometric Enforcement & Input Placeholder Cleansing',
+      changes: [
+        'Purged All Unconfigured Default Biometrics: Completely eliminated system default height, starting weight, and target weight from local storage and Supabase database records. Biometric inputs now strictly remain 0 and unconfigured until explicitly entered and saved by the user.',
+        'Cleaned Input Placeholders: Removed all example numbers (e.g., "5 ft", "10 in", "178 cm", "175.0 lbs", "165.0 lbs") from all profile and onboarding number steppers, replacing them with clean "0" and "0.0" cues.',
+        'Database Row Cleansing on Sync: When connecting to Supabase, any legacy database rows containing old unconfigured SQL default metrics (178cm/80kg/75kg) are automatically cleansed to 0, ensuring no pre-filled fake data is ever injected into user accounts.',
+        'NumberStepper Clamping Guard: Updated NumberStepper increment/decrement controls to properly respect allowEmptyZero without auto-clamping 0 to non-zero minimum bounds.',
+      ],
+    },
+    {
       version: 'b2.21.0',
       date: '2026-08-26',
       title: 'Hardened Multi-Device Profile Sync & Non-Destructive Reconciliation Engine',
@@ -1366,7 +1377,7 @@ export const ProfileSettings: React.FC = () => {
                 max={7}
                 step={1}
                 allowEmptyZero={true}
-                placeholder="Feet (e.g. 5)"
+                placeholder="0"
                 unit="ft"
               />
               <NumberStepper
@@ -1377,7 +1388,7 @@ export const ProfileSettings: React.FC = () => {
                 max={11}
                 step={1}
                 allowEmptyZero={true}
-                placeholder="Inches (e.g. 10)"
+                placeholder="0"
                 unit="in"
               />
             </div>
@@ -1391,7 +1402,7 @@ export const ProfileSettings: React.FC = () => {
                 max={250}
                 step={1}
                 allowEmptyZero={true}
-                placeholder="cm (e.g. 178)"
+                placeholder="0"
                 unit="cm"
               />
             </div>
@@ -1408,7 +1419,7 @@ export const ProfileSettings: React.FC = () => {
               step={0.5}
               decimals={1}
               allowEmptyZero={true}
-              placeholder={form.unit_preference === 'imperial' ? 'e.g. 175.0' : 'e.g. 79.5'}
+              placeholder="0.0"
               unit={form.unit_preference === 'imperial' ? 'lbs' : 'kg'}
             />
           </div>
@@ -1424,7 +1435,7 @@ export const ProfileSettings: React.FC = () => {
               step={0.5}
               decimals={1}
               allowEmptyZero={true}
-              placeholder={form.unit_preference === 'imperial' ? 'e.g. 165.0' : 'e.g. 75.0'}
+              placeholder="0.0"
               unit={form.unit_preference === 'imperial' ? 'lbs' : 'kg'}
             />
           </div>
@@ -1509,7 +1520,7 @@ export const ProfileSettings: React.FC = () => {
             title="Click to open release changelog modal window"
           >
             <span className="w-2 h-2 rounded-full bg-brand-400 animate-pulse"></span>
-            <span>Active: b2.21.0</span>
+            <span>Active: b2.22.0</span>
             <ChevronRight className="w-3.5 h-3.5 text-brand-400 group-hover:translate-x-0.5 transition-transform" />
           </button>
         </div>

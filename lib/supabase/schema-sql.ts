@@ -16,6 +16,7 @@ ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS age INTEGER DEFAULT 35;
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS height_cm NUMERIC DEFAULT 0;
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS current_weight_kg NUMERIC DEFAULT 0;
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS target_weight_kg NUMERIC DEFAULT 0;
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS has_configured_biometrics BOOLEAN DEFAULT false;
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS sex TEXT DEFAULT 'male';
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS activity_level TEXT DEFAULT 'moderate';
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS goal TEXT DEFAULT 'cut_500';
