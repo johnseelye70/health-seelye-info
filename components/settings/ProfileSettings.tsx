@@ -227,6 +227,14 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'b3.2.1',
+      date: '2026-08-27',
+      title: 'Enhanced Calendar Dropdown Opacity & Contrast',
+      changes: [
+        'Upgraded CalendarDatePicker popover to 100% solid opaque obsidian (zinc-950) with elevated drop-shadows, preventing background text bleed-through.',
+      ],
+    },
+    {
       version: 'b3.2.0',
       date: '2026-08-27',
       title: 'Interactive Calendar DatePicker Dropdown Engine',

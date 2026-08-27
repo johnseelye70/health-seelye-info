@@ -178,12 +178,12 @@ export const CalendarDatePicker: React.FC<CalendarDatePickerProps> = ({
         </span>
       </button>
 
-      {/* Calendar Dropdown Popover */}
+      {/* Calendar Dropdown Popover (100% Solid Opaque Background) */}
       {isOpen && (
-        <div className="absolute top-full left-0 mt-2 z-50 w-full min-w-[280px] sm:min-w-[320px] p-3.5 rounded-2xl bg-surface-100/98 backdrop-blur-2xl border border-surface-border shadow-2xl space-y-3 animate-fadeIn">
+        <div className="absolute top-full left-0 mt-2 z-50 w-full min-w-[290px] sm:min-w-[320px] p-3.5 rounded-2xl bg-zinc-950 border border-zinc-700 shadow-[0_20px_60px_rgba(0,0,0,0.95)] space-y-3 animate-fadeIn">
           {/* Quick Picks Row */}
           {quickPicks && (
-            <div className="flex items-center gap-1.5 overflow-x-auto pb-2 border-b border-surface-border/60 text-[11px]">
+            <div className="flex items-center gap-1.5 overflow-x-auto pb-2 border-b border-zinc-800 text-[11px]">
               {presets.map((preset) => {
                 const isSelected = preset.dateStr === value;
                 return (
@@ -194,7 +194,7 @@ export const CalendarDatePicker: React.FC<CalendarDatePickerProps> = ({
                     className={`px-2.5 py-1 rounded-lg font-semibold whitespace-nowrap transition-all cursor-pointer ${
                       isSelected
                         ? 'bg-brand-500 text-zinc-950 shadow-glow'
-                        : 'bg-surface-200 hover:bg-surface-300 text-zinc-300'
+                        : 'bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border border-zinc-800'
                     }`}
                   >
                     {preset.label}
@@ -206,7 +206,7 @@ export const CalendarDatePicker: React.FC<CalendarDatePickerProps> = ({
 
           {/* Month & Year Navigation Header */}
           <div className="flex items-center justify-between px-1">
-            <h4 className="text-xs font-bold text-foreground">
+            <h4 className="text-xs font-bold text-zinc-100">
               {viewMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
             </h4>
 
@@ -218,7 +218,7 @@ export const CalendarDatePicker: React.FC<CalendarDatePickerProps> = ({
                   prev.setMonth(prev.getMonth() - 1);
                   setViewMonth(prev);
                 }}
-                className="p-1.5 rounded-lg bg-surface-200 hover:bg-surface-300 text-foreground transition-all cursor-pointer"
+                className="p-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-zinc-200 border border-zinc-800 transition-all cursor-pointer"
                 title="Previous Month"
               >
                 <ChevronLeft className="w-3.5 h-3.5" />
@@ -230,7 +230,7 @@ export const CalendarDatePicker: React.FC<CalendarDatePickerProps> = ({
                   next.setMonth(next.getMonth() + 1);
                   setViewMonth(next);
                 }}
-                className="p-1.5 rounded-lg bg-surface-200 hover:bg-surface-300 text-foreground transition-all cursor-pointer"
+                className="p-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-zinc-200 border border-zinc-800 transition-all cursor-pointer"
                 title="Next Month"
               >
                 <ChevronRight className="w-3.5 h-3.5" />
@@ -268,8 +268,8 @@ export const CalendarDatePicker: React.FC<CalendarDatePickerProps> = ({
                     isSelected
                       ? 'bg-brand-500 text-zinc-950 shadow-glow font-black scale-105'
                       : isToday
-                      ? 'bg-surface-200 border border-brand-500/60 text-brand-400 hover:bg-surface-300'
-                      : 'text-zinc-200 hover:bg-surface-200'
+                      ? 'bg-zinc-900 border border-brand-500/80 text-brand-400 hover:bg-zinc-800'
+                      : 'text-zinc-200 hover:bg-zinc-900'
                   }`}
                 >
                   {cell.dayNum}
@@ -279,7 +279,7 @@ export const CalendarDatePicker: React.FC<CalendarDatePickerProps> = ({
           </div>
 
           {/* Bottom Actions */}
-          <div className="flex items-center justify-between pt-2 border-t border-surface-border/60 text-[11px]">
+          <div className="flex items-center justify-between pt-2 border-t border-zinc-800 text-[11px]">
             <button
               type="button"
               onClick={() => handleSelectDate(todayStr)}
