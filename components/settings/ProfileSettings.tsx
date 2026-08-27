@@ -226,6 +226,18 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'b2.37.0',
+      date: '2026-08-27',
+      title: 'Expanded Concept2® Rowing & Hybrid Endurance Suite',
+      changes: [
+        'Added Concept2® 2,000m Erg Test & Sub-7 Peaking Protocol: 8-week periodized master plan targeting anaerobic threshold, VO2 max lactate tolerance, and 2K time trial pacing.',
+        'Added Concept2® Daily WOD & Calorie Crusher Suite: 6-week program featuring Tabata 20/10 calorie sprints, 5k step-rate ladders, 4x2000m aerobic threshold intervals, and 30-min open yardage challenges.',
+        'Added Concept2® Row & Kettlebell / Calisthenics Hybrid Metcon: 8-week hybrid conditioning pairing 500m/750m/1000m erg splits with kettlebell swings, strict pull-ups, push-ups, and heavy carries.',
+        'Added Concept2® 10,000m to Half-Marathon (21,097m) Endurance Builder: 12-week ultra-aerobic engine builder with low-rate high-wattage (16-20 SPM) pacing and negative split mastery.',
+        'Expanded Pete Plan Schedule: Fully integrated all 5 classic Pete Plan days (8x500m sprints, 8k-10k steady state, speed pyramids, 4x2000m, and 10k time trial).',
+      ],
+    },
+    {
       version: 'b2.36.1',
       date: '2026-08-27',
       title: 'Resilient Multi-Device Step Stream & Auth Metadata Engine',

@@ -95,7 +95,7 @@ export const PreMadeProgramsBrowser: React.FC = () => {
               { id: 'strength_powerlifting', label: 'Strength & 5x5 / Barbell' },
               { id: 'bodybuilding_splits', label: 'Hypertrophy & PPL' },
               { id: 'mind_body_longevity', label: 'Tai Chi & Mobility' },
-              { id: 'hybrid_endurance', label: 'Rowing & Hybrid (HYROX)' },
+              { id: 'hybrid_endurance', label: 'Rowing & Hybrid (Concept2 & HYROX)' },
             ].map((cat) => (
               <button
                 key={cat.id}
