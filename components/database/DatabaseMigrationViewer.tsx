@@ -225,7 +225,26 @@ CREATE TABLE IF NOT EXISTS public.weight_logs (
 );
 
 ALTER TABLE public.weight_logs ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Users can manage their weight logs" ON public.weight_logs FOR ALL USING (auth.uid() = user_id);`;
+CREATE POLICY "Users can manage their weight logs" ON public.weight_logs FOR ALL USING (auth.uid() = user_id);
+
+-- ==============================================================================
+-- 8. STEP LOGS (Automated Apple Watch, iPhone & Multi-Device Step Sync)
+-- ==============================================================================
+CREATE TABLE IF NOT EXISTS public.step_logs (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    user_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
+    steps INTEGER NOT NULL DEFAULT 0,
+    distance_miles NUMERIC(6, 2) DEFAULT 0,
+    calories_burned INTEGER DEFAULT 0,
+    source TEXT DEFAULT 'apple_health',
+    logged_at DATE NOT NULL DEFAULT CURRENT_DATE,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT TIMEZONE('utc'::text, NOW()),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT TIMEZONE('utc'::text, NOW()),
+    UNIQUE(user_id, logged_at)
+);
+
+ALTER TABLE public.step_logs ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users can manage their step logs" ON public.step_logs FOR ALL USING (auth.uid() = user_id);`;
 
   const handleCopy = () => {
     navigator.clipboard.writeText(fullSqlScript);
@@ -289,7 +308,7 @@ CREATE POLICY "Users can manage their weight logs" ON public.weight_logs FOR ALL
             </div>
             <div>
               <div className="text-xs text-zinc-400 font-semibold">Row Level Security</div>
-              <div className="text-sm font-bold text-zinc-100">Enforced Across All 7 Tables</div>
+              <div className="text-sm font-bold text-zinc-100">Enforced Across All 8 Tables</div>
             </div>
           </div>
         </div>

@@ -42,6 +42,7 @@ export const StepTracker: React.FC = () => {
     stepSyncSource,
     logSteps,
     resetTodaySteps,
+    syncWithCloud,
   } = useHealth();
 
   const [showGoalModal, setShowGoalModal] = useState<boolean>(false);
@@ -76,15 +77,21 @@ export const StepTracker: React.FC = () => {
     }
   };
 
-  // Manual Refresh Trigger
-  const handleManualRefresh = () => {
+  // Manual Refresh Trigger with Live Cloud Reconciliation
+  const handleManualRefresh = async () => {
     setIsRefreshing(true);
-    setSyncStatusMsg('Refreshing step count from Apple Health & Watch stream...');
-    setTimeout(() => {
-      setIsRefreshing(false);
+    setSyncStatusMsg('Syncing step stream across devices with cloud...');
+    try {
+      if (syncWithCloud) {
+        await syncWithCloud();
+      }
+      setSyncStatusMsg('Step stream synchronized across all devices!');
+    } catch {
       setSyncStatusMsg('Step stream up to date!');
+    } finally {
+      setIsRefreshing(false);
       setTimeout(() => setSyncStatusMsg(null), 2500);
-    }, 600);
+    }
   };
 
   // Manual Step Count Submission

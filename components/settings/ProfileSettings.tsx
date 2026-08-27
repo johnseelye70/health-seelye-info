@@ -225,6 +225,17 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'b2.36.0',
+      date: '2026-08-27',
+      title: 'Automated Multi-Device Step & Movement Cloud Synchronization',
+      changes: [
+        'Added Bidirectional Step Cloud Sync: Step logs recorded on iPhone (via Apple Health shortcut, phone sensor, or manual entry) now automatically synchronize in real-time across laptop and desktop sessions.',
+        'Added Cloud step_logs Table & Security Policies: PostgreSQL step ledger with daily timestamps, distance (mi/km), active calorie burn, and hardware source attribution.',
+        'Non-Destructive Step Merging Engine: Multi-device sync reconciles local and cloud step entries by date, automatically prioritizing the highest recorded daily total and newest timestamp.',
+        'Interactive Cross-Device Refresh: "Sync Now" in the Step Tracker triggers instant bidirectional cloud reconciliation across all authenticated devices.',
+      ],
+    },
+    {
       version: 'b2.35.0',
       date: '2026-08-26',
       title: 'Expanded Mind-Body, Qigong, Yoga & Mobility Library',
@@ -1652,7 +1663,7 @@ export const ProfileSettings: React.FC = () => {
             title="Click to open release changelog modal window"
           >
             <span className="w-2 h-2 rounded-full bg-brand-400 animate-pulse"></span>
-            <span>Active: b2.35.0</span>
+            <span>Active: b2.36.0</span>
             <ChevronRight className="w-3.5 h-3.5 text-brand-400 group-hover:translate-x-0.5 transition-transform" />
           </button>
         </div>

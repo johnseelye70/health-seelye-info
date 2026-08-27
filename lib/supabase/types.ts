@@ -140,6 +140,21 @@ export interface Database {
         Insert: Omit<Database['public']['Tables']['weight_logs']['Row'], 'id' | 'created_at'> & { id?: string }
         Update: Partial<Database['public']['Tables']['weight_logs']['Row']>
       }
+      step_logs: {
+        Row: {
+          id: string
+          user_id: string
+          steps: number
+          distance_miles: number | null
+          calories_burned: number | null
+          source: 'phone_sensor' | 'apple_health' | 'garmin' | 'fitbit' | 'manual'
+          logged_at: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: Omit<Database['public']['Tables']['step_logs']['Row'], 'id' | 'created_at' | 'updated_at'> & { id?: string; created_at?: string; updated_at?: string }
+        Update: Partial<Database['public']['Tables']['step_logs']['Row']>
+      }
     }
   }
 }

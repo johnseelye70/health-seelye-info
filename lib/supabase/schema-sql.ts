@@ -30,6 +30,8 @@ ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS fasting_start_time TEXT DEF
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS eating_window_duration_hours INTEGER DEFAULT 8;
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS meal_count INTEGER DEFAULT 3;
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS equipment_inventory JSONB DEFAULT '["bodyweight", "dumbbells", "resistance_bands"]'::jsonb;
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS today_steps INTEGER DEFAULT 0;
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS last_step_sync TIMESTAMPTZ;
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT NOW();
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ DEFAULT NOW();
 
@@ -259,7 +261,47 @@ CREATE POLICY "Users can delete their own grocery items"
   USING (auth.uid() = user_id);
 
 
--- 7. AUTOMATIC PROFILE CREATION TRIGGER ON SIGNUP
+-- 7. STEP LOGS TABLE (Automated Apple Watch, iPhone & Multi-Device Step Sync)
+CREATE TABLE IF NOT EXISTS public.step_logs (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid()
+);
+
+-- Ensure all columns exist on step_logs
+ALTER TABLE public.step_logs ADD COLUMN IF NOT EXISTS user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE;
+ALTER TABLE public.step_logs ADD COLUMN IF NOT EXISTS steps INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE public.step_logs ADD COLUMN IF NOT EXISTS distance_miles NUMERIC DEFAULT 0;
+ALTER TABLE public.step_logs ADD COLUMN IF NOT EXISTS calories_burned INTEGER DEFAULT 0;
+ALTER TABLE public.step_logs ADD COLUMN IF NOT EXISTS source TEXT DEFAULT 'apple_health';
+ALTER TABLE public.step_logs ADD COLUMN IF NOT EXISTS logged_at DATE DEFAULT CURRENT_DATE;
+ALTER TABLE public.step_logs ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT NOW();
+ALTER TABLE public.step_logs ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ DEFAULT NOW();
+
+ALTER TABLE public.step_logs ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Users can view their own step logs" ON public.step_logs;
+CREATE POLICY "Users can view their own step logs"
+  ON public.step_logs FOR SELECT
+  USING (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Users can insert their own step logs" ON public.step_logs;
+CREATE POLICY "Users can insert their own step logs"
+  ON public.step_logs FOR INSERT
+  WITH CHECK (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Users can update their own step logs" ON public.step_logs;
+CREATE POLICY "Users can update their own step logs"
+  ON public.step_logs FOR UPDATE
+  USING (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Users can delete their own step logs" ON public.step_logs;
+CREATE POLICY "Users can delete their own step logs"
+  ON public.step_logs FOR DELETE
+  USING (auth.uid() = user_id);
+
+CREATE INDEX IF NOT EXISTS idx_step_logs_user_date ON public.step_logs(user_id, logged_at);
+
+
+-- 8. AUTOMATIC PROFILE CREATION TRIGGER ON SIGNUP
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
