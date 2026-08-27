@@ -225,6 +225,16 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'b2.32.0',
+      date: '2026-08-26',
+      title: 'Expanded Tony Horton & P90X Collection',
+      changes: [
+        'Added P90® (The Classic On-Ramp System): Tony Horton\'s foundational 3-stage progressive system (Sculpt A/B/C, Sweat A/B/C, and Ab Ripper A/B/C) with full interactive routines.',
+        'Added P90X® Plus (The Advanced Extension Series): 5 hyper-condensed plateau-shattering workouts (Upper Plus, Interval X Plus, Total Body Plus, Kenpo Plus, Abs/Core Plus).',
+        'Added P90X® ONE on ONE with Tony Horton: Unfiltered Santa Monica master sessions including Chest, Back & Balls, Diamond Delts, Plyo Legs, V-Sculpt, and 100/30/20.',
+      ],
+    },
+    {
       version: 'b2.31.0',
       date: '2026-08-26',
       title: 'Expanded CrossFit Benchmark & Championship Suite',
@@ -1607,7 +1617,7 @@ export const ProfileSettings: React.FC = () => {
             title="Click to open release changelog modal window"
           >
             <span className="w-2 h-2 rounded-full bg-brand-400 animate-pulse"></span>
-            <span>Active: b2.31.0</span>
+            <span>Active: b2.32.0</span>
             <ChevronRight className="w-3.5 h-3.5 text-brand-400 group-hover:translate-x-0.5 transition-transform" />
           </button>
         </div>
