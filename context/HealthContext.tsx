@@ -323,6 +323,40 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
 
   const isSyncingRef = useRef<boolean>(false);
 
+  // Helper to push local profile to cloud safely via UPSERT with onConflict: 'id'
+  const pushLocalProfileToCloud = async (client: any, user: any, p: UserProfile) => {
+    try {
+      const payload = {
+        id: user.id,
+        email: user.email || p.email,
+        full_name: p.full_name || user.user_metadata?.full_name || 'Athlete',
+        age: p.age,
+        height_cm: p.height_cm,
+        current_weight_kg: p.current_weight_kg,
+        target_weight_kg: p.target_weight_kg,
+        sex: p.sex,
+        activity_level: p.activity_level,
+        goal: p.goal,
+        unit_preference: p.unit_preference,
+        daily_calorie_target: p.daily_calorie_target,
+        protein_target_g: p.protein_target_g,
+        carb_target_g: p.carb_target_g,
+        fat_target_g: p.fat_target_g,
+        fasting_protocol: p.fasting_protocol,
+        fasting_start_time: p.fasting_start_time,
+        meal_count: p.meal_count,
+        updated_at: p.updated_at || new Date().toISOString(),
+      };
+
+      const { error: upsertErr } = await (client.from('profiles') as any).upsert(payload, { onConflict: 'id' });
+      if (upsertErr) {
+        console.warn('Failed to upsert profile to cloud:', upsertErr);
+      }
+    } catch (err) {
+      console.warn('Error pushing profile to cloud:', err);
+    }
+  };
+
   // 3. Supabase Cloud Sync Engine (Non-Destructive Reconciliation with Mutex Guard)
   const performCloudSync = useCallback(async (targetUser?: any) => {
     const user = targetUser || authUserRef.current;
@@ -335,73 +369,129 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
     try {
       const client = supabase;
 
-      // A. Profile Sync
+      // A. Profile Reconciliation (Non-Destructive Bidirectional Merge)
       const { data: cloudProfile, error: profileErr } = await (client.from('profiles') as any)
         .select('*')
         .eq('id', user.id)
         .maybeSingle();
 
-      if (cloudProfile && !profileErr) {
-        let hCm = Number(cloudProfile.height_cm) || 0;
-        let cKg = Number(cloudProfile.current_weight_kg) || 0;
-        let tKg = Number(cloudProfile.target_weight_kg) || 0;
+      const localProf = profileRef.current;
+      const localHasBiometrics = Boolean(
+        localProf.has_configured_biometrics ||
+        (Number(localProf.height_cm) > 0 && Number(localProf.current_weight_kg) > 0)
+      );
 
-        // If the cloud profile has the old default placeholders (178cm, 80kg, 75kg) and user never customized them:
-        if (hCm === 178 && cKg === 80 && tKg === 75) {
-          hCm = 0;
-          cKg = 0;
-          tKg = 0;
-          (client.from('profiles') as any).update({
+      if (cloudProfile && !profileErr) {
+        const cloudHeight = Number(cloudProfile.height_cm) || 0;
+        const cloudWeight = Number(cloudProfile.current_weight_kg) || 0;
+        const cloudTarget = Number(cloudProfile.target_weight_kg) || 0;
+        const cloudHasBiometrics = Boolean(cloudHeight > 0 || cloudWeight > 0);
+
+        if (cloudHasBiometrics && !localHasBiometrics) {
+          // Cloud has real biometrics, local device is fresh/unconfigured.
+          // ADOPT CLOUD BIOMETRICS ON THIS FRESH DEVICE:
+          setProfile((prev) => ({
+            ...prev,
+            id: user.id,
+            email: user.email || cloudProfile.email || prev.email,
+            full_name: cloudProfile.full_name || user.user_metadata?.full_name || prev.full_name || 'Athlete',
+            age: cloudProfile.age ?? prev.age,
+            height_cm: cloudHeight,
+            current_weight_kg: cloudWeight,
+            target_weight_kg: cloudTarget,
+            has_configured_biometrics: true,
+            sex: (cloudProfile.sex as any) || prev.sex,
+            activity_level: (cloudProfile.activity_level as any) || prev.activity_level,
+            goal: (cloudProfile.goal as any) || prev.goal,
+            unit_preference: (cloudProfile.unit_preference as any) || prev.unit_preference,
+            daily_calorie_target: cloudProfile.daily_calorie_target || prev.daily_calorie_target,
+            protein_target_g: cloudProfile.protein_target_g || prev.protein_target_g,
+            carb_target_g: cloudProfile.carb_target_g || prev.carb_target_g,
+            fat_target_g: cloudProfile.fat_target_g || prev.fat_target_g,
+            fasting_protocol: (cloudProfile.fasting_protocol as any) || prev.fasting_protocol,
+            fasting_start_time: cloudProfile.fasting_start_time || prev.fasting_start_time,
+            meal_count: cloudProfile.meal_count || prev.meal_count,
+            updated_at: cloudProfile.updated_at || prev.updated_at,
+          }));
+        } else if (!cloudHasBiometrics && localHasBiometrics) {
+          // Local device has real configured biometrics, but cloud was empty.
+          // PUSH LOCAL BIOMETRICS TO CLOUD (NEVER OVERWRITE LOCAL WITH EMPTY CLOUD!):
+          await pushLocalProfileToCloud(client, user, localProf);
+          setProfile((prev) => ({
+            ...prev,
+            id: user.id,
+            email: user.email || prev.email,
+          }));
+        } else if (cloudHasBiometrics && localHasBiometrics) {
+          // Both have configured biometrics. Compare updated_at timestamps.
+          const localTime = localProf.updated_at ? new Date(localProf.updated_at).getTime() : 0;
+          const cloudTime = cloudProfile.updated_at ? new Date(cloudProfile.updated_at).getTime() : 0;
+
+          if (localTime > cloudTime) {
+            // Local is newer: push local to cloud
+            await pushLocalProfileToCloud(client, user, localProf);
+          } else {
+            // Cloud is newer: adopt cloud profile
+            setProfile((prev) => ({
+              ...prev,
+              id: user.id,
+              email: user.email || cloudProfile.email || prev.email,
+              full_name: cloudProfile.full_name || user.user_metadata?.full_name || prev.full_name || 'Athlete',
+              age: cloudProfile.age ?? prev.age,
+              height_cm: cloudHeight,
+              current_weight_kg: cloudWeight,
+              target_weight_kg: cloudTarget,
+              has_configured_biometrics: true,
+              sex: (cloudProfile.sex as any) || prev.sex,
+              activity_level: (cloudProfile.activity_level as any) || prev.activity_level,
+              goal: (cloudProfile.goal as any) || prev.goal,
+              unit_preference: (cloudProfile.unit_preference as any) || prev.unit_preference,
+              daily_calorie_target: cloudProfile.daily_calorie_target || prev.daily_calorie_target,
+              protein_target_g: cloudProfile.protein_target_g || prev.protein_target_g,
+              carb_target_g: cloudProfile.carb_target_g || prev.carb_target_g,
+              fat_target_g: cloudProfile.fat_target_g || prev.fat_target_g,
+              fasting_protocol: (cloudProfile.fasting_protocol as any) || prev.fasting_protocol,
+              fasting_start_time: cloudProfile.fasting_start_time || prev.fasting_start_time,
+              meal_count: cloudProfile.meal_count || prev.meal_count,
+              updated_at: cloudProfile.updated_at,
+            }));
+          }
+        } else {
+          // Neither has biometrics configured yet
+          setProfile((prev) => ({
+            ...prev,
+            id: user.id,
+            email: user.email || prev.email,
+            full_name: cloudProfile.full_name || user.user_metadata?.full_name || prev.full_name || 'Athlete',
+          }));
+        }
+      } else {
+        // Cloud profile row does not exist yet!
+        if (localHasBiometrics) {
+          await pushLocalProfileToCloud(client, user, localProf);
+        } else {
+          await (client.from('profiles') as any).upsert({
+            id: user.id,
+            email: user.email,
+            full_name: user.user_metadata?.full_name || localProf.full_name || 'Athlete',
+            age: localProf.age || 35,
             height_cm: 0,
             current_weight_kg: 0,
             target_weight_kg: 0,
-          }).eq('id', user.id);
+            sex: localProf.sex || 'male',
+            activity_level: localProf.activity_level || 'moderate',
+            goal: localProf.goal || 'cut_500',
+            unit_preference: localProf.unit_preference || 'imperial',
+            daily_calorie_target: localProf.daily_calorie_target || 2000,
+            protein_target_g: localProf.protein_target_g || 150,
+            carb_target_g: localProf.carb_target_g || 200,
+            fat_target_g: localProf.fat_target_g || 60,
+            fasting_protocol: localProf.fasting_protocol || '16_8',
+            fasting_start_time: localProf.fasting_start_time || '20:00',
+            meal_count: localProf.meal_count || 3,
+            updated_at: new Date().toISOString(),
+          }, { onConflict: 'id' });
         }
-
-        setProfile((prev) => ({
-          ...prev,
-          id: user.id,
-          email: user.email || cloudProfile.email || prev.email,
-          full_name: cloudProfile.full_name || user.user_metadata?.full_name || prev.full_name || 'Athlete',
-          age: cloudProfile.age ?? prev.age,
-          height_cm: hCm,
-          current_weight_kg: cKg,
-          target_weight_kg: tKg,
-          has_configured_biometrics: Boolean(hCm > 0 || cKg > 0 || tKg > 0),
-          sex: (cloudProfile.sex as any) || prev.sex,
-          activity_level: (cloudProfile.activity_level as any) || prev.activity_level,
-          goal: (cloudProfile.goal as any) || prev.goal,
-          unit_preference: (cloudProfile.unit_preference as any) || prev.unit_preference,
-          daily_calorie_target: cloudProfile.daily_calorie_target || prev.daily_calorie_target,
-          protein_target_g: cloudProfile.protein_target_g || prev.protein_target_g,
-          carb_target_g: cloudProfile.carb_target_g || prev.carb_target_g,
-          fat_target_g: cloudProfile.fat_target_g || prev.fat_target_g,
-          fasting_protocol: (cloudProfile.fasting_protocol as any) || prev.fasting_protocol,
-          fasting_start_time: cloudProfile.fasting_start_time || prev.fasting_start_time,
-          meal_count: cloudProfile.meal_count || prev.meal_count,
-        }));
-      } else {
-        const currentProf = profileRef.current;
-        await (client.from('profiles') as any).upsert({
-          id: user.id,
-          email: user.email,
-          full_name: user.user_metadata?.full_name || currentProf.full_name || 'Athlete',
-          age: currentProf.age,
-          height_cm: currentProf.height_cm,
-          current_weight_kg: currentProf.current_weight_kg,
-          target_weight_kg: currentProf.target_weight_kg,
-          sex: currentProf.sex,
-          activity_level: currentProf.activity_level,
-          goal: currentProf.goal,
-          unit_preference: currentProf.unit_preference,
-          daily_calorie_target: currentProf.daily_calorie_target,
-          protein_target_g: currentProf.protein_target_g,
-          carb_target_g: currentProf.carb_target_g,
-          fat_target_g: currentProf.fat_target_g,
-          fasting_protocol: currentProf.fasting_protocol,
-          fasting_start_time: currentProf.fasting_start_time,
-          meal_count: currentProf.meal_count,
-        });
       }
 
       // B. Food Logs Sync (Merge Cloud & Local Non-Destructively)
@@ -540,6 +630,8 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
     const res = await supabase.auth.signInWithPassword({ email, password });
     if (!res.error && res.data.user) {
       setAuthUser(res.data.user);
+      authUserRef.current = res.data.user;
+      await performCloudSync(res.data.user);
     }
     return { error: res.error };
   };
@@ -557,7 +649,14 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
     });
     if (!res.error && res.data.user) {
       setAuthUser(res.data.user);
+      authUserRef.current = res.data.user;
       setProfile((prev) => ({ ...prev, full_name: fullName || 'Athlete', email }));
+      await pushLocalProfileToCloud(supabase, res.data.user, {
+        ...profileRef.current,
+        full_name: fullName || profileRef.current.full_name || 'Athlete',
+        email,
+      });
+      await performCloudSync(res.data.user);
     }
     return { error: res.error };
   };
@@ -690,21 +789,130 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
     setThemeMode(nextMode);
   }, [themeMode, setThemeMode]);
 
-  // Update profile and optionally push to cloud
+  // Update profile and optionally push to cloud with synchronous macro calculation and upsert
   const updateProfile = useCallback(
-    (updates: Partial<UserProfile>) => {
-      let updatedProfile: UserProfile | null = null;
+    async (updates: Partial<UserProfile>) => {
+      let nextProfile: UserProfile | null = null;
+
       setProfile((prev) => {
-        const updated = { ...prev, ...updates, updated_at: new Date().toISOString() };
-        updatedProfile = updated;
-        return updated;
+        const merged = { ...prev, ...updates };
+        const hCm = Number(merged.height_cm) || 0;
+        const wKg = Number(merged.current_weight_kg) || 0;
+        const hasBio = Boolean(hCm > 0 || wKg > 0 || updates.has_configured_biometrics);
+
+        let macroResult = {
+          dailyCalories: merged.daily_calorie_target,
+          proteinGrams: merged.protein_target_g,
+          carbGrams: merged.carb_target_g,
+          fatGrams: merged.fat_target_g,
+        };
+
+        if (hCm > 0 && wKg > 0) {
+          macroResult = calculateMacroTargets({
+            weightKg: wKg,
+            heightCm: hCm,
+            age: merged.age || 35,
+            sex: merged.sex || 'male',
+            activityLevel: merged.activity_level || 'moderate',
+            goal: merged.goal || 'cut_500',
+          });
+        }
+
+        const finalUpdated: UserProfile = {
+          ...merged,
+          height_cm: hCm,
+          current_weight_kg: wKg,
+          target_weight_kg: Number(merged.target_weight_kg) || 0,
+          has_configured_biometrics: hasBio,
+          daily_calorie_target: updates.daily_calorie_target ?? macroResult.dailyCalories,
+          protein_target_g: updates.protein_target_g ?? macroResult.proteinGrams,
+          carb_target_g: updates.carb_target_g ?? macroResult.carbGrams,
+          fat_target_g: updates.fat_target_g ?? macroResult.fatGrams,
+          updated_at: new Date().toISOString(),
+        };
+
+        nextProfile = finalUpdated;
+        return finalUpdated;
       });
 
       const user = authUserRef.current;
-      if (supabase && user && updatedProfile) {
-        const p: UserProfile = updatedProfile;
-        (supabase.from('profiles') as any)
-          .update({
+      if (supabase && user && nextProfile) {
+        const p: UserProfile = nextProfile;
+        try {
+          const { error: upsertErr } = await (supabase.from('profiles') as any).upsert(
+            {
+              id: user.id,
+              email: user.email || p.email,
+              full_name: p.full_name,
+              age: p.age,
+              height_cm: p.height_cm,
+              current_weight_kg: p.current_weight_kg,
+              target_weight_kg: p.target_weight_kg,
+              sex: p.sex,
+              activity_level: p.activity_level,
+              goal: p.goal,
+              unit_preference: p.unit_preference,
+              daily_calorie_target: p.daily_calorie_target,
+              protein_target_g: p.protein_target_g,
+              carb_target_g: p.carb_target_g,
+              fat_target_g: p.fat_target_g,
+              fasting_protocol: p.fasting_protocol,
+              fasting_start_time: p.fasting_start_time,
+              meal_count: p.meal_count,
+              updated_at: p.updated_at,
+            },
+            { onConflict: 'id' }
+          );
+
+          if (!upsertErr) {
+            setSyncStatus('synced');
+            setLastSyncedAt(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+          } else {
+            console.warn('Profile upsert error:', upsertErr);
+            setSyncStatus('error');
+          }
+        } catch (err) {
+          console.warn('Network error while upserting profile:', err);
+          setSyncStatus('error');
+        }
+      }
+    },
+    []
+  );
+
+  const recalculateMacros = useCallback(async () => {
+    let recalculatedProfile: UserProfile | null = null;
+
+    setProfile((prev) => {
+      const result = calculateMacroTargets({
+        weightKg: prev.current_weight_kg,
+        heightCm: prev.height_cm,
+        age: prev.age,
+        sex: prev.sex,
+        activityLevel: prev.activity_level,
+        goal: prev.goal,
+      });
+
+      const updated = {
+        ...prev,
+        daily_calorie_target: result.dailyCalories,
+        protein_target_g: result.proteinGrams,
+        carb_target_g: result.carbGrams,
+        fat_target_g: result.fatGrams,
+        updated_at: new Date().toISOString(),
+      };
+      recalculatedProfile = updated;
+      return updated;
+    });
+
+    const user = authUserRef.current;
+    if (supabase && user && recalculatedProfile) {
+      const p: UserProfile = recalculatedProfile;
+      try {
+        await (supabase.from('profiles') as any).upsert(
+          {
+            id: user.id,
+            email: user.email || p.email,
             full_name: p.full_name,
             age: p.age,
             height_cm: p.height_cm,
@@ -722,34 +930,13 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
             fasting_start_time: p.fasting_start_time,
             meal_count: p.meal_count,
             updated_at: p.updated_at,
-          })
-          .eq('id', user.id)
-          .then(() => {});
+          },
+          { onConflict: 'id' }
+        );
+      } catch (err) {
+        console.warn('Failed to sync recalculated macros to cloud:', err);
       }
-    },
-    []
-  );
-
-  const recalculateMacros = useCallback(() => {
-    setProfile((prev) => {
-      const result = calculateMacroTargets({
-        weightKg: prev.current_weight_kg,
-        heightCm: prev.height_cm,
-        age: prev.age,
-        sex: prev.sex,
-        activityLevel: prev.activity_level,
-        goal: prev.goal,
-      });
-
-      return {
-        ...prev,
-        daily_calorie_target: result.dailyCalories,
-        protein_target_g: result.proteinGrams,
-        carb_target_g: result.carbGrams,
-        fat_target_g: result.fatGrams,
-        updated_at: new Date().toISOString(),
-      };
-    });
+    }
   }, []);
 
   const updateFastingProtocol = useCallback((protocol: FastingProtocol, startTime?: string) => {

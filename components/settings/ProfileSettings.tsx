@@ -11,6 +11,7 @@ import {
   ExperienceMode,
 } from '@/lib/types';
 import { kgToLbs, lbsToKg, cmToFtIn, ftInToCm } from '@/lib/units';
+import { calculateMacroTargets } from '@/lib/macro-calculator';
 import {
   User,
   SlidersHorizontal,
@@ -147,7 +148,7 @@ export const ProfileSettings: React.FC = () => {
     }
   };
 
-  const handleSave = (e: React.FormEvent) => {
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
 
     const finalWeightKg = form.unit_preference === 'imperial'
@@ -162,7 +163,16 @@ export const ProfileSettings: React.FC = () => {
       ? ftInToCm(Number(form.height_ft), Number(form.height_in))
       : Number(form.height_cm);
 
-    updateProfile({
+    const calculated = calculateMacroTargets({
+      weightKg: finalWeightKg,
+      heightCm: finalHeightCm,
+      age: Number(form.age),
+      sex: form.sex,
+      activityLevel: form.activity_level,
+      goal: form.goal,
+    });
+
+    await updateProfile({
       full_name: form.full_name,
       email: form.email,
       age: Number(form.age),
@@ -178,10 +188,13 @@ export const ProfileSettings: React.FC = () => {
       meal_count: Number(form.meal_count),
       fasting_protocol: form.fasting_protocol,
       fasting_start_time: form.fasting_start_time,
+      daily_calorie_target: calculated.dailyCalories,
+      protein_target_g: calculated.proteinGrams,
+      carb_target_g: calculated.carbGrams,
+      fat_target_g: calculated.fatGrams,
     });
 
     setExperienceMode(form.experience_mode);
-    recalculateMacros();
     setSavedSuccess(true);
     setTimeout(() => setSavedSuccess(false), 3000);
   };
@@ -211,6 +224,17 @@ export const ProfileSettings: React.FC = () => {
   };
 
   const changelogHistory = [
+    {
+      version: 'b2.21.0',
+      date: '2026-08-26',
+      title: 'Hardened Multi-Device Profile Sync & Non-Destructive Reconciliation Engine',
+      changes: [
+        'Resolved Multi-Device Profile Overwrite: Re-engineered cloud profile synchronization with non-destructive biometric guards (pushLocalProfileToCloud via UPSERT). Fresh or uninitialized devices (iPhone) with empty baseline defaults (0) are strictly blocked from overwriting cloud profiles containing configured biometrics.',
+        'Bidirectional Biometric Reconciliation: When signing in on a new device, the app now automatically checks for configured biometrics on both local and cloud records. If the local device has custom metrics and the cloud was empty, local metrics are pushed to the cloud; if the cloud has metrics and the local device was fresh, the cloud metrics are seamlessly adopted.',
+        'Synchronous Macro Calculation on Save: Profile settings and macro recalculations now calculate calorie and macronutrient targets synchronously and immediately upsert the complete updated profile to Supabase with error handling and retry guards.',
+        'Purged False-Positive Metric Reset: Completely eliminated legacy 178cm/80kg/75kg placeholder reset logic that previously caused false-positive zeroing on realistic user inputs.',
+      ],
+    },
     {
       version: 'b2.20.1',
       date: '2026-08-26',
@@ -1485,7 +1509,7 @@ export const ProfileSettings: React.FC = () => {
             title="Click to open release changelog modal window"
           >
             <span className="w-2 h-2 rounded-full bg-brand-400 animate-pulse"></span>
-            <span>Active: b2.20.1</span>
+            <span>Active: b2.21.0</span>
             <ChevronRight className="w-3.5 h-3.5 text-brand-400 group-hover:translate-x-0.5 transition-transform" />
           </button>
         </div>
