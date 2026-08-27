@@ -225,6 +225,19 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'b2.33.0',
+      date: '2026-08-26',
+      title: 'Added Insanity & Beachbody Classic Master Worksheet Library',
+      changes: [
+        'Added Insanity® Max:30 (Max Out Sheet System): Shaun T\'s 30-minute high-intensity Tabata system with exact min:sec Max Out logging sheets.',
+        'Added Insanity®: The Asylum (Athletic Matrix): Pro-athlete speed, agility ladder, vertical plyo, and dumbbell strength progression worksheets.',
+        'Added Body Beast® (Dynamic Set Training Master Split): Hardcore bodybuilding splits (Single, Super, Giant, and Progressive sets) with weight/rep worksheets.',
+        'Added LIIFT4® (Lift & HIIT 4-Day Periodization): 4-day hybrid lifting and metabolic intervals with full interactive tracking sheets.',
+        'Added 21 Day Fix® Extreme (Worksheet Edition): Autumn Calabrese\'s 21-day rapid-fire resistance and sculpting splits.',
+        'Added The Master\'s Hammer and Chisel®: Sagi Kalev & Autumn Calabrese\'s dual-coach powerlifting and unilateral sculpting program.',
+      ],
+    },
+    {
       version: 'b2.32.0',
       date: '2026-08-26',
       title: 'Expanded Tony Horton & P90X Collection',
@@ -1617,7 +1630,7 @@ export const ProfileSettings: React.FC = () => {
             title="Click to open release changelog modal window"
           >
             <span className="w-2 h-2 rounded-full bg-brand-400 animate-pulse"></span>
-            <span>Active: b2.32.0</span>
+            <span>Active: b2.33.0</span>
             <ChevronRight className="w-3.5 h-3.5 text-brand-400 group-hover:translate-x-0.5 transition-transform" />
           </button>
         </div>
