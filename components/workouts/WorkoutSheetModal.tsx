@@ -21,6 +21,7 @@ import {
   Scale,
   Award,
 } from 'lucide-react';
+import { CalendarDatePicker } from '@/components/ui/CalendarDatePicker';
 
 interface WorkoutSheetModalProps {
   program: PreMadeWorkoutProgram;
@@ -249,19 +250,12 @@ export const WorkoutSheetModal: React.FC<WorkoutSheetModalProps> = ({
         <div className="flex-1 overflow-y-auto p-5 sm:p-6 space-y-6 print:overflow-visible print:p-2">
           {/* Metadata Controls Bar (Interactive) */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 print:hidden">
-            <div className="p-3 rounded-2xl bg-surface-200/60 border border-surface-border flex items-center gap-3">
-              <Calendar className="w-4 h-4 text-brand-400" />
-              <div className="flex-1">
-                <label className="text-[10px] uppercase font-bold text-zinc-400 block">
-                  Session Date
-                </label>
-                <input
-                  type="date"
-                  value={loggedDate}
-                  onChange={(e) => setLoggedDate(e.target.value)}
-                  className="w-full bg-transparent text-xs font-mono font-bold text-zinc-100 focus:outline-none"
-                />
-              </div>
+            <div>
+              <CalendarDatePicker
+                value={loggedDate}
+                onChange={setLoggedDate}
+                label="Session Date"
+              />
             </div>
 
             <div className="p-3 rounded-2xl bg-surface-200/60 border border-surface-border flex items-center gap-3">

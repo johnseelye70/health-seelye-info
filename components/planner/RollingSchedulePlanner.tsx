@@ -31,6 +31,7 @@ import {
   ListFilter,
   Check,
 } from 'lucide-react';
+import { CalendarDatePicker } from '@/components/ui/CalendarDatePicker';
 
 export const RollingSchedulePlanner: React.FC = () => {
   const {
@@ -443,18 +444,31 @@ export const RollingSchedulePlanner: React.FC = () => {
           </button>
         </div>
 
-        {/* Jump to Today Button */}
-        <button
-          type="button"
-          onClick={() => {
-            setSelectedDate(todayStr);
-            setCalendarMonthDate(new Date());
-            setWeekOffset(0);
-          }}
-          className="px-3 py-1.5 rounded-xl bg-surface-100 hover:bg-surface-50 border border-surface-border text-xs text-brand-400 font-semibold transition-all cursor-pointer"
-        >
-          Jump to Today
-        </button>
+        {/* Fast Date Picker Dropdown & Jump to Today Button */}
+        <div className="flex items-center gap-2 w-full sm:w-auto">
+          <div className="w-48">
+            <CalendarDatePicker
+              value={selectedDate}
+              onChange={(d) => {
+                setSelectedDate(d);
+                setIsEditingDay(false);
+              }}
+              quickPicks={true}
+            />
+          </div>
+
+          <button
+            type="button"
+            onClick={() => {
+              setSelectedDate(todayStr);
+              setCalendarMonthDate(new Date());
+              setWeekOffset(0);
+            }}
+            className="px-3 py-2 rounded-xl bg-surface-100 hover:bg-surface-50 border border-surface-border text-xs text-brand-400 font-semibold transition-all cursor-pointer whitespace-nowrap"
+          >
+            Today
+          </button>
+        </div>
       </div>
 
       {/* ================= VIEW 1: ROLLING 90-DAY HORIZON TIMELINE ================= */}
@@ -809,12 +823,10 @@ export const RollingSchedulePlanner: React.FC = () => {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               {/* Start Date */}
               <div>
-                <label className="text-xs text-zinc-400 block mb-1 font-semibold">Start Date</label>
-                <input
-                  type="date"
+                <CalendarDatePicker
                   value={deployStartDate}
-                  onChange={(e) => setDeployStartDate(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl bg-surface-100 border border-surface-border text-foreground text-xs font-mono focus:outline-none focus:border-brand-500"
+                  onChange={setDeployStartDate}
+                  label="Start Date"
                 />
               </div>
 

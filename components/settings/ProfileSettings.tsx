@@ -227,6 +227,16 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'b3.2.0',
+      date: '2026-08-27',
+      title: 'Interactive Calendar DatePicker Dropdown Engine',
+      changes: [
+        'Built dedicated dark-themed CalendarDatePicker popover component with month/year navigation, weekday matrices, and 1-click quick-pick chips (Today, Tomorrow, Next Monday, +7 Days, +14 Days).',
+        'Integrated CalendarDatePicker into the 90-Day Master Schedule deployment wizard start date selector and toolbar fast jumper.',
+        'Integrated CalendarDatePicker into printable Workout Session sheets for rapid date logging.',
+      ],
+    },
+    {
       version: 'b3.1.3',
       date: '2026-08-27',
       title: 'App Navigation Tab Type Alignment',
