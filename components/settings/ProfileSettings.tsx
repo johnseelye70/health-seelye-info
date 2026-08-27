@@ -41,6 +41,7 @@ import {
   Code,
   X,
   ChevronRight,
+  GraduationCap,
 } from 'lucide-react';
 import { SUPABASE_SQL_SCHEMA } from '@/lib/supabase/schema-sql';
 import { NumberStepper } from '@/components/ui/NumberStepper';
@@ -73,7 +74,7 @@ export const ProfileSettings: React.FC = () => {
     age: profile.age,
     sex: profile.sex,
     unit_preference: profile.unit_preference,
-    experience_mode: profile.experience_mode || 'simple',
+    experience_mode: profile.experience_mode || 'standard',
     height_cm: profile.height_cm || 0,
     height_ft: initialFtIn.feet,
     height_in: initialFtIn.inches,
@@ -95,7 +96,7 @@ export const ProfileSettings: React.FC = () => {
       age: profile.age,
       sex: profile.sex,
       unit_preference: profile.unit_preference,
-      experience_mode: profile.experience_mode || 'simple',
+      experience_mode: profile.experience_mode || 'standard',
       height_cm: profile.height_cm || 0,
       height_ft: ftIn.feet,
       height_in: ftIn.inches,
@@ -208,7 +209,7 @@ export const ProfileSettings: React.FC = () => {
       age: 35,
       sex: 'male',
       unit_preference: 'imperial',
-      experience_mode: 'simple',
+      experience_mode: 'standard',
       height_cm: 0,
       height_ft: 0,
       height_in: 0,
@@ -225,6 +226,18 @@ export const ProfileSettings: React.FC = () => {
   };
 
   const changelogHistory = [
+    {
+      version: 'b3.0.0',
+      date: '2026-08-27',
+      title: '3-Mode Architecture: Standard, Advanced & Interactive Hand-Held Tutorial',
+      changes: [
+        'Added Interactive Tutorial Mode: Complete hand-held step-by-step guided walkthrough with interactive sandboxes, live test buttons, and mastery progression.',
+        'Two-Track Guided Mastery: Complete Standard Mode walkthrough (food logging, 16:8 fasting, step tracking, grocery aisles) followed seamlessly by Advanced Mode walkthrough (macro engineering, Olympic barbell math, periodized workout sheets, cloud sync).',
+        'Refactored Mode Hierarchy: Cleanly transitioned Athlete Mode to Advanced Mode and Simple Mode to Standard Mode across all navigation, headers, and biometrics.',
+        'Unified 3-Mode Quick Switcher: Seamlessly cycle between Standard, Advanced, and Tutorial modes with 1-click header pill controls.',
+        'Zero-Modal Inline Architecture: Designed all tutorial lessons, step checklists, and sandbox controls directly in the main viewport stream.',
+      ],
+    },
     {
       version: 'b2.37.0',
       date: '2026-08-27',
@@ -1202,7 +1215,11 @@ export const ProfileSettings: React.FC = () => {
               </span>
               <span className="text-zinc-500 text-xs">•</span>
               <span className="text-brand-400 font-mono text-xs font-bold uppercase">
-                {form.experience_mode === 'simple' ? '✨ Simple Mode Active' : '⚡ Athlete Mode Active'}
+                {form.experience_mode === 'standard'
+                  ? '✨ Standard Mode Active'
+                  : form.experience_mode === 'advanced'
+                  ? '⚡ Advanced Mode Active'
+                  : '🎓 Tutorial Mode Active'}
               </span>
             </div>
             <h1 className="text-2xl md:text-3xl font-black text-white tracking-tight">
@@ -1409,18 +1426,18 @@ export const ProfileSettings: React.FC = () => {
             Choose how detailed and technical you want the application to be. You can switch between modes at any time without losing any data.
           </p>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
             <div
-              onClick={() => setForm({ ...form, experience_mode: 'simple' })}
+              onClick={() => setForm({ ...form, experience_mode: 'standard' })}
               className={`p-4 rounded-xl border cursor-pointer transition-all ${
-                form.experience_mode === 'simple'
+                form.experience_mode === 'standard'
                   ? 'bg-brand-500/15 border-brand-500/50 shadow-glow text-white'
                   : 'bg-surface-300/40 border-surface-border text-zinc-400 hover:border-zinc-700'
               }`}
             >
               <div className="flex items-center gap-2 font-bold text-sm text-zinc-100 mb-1">
                 <Sparkles className="w-4 h-4 text-brand-400" />
-                <span>✨ Simple & Friendly Mode (Recommended)</span>
+                <span>✨ Standard Mode (Recommended)</span>
               </div>
               <p className="text-xs text-zinc-400 leading-relaxed">
                 Warm, encouraging language with clean daily calorie tracking, hydration goals, friendly portion sizes, and easy guided routines.
@@ -1431,16 +1448,33 @@ export const ProfileSettings: React.FC = () => {
               onClick={() => setForm({ ...form, experience_mode: 'advanced' })}
               className={`p-4 rounded-xl border cursor-pointer transition-all ${
                 form.experience_mode === 'advanced'
-                  ? 'bg-purple-950/40 border-purple-500/50 shadow-glow text-white'
+                  ? 'bg-cyan-950/40 border-cyan-500/50 shadow-glow text-white'
                   : 'bg-surface-300/40 border-surface-border text-zinc-400 hover:border-zinc-700'
               }`}
             >
               <div className="flex items-center gap-2 font-bold text-sm text-zinc-100 mb-1">
-                <Flame className="w-4 h-4 text-purple-400" />
-                <span>⚡ Advanced Athlete Mode</span>
+                <Flame className="w-4 h-4 text-cyan-400" />
+                <span>⚡ Advanced Mode</span>
               </div>
               <p className="text-xs text-zinc-400 leading-relaxed">
-                Granular macronutrient ratios (P/C/F grams & percentages), 4-week periodized split matrices, set-by-set weight logging, and biological fasting milestones.
+                Granular macronutrient ratios (P/C/F grams & percentages), periodized split matrices, barbell calculators, and biological fasting milestones.
+              </p>
+            </div>
+
+            <div
+              onClick={() => setForm({ ...form, experience_mode: 'tutorial' })}
+              className={`p-4 rounded-xl border cursor-pointer transition-all ${
+                form.experience_mode === 'tutorial'
+                  ? 'bg-amber-950/40 border-amber-500/50 shadow-glow text-white'
+                  : 'bg-surface-300/40 border-surface-border text-zinc-400 hover:border-zinc-700'
+              }`}
+            >
+              <div className="flex items-center gap-2 font-bold text-sm text-zinc-100 mb-1">
+                <GraduationCap className="w-4 h-4 text-amber-400" />
+                <span>🎓 Interactive Tutorial Mode</span>
+              </div>
+              <p className="text-xs text-zinc-400 leading-relaxed">
+                Complete step-by-step hand-held guided walkthrough with interactive sandboxes for both Standard and Advanced systems.
               </p>
             </div>
           </div>

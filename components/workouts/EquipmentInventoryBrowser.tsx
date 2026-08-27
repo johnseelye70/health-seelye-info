@@ -45,7 +45,7 @@ export const EquipmentInventoryBrowser: React.FC<EquipmentInventoryBrowserProps>
   onNavigateToPlateCalculator,
 }) => {
   const { profile, toggleEquipment, setEquipmentInventory, experienceMode } = useHealth();
-  const isSimple = experienceMode === 'simple';
+  const isSimple = experienceMode === 'standard' || experienceMode === 'tutorial';
 
   // Fast Instant-Response Debounced Search State
   const [inputValue, setInputValue] = useState<string>('');

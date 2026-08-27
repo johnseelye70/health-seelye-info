@@ -47,7 +47,7 @@ export const ExerciseDatabaseBrowser: React.FC<ExerciseDatabaseBrowserProps> = (
   onNavigateToEquipment,
 }) => {
   const { profile, toggleEquipment, experienceMode } = useHealth();
-  const isSimple = experienceMode === 'simple';
+  const isSimple = experienceMode === 'standard' || experienceMode === 'tutorial';
 
   // Fast Instant-Response Debounced Search State
   const [inputValue, setInputValue] = useState<string>('');

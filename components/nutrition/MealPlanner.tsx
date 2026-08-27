@@ -45,7 +45,7 @@ export const MealPlanner: React.FC = () => {
     groceryList,
   } = useHealth();
 
-  const isSimple = experienceMode === 'simple';
+  const isSimple = experienceMode === 'standard' || experienceMode === 'tutorial';
   const isImperial = profile.unit_preference === 'imperial';
   const unpurchasedGroceryCount = groceryList.filter((i) => !i.is_checked && !i.in_pantry).length;
 

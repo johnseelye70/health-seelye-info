@@ -55,7 +55,7 @@ export const ProgressTrends: React.FC = () => {
   const [showBiometricsEditor, setShowBiometricsEditor] = useState<boolean>(false);
   const [saveToast, setSaveToast] = useState<string | null>(null);
 
-  const isSimple = experienceMode === 'simple';
+  const isSimple = experienceMode === 'standard' || experienceMode === 'tutorial';
   const isImperial = profile.unit_preference === 'imperial';
 
   // Biometrics Form State initialized from user's current profile

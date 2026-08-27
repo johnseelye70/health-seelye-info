@@ -21,12 +21,13 @@ interface NavItem {
 
 export const BottomNav: React.FC = () => {
   const { activeTab, setActiveTab, experienceMode, groceryList } = useHealth();
-  const isSimple = experienceMode === 'simple';
+  const isStandard = experienceMode === 'standard';
+  const isTutorial = experienceMode === 'tutorial';
   const unpurchasedCount = groceryList.filter((i) => !i.is_checked && !i.in_pantry).length;
 
-  const navItems: NavItem[] = isSimple
+  const navItems: NavItem[] = (isStandard || isTutorial)
     ? [
-        { id: 'dashboard', label: 'Today', icon: LayoutDashboard },
+        { id: 'dashboard', label: isTutorial ? 'Guide' : 'Today', icon: LayoutDashboard },
         { id: 'nutrition', label: 'Meals', icon: UtensilsCrossed },
         { id: 'grocery', label: 'Shopping', icon: ShoppingCart, badge: unpurchasedCount > 0 ? unpurchasedCount : null },
         { id: 'workouts', label: 'Movement', icon: Dumbbell },

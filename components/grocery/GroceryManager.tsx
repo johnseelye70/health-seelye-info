@@ -78,7 +78,7 @@ export const GroceryManager: React.FC = () => {
     experienceMode,
   } = useHealth();
 
-  const isSimple = experienceMode === 'simple';
+  const isSimple = experienceMode === 'standard' || experienceMode === 'tutorial';
 
   // Active Named List
   const [activeListId, setActiveListId] = useState<string>('main');

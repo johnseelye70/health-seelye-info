@@ -12,12 +12,13 @@ import { WorkoutGenerator } from '@/components/workouts/WorkoutGenerator';
 import { GroceryManager } from '@/components/grocery/GroceryManager';
 import { ProgressTrends } from '@/components/analytics/ProgressTrends';
 import { ProfileSettings } from '@/components/settings/ProfileSettings';
+import { TutorialMasterHub } from '@/components/tutorial/TutorialMasterHub';
 import { OnboardingModal } from '@/components/onboarding/OnboardingModal';
 import { AuthModal } from '@/components/auth/AuthModal';
 import { APP_VERSION_SHORT } from '@/lib/version';
 
 export default function HomePage() {
-  const { activeTab } = useHealth();
+  const { activeTab, experienceMode } = useHealth();
 
   return (
     <div className="flex min-h-screen bg-background text-foreground relative w-full max-w-full min-w-0 overflow-x-hidden">
@@ -31,7 +32,7 @@ export default function HomePage() {
 
         {/* Dynamic Screen View Content */}
         <main className="flex-1 p-3.5 sm:p-5 md:p-8 max-w-7xl w-full min-w-0 mx-auto overflow-x-hidden">
-          {activeTab === 'dashboard' && <DashboardOverview />}
+          {activeTab === 'dashboard' && (experienceMode === 'tutorial' ? <TutorialMasterHub /> : <DashboardOverview />)}
           {activeTab === 'nutrition' && <MealPlanner />}
           {activeTab === 'fasting' && <FastingTracker />}
           {activeTab === 'workouts' && <WorkoutGenerator />}

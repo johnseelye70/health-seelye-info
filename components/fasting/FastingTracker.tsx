@@ -35,7 +35,7 @@ export const FastingTracker: React.FC = () => {
     experienceMode,
   } = useHealth();
 
-  const isSimple = experienceMode === 'simple';
+  const isSimple = experienceMode === 'standard' || experienceMode === 'tutorial';
 
   const [notificationToast, setNotificationToast] = useState<string | null>(null);
   const [fastStartTimeInput, setFastStartTimeInput] = useState<string>(profile.fasting_start_time || '20:00');

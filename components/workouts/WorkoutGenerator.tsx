@@ -70,7 +70,7 @@ export const WorkoutGenerator: React.FC = () => {
     logSteps,
   } = useHealth();
 
-  const isSimple = experienceMode === 'simple';
+  const isSimple = experienceMode === 'standard' || experienceMode === 'tutorial';
   const [activeSubTab, setActiveSubTab] = useState<
     'routine' | 'premade_programs' | 'workout_database' | 'exercise_db' | 'equipment_db' | 'plate_calc' | 'hiit'
   >('routine');

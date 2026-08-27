@@ -1056,7 +1056,11 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
 
   const toggleExperienceMode = useCallback(() => {
     setProfile((prev) => {
-      const nextMode: ExperienceMode = (prev.experience_mode || 'simple') === 'simple' ? 'advanced' : 'simple';
+      const current = prev.experience_mode || 'standard';
+      let nextMode: ExperienceMode = 'standard';
+      if (current === 'standard') nextMode = 'advanced';
+      else if (current === 'advanced') nextMode = 'tutorial';
+      else nextMode = 'standard';
       return {
         ...prev,
         experience_mode: nextMode,
@@ -1073,7 +1077,7 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
     }));
   }, []);
 
-  const experienceMode = profile.experience_mode || 'simple';
+  const experienceMode = profile.experience_mode || 'standard';
 
   // Theme Mode: Dark vs Light
   const [themeMode, setThemeModeState] = useState<ThemeMode>('dark');

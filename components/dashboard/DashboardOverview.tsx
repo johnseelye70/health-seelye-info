@@ -59,7 +59,7 @@ export const DashboardOverview: React.FC = () => {
     swapSimpleMovementActivity,
   } = useHealth();
 
-  const isSimple = experienceMode === 'simple';
+  const isStandard = experienceMode === 'standard' || experienceMode === 'tutorial';
   const [showDashboardRecipeModal, setShowDashboardRecipeModal] = useState<boolean>(false);
   const [showDashboardMovementModal, setShowDashboardMovementModal] = useState<boolean>(false);
 
@@ -89,7 +89,7 @@ export const DashboardOverview: React.FC = () => {
           <div>
             <div className="flex flex-wrap items-center gap-2 mb-2">
               <span className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-brand-500/20 text-brand-300 border border-brand-500/30 flex items-center gap-1.5">
-                {isSimple ? (
+                {isStandard ? (
                   <>
                     <Sparkles className="w-3.5 h-3.5 text-brand-400" />
                     <span>DAILY WELLNESS COMPANION</span>
@@ -97,7 +97,7 @@ export const DashboardOverview: React.FC = () => {
                 ) : (
                   <>
                     <Flame className="w-3.5 h-3.5 text-brand-400" />
-                    <span>ATHLETE METRIC ENGINE</span>
+                    <span>ADVANCED METRIC ENGINE</span>
                   </>
                 )}
               </span>
@@ -106,16 +106,16 @@ export const DashboardOverview: React.FC = () => {
               </span>
               <span className="text-zinc-500 text-xs hidden sm:inline">•</span>
               <span className="text-zinc-400 text-xs font-mono">
-                {isSimple ? 'Healthy Balanced Plan' : (profile.goal === 'cut_500' ? '500 kcal Deficit (Fat Oxidation)' : profile.goal.replace('_', ' ').toUpperCase())}
+                {isStandard ? 'Healthy Balanced Plan' : (profile.goal === 'cut_500' ? '500 kcal Deficit (Fat Oxidation)' : profile.goal.replace('_', ' ').toUpperCase())}
               </span>
             </div>
 
             <h1 className="text-2xl md:text-3xl font-black text-foreground tracking-tight">
-              {isSimple ? `Good day, ${firstName}! ✨` : `Welcome back, ${profile.full_name}`}
+              {isStandard ? `Good day, ${firstName}! ✨` : `Welcome back, ${profile.full_name}`}
             </h1>
             
             <p className="text-zinc-500 dark:text-zinc-400 text-sm mt-1 max-w-xl">
-              {isSimple ? (
+              {isStandard ? (
                 <>
                   You have <strong className="text-brand-500 dark:text-brand-400 font-bold">{todayRemaining.calories} calories</strong> remaining today across <strong className="text-foreground">{profile.meal_count} wholesome meals</strong>. Take your time, enjoy your food, and stay hydrated!
                 </>
@@ -143,15 +143,15 @@ export const DashboardOverview: React.FC = () => {
               className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-gradient-to-r from-brand-500 to-accent-teal hover:from-brand-600 hover:to-accent-teal/90 text-zinc-950 text-xs font-bold shadow-glow transition-all active:scale-95"
             >
               <Dumbbell className="w-4 h-4" />
-              <span>{isSimple ? "Today's Routine" : "Start Today's Workout"}</span>
+              <span>{isStandard ? "Today's Routine" : "Start Today's Workout"}</span>
             </button>
           </div>
         </div>
       </div>
 
-      {/* Dashboard Body: Ultra-Simple vs Athlete Mode */}
-      {isSimple ? (
-        /* ================= ULTRA-SIMPLE DAILY WELLNESS COMPANION ================= */
+      {/* Dashboard Body: Standard vs Advanced Mode */}
+      {isStandard ? (
+        /* ================= STANDARD DAILY WELLNESS COMPANION ================= */
         <div className="space-y-6">
           {/* Today's 3 Big Visual Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

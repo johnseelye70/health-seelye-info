@@ -31,7 +31,7 @@ export const PlateInventoryCalculator: React.FC<PlateInventoryCalculatorProps> =
 }) => {
   const { profile, updateProfile, experienceMode } = useHealth();
   const isImperial = profile.unit_preference === 'imperial';
-  const isSimple = experienceMode === 'simple';
+  const isSimple = experienceMode === 'standard' || experienceMode === 'tutorial';
 
   const currentPlates: PlateInventory = profile.plate_inventory || DEFAULT_PLATE_INVENTORY;
   const counts = useMemo(() => getNormalizedPlateCounts(currentPlates), [currentPlates]);

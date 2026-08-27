@@ -18,6 +18,7 @@ import {
   Sun,
   Moon,
   ShoppingCart,
+  GraduationCap,
 } from 'lucide-react';
 
 export const Header: React.FC = () => {
@@ -94,31 +95,40 @@ export const Header: React.FC = () => {
           <span>{formattedDate}</span>
         </div>
 
-        {/* Unified 1-Button Experience Mode Toggle (Simple ↔ Athlete) */}
+        {/* 3-Mode Experience Switcher (Standard ↔ Advanced ↔ Tutorial) */}
         <button
           type="button"
           id="btn-toggle-experience-mode"
           onClick={toggleExperienceMode}
           title={
-            experienceMode === 'simple'
-              ? 'Current: Simple Mode (Click to switch to Athlete Mode)'
-              : 'Current: Athlete Mode (Click to switch to Simple Mode)'
+            experienceMode === 'standard'
+              ? 'Current: Standard Mode (Click to cycle to Advanced Mode)'
+              : experienceMode === 'advanced'
+              ? 'Current: Advanced Mode (Click to cycle to Tutorial Mode)'
+              : 'Current: Tutorial Mode (Click to cycle to Standard Mode)'
           }
           className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl border text-xs font-bold transition-all cursor-pointer select-none active:scale-95 shadow-sm shrink-0 ${
-            experienceMode === 'simple'
+            experienceMode === 'standard'
               ? 'bg-brand-500/15 hover:bg-brand-500/25 border-brand-500/40 text-brand-300'
-              : 'bg-purple-950/40 hover:bg-purple-900/50 border-purple-500/40 text-purple-300'
+              : experienceMode === 'advanced'
+              ? 'bg-cyan-950/40 hover:bg-cyan-900/50 border-cyan-500/40 text-cyan-300'
+              : 'bg-amber-950/40 hover:bg-amber-900/50 border-amber-500/40 text-amber-300'
           }`}
         >
-          {experienceMode === 'simple' ? (
+          {experienceMode === 'standard' ? (
             <>
               <Sparkles className="w-3.5 h-3.5 text-brand-400 shrink-0" />
-              <span className="text-[11px] sm:text-xs">Simple</span>
+              <span className="text-[11px] sm:text-xs">Standard</span>
+            </>
+          ) : experienceMode === 'advanced' ? (
+            <>
+              <Flame className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+              <span className="text-[11px] sm:text-xs">Advanced</span>
             </>
           ) : (
             <>
-              <Flame className="w-3.5 h-3.5 text-purple-400 shrink-0" />
-              <span className="text-[11px] sm:text-xs">Athlete</span>
+              <GraduationCap className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+              <span className="text-[11px] sm:text-xs">Tutorial</span>
             </>
           )}
         </button>

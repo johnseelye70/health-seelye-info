@@ -61,7 +61,7 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
 }) => {
   const { profile, experienceMode, logFood, deleteFoodLog, addGroceryItem, setActiveTab } = useHealth();
 
-  const isSimple = experienceMode === 'simple';
+  const isSimple = experienceMode === 'standard' || experienceMode === 'tutorial';
   const isImperial = profile.unit_preference === 'imperial';
 
   // If used as modal and closed, return null

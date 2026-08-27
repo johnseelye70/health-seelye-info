@@ -42,7 +42,7 @@ export const FoodDatabaseBrowser: React.FC<FoodDatabaseBrowserProps> = ({
 }) => {
   const { foods, profile, experienceMode } = useHealth();
   const isImperial = profile.unit_preference === 'imperial';
-  const isSimple = experienceMode === 'simple';
+  const isSimple = experienceMode === 'standard' || experienceMode === 'tutorial';
 
   // Fast Instant-Response Debounced Search State
   const [inputValue, setInputValue] = useState<string>('');

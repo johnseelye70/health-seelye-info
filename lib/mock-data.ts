@@ -15,7 +15,7 @@ export const INITIAL_PROFILE: UserProfile = {
   activity_level: 'moderate',
   goal: 'cut_500',
   unit_preference: 'imperial',
-  experience_mode: 'simple',
+  experience_mode: 'standard',
   daily_calorie_target: 2000,
   protein_target_g: 150,
   carb_target_g: 200,

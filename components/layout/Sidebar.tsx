@@ -13,6 +13,7 @@ import {
   SlidersHorizontal,
   Flame,
   Sparkles,
+  GraduationCap,
 } from 'lucide-react';
 
 export const Sidebar: React.FC = () => {
@@ -27,10 +28,19 @@ export const Sidebar: React.FC = () => {
     groceryList,
   } = useHealth();
 
-  const isSimple = experienceMode === 'simple';
+  const isStandard = experienceMode === 'standard';
+  const isTutorial = experienceMode === 'tutorial';
   const unpurchasedGroceryCount = groceryList.filter((i) => !i.is_checked && !i.in_pantry).length;
 
-  const navItems = isSimple
+  const navItems = isTutorial
+    ? ([
+        { id: 'dashboard', label: 'Interactive Guide', icon: GraduationCap, color: 'text-amber-400', activeBg: 'bg-amber-500/15 border-amber-500/40 text-amber-400', badge: 'Tutorial' },
+        { id: 'nutrition', label: 'Food & Meals', icon: UtensilsCrossed, color: 'text-accent-amber', activeBg: 'bg-accent-amber/15 border-accent-amber/40 text-accent-amber', badge: null },
+        { id: 'grocery', label: 'Shopping List', icon: ShoppingCart, color: 'text-accent-emerald', activeBg: 'bg-accent-emerald/15 border-accent-emerald/40 text-accent-emerald', badge: unpurchasedGroceryCount > 0 ? `${unpurchasedGroceryCount}` : null },
+        { id: 'workouts', label: 'Movement', icon: Dumbbell, color: 'text-accent-coral', activeBg: 'bg-accent-coral/15 border-accent-coral/40 text-accent-coral', badge: null },
+        { id: 'trends', label: 'Progress & Goals', icon: TrendingUp, color: 'text-accent-cyan', activeBg: 'bg-accent-cyan/15 border-accent-cyan/40 text-accent-cyan', badge: null },
+      ] as const)
+    : isStandard
     ? ([
         { id: 'dashboard', label: 'Today', icon: Sparkles, color: 'text-brand-400', activeBg: 'bg-brand-500/15 border-brand-500/40 text-brand-400', badge: null },
         { id: 'nutrition', label: 'Food & Meals', icon: UtensilsCrossed, color: 'text-accent-amber', activeBg: 'bg-accent-amber/15 border-accent-amber/40 text-accent-amber', badge: null },
