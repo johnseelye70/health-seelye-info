@@ -227,6 +227,14 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'b3.1.3',
+      date: '2026-08-27',
+      title: 'App Navigation Tab Type Alignment',
+      changes: [
+        'Unified activeTab state and setter across HealthContext with centralized AppNavigationTab type definition.',
+      ],
+    },
+    {
       version: 'b3.1.2',
       date: '2026-08-27',
       title: 'Grocery Department & Requisition Type Strictness',

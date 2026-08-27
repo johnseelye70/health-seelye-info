@@ -20,6 +20,7 @@ import {
   ScheduledDayPlan,
   ScheduledPlannedMeal,
   MasterScheduleTemplate,
+  AppNavigationTab,
 } from '@/lib/types';
 import { MASTER_SCHEDULE_TEMPLATES } from '@/lib/schedule-templates';
 import {
@@ -155,8 +156,8 @@ interface HealthContextType {
 
   // App State & Modals
   isDemoMode: boolean;
-  activeTab: 'dashboard' | 'planner' | 'nutrition' | 'fasting' | 'workouts' | 'grocery' | 'trends' | 'settings';
-  setActiveTab: (tab: 'dashboard' | 'planner' | 'nutrition' | 'fasting' | 'workouts' | 'grocery' | 'trends' | 'settings') => void;
+  activeTab: AppNavigationTab;
+  setActiveTab: (tab: AppNavigationTab) => void;
   showOnboardingModal: boolean;
   setShowOnboardingModal: (show: boolean) => void;
   resetAllData: () => void;
@@ -197,7 +198,7 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
     return day === 0 ? 7 : day;
   });
   
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'nutrition' | 'fasting' | 'workouts' | 'grocery' | 'trends' | 'settings'>('dashboard');
+  const [activeTab, setActiveTab] = useState<AppNavigationTab>('dashboard');
   const [showOnboardingModal, setShowOnboardingModal] = useState<boolean>(false);
   const [notificationsEnabled, setNotificationsEnabled] = useState<boolean>(false);
 
