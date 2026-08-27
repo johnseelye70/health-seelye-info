@@ -662,10 +662,13 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
             }
           });
 
-          const allDates = new Set([...cloudMap.keys(), ...localMap.keys()]);
+          const allDates = new Set<string>();
+          cloudMap.forEach((_, k) => allDates.add(k));
+          localMap.forEach((_, k) => allDates.add(k));
           const mergedSteps: StepLogEntry[] = [];
+          const dateKeys = Array.from(allDates);
 
-          for (const dateKey of allDates) {
+          for (const dateKey of dateKeys) {
             const cloudEntry = cloudMap.get(dateKey);
             const localEntry = localMap.get(dateKey);
 
