@@ -225,6 +225,17 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'b2.36.1',
+      date: '2026-08-27',
+      title: 'Resilient Multi-Device Step Stream & Auth Metadata Engine',
+      changes: [
+        'Live Server Auth Metadata Sync: Sync engine fetches live user metadata via direct server queries, eliminating stale cached token delays and propagating iPhone steps to desktop immediately.',
+        'Zero-Migration Triple-Layer Fallback: Step records synchronize across Supabase Auth user_metadata, profiles JSONB store, and relational step_logs table.',
+        'Mount Lifecycle Ingestion Guard: Added localStorage fallback to performCloudSync on mount so existing mobile steps push to the cloud even before local render completes.',
+        'Interactive Step Sync Feedback: Connected step tracker refresh buttons to authenticated cloud sync with live progress and status notifications.',
+      ],
+    },
+    {
       version: 'b2.36.0',
       date: '2026-08-27',
       title: 'Automated Multi-Device Step & Movement Cloud Synchronization',
@@ -1663,7 +1674,7 @@ export const ProfileSettings: React.FC = () => {
             title="Click to open release changelog modal window"
           >
             <span className="w-2 h-2 rounded-full bg-brand-400 animate-pulse"></span>
-            <span>Active: b2.36.0</span>
+            <span>Active: b2.36.1</span>
             <ChevronRight className="w-3.5 h-3.5 text-brand-400 group-hover:translate-x-0.5 transition-transform" />
           </button>
         </div>
