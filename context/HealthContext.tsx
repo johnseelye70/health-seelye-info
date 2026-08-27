@@ -1370,14 +1370,29 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
     const checkUrlStepSync = () => {
       try {
         const urlParams = new URLSearchParams(window.location.search);
-        const stepsParam = urlParams.get('sync_steps') || urlParams.get('steps');
+        let stepsParam = urlParams.get('sync_steps') || urlParams.get('steps');
+
+        // Check hash parameters if query was passed in hash
+        if (!stepsParam && window.location.hash) {
+          const hashQuery = window.location.hash.replace(/^#\??/, '');
+          const hashParams = new URLSearchParams(hashQuery);
+          stepsParam = hashParams.get('sync_steps') || hashParams.get('steps');
+        }
+
+        // Check path numbers if shortcut passed path like /sync_steps/8432 or /8432
+        if (!stepsParam && window.location.pathname && window.location.pathname !== '/') {
+          const pathMatch = window.location.pathname.match(/(\d{3,6})/);
+          if (pathMatch && pathMatch[1]) {
+            stepsParam = pathMatch[1];
+          }
+        }
+
         if (stepsParam) {
           const parsed = parseInt(stepsParam.replace(/,/g, '').trim(), 10);
           if (!isNaN(parsed) && parsed >= 0) {
             logSteps(parsed, 'apple_health');
-            // Clean URL query parameters without reloading
-            const cleanUrl = window.location.pathname;
-            window.history.replaceState({}, document.title, cleanUrl);
+            // Clean URL query parameters and path without reloading
+            window.history.replaceState({}, document.title, '/');
           }
         }
       } catch {

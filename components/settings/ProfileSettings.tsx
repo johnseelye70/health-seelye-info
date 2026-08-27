@@ -225,6 +225,16 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'b2.25.0',
+      date: '2026-08-26',
+      title: 'Universal 404 Prevention Rewrite & Flexible URL Step Parsing',
+      changes: [
+        'Universal 404 Prevention: Configured Next.js fallback rewrites in next.config.mjs so that any iOS shortcut URL variations or deep paths seamlessly route to the main application without triggering 404 errors.',
+        'Multi-Format Step Ingestion: Upgraded the step synchronization engine to parse step totals from query parameters (?sync_steps=, ?steps=), hash fragments (#sync_steps=), or path segments (/8432).',
+        'Automatic URL Hygiene: Seamlessly sanitizes the browser address bar to clean root (/) immediately after ingesting incoming step counts without triggering full page reloads.',
+      ],
+    },
+    {
       version: 'b2.24.0',
       date: '2026-08-26',
       title: 'Streamlined Apple Watch & Health Sync Hub with 1-Tap Copy Setup',
@@ -1540,7 +1550,7 @@ export const ProfileSettings: React.FC = () => {
             title="Click to open release changelog modal window"
           >
             <span className="w-2 h-2 rounded-full bg-brand-400 animate-pulse"></span>
-            <span>Active: b2.24.0</span>
+            <span>Active: b2.25.0</span>
             <ChevronRight className="w-3.5 h-3.5 text-brand-400 group-hover:translate-x-0.5 transition-transform" />
           </button>
         </div>
