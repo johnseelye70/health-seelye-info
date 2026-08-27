@@ -225,6 +225,16 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'b2.30.0',
+      date: '2026-08-26',
+      title: 'Expanded Pre-Made Strength & Barbell Program Library',
+      changes: [
+        'Added The Texas Method (5x5 Volume / Light Recovery / 1x5 Intensity): The premier intermediate wave periodization barbell program with complete daily schedules and printable tracking sheets.',
+        'Added Madcow 5x5 (Bill Starr Method): Intermediate linear ramping sets with weekly triple PR periodization for steady, burnout-free barbell progression.',
+        'Added P.H.U.L. (Power Hypertrophy Upper Lower): 4-day hybrid split combining heavy 3-5 rep powerlifting compound strength with 8-12 rep muscle hypertrophy.',
+      ],
+    },
+    {
       version: 'b2.29.0',
       date: '2026-08-26',
       title: 'Legacy Step Artifact Purge & Max Daily Value Evaluation',
@@ -1587,7 +1597,7 @@ export const ProfileSettings: React.FC = () => {
             title="Click to open release changelog modal window"
           >
             <span className="w-2 h-2 rounded-full bg-brand-400 animate-pulse"></span>
-            <span>Active: b2.29.0</span>
+            <span>Active: b2.30.0</span>
             <ChevronRight className="w-3.5 h-3.5 text-brand-400 group-hover:translate-x-0.5 transition-transform" />
           </button>
         </div>
