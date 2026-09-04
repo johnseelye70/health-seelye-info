@@ -30,7 +30,7 @@ export const BottomNav: React.FC = () => {
     ? [
         { id: 'dashboard', label: isTutorial ? 'Guide' : 'Today', icon: LayoutDashboard },
         { id: 'planner', label: 'Plan', icon: Calendar },
-        { id: 'nutrition', label: 'Meals', icon: UtensilsCrossed },
+        { id: 'nutrition', label: 'Food Diary', icon: UtensilsCrossed },
         { id: 'grocery', label: 'Cart', icon: ShoppingCart, badge: unpurchasedCount > 0 ? unpurchasedCount : null },
         { id: 'workouts', label: 'Move', icon: Dumbbell },
         { id: 'trends', label: 'Stats', icon: TrendingUp },
@@ -38,7 +38,7 @@ export const BottomNav: React.FC = () => {
     : [
         { id: 'dashboard', label: 'Home', icon: LayoutDashboard },
         { id: 'planner', label: 'Plan', icon: Calendar },
-        { id: 'nutrition', label: 'Macros', icon: UtensilsCrossed },
+        { id: 'nutrition', label: 'Food Diary', icon: UtensilsCrossed },
         { id: 'fasting', label: 'Fast', icon: Timer },
         { id: 'workouts', label: 'Train', icon: Dumbbell },
         { id: 'grocery', label: 'Cart', icon: ShoppingCart, badge: unpurchasedCount > 0 ? unpurchasedCount : null },

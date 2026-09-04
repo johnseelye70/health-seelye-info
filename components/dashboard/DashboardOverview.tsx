@@ -284,10 +284,17 @@ export const DashboardOverview: React.FC = () => {
           {/* Today's 3 Big Visual Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {/* 1. Calorie Balance Card (Warm Saffron / Nutrition) */}
-            <div className="p-6 rounded-3xl bg-surface-100/90 border border-surface-border backdrop-blur-xl flex flex-col justify-between space-y-4">
+            <div
+              onClick={() => setActiveTab('nutrition')}
+              className="p-6 rounded-3xl bg-surface-100/90 border border-surface-border backdrop-blur-xl flex flex-col justify-between space-y-4 cursor-pointer hover:border-accent-amber/50 hover:bg-surface-50 transition-all group"
+              title="Open Food Diary"
+            >
               <div className="flex items-center justify-between">
-                <div className="text-xs font-bold text-zinc-400 uppercase tracking-wider">Calorie Balance</div>
-                <div className="w-10 h-10 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
+                <div className="text-xs font-bold text-zinc-400 group-hover:text-accent-amber uppercase tracking-wider transition-colors flex items-center gap-1.5">
+                  <span>Calorie Balance</span>
+                  <span className="text-[10px] text-accent-amber font-mono font-medium opacity-0 group-hover:opacity-100 transition-opacity">→ View Food Diary</span>
+                </div>
+                <div className="w-10 h-10 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center group-hover:scale-105 transition-transform">
                   <Flame className="w-5 h-5 text-accent-amber fill-accent-amber/20" />
                 </div>
               </div>
@@ -621,6 +628,7 @@ export const DashboardOverview: React.FC = () => {
               unit="kcal"
               color="#f59e0b"
               sublabel={`${todayRemaining.calories} kcal remaining`}
+              onClick={() => setActiveTab('nutrition')}
             />
             <MacroProgressRing
               label="Protein"
@@ -629,6 +637,7 @@ export const DashboardOverview: React.FC = () => {
               unit="g"
               color="#3b82f6"
               sublabel={`${todayRemaining.protein}g left (1.0g/lb lean)`}
+              onClick={() => setActiveTab('nutrition')}
             />
             <MacroProgressRing
               label="Carbohydrates"
@@ -637,6 +646,7 @@ export const DashboardOverview: React.FC = () => {
               unit="g"
               color="#10b981"
               sublabel={`${todayRemaining.carbs}g left (Complex Fuel)`}
+              onClick={() => setActiveTab('nutrition')}
             />
             <MacroProgressRing
               label="Healthy Fats"
@@ -645,6 +655,7 @@ export const DashboardOverview: React.FC = () => {
               unit="g"
               color="#8b5cf6"
               sublabel={`${todayRemaining.fat}g left (25% Total)`}
+              onClick={() => setActiveTab('nutrition')}
             />
           </div>
 

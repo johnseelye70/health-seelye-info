@@ -15,6 +15,7 @@ import {
   Sparkles,
   GraduationCap,
   Calendar,
+  RefreshCw,
 } from 'lucide-react';
 
 export const Sidebar: React.FC = () => {
@@ -27,6 +28,8 @@ export const Sidebar: React.FC = () => {
     authUser,
     setShowAuthModal,
     groceryList,
+    syncWithCloud,
+    syncStatus,
   } = useHealth();
 
   const isStandard = experienceMode === 'standard';
@@ -37,7 +40,7 @@ export const Sidebar: React.FC = () => {
     ? ([
         { id: 'dashboard', label: 'Interactive Guide', icon: GraduationCap, color: 'text-amber-400', activeBg: 'bg-amber-500/15 border-amber-500/40 text-amber-400', badge: 'Tutorial' },
         { id: 'planner', label: '90-Day Master Schedule', icon: Calendar, color: 'text-brand-400', activeBg: 'bg-brand-500/15 border-brand-500/40 text-brand-400', badge: 'Forward' },
-        { id: 'nutrition', label: 'Food & Meals', icon: UtensilsCrossed, color: 'text-accent-amber', activeBg: 'bg-accent-amber/15 border-accent-amber/40 text-accent-amber', badge: null },
+        { id: 'nutrition', label: 'Food Diary', icon: UtensilsCrossed, color: 'text-accent-amber', activeBg: 'bg-accent-amber/15 border-accent-amber/40 text-accent-amber', badge: null },
         { id: 'grocery', label: 'Shopping List', icon: ShoppingCart, color: 'text-accent-emerald', activeBg: 'bg-accent-emerald/15 border-accent-emerald/40 text-accent-emerald', badge: unpurchasedGroceryCount > 0 ? `${unpurchasedGroceryCount}` : null },
         { id: 'workouts', label: 'Movement', icon: Dumbbell, color: 'text-accent-coral', activeBg: 'bg-accent-coral/15 border-accent-coral/40 text-accent-coral', badge: null },
         { id: 'trends', label: 'Progress & Goals', icon: TrendingUp, color: 'text-accent-cyan', activeBg: 'bg-accent-cyan/15 border-accent-cyan/40 text-accent-cyan', badge: null },
@@ -46,7 +49,7 @@ export const Sidebar: React.FC = () => {
     ? ([
         { id: 'dashboard', label: 'Today', icon: Sparkles, color: 'text-brand-400', activeBg: 'bg-brand-500/15 border-brand-500/40 text-brand-400', badge: null },
         { id: 'planner', label: '90-Day Master Schedule', icon: Calendar, color: 'text-brand-400', activeBg: 'bg-brand-500/15 border-brand-500/40 text-brand-400', badge: 'Forward' },
-        { id: 'nutrition', label: 'Food & Meals', icon: UtensilsCrossed, color: 'text-accent-amber', activeBg: 'bg-accent-amber/15 border-accent-amber/40 text-accent-amber', badge: null },
+        { id: 'nutrition', label: 'Food Diary', icon: UtensilsCrossed, color: 'text-accent-amber', activeBg: 'bg-accent-amber/15 border-accent-amber/40 text-accent-amber', badge: null },
         { id: 'grocery', label: 'Shopping List', icon: ShoppingCart, color: 'text-accent-emerald', activeBg: 'bg-accent-emerald/15 border-accent-emerald/40 text-accent-emerald', badge: unpurchasedGroceryCount > 0 ? `${unpurchasedGroceryCount}` : null },
         { id: 'workouts', label: 'Movement', icon: Dumbbell, color: 'text-accent-coral', activeBg: 'bg-accent-coral/15 border-accent-coral/40 text-accent-coral', badge: null },
         { id: 'trends', label: 'Progress & Goals', icon: TrendingUp, color: 'text-accent-cyan', activeBg: 'bg-accent-cyan/15 border-accent-cyan/40 text-accent-cyan', badge: null },
@@ -54,7 +57,7 @@ export const Sidebar: React.FC = () => {
     : ([
         { id: 'dashboard', label: 'Dashboard Overview', icon: LayoutDashboard, color: 'text-brand-400', activeBg: 'bg-brand-500/15 border-brand-500/40 text-brand-400', badge: null },
         { id: 'planner', label: '90-Day Master Schedule', icon: Calendar, color: 'text-brand-400', activeBg: 'bg-brand-500/15 border-brand-500/40 text-brand-400', badge: 'Forward' },
-        { id: 'nutrition', label: 'Food Diary & Nutrition', icon: UtensilsCrossed, color: 'text-accent-amber', activeBg: 'bg-accent-amber/15 border-accent-amber/40 text-accent-amber', badge: `${profile.meal_count} Meals` },
+        { id: 'nutrition', label: 'Food Diary', icon: UtensilsCrossed, color: 'text-accent-amber', activeBg: 'bg-accent-amber/15 border-accent-amber/40 text-accent-amber', badge: `${profile.meal_count} Meals` },
         { id: 'fasting', label: 'Fasting Timer', icon: Timer, color: 'text-accent-purple', activeBg: 'bg-accent-purple/15 border-accent-purple/40 text-accent-purple', badge: fastingStatus.isFasting ? 'Fasting' : 'Eating Window' },
         { id: 'workouts', label: 'Workouts & Training', icon: Dumbbell, color: 'text-accent-coral', activeBg: 'bg-accent-coral/15 border-accent-coral/40 text-accent-coral', badge: '4-Week' },
         { id: 'grocery', label: 'Shopping List & Pantry', icon: ShoppingCart, color: 'text-accent-emerald', activeBg: 'bg-accent-emerald/15 border-accent-emerald/40 text-accent-emerald', badge: unpurchasedGroceryCount > 0 ? `${unpurchasedGroceryCount}` : 'Auto' },
@@ -90,22 +93,36 @@ export const Sidebar: React.FC = () => {
           </span>
         </div>
 
-        {/* Cloud Sync Status Indicator */}
-        <button
-          type="button"
-          onClick={() => setShowAuthModal(true)}
-          className="w-full flex items-center justify-between px-2.5 py-1.5 rounded-xl bg-surface-100 hover:bg-surface-50 border border-surface-border text-[11px] transition-colors cursor-pointer"
-        >
-          <div className="flex items-center gap-1.5">
-            <span className={`w-2 h-2 rounded-full ${authUser ? 'bg-emerald-500 animate-pulse' : 'bg-zinc-400'}`}></span>
-            <span className={authUser ? 'text-emerald-500 font-mono font-medium' : 'text-zinc-500 font-medium'}>
-              {authUser ? 'Cloud Synced' : 'Guest / Local'}
+        {/* Cloud Sync Status Indicator & 1-Tap Sync Button */}
+        <div className="flex items-center gap-1.5">
+          <button
+            type="button"
+            onClick={() => setShowAuthModal(true)}
+            className="flex-1 flex items-center justify-between px-2.5 py-1.5 rounded-xl bg-surface-100 hover:bg-surface-50 border border-surface-border text-[11px] transition-colors cursor-pointer"
+          >
+            <div className="flex items-center gap-1.5">
+              <span className={`w-2 h-2 rounded-full ${authUser ? 'bg-emerald-500 animate-pulse' : 'bg-zinc-400'}`}></span>
+              <span className={authUser ? 'text-emerald-500 font-mono font-medium' : 'text-zinc-500 font-medium'}>
+                {authUser ? (syncStatus === 'syncing' ? 'Syncing...' : 'Synced') : 'Guest'}
+              </span>
+            </div>
+            <span className="text-brand-500 text-[10px] hover:underline font-semibold">
+              {authUser ? 'Account' : 'Sign In'}
             </span>
-          </div>
-          <span className="text-brand-500 text-[10px] hover:underline font-semibold">
-            {authUser ? 'Manage' : 'Sign In'}
-          </span>
-        </button>
+          </button>
+          {authUser && (
+            <button
+              type="button"
+              id="btn-sidebar-sync-now"
+              onClick={syncWithCloud}
+              disabled={syncStatus === 'syncing'}
+              title="Sync now between laptop and iPhone"
+              className="p-1.5 rounded-xl bg-surface-100 hover:bg-surface-50 border border-surface-border text-brand-400 hover:text-brand-300 transition-all cursor-pointer shrink-0"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 ${syncStatus === 'syncing' ? 'animate-spin' : ''}`} />
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Navigation Links */}

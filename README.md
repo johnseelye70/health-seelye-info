@@ -1,5 +1,5 @@
 # Seelye Family Health — Precision Fitness & Nutrition Application
-**Version: Beta v4.13.2 (b4.13.2)** | **Production Domain: https://health.seelye.info**
+**Version: Beta v4.13.3 (b4.13.3)** | **Production Domain: https://health.seelye.info**
 
 High-performance, dark-mode first athletic health and nutrition platform engineered with Next.js (App Router), TypeScript, Tailwind CSS, Supabase (PostgreSQL), and integrated Wholesome Recipe & Meal Prep Engine.
 
@@ -7,7 +7,12 @@ High-performance, dark-mode first athletic health and nutrition platform enginee
 
 ## ⚡ Key Architectural Modules
 
-### 1. Real-Time Food Log & Calorie Balance Cross-Device Cloud Sync (Beta v4.13.2)
+### 1. Standardized Food Diary Navigation & Quick 1-Tap Sidebar Cloud Sync (Beta v4.13.3)
+- **Standardized "Food Diary" Tab Label:** Updated the primary nutrition navigation item across the laptop sidebar (`Sidebar.tsx`) and mobile bottom bar (`BottomNav.tsx`) to explicitly display **"Food Diary"** in all experience modes (Standard, Tutorial, and Advanced), eliminating confusion where it was previously titled "Food & Meals" or "Macros".
+- **1-Tap Sidebar Cloud Sync Action:** Added an instant 1-tap `<RefreshCw />` sync button right beside the user authentication status in the laptop sidebar for 1-click synchronization at any time.
+- **Interactive Dashboard Calorie Balance Link:** Connected the Calorie Balance Card and Precision Macro Rings on the main dashboard to navigate directly into the Food Diary (`activeTab === 'nutrition'`).
+
+### 2. Real-Time Food Log & Calorie Balance Cross-Device Cloud Sync (Beta v4.13.2)
 - **Multi-Device Food Log Bundle Synchronization:** Integrated `food_logs` directly into the `app_sync_bundle` carried across Supabase Auth user metadata (`user_metadata.app_sync_bundle`) and profiles cloud records (`profiles.equipment_inventory.app_sync_bundle`), ensuring food entries logged on laptop synchronize bidirectionally to iPhone in lockstep with hydration water logs.
 - **Immediate Calorie Balance on Mobile:** Eliminated the 0-calorie balance anomaly on iPhone; today's meals and calories calculate and display in real-time across Dashboard and Daily Food Diary.
 - **Triple-Source Non-Destructive Reconciliation:** Reconciles entries from PostgreSQL `public.food_logs`, Auth metadata cloud bundles, and local storage state using unique entry IDs and composite signatures (`date_meal_name_calories`), prioritizing user entries and preventing duplicate or dropped records.

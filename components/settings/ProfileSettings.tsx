@@ -227,6 +227,16 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'b4.13.3',
+      date: '2026-09-04',
+      title: 'Standardized "Food Diary" Navigation & Quick 1-Tap Sidebar Cloud Sync',
+      changes: [
+        'Standardized "Food Diary" Navigation: Renamed navigation tabs across laptop sidebar and mobile bottom bar to explicitly display "Food Diary" in all experience modes (Standard, Tutorial, and Advanced), eliminating ambiguity.',
+        '1-Tap Sidebar Cloud Sync: Added a dedicated 1-tap cloud sync refresh button directly beside the user authentication status in the laptop sidebar for immediate synchronization at any time.',
+        'Interactive Dashboard Calorie Balance Link: Made the Calorie Balance card and Macro rings on the main dashboard directly clickable to instantly navigate to the Food Diary.',
+      ],
+    },
+    {
       version: 'b4.13.2',
       date: '2026-09-04',
       title: 'Real-Time Food Log & Calorie Balance Cross-Device Cloud Sync',

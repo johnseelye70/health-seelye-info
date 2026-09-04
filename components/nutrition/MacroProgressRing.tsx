@@ -11,6 +11,7 @@ interface MacroProgressRingProps {
   size?: number;
   strokeWidth?: number;
   sublabel?: string;
+  onClick?: () => void;
 }
 
 export const MacroProgressRing: React.FC<MacroProgressRingProps> = ({
@@ -22,6 +23,7 @@ export const MacroProgressRing: React.FC<MacroProgressRingProps> = ({
   size = 110,
   strokeWidth = 9,
   sublabel,
+  onClick,
 }) => {
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
@@ -30,7 +32,10 @@ export const MacroProgressRing: React.FC<MacroProgressRingProps> = ({
   const remaining = Math.max(0, target - current);
 
   return (
-    <div className="flex flex-col items-center justify-center p-3.5 rounded-2xl bg-surface-100/90 border border-surface-border backdrop-blur-md shadow-sm hover:border-brand-500/30 transition-all">
+    <div
+      onClick={onClick}
+      className={`flex flex-col items-center justify-center p-3.5 rounded-2xl bg-surface-100/90 border border-surface-border backdrop-blur-md shadow-sm hover:border-brand-500/30 transition-all ${onClick ? 'cursor-pointer hover:border-brand-500/50 hover:bg-surface-50' : ''}`}
+    >
       <div className="relative flex items-center justify-center" style={{ width: size, height: size }}>
         <svg width={size} height={size} className="transform -rotate-90">
           {/* Background circle */}
