@@ -243,12 +243,115 @@ export interface FoodItem {
   carbs_per_100g: number;
   fat_per_100g: number;
   fiber_per_100g?: number;
+  sugar_per_100g?: number;
+  added_sugar_per_100g?: number;
+  saturated_fat_per_100g?: number;
+  trans_fat_per_100g?: number;
+  monounsaturated_fat_per_100g?: number;
+  polyunsaturated_fat_per_100g?: number;
+  cholesterol_per_100g?: number; // mg
+  sodium_per_100g?: number; // mg
+  potassium_per_100g?: number; // mg
+  calcium_per_100g?: number; // mg
+  iron_per_100g?: number; // mg
+  vitamin_a_per_100g?: number; // mcg
+  vitamin_c_per_100g?: number; // mg
+  vitamin_d_per_100g?: number; // IU
+  magnesium_per_100g?: number; // mg
+  zinc_per_100g?: number; // mg
+  brand?: string;
+  barcode?: string;
+  is_global_db?: boolean;
   is_gluten_free: boolean;
   is_dairy_free: boolean;
   serving_size_g: number;
   default_unit: string;
   storage_type: 'fresh_weekly' | 'pantry_monthly' | 'freezer_monthly';
   swap_group?: string;
+}
+
+export type MealMeasurementUnit = 'g' | 'oz' | 'cup' | 'tbsp' | 'tsp' | 'serving' | 'piece';
+
+export interface MealIngredient {
+  id: string;
+  food_id: string;
+  name: string;
+  brand?: string;
+  category?: string;
+  grams: number;
+  unit: MealMeasurementUnit;
+  quantity: number;
+  calories: number;
+  protein_g: number;
+  carbs_g: number;
+  fat_g: number;
+  fiber_g?: number;
+  sugar_g?: number;
+  saturated_fat_g?: number;
+  sodium_mg?: number;
+  potassium_mg?: number;
+  calcium_mg?: number;
+  iron_mg?: number;
+  raw_food?: FoodItem;
+}
+
+export interface DetailedNutrition {
+  // Energy
+  calories: number;
+  energy_kj: number;
+
+  // Macros & Net Carbs
+  protein_g: number;
+  carbs_g: number;
+  fat_g: number;
+  net_carbs_g: number;
+
+  // Lipids
+  saturated_fat_g: number;
+  monounsaturated_fat_g: number;
+  polyunsaturated_fat_g: number;
+  trans_fat_g: number;
+  cholesterol_mg: number;
+
+  // Carbohydrates & Glycemic
+  fiber_g: number;
+  sugar_g: number;
+  added_sugar_g: number;
+
+  // Electrolytes & Minerals
+  sodium_mg: number;
+  potassium_mg: number;
+  calcium_mg: number;
+  iron_mg: number;
+  magnesium_mg: number;
+  zinc_mg: number;
+
+  // Vitamins
+  vitamin_a_mcg: number;
+  vitamin_c_mg: number;
+  vitamin_d_iu: number;
+
+  // Macro Calorie Distribution Ratios
+  protein_pct: number;
+  carbs_pct: number;
+  fat_pct: number;
+
+  // Physical Metrics
+  total_weight_g: number;
+  calorie_density_per_100g: number;
+}
+
+export interface BuiltCustomMeal {
+  id: string;
+  name: string;
+  description?: string;
+  category: 'breakfast' | 'lunch' | 'dinner' | 'snack' | 'pre_workout' | 'post_workout';
+  servings_yield: number;
+  ingredients: MealIngredient[];
+  total_nutrition: DetailedNutrition;
+  per_serving_nutrition: DetailedNutrition;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface FoodLogEntry {

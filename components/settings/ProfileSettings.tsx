@@ -227,6 +227,20 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: '4.0.0',
+      date: '2026-09-04',
+      title: 'World-Class Custom Meal Builder, Exhaustive 3.5M+ Food Database & Daily Plan Integration',
+      changes: [
+        'World-Class Custom Meal Builder: Interactive studio allowing users to build custom meals and recipes by adding ingredients from an exhaustive food database with instant live recalculations.',
+        'Exhaustive Food Database (Local + Global): Integrated 1,012 verified whole foods and grocery staples with real-time access to 3,500,000+ commercial, branded, and grocery products via Open Food Facts v2 API.',
+        'Extensive Nutrition Stats Engine: Complete calculation of Calories, Protein, Carbohydrates, Fats, Net Impact Carbs, Saturated Fat, Monounsaturated Fat, Polyunsaturated Fat, Trans Fat, Cholesterol, Dietary Fiber, Sugars, Added Sugars, Sodium, Potassium, Calcium, Iron, Magnesium, Zinc, and Vitamins A, C, and D.',
+        'Batch Yield Scaler & Serving Switcher: Toggle seamlessly between "Per 1 Serving" and "Entire Meal Batch" with dynamic yield scaling (1x to 12x).',
+        'Direct 1-Click Daily Plan Integration: Log custom built meals directly into Breakfast, Lunch, Dinner, or Snacks on Today or any selected historical date, with single consolidated entry or itemized ingredient breakdown.',
+        'Saved Meals Library: Save favorite custom meals to a reusable library with 1-click quick-logging, editing in builder, and cross-device sync.',
+        '100% Inline Architecture: Fully inline design without modal dialogs or popup overlays, strictly following zero-modal architectural rules.',
+      ],
+    },
+    {
       version: 'b3.3.0',
       date: '2026-09-04',
       title: 'User-Friendly Redesign & Cross-Referenced Historical Reports Hub',

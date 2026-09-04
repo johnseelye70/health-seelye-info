@@ -1,5 +1,5 @@
 # Seelye Family Health — Precision Fitness & Nutrition Application
-**Version: b3.3.0** | **Production Domain: https://health.seelye.info**
+**Version: 4.0.0 (Beta 4.0.0)** | **Production Domain: https://health.seelye.info**
 
 High-performance, dark-mode first athletic health and nutrition platform engineered with Next.js (App Router), TypeScript, Tailwind CSS, Supabase (PostgreSQL), and integrated Wholesome Recipe & Meal Prep Engine.
 
@@ -7,12 +7,20 @@ High-performance, dark-mode first athletic health and nutrition platform enginee
 
 ## ⚡ Key Architectural Modules
 
-### 1. Dynamic Macro Calculator & Metabolic Engine
+### 1. World-Class Custom Meal Builder & Exhaustive Database (v4.0.0)
+- **Interactive Meal Studio:** Assemble custom meals and recipes by adding ingredients with customized quantities and units (`g`, `oz`, `cups`, `tbsp`, `tsp`, `servings`).
+- **Exhaustive Food Database (Local + Global):** Access 1,012 curated whole foods and grocery staples offline, with live integration to 3,500,000+ commercial, branded, and grocery products via Open Food Facts v2 API.
+- **Extensive Nutrition Stats Calculation:** Complete nutritional breakdown including Calories, Protein, Carbohydrates, Fats, Net Impact Carbs, Saturated Fat, Monounsaturated Fat, Polyunsaturated Fat, Trans Fat, Cholesterol, Dietary Fiber, Sugars, Added Sugars, Sodium, Potassium, Calcium, Iron, Magnesium, Zinc, and Vitamins A, C, and D.
+- **Serving Scaler & Yield Switcher:** Toggle between "Per 1 Serving" and "Full Batch" with dynamic yield scaling (1x to 12x).
+- **Direct 1-Click Daily Plan Integration:** Log custom meals directly to Breakfast, Lunch, Dinner, or Snacks on Today or any historical date, as a single consolidated item or individual ingredients.
+- **Saved Meals Library:** Save favorite meals to your private collection for instant re-logging anytime.
+
+### 2. Dynamic Macro Calculator & Metabolic Engine
 - **Mifflin-St Jeor BMR & TDEE Calculations:** Computes baseline energy expenditure dynamically configured for biological sex, age, height, current weight, and activity level multipliers (1.2x - 1.9x).
 - **Target Deficit Calibration:** Standard 500 kcal deficit targeting ~1 lb/week of fat oxidation with lean mass preservation formulas (1.0g protein/lb, 25% fats, remainder clean complex carbs).
 - **Dynamic Meal Splitter:** Recalculates and divides daily macro targets across 2 meals, 3 meals, or 4 meals per day in real-time.
 
-### 2. Fasting & Feeding Window Manager
+### 3. Fasting & Feeding Window Manager
 - **Protocols Supported:** 16:8 LeanGains, 18:6 Deep Fast, 20:4 Warrior Diet, 14:10 Gentle, 23:1 OMAD, and Standard 12:12 Circadian.
 - **Active Circular Countdown Timer:** Live second-by-second countdown clock tracking hours elapsed vs remaining.
 - **Biological Milestones:** Real-time state tracker for Digestion, Blood Sugar Stabilization, Lipolysis / Fat Burning, Ketosis Activation, and Autophagy Induction.

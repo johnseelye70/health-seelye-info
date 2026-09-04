@@ -7,6 +7,7 @@ import { FoodItem } from '@/lib/types';
 import { calculateSwapEquivalentGrams } from '@/lib/macro-calculator';
 import { FoodDatabaseBrowser } from './FoodDatabaseBrowser';
 import { RecipeEngine } from './RecipeEngine';
+import { MealBuilder } from './MealBuilder';
 import {
   UtensilsCrossed,
   Search,
@@ -54,7 +55,12 @@ export const MealPlanner: React.FC = () => {
     selectedDayRemaining,
     copyDayFoodLogs,
     quickLogCalories,
+    customMeals,
+    logBuiltMealToDiary,
   } = useHealth();
+
+  const [activeNutritionSubTab, setActiveNutritionSubTab] = useState<'diary' | 'builder' | 'database' | 'recipes'>('diary');
+  const [builderTargetMealIndex, setBuilderTargetMealIndex] = useState<number>(1);
 
   const currentDayFoodLogs = selectedDayFoodLogs;
   const todayMacros = selectedDayMacros;
@@ -305,13 +311,28 @@ export const MealPlanner: React.FC = () => {
           </div>
 
           <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+            {/* Quick Access to Custom Meal Builder */}
+            <button
+              type="button"
+              onClick={() => setActiveNutritionSubTab('builder')}
+              className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-2xl bg-gradient-to-r from-brand-500/20 to-accent-teal/20 hover:from-brand-500/30 hover:to-accent-teal/30 border border-brand-500/40 text-xs font-bold text-brand-300 transition-all hover:scale-[1.02] cursor-pointer"
+            >
+              <ChefHat className="w-4 h-4 text-brand-400" />
+              <span>Custom Meal Builder</span>
+              {customMeals.length > 0 && (
+                <span className="px-1.5 py-0.2 rounded-full text-[10px] font-mono font-bold bg-brand-500/20 text-brand-300 border border-brand-500/40">
+                  {customMeals.length}
+                </span>
+              )}
+            </button>
+
             {/* Quick Access to Recipe Studio */}
             <button
               type="button"
-              onClick={() => setShowRecipeModal(true)}
+              onClick={() => setActiveNutritionSubTab('recipes')}
               className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-2xl bg-surface-200 hover:bg-surface-300 border border-surface-border text-xs font-semibold text-zinc-200 transition-all hover:border-brand-500/40 cursor-pointer"
             >
-              <ChefHat className="w-4 h-4 text-brand-400" />
+              <BookOpen className="w-4 h-4 text-brand-400" />
               <span>Recipes & Ideas</span>
             </button>
 
@@ -354,6 +375,66 @@ export const MealPlanner: React.FC = () => {
         </div>
       </div>
 
+      {/* 100% Inline Sub-Navigation Tabs */}
+      <div className="flex items-center gap-1.5 sm:gap-2 p-1.5 rounded-2xl bg-surface-100/90 border border-surface-border backdrop-blur-xl overflow-x-auto no-scrollbar">
+        <button
+          type="button"
+          onClick={() => setActiveNutritionSubTab('diary')}
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer shrink-0 ${
+            activeNutritionSubTab === 'diary'
+              ? 'bg-brand-500 text-zinc-950 shadow-glow'
+              : 'text-zinc-400 hover:text-white hover:bg-surface-200'
+          }`}
+        >
+          <Calendar className="w-4 h-4" />
+          <span>Daily Food Diary</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveNutritionSubTab('builder')}
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer shrink-0 ${
+            activeNutritionSubTab === 'builder'
+              ? 'bg-brand-500 text-zinc-950 shadow-glow'
+              : 'text-zinc-400 hover:text-white hover:bg-surface-200'
+          }`}
+        >
+          <ChefHat className="w-4 h-4" />
+          <span>Custom Meal Builder</span>
+          {customMeals.length > 0 && (
+            <span className="px-1.5 py-0.2 rounded-full text-[10px] font-mono font-bold bg-zinc-900/40 text-current">
+              {customMeals.length}
+            </span>
+          )}
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveNutritionSubTab('database')}
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer shrink-0 ${
+            activeNutritionSubTab === 'database'
+              ? 'bg-brand-500 text-zinc-950 shadow-glow'
+              : 'text-zinc-400 hover:text-white hover:bg-surface-200'
+          }`}
+        >
+          <Search className="w-4 h-4" />
+          <span>Food Database Browser</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveNutritionSubTab('recipes')}
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer shrink-0 ${
+            activeNutritionSubTab === 'recipes'
+              ? 'bg-brand-500 text-zinc-950 shadow-glow'
+              : 'text-zinc-400 hover:text-white hover:bg-surface-200'
+          }`}
+        >
+          <BookOpen className="w-4 h-4" />
+          <span>Recipe Studio</span>
+        </button>
+      </div>
+
       {/* Toast Notification for Date / Copy Actions */}
       {copyToast && (
         <div className="p-3.5 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-xs font-bold flex items-center gap-2 animate-fadeIn shadow-lg">
@@ -362,8 +443,11 @@ export const MealPlanner: React.FC = () => {
         </div>
       )}
 
-      {/* MyFitnessPal-Style Date Navigation & Quick Actions Bar */}
-      <div className="rounded-2xl bg-surface-100/90 border border-surface-border p-3 sm:p-4 backdrop-blur-xl flex flex-col sm:flex-row items-center justify-between gap-3">
+      {/* Daily Food Diary View */}
+      {activeNutritionSubTab === 'diary' && (
+        <div className="space-y-8">
+          {/* MyFitnessPal-Style Date Navigation & Quick Actions Bar */}
+          <div className="rounded-2xl bg-surface-100/90 border border-surface-border p-3 sm:p-4 backdrop-blur-xl flex flex-col sm:flex-row items-center justify-between gap-3">
         {/* Date Selector */}
         <div className="flex items-center gap-1.5 sm:gap-2 w-full sm:w-auto justify-between sm:justify-start">
           <button
@@ -475,8 +559,37 @@ export const MealPlanner: React.FC = () => {
             </div>
           </div>
 
-          {/* Quick Hub: Wholesome Recipes & Shopping List Navigation Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Quick Hub: Meal Studio, Wholesome Recipes & Shopping List Navigation Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* Custom Meal Builder Action Card */}
+            <div className="p-6 rounded-3xl bg-gradient-to-r from-surface-100 to-surface-200/90 border border-brand-500/30 backdrop-blur-xl flex flex-col justify-between gap-4">
+              <div className="flex items-start gap-3.5">
+                <div className="w-11 h-11 rounded-2xl bg-brand-500/15 border border-brand-500/30 flex items-center justify-center text-xl shrink-0">
+                  🍳
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-base font-bold text-white">Custom Meal Builder</h3>
+                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-brand-500/20 text-brand-300 font-mono font-bold uppercase">
+                      World-Class
+                    </span>
+                  </div>
+                  <p className="text-xs text-zinc-400 mt-1 leading-relaxed">
+                    Build meals from 1,000+ whole foods & 3.5M+ global products. Live macro & nutrition calculation.
+                  </p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setActiveNutritionSubTab('builder')}
+                className="w-full py-2.5 rounded-2xl bg-gradient-to-r from-brand-500 to-accent-teal hover:from-brand-600 text-zinc-950 font-bold text-xs shadow-glow transition-all active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <ChefHat className="w-4 h-4 stroke-[2.5]" />
+                <span>Build a Custom Meal</span>
+              </button>
+            </div>
+
             {/* Wholesome Kitchen Recipes Action Card */}
             <div className="p-6 rounded-3xl bg-gradient-to-r from-surface-100 to-surface-200/90 border border-brand-500/30 backdrop-blur-xl flex flex-col justify-between gap-4">
               <div className="flex items-start gap-3.5">
@@ -734,32 +847,68 @@ export const MealPlanner: React.FC = () => {
                     </div>
 
                     {/* Card Footer: Summary & Log Button */}
-                    <div className="pt-3 border-t border-surface-border/80 mt-3 flex items-center justify-between">
-                      <div className="text-[11px] font-mono text-zinc-400">
+                    <div className="pt-3 border-t border-surface-border/80 mt-3 flex items-center justify-between gap-2">
+                      <div className="text-[11px] font-mono text-zinc-400 truncate">
                         Logged: <strong className="text-zinc-100">{totalCals}</strong> / {target.calories} kcal
                       </div>
-                      <button
-                        onClick={() => handleOpenLogModal(target.mealIndex)}
-                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-surface-100 hover:bg-surface-50 border border-surface-border text-xs font-semibold text-brand-400 transition-all hover:border-brand-500/40"
-                      >
-                        <Plus className="w-3.5 h-3.5" />
-                        <span>Log Item</span>
-                      </button>
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setBuilderTargetMealIndex(target.mealIndex);
+                            setActiveNutritionSubTab('builder');
+                          }}
+                          className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-brand-500/15 hover:bg-brand-500/25 border border-brand-500/40 text-xs font-bold text-brand-300 transition-all cursor-pointer"
+                          title="Build custom meal with extensive stats"
+                        >
+                          <ChefHat className="w-3.5 h-3.5" />
+                          <span>Build</span>
+                        </button>
+                        <button
+                          onClick={() => handleOpenLogModal(target.mealIndex)}
+                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-surface-100 hover:bg-surface-50 border border-surface-border text-xs font-semibold text-brand-400 transition-all hover:border-brand-500/40 cursor-pointer"
+                        >
+                          <Plus className="w-3.5 h-3.5" />
+                          <span>Log Item</span>
+                        </button>
+                      </div>
                     </div>
                   </div>
                 );
               })}
             </div>
           </div>
+        </div>
+      )}
+    </div>
+  )}
 
-          {/* Layered & Searchable Complete Food Database Section */}
+      {/* 100% INLINE VIEW: Custom Meal Builder */}
+      {activeNutritionSubTab === 'builder' && (
+        <MealBuilder
+          initialMealIndex={builderTargetMealIndex}
+          onNavigateToDiary={() => setActiveNutritionSubTab('diary')}
+        />
+      )}
+
+      {/* 100% INLINE VIEW: Food Database Browser */}
+      {activeNutritionSubTab === 'database' && (
+        <div className="space-y-4">
           <FoodDatabaseBrowser
             onLogToMeal={(item, mealIdx) => {
               setSelectedFoodForLog(item);
               setGramsToLog(item.serving_size_g);
               setSelectedMealIndex(mealIdx || 1);
+              setActiveNutritionSubTab('diary');
             }}
           />
+        </div>
+      )}
+
+      {/* 100% INLINE VIEW: Recipe Studio */}
+      {activeNutritionSubTab === 'recipes' && (
+        <div className="space-y-4">
+          <RecipeEngine isModal={false} />
         </div>
       )}
 

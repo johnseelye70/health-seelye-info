@@ -21,6 +21,7 @@ import {
   ScheduledPlannedMeal,
   MasterScheduleTemplate,
   AppNavigationTab,
+  BuiltCustomMeal,
 } from '@/lib/types';
 import { MASTER_SCHEDULE_TEMPLATES } from '@/lib/schedule-templates';
 import {
@@ -82,6 +83,20 @@ interface HealthContextType {
   selectedDayRemaining: { calories: number; protein: number; carbs: number; fat: number };
   copyDayFoodLogs: (fromDateStr: string, toDateStr: string) => number;
   quickLogCalories: (name: string, calories: number, mealIndex: number, dateStr?: string, protein?: number, carbs?: number, fat?: number) => string;
+
+  // Custom Meals & Recipe Builder
+  customMeals: BuiltCustomMeal[];
+  saveCustomMeal: (meal: BuiltCustomMeal) => void;
+  deleteCustomMeal: (id: string) => void;
+  logBuiltMealToDiary: (
+    meal: BuiltCustomMeal,
+    options: {
+      servings: number;
+      mealIndex: number;
+      dateStr?: string;
+      logAsSingleItem?: boolean;
+    }
+  ) => void;
 
   // Cross-Referenced Reports & History
   getDailyReport: (dateStr: string) => {
@@ -291,6 +306,7 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
   const [stepSyncSource, setStepSyncSource] = useState<StepLogEntry['source']>('apple_health');
   const [simpleMovementActivities, setSimpleMovementActivities] = useState<SimpleMovementActivity[]>(DEFAULT_SIMPLE_DAILY_CHOICES);
   const [scheduledPlans, setScheduledPlans] = useState<Record<string, ScheduledDayPlan>>({});
+  const [customMeals, setCustomMeals] = useState<BuiltCustomMeal[]>([]);
 
   // Cloud Auth & Sync States
   const [authUser, setAuthUser] = useState<any | null>(null);
@@ -371,6 +387,9 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
           }
           if (parsed.scheduledPlans && typeof parsed.scheduledPlans === 'object') {
             setScheduledPlans(parsed.scheduledPlans);
+          }
+          if (parsed.customMeals && Array.isArray(parsed.customMeals)) {
+            setCustomMeals(parsed.customMeals);
           }
         } else {
           setFoods(DEFAULT_FOODS);
@@ -455,13 +474,14 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
           stepLogs,
           simpleMovementActivities,
           scheduledPlans,
+          customMeals,
         };
         localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(stateToPersist));
       } catch (err) {
         console.warn('Failed to persist state:', err);
       }
     }
-  }, [profile, foods, foodLogs, workoutPlan, groceryList, weightLogs, workoutLogs, activeProgramId, notificationsEnabled, waterGoalOz, waterLogs, stepGoal, stepLogs, simpleMovementActivities, scheduledPlans]);
+  }, [profile, foods, foodLogs, workoutPlan, groceryList, weightLogs, workoutLogs, activeProgramId, notificationsEnabled, waterGoalOz, waterLogs, stepGoal, stepLogs, simpleMovementActivities, scheduledPlans, customMeals]);
 
   // Refs to decouple async synchronization from React state render cycles
   const profileRef = useRef<UserProfile>(profile);
@@ -1234,6 +1254,112 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
     setFoodLogs((prev) => [newEntry, ...prev]);
     return newEntry.id;
   }, [selectedDate, todayDate, profile.id]);
+
+  // Custom Meals Management & Diary Integration
+  const saveCustomMeal = useCallback((meal: BuiltCustomMeal) => {
+    setCustomMeals((prev) => {
+      const idx = prev.findIndex((m) => m.id === meal.id);
+      if (idx >= 0) {
+        const next = [...prev];
+        next[idx] = meal;
+        return next;
+      }
+      return [meal, ...prev];
+    });
+  }, []);
+
+  const deleteCustomMeal = useCallback((id: string) => {
+    setCustomMeals((prev) => prev.filter((m) => m.id !== id));
+  }, []);
+
+  const logBuiltMealToDiary = useCallback(
+    (
+      meal: BuiltCustomMeal,
+      options: {
+        servings: number;
+        mealIndex: number;
+        dateStr?: string;
+        logAsSingleItem?: boolean;
+      }
+    ) => {
+      const targetDate = options.dateStr || selectedDate || todayDate;
+      const servings = Math.max(0.1, options.servings || 1);
+      const asSingle = options.logAsSingleItem !== false;
+
+      if (asSingle) {
+        const perServing = meal.per_serving_nutrition;
+        const totalCals = Math.round(perServing.calories * servings);
+        const totalProt = Number((perServing.protein_g * servings).toFixed(1));
+        const totalCarbs = Number((perServing.carbs_g * servings).toFixed(1));
+        const totalFat = Number((perServing.fat_g * servings).toFixed(1));
+        const totalGrams = Math.round(perServing.total_weight_g * servings) || 100;
+
+        const customFoodItem: FoodItem = {
+          id: `built-food-${meal.id}`,
+          name: `${meal.name} (${servings === 1 ? '1 serving' : `${servings} servings`})`,
+          category: 'grains_carbs',
+          calories_per_100g: totalGrams > 0 ? Math.round((totalCals / totalGrams) * 100) : totalCals,
+          protein_per_100g: totalGrams > 0 ? Number(((totalProt / totalGrams) * 100).toFixed(1)) : totalProt,
+          carbs_per_100g: totalGrams > 0 ? Number(((totalCarbs / totalGrams) * 100).toFixed(1)) : totalCarbs,
+          fat_per_100g: totalGrams > 0 ? Number(((totalFat / totalGrams) * 100).toFixed(1)) : totalFat,
+          fiber_per_100g: Number(((perServing.fiber_g * servings / totalGrams) * 100).toFixed(1)),
+          sugar_per_100g: Number(((perServing.sugar_g * servings / totalGrams) * 100).toFixed(1)),
+          saturated_fat_per_100g: Number(((perServing.saturated_fat_g * servings / totalGrams) * 100).toFixed(1)),
+          sodium_per_100g: Math.round((perServing.sodium_mg * servings / totalGrams) * 100),
+          potassium_per_100g: Math.round((perServing.potassium_mg * servings / totalGrams) * 100),
+          is_gluten_free: false,
+          is_dairy_free: false,
+          serving_size_g: totalGrams,
+          default_unit: 'serving',
+          storage_type: 'fresh_weekly',
+        };
+
+        const newEntry: FoodLogEntry = {
+          id: `log-meal-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
+          user_id: profile.id,
+          food_id: customFoodItem.id,
+          food_name: customFoodItem.name,
+          grams_consumed: totalGrams,
+          meal_index: options.mealIndex,
+          logged_at: targetDate,
+          calories: totalCals,
+          protein_g: totalProt,
+          carbs_g: totalCarbs,
+          fat_g: totalFat,
+          created_at: new Date().toISOString(),
+        };
+
+        setFoodLogs((prev) => [newEntry, ...prev]);
+      } else {
+        const scale = servings / Math.max(1, meal.servings_yield);
+        const newLogs: FoodLogEntry[] = meal.ingredients.map((ing, idx) => {
+          const scaledGrams = Math.round(ing.grams * scale);
+          const scaledCals = Math.round(ing.calories * scale);
+          const scaledProt = Number((ing.protein_g * scale).toFixed(1));
+          const scaledCarbs = Number((ing.carbs_g * scale).toFixed(1));
+          const scaledFat = Number((ing.fat_g * scale).toFixed(1));
+
+          return {
+            id: `log-ing-${Date.now()}-${idx}-${Math.random().toString(36).substr(2, 4)}`,
+            user_id: profile.id,
+            food_id: ing.food_id,
+            food_name: `${ing.name} (from ${meal.name})`,
+            grams_consumed: scaledGrams,
+            meal_index: options.mealIndex,
+            logged_at: targetDate,
+            calories: scaledCals,
+            protein_g: scaledProt,
+            carbs_g: scaledCarbs,
+            fat_g: scaledFat,
+            created_at: new Date().toISOString(),
+          };
+        });
+
+        setFoodLogs((prev) => [...newLogs, ...prev]);
+      }
+    },
+    [profile.id, selectedDate, todayDate]
+  );
 
   // Comprehensive Cross-Referenced Reporting Engines
   const getDailyReport = useCallback((dateStr: string) => {
@@ -2436,6 +2562,13 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
         selectedDayRemaining,
         copyDayFoodLogs,
         quickLogCalories,
+
+        // Custom Meals Studio
+        customMeals,
+        saveCustomMeal,
+        deleteCustomMeal,
+        logBuiltMealToDiary,
+
         getDailyReport,
         getWeeklyReport,
         getMonthlyReport,
