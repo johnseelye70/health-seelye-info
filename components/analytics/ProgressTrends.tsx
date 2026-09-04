@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useHealth } from '@/context/HealthContext';
 import {
   kgToLbs,
@@ -30,6 +30,17 @@ import {
   Edit3,
   Save,
   Ruler,
+  Dumbbell,
+  UtensilsCrossed,
+  ChevronLeft,
+  ChevronRight,
+  BarChart3,
+  Trophy,
+  Clock,
+  Check,
+  ArrowRight,
+  Layers,
+  FileText,
 } from 'lucide-react';
 import { BiologicalSex } from '@/lib/types';
 import { NumberStepper } from '@/components/ui/NumberStepper';
@@ -49,11 +60,71 @@ export const ProgressTrends: React.FC = () => {
     todaySteps,
     todayStepMiles,
     todayStepCalories,
+    getDailyReport,
+    getWeeklyReport,
+    getMonthlyReport,
+    getYearlyReport,
+    selectedDate,
+    setSelectedDate,
+    todayDate,
+    foodLogs,
+    workoutLogs,
+    stepLogs,
+    waterLogs,
   } = useHealth();
 
   const [showLogModal, setShowLogModal] = useState<boolean>(false);
   const [showBiometricsEditor, setShowBiometricsEditor] = useState<boolean>(false);
   const [saveToast, setSaveToast] = useState<string | null>(null);
+
+  // Reports & Cross-Referenced History State
+  const [activeSection, setActiveSection] = useState<'reports' | 'weight_tracker'>('reports');
+  const [activeReportType, setActiveReportType] = useState<'daily' | 'weekly' | 'monthly' | 'yearly'>('daily');
+  const [reportDate, setReportDate] = useState<string>(() => selectedDate || todayDate);
+  const [reportMonth, setReportMonth] = useState<string>(() => (selectedDate || todayDate).substring(0, 7));
+  const [reportYear, setReportYear] = useState<string>(() => (selectedDate || todayDate).substring(0, 4));
+
+  // Compute live cross-referenced report datasets
+  const dailyData = useMemo(() => getDailyReport(reportDate), [getDailyReport, reportDate]);
+  const weeklyData = useMemo(() => getWeeklyReport(reportDate), [getWeeklyReport, reportDate]);
+  const monthlyData = useMemo(() => getMonthlyReport(reportMonth), [getMonthlyReport, reportMonth]);
+  const yearlyData = useMemo(() => getYearlyReport(reportYear), [getYearlyReport, reportYear]);
+
+  const handleShiftReportDate = (days: number) => {
+    const d = new Date(reportDate + 'T12:00:00');
+    d.setDate(d.getDate() + days);
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    setReportDate(`${y}-${m}-${day}`);
+  };
+
+  const handleShiftReportMonth = (months: number) => {
+    const [y, m] = reportMonth.split('-').map(Number);
+    const d = new Date(y, m - 1 + months, 1);
+    const newY = d.getFullYear();
+    const newM = String(d.getMonth() + 1).padStart(2, '0');
+    setReportMonth(`${newY}-${newM}`);
+  };
+
+  const handleShiftReportYear = (years: number) => {
+    const y = parseInt(reportYear, 10) + years;
+    setReportYear(String(y));
+  };
+
+  const formatDelta = (valLbs: number | null) => {
+    if (valLbs === null) return '—';
+    const val = isImperial ? valLbs : Number((valLbs * 0.45359237).toFixed(1));
+    const unit = isImperial ? 'lbs' : 'kg';
+    return `${val > 0 ? `+${val}` : val} ${unit}`;
+  };
+
+  const formatVolume = (volumeLbs: number) => {
+    if (isImperial) {
+      return `${volumeLbs.toLocaleString()} lbs`;
+    }
+    return `${Math.round(volumeLbs * 0.45359237).toLocaleString()} kg`;
+  };
 
   const isSimple = experienceMode === 'standard' || experienceMode === 'tutorial';
   const isImperial = profile.unit_preference === 'imperial';
@@ -211,7 +282,7 @@ export const ProgressTrends: React.FC = () => {
           <div>
             <div className="flex items-center gap-2 mb-2">
               <span className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-brand-500/15 text-brand-400 border border-brand-500/30">
-                {isSimple ? 'MY PROGRESS & HEALTH JOURNEY' : 'BIOMETRIC PROGRESS & ADHERENCE MATRIX'}
+                PERSONAL PROGRESS & HEALTH REPORTS
               </span>
               <span className="text-zinc-500 text-xs">•</span>
               <span className="text-brand-400 font-mono text-xs font-bold uppercase">
@@ -219,12 +290,10 @@ export const ProgressTrends: React.FC = () => {
               </span>
             </div>
             <h1 className="text-2xl md:text-3xl font-black text-foreground tracking-tight">
-              {isSimple ? 'Weight & Wellness Progress' : 'Weight Trends & Body Composition'}
+              Progress, Reports & Trends
             </h1>
             <p className="text-zinc-400 text-sm mt-1 max-w-2xl">
-              {isSimple
-                ? 'Check in with your morning weight, customize your personal height & weight goals, and track your steady progress over time.'
-                : 'Track your fat loss trajectory, weekly rate of loss against Mifflin-St Jeor 500 kcal deficit targets, and lean mass preservation.'}
+              Review your cross-referenced daily, weekly, monthly, and yearly reports, check your morning weight, and adjust your personal health targets.
             </p>
           </div>
 
@@ -235,7 +304,7 @@ export const ProgressTrends: React.FC = () => {
               className="flex items-center gap-2 px-3.5 py-2.5 rounded-2xl bg-surface-200 hover:bg-surface-300 border border-surface-border text-foreground text-xs font-bold transition-all active:scale-95 cursor-pointer"
             >
               <SlidersHorizontal className="w-4 h-4 text-accent-cyan" />
-              <span>{showBiometricsEditor ? 'Hide Biometrics' : (profile.height_cm > 0 ? 'Edit My Biometrics' : 'Set My Biometrics')}</span>
+              <span>{showBiometricsEditor ? 'Hide Targets' : (profile.height_cm > 0 ? 'Edit My Targets' : 'Set My Targets')}</span>
             </button>
 
             <button
@@ -248,6 +317,34 @@ export const ProgressTrends: React.FC = () => {
             </button>
           </div>
         </div>
+      </div>
+
+      {/* Main Section Switcher: Cross-Referenced Reports vs Weight & Biometrics */}
+      <div className="flex rounded-2xl bg-surface-100 p-1.5 border border-surface-border gap-1.5">
+        <button
+          type="button"
+          onClick={() => setActiveSection('reports')}
+          className={`flex-1 py-3 px-4 rounded-xl text-xs md:text-sm font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
+            activeSection === 'reports'
+              ? 'bg-brand-500 text-zinc-950 shadow-glow font-black'
+              : 'text-zinc-400 hover:text-foreground hover:bg-surface-200'
+          }`}
+        >
+          <BarChart3 className="w-4 h-4" />
+          <span>Cross-Referenced Reports</span>
+        </button>
+        <button
+          type="button"
+          onClick={() => setActiveSection('weight_tracker')}
+          className={`flex-1 py-3 px-4 rounded-xl text-xs md:text-sm font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
+            activeSection === 'weight_tracker'
+              ? 'bg-brand-500 text-zinc-950 shadow-glow font-black'
+              : 'text-zinc-400 hover:text-foreground hover:bg-surface-200'
+          }`}
+        >
+          <Scale className="w-4 h-4" />
+          <span>Weight & Biometrics Tracker</span>
+        </button>
       </div>
 
       {/* Inline Biometrics & Body Parameters Editor */}
@@ -452,10 +549,723 @@ export const ProgressTrends: React.FC = () => {
         </form>
       )}
 
-      {/* Metric Cards Summary */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Card 1: Current Weight */}
-        <div className="p-5 rounded-3xl bg-surface-100/90 border border-surface-border backdrop-blur-xl flex flex-col justify-between">
+      {/* 100% Inline Cross-Referenced Reports Hub */}
+      {activeSection === 'reports' && (
+        <div className="space-y-6 animate-fadeIn">
+          {/* Subtabs for Report Duration */}
+          <div className="flex flex-wrap gap-2 p-1.5 rounded-2xl bg-surface-100/90 border border-surface-border backdrop-blur-xl">
+            <button
+              type="button"
+              onClick={() => setActiveReportType('daily')}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                activeReportType === 'daily'
+                  ? 'bg-brand-500 text-zinc-950 shadow-glow font-black'
+                  : 'text-zinc-400 hover:text-foreground hover:bg-surface-200'
+              }`}
+            >
+              <Calendar className="w-4 h-4" />
+              <span>Daily Report</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveReportType('weekly')}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                activeReportType === 'weekly'
+                  ? 'bg-brand-500 text-zinc-950 shadow-glow font-black'
+                  : 'text-zinc-400 hover:text-foreground hover:bg-surface-200'
+              }`}
+            >
+              <BarChart3 className="w-4 h-4" />
+              <span>Weekly Summary</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveReportType('monthly')}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                activeReportType === 'monthly'
+                  ? 'bg-brand-500 text-zinc-950 shadow-glow font-black'
+                  : 'text-zinc-400 hover:text-foreground hover:bg-surface-200'
+              }`}
+            >
+              <Layers className="w-4 h-4" />
+              <span>Monthly Review</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveReportType('yearly')}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                activeReportType === 'yearly'
+                  ? 'bg-brand-500 text-zinc-950 shadow-glow font-black'
+                  : 'text-zinc-400 hover:text-foreground hover:bg-surface-200'
+              }`}
+            >
+              <Trophy className="w-4 h-4" />
+              <span>Yearly & All-Time</span>
+            </button>
+          </div>
+
+          {/* 1. DAILY REPORT */}
+          {activeReportType === 'daily' && (
+            <div className="space-y-6">
+              {/* Daily Date Navigation Bar */}
+              <div className="p-4 rounded-3xl bg-surface-100/90 border border-surface-border backdrop-blur-xl flex flex-wrap items-center justify-between gap-3">
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => handleShiftReportDate(-1)}
+                    className="p-2 rounded-xl bg-surface-200 hover:bg-surface-300 text-zinc-300 transition-all cursor-pointer"
+                    title="Previous Day"
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                  </button>
+                  <input
+                    type="date"
+                    value={reportDate}
+                    onChange={(e) => setReportDate(e.target.value)}
+                    className="px-3 py-1.5 rounded-xl bg-surface-200 border border-surface-border font-mono text-xs font-bold text-foreground focus:outline-none focus:border-brand-500"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => handleShiftReportDate(1)}
+                    className="p-2 rounded-xl bg-surface-200 hover:bg-surface-300 text-zinc-300 transition-all cursor-pointer"
+                    title="Next Day"
+                  >
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-bold text-zinc-300">
+                    {new Date(reportDate + 'T12:00:00').toLocaleDateString(undefined, {
+                      weekday: 'long',
+                      month: 'short',
+                      day: 'numeric',
+                      year: 'numeric',
+                    })}
+                  </span>
+                  {reportDate !== todayDate && (
+                    <button
+                      type="button"
+                      onClick={() => setReportDate(todayDate)}
+                      className="px-3 py-1 rounded-lg text-xs font-bold bg-brand-500/15 text-brand-400 border border-brand-500/30 hover:bg-brand-500/25 transition-all cursor-pointer"
+                    >
+                      Jump to Today
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* 4 Daily Summary Cards */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {/* Calories & Macros */}
+                <div className="p-5 rounded-3xl bg-surface-100/90 border border-surface-border backdrop-blur-xl flex flex-col justify-between space-y-3">
+                  <div>
+                    <div className="flex items-center justify-between text-xs font-semibold text-zinc-400">
+                      <span>Calories & Fuel</span>
+                      <Flame className="w-4 h-4 text-amber-400" />
+                    </div>
+                    <div className="text-2xl font-black font-mono text-foreground mt-1.5">
+                      {dailyData.macros.calories.toLocaleString()} <span className="text-xs font-normal text-zinc-400">/ {dailyData.caloriesTarget} kcal</span>
+                    </div>
+                    <div className="w-full bg-surface-200 rounded-full h-1.5 mt-2 overflow-hidden">
+                      <div
+                        className={`h-1.5 rounded-full transition-all ${
+                          dailyData.macros.calories > dailyData.caloriesTarget ? 'bg-amber-400' : 'bg-brand-500'
+                        }`}
+                        style={{
+                          width: `${Math.min(100, Math.round((dailyData.macros.calories / (dailyData.caloriesTarget || 2000)) * 100))}%`,
+                        }}
+                      />
+                    </div>
+                  </div>
+                  <div className="pt-2 border-t border-surface-border/50 text-[11px] font-mono text-zinc-400 flex justify-between">
+                    <span>P: <strong className="text-cyan-400">{dailyData.macros.protein}g</strong></span>
+                    <span>C: <strong className="text-amber-300">{dailyData.macros.carbs}g</strong></span>
+                    <span>F: <strong className="text-rose-400">{dailyData.macros.fat}g</strong></span>
+                  </div>
+                </div>
+
+                {/* Workouts & Volume */}
+                <div className="p-5 rounded-3xl bg-surface-100/90 border border-surface-border backdrop-blur-xl flex flex-col justify-between space-y-3">
+                  <div>
+                    <div className="flex items-center justify-between text-xs font-semibold text-zinc-400">
+                      <span>Exercise & Training</span>
+                      <Dumbbell className="w-4 h-4 text-brand-400" />
+                    </div>
+                    <div className="text-2xl font-black font-mono text-brand-400 mt-1.5">
+                      {dailyData.workouts.length > 0 ? `${dailyData.workouts.length} session${dailyData.workouts.length > 1 ? 's' : ''}` : 'Rest Day'}
+                    </div>
+                    <p className="text-xs text-zinc-400 mt-1">
+                      {dailyData.workouts.length > 0
+                        ? `${formatVolume(dailyData.totalVolumeLbs)} volume • ${dailyData.totalSets} sets`
+                        : 'No gym sessions logged'}
+                    </p>
+                  </div>
+                  <div className="pt-2 border-t border-surface-border/50 text-[11px] font-mono text-zinc-400 flex justify-between">
+                    <span>Duration: <strong className="text-foreground">{dailyData.workoutMinutes} min</strong></span>
+                    <span>Status: <strong className={dailyData.workouts.length > 0 ? 'text-emerald-400' : 'text-zinc-500'}>{dailyData.workouts.length > 0 ? 'Active' : 'Recovery'}</strong></span>
+                  </div>
+                </div>
+
+                {/* Steps & Movement */}
+                <div className="p-5 rounded-3xl bg-surface-100/90 border border-surface-border backdrop-blur-xl flex flex-col justify-between space-y-3">
+                  <div>
+                    <div className="flex items-center justify-between text-xs font-semibold text-zinc-400">
+                      <span>Daily Movement</span>
+                      <Footprints className="w-4 h-4 text-emerald-400" />
+                    </div>
+                    <div className="text-2xl font-black font-mono text-emerald-400 mt-1.5">
+                      {dailyData.steps.toLocaleString()} <span className="text-xs font-normal text-zinc-400">/ {stepGoal.toLocaleString()}</span>
+                    </div>
+                    <div className="w-full bg-surface-200 rounded-full h-1.5 mt-2 overflow-hidden">
+                      <div
+                        className="h-1.5 rounded-full bg-emerald-400 transition-all"
+                        style={{
+                          width: `${Math.min(100, Math.round((dailyData.steps / (stepGoal || 10000)) * 100))}%`,
+                        }}
+                      />
+                    </div>
+                  </div>
+                  <div className="pt-2 border-t border-surface-border/50 text-[11px] font-mono text-zinc-400 flex justify-between">
+                    <span>Distance: <strong className="text-foreground">{dailyData.stepMiles} mi</strong></span>
+                    <span>Burned: <strong className="text-amber-400">~{dailyData.stepCalories} kcal</strong></span>
+                  </div>
+                </div>
+
+                {/* Hydration & Weigh-In */}
+                <div className="p-5 rounded-3xl bg-surface-100/90 border border-surface-border backdrop-blur-xl flex flex-col justify-between space-y-3">
+                  <div>
+                    <div className="flex items-center justify-between text-xs font-semibold text-zinc-400">
+                      <span>Fluids & Scale</span>
+                      <Droplets className="w-4 h-4 text-cyan-400" />
+                    </div>
+                    <div className="text-2xl font-black font-mono text-cyan-400 mt-1.5">
+                      {dailyData.waterOz} <span className="text-xs font-normal text-zinc-400">/ {dailyData.waterGoalOz} oz</span>
+                    </div>
+                    <p className="text-xs text-zinc-400 mt-1 font-mono">
+                      {((dailyData.waterOz * 0.0295735)).toFixed(1)}L logged ({Math.min(150, Math.round((dailyData.waterOz / (dailyData.waterGoalOz || 96)) * 100))}%)
+                    </p>
+                  </div>
+                  <div className="pt-2 border-t border-surface-border/50 text-[11px] font-mono text-zinc-400 flex justify-between items-center">
+                    <span>Scale Weigh-In:</span>
+                    <strong className="text-brand-400">
+                      {dailyData.weightKg !== null
+                        ? `${isImperial ? kgToLbs(dailyData.weightKg) : dailyData.weightKg} ${isImperial ? 'lbs' : 'kg'}`
+                        : 'None logged'}
+                    </strong>
+                  </div>
+                </div>
+              </div>
+
+              {/* Day Breakdown: Meals Logged */}
+              <div className="p-6 md:p-8 rounded-3xl bg-surface-100/90 border border-surface-border backdrop-blur-xl space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
+                      <UtensilsCrossed className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-bold text-foreground">Meals Tracked on this Day</h3>
+                      <p className="text-xs text-zinc-400">{dailyData.foodLogs.length} items recorded</p>
+                    </div>
+                  </div>
+                </div>
+
+                {dailyData.foodLogs.length === 0 ? (
+                  <div className="py-8 px-4 rounded-2xl bg-surface-200/30 border border-dashed border-surface-border text-center space-y-2">
+                    <UtensilsCrossed className="w-8 h-8 text-zinc-500 mx-auto" />
+                    <p className="text-xs font-bold text-foreground">No food logged for {reportDate}</p>
+                    <p className="text-[11px] text-zinc-400 max-w-sm mx-auto">
+                      Use the Food Diary tab to log breakfast, lunch, dinner, or snacks for this date.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="divide-y divide-surface-border/50">
+                    {dailyData.foodLogs.map((item) => (
+                      <div key={item.id} className="py-3 flex items-center justify-between gap-3 text-xs">
+                        <div className="space-y-0.5">
+                          <div className="flex items-center gap-2">
+                            <span className="px-1.5 py-0.5 rounded text-[10px] font-bold uppercase bg-surface-200 text-zinc-400">
+                              {item.meal_index === 0 ? 'Breakfast' : item.meal_index === 1 ? 'Lunch' : item.meal_index === 2 ? 'Dinner' : 'Snacks'}
+                            </span>
+                            <span className="font-bold text-foreground">{item.food_name}</span>
+                          </div>
+                          <span className="text-[11px] text-zinc-400 font-mono block">
+                            {item.grams_consumed}g portion
+                          </span>
+                        </div>
+                        <div className="text-right font-mono">
+                          <div className="font-bold text-foreground">{item.calories} kcal</div>
+                          <div className="text-[10px] text-zinc-400">
+                            P: {item.protein_g}g • C: {item.carbs_g}g • F: {item.fat_g}g
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Day Breakdown: Workouts Logged */}
+              <div className="p-6 md:p-8 rounded-3xl bg-surface-100/90 border border-surface-border backdrop-blur-xl space-y-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-brand-500/10 border border-brand-500/20 flex items-center justify-center text-brand-400">
+                    <Dumbbell className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-bold text-foreground">Workout & Training Log</h3>
+                    <p className="text-xs text-zinc-400">{dailyData.workouts.length} completed sessions</p>
+                  </div>
+                </div>
+
+                {dailyData.workouts.length === 0 ? (
+                  <div className="py-8 px-4 rounded-2xl bg-surface-200/30 border border-dashed border-surface-border text-center space-y-2">
+                    <Dumbbell className="w-8 h-8 text-zinc-500 mx-auto" />
+                    <p className="text-xs font-bold text-foreground">Rest day — No workout recorded</p>
+                    <p className="text-[11px] text-zinc-400 max-w-sm mx-auto">
+                      Rest and muscle recovery are vital parts of progress.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {dailyData.workouts.map((w) => (
+                      <div key={w.id} className="p-4 rounded-2xl bg-surface-200/50 border border-surface-border space-y-2">
+                        <div className="flex items-center justify-between">
+                          <div className="font-bold text-foreground text-sm">{w.program_title} — {w.day_title}</div>
+                          <span className="text-xs font-mono text-brand-400 font-bold">{formatVolume(w.total_volume_lbs)}</span>
+                        </div>
+                        <div className="text-xs text-zinc-400 flex gap-4 font-mono">
+                          <span>{w.total_sets_completed} sets completed</span>
+                          <span>{w.duration_minutes} minutes</span>
+                        </div>
+                        {w.exercises && w.exercises.length > 0 && (
+                          <div className="pt-2 border-t border-surface-border/50 text-[11px] text-zinc-300 space-y-1">
+                            {w.exercises.map((ex, i) => {
+                              const maxWeight = Math.max(...(ex.sets?.map((s) => s.weight_lbs) || [0]));
+                              return (
+                                <div key={i} className="flex justify-between font-mono">
+                                  <span>{ex.exercise_name} ({ex.sets?.length || 0} sets)</span>
+                                  <span className="text-zinc-400">{formatVolume(maxWeight)}</span>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* 2. WEEKLY SUMMARY */}
+          {activeReportType === 'weekly' && (
+            <div className="space-y-6">
+              {/* Week Navigation */}
+              <div className="p-4 rounded-3xl bg-surface-100/90 border border-surface-border backdrop-blur-xl flex flex-wrap items-center justify-between gap-3">
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => handleShiftReportDate(-7)}
+                    className="p-2 rounded-xl bg-surface-200 hover:bg-surface-300 text-zinc-300 transition-all cursor-pointer"
+                    title="Previous Week"
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                  </button>
+                  <span className="text-xs font-bold text-foreground font-mono px-3 py-1.5 rounded-xl bg-surface-200 border border-surface-border">
+                    {weeklyData.startDate} to {weeklyData.endDate}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => handleShiftReportDate(7)}
+                    className="p-2 rounded-xl bg-surface-200 hover:bg-surface-300 text-zinc-300 transition-all cursor-pointer"
+                    title="Next Week"
+                  >
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setReportDate(todayDate)}
+                  className="px-3 py-1 rounded-lg text-xs font-bold bg-brand-500/15 text-brand-400 border border-brand-500/30 hover:bg-brand-500/25 transition-all cursor-pointer"
+                >
+                  Current Week
+                </button>
+              </div>
+
+              {/* Weekly Insight Coaching Card */}
+              <div className="p-5 md:p-6 rounded-3xl bg-gradient-to-br from-brand-500/10 via-surface-100 to-accent-cyan/10 border border-brand-500/20 backdrop-blur-xl flex items-start gap-4">
+                <div className="w-10 h-10 rounded-2xl bg-brand-500/20 border border-brand-500/30 flex items-center justify-center shrink-0 text-brand-400">
+                  <Sparkles className="w-5 h-5" />
+                </div>
+                <div className="space-y-1">
+                  <div className="text-xs font-bold uppercase tracking-wider text-brand-400">Weekly Coaching Takeaway</div>
+                  <p className="text-sm text-foreground leading-relaxed">{weeklyData.insight}</p>
+                </div>
+              </div>
+
+              {/* 5 Weekly KPI Cards */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+                <div className="p-4 rounded-2xl bg-surface-100/90 border border-surface-border">
+                  <div className="text-[11px] text-zinc-400 font-bold">Avg Calories</div>
+                  <div className="text-xl font-black font-mono text-foreground mt-1">
+                    {weeklyData.avgCalories > 0 ? weeklyData.avgCalories.toLocaleString() : '—'}
+                  </div>
+                  <div className="text-[10px] text-zinc-400 mt-1">Goal: {profile.daily_calorie_target} kcal</div>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-surface-100/90 border border-surface-border">
+                  <div className="text-[11px] text-zinc-400 font-bold">Total Workouts</div>
+                  <div className="text-xl font-black font-mono text-brand-400 mt-1">
+                    {weeklyData.totalWorkouts} sessions
+                  </div>
+                  <div className="text-[10px] text-zinc-400 mt-1">{formatVolume(weeklyData.totalVolumeLbs)} moved</div>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-surface-100/90 border border-surface-border">
+                  <div className="text-[11px] text-zinc-400 font-bold">Avg Steps / Day</div>
+                  <div className="text-xl font-black font-mono text-emerald-400 mt-1">
+                    {weeklyData.avgSteps.toLocaleString()}
+                  </div>
+                  <div className="text-[10px] text-zinc-400 mt-1">~{(weeklyData.avgSteps * 7 * 0.00045).toFixed(1)} miles total</div>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-surface-100/90 border border-surface-border">
+                  <div className="text-[11px] text-zinc-400 font-bold">7-Day Scale Shift</div>
+                  <div className={`text-xl font-black font-mono mt-1 ${
+                    weeklyData.weightChangeLbs !== null
+                      ? weeklyData.weightChangeLbs <= 0
+                        ? 'text-brand-400'
+                        : 'text-amber-400'
+                      : 'text-zinc-400'
+                  }`}>
+                    {formatDelta(weeklyData.weightChangeLbs)}
+                  </div>
+                  <div className="text-[10px] text-zinc-400 mt-1">Weigh-in delta</div>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-surface-100/90 border border-surface-border">
+                  <div className="text-[11px] text-zinc-400 font-bold">Habit Consistency</div>
+                  <div className="text-xl font-black font-mono text-cyan-400 mt-1">
+                    {weeklyData.adherenceScore}%
+                  </div>
+                  <div className="text-[10px] text-zinc-400 mt-1">Combined routine rating</div>
+                </div>
+              </div>
+
+              {/* 7-Day Cross-Reference Table */}
+              <div className="p-6 rounded-3xl bg-surface-100/90 border border-surface-border backdrop-blur-xl">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-sm font-bold text-foreground">7-Day Cross-Referenced Breakdown</h3>
+                  <span className="text-xs text-zinc-400 font-mono">Nutrition • Training • Walking • Scale</span>
+                </div>
+
+                <div className="w-full overflow-x-auto">
+                  <table className="w-full text-left text-xs font-mono" style={{ tableLayout: 'fixed' }}>
+                    <colgroup>
+                      <col style={{ width: '18%' }} />
+                      <col style={{ width: '20%' }} />
+                      <col style={{ width: '14%' }} />
+                      <col style={{ width: '18%' }} />
+                      <col style={{ width: '15%' }} />
+                      <col style={{ width: '15%' }} />
+                    </colgroup>
+                    <thead>
+                      <tr className="border-b border-surface-border text-zinc-400">
+                        <th className="pb-3 px-2">Day / Date</th>
+                        <th className="pb-3 px-2">Calories</th>
+                        <th className="pb-3 px-2">Protein</th>
+                        <th className="pb-3 px-2">Workout</th>
+                        <th className="pb-3 px-2">Steps</th>
+                        <th className="pb-3 px-2">Scale</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-surface-border/60">
+                      {weeklyData.days.map((d) => {
+                        const dateObj = new Date(d.date + 'T12:00:00');
+                        const dayLabel = dateObj.toLocaleDateString(undefined, { weekday: 'short', month: 'numeric', day: 'numeric' });
+                        const isCurrent = d.date === todayDate;
+
+                        return (
+                          <tr key={d.date} className={`hover:bg-surface-200/40 transition-colors ${isCurrent ? 'bg-brand-500/5' : ''}`}>
+                            <td className="py-3 px-2 text-foreground font-bold">
+                              <span className={isCurrent ? 'text-brand-400' : ''}>{dayLabel}</span>
+                            </td>
+                            <td className="py-3 px-2">
+                              {d.calories > 0 ? (
+                                <span className={d.calories <= profile.daily_calorie_target ? 'text-brand-400 font-bold' : 'text-amber-400'}>
+                                  {d.calories} kcal
+                                </span>
+                              ) : (
+                                <span className="text-zinc-600">—</span>
+                              )}
+                            </td>
+                            <td className="py-3 px-2">
+                              {d.protein > 0 ? (
+                                <span className="text-cyan-400">{d.protein}g</span>
+                              ) : (
+                                <span className="text-zinc-600">—</span>
+                              )}
+                            </td>
+                            <td className="py-3 px-2">
+                              {d.hasWorkout ? (
+                                <span className="inline-flex items-center gap-1 text-brand-400 font-bold">
+                                  <Check className="w-3.5 h-3.5" /> Yes
+                                </span>
+                              ) : (
+                                <span className="text-zinc-500">Rest</span>
+                              )}
+                            </td>
+                            <td className="py-3 px-2">
+                              {d.steps > 0 ? (
+                                <span className="text-emerald-400">{d.steps.toLocaleString()}</span>
+                              ) : (
+                                <span className="text-zinc-600">—</span>
+                              )}
+                            </td>
+                            <td className="py-3 px-2">
+                              {d.weightKg !== null ? (
+                                <span className="text-foreground font-bold">
+                                  {isImperial ? `${kgToLbs(d.weightKg)} lbs` : `${d.weightKg} kg`}
+                                </span>
+                              ) : (
+                                <span className="text-zinc-600">—</span>
+                              )}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* 3. MONTHLY REVIEW */}
+          {activeReportType === 'monthly' && (
+            <div className="space-y-6">
+              {/* Month Navigation */}
+              <div className="p-4 rounded-3xl bg-surface-100/90 border border-surface-border backdrop-blur-xl flex flex-wrap items-center justify-between gap-3">
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => handleShiftReportMonth(-1)}
+                    className="p-2 rounded-xl bg-surface-200 hover:bg-surface-300 text-zinc-300 transition-all cursor-pointer"
+                    title="Previous Month"
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                  </button>
+                  <input
+                    type="month"
+                    value={reportMonth}
+                    onChange={(e) => setReportMonth(e.target.value)}
+                    className="px-3 py-1.5 rounded-xl bg-surface-200 border border-surface-border font-mono text-xs font-bold text-foreground focus:outline-none focus:border-brand-500"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => handleShiftReportMonth(1)}
+                    className="p-2 rounded-xl bg-surface-200 hover:bg-surface-300 text-zinc-300 transition-all cursor-pointer"
+                    title="Next Month"
+                  >
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setReportMonth((selectedDate || todayDate).substring(0, 7))}
+                  className="px-3 py-1 rounded-lg text-xs font-bold bg-brand-500/15 text-brand-400 border border-brand-500/30 hover:bg-brand-500/25 transition-all cursor-pointer"
+                >
+                  This Month
+                </button>
+              </div>
+
+              {/* Monthly Takeaway */}
+              <div className="p-5 md:p-6 rounded-3xl bg-gradient-to-br from-purple-500/10 via-surface-100 to-brand-500/10 border border-purple-500/20 backdrop-blur-xl flex items-start gap-4">
+                <div className="w-10 h-10 rounded-2xl bg-purple-500/20 border border-purple-500/30 flex items-center justify-center shrink-0 text-purple-400">
+                  <Award className="w-5 h-5" />
+                </div>
+                <div className="space-y-1">
+                  <div className="text-xs font-bold uppercase tracking-wider text-purple-400">Monthly Milestones & Recap</div>
+                  <p className="text-sm text-foreground leading-relaxed">{monthlyData.insight}</p>
+                </div>
+              </div>
+
+              {/* 5 Monthly Metric Cards */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+                <div className="p-4 rounded-2xl bg-surface-100/90 border border-surface-border">
+                  <div className="text-[11px] text-zinc-400 font-bold">Days Tracked</div>
+                  <div className="text-xl font-black font-mono text-foreground mt-1">
+                    {monthlyData.daysLogged} / {monthlyData.totalDays}
+                  </div>
+                  <div className="text-[10px] text-zinc-400 mt-1">
+                    {Math.round((monthlyData.daysLogged / monthlyData.totalDays) * 100)}% adherence
+                  </div>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-surface-100/90 border border-surface-border">
+                  <div className="text-[11px] text-zinc-400 font-bold">Workouts Completed</div>
+                  <div className="text-xl font-black font-mono text-brand-400 mt-1">
+                    {monthlyData.totalWorkouts} sessions
+                  </div>
+                  <div className="text-[10px] text-zinc-400 mt-1">{formatVolume(monthlyData.totalVolumeLbs)} volume</div>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-surface-100/90 border border-surface-border">
+                  <div className="text-[11px] text-zinc-400 font-bold">Walking Distance</div>
+                  <div className="text-xl font-black font-mono text-emerald-400 mt-1">
+                    {monthlyData.totalMiles} mi
+                  </div>
+                  <div className="text-[10px] text-zinc-400 mt-1">{monthlyData.totalSteps.toLocaleString()} steps</div>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-surface-100/90 border border-surface-border">
+                  <div className="text-[11px] text-zinc-400 font-bold">Avg Intake</div>
+                  <div className="text-xl font-black font-mono text-amber-400 mt-1">
+                    {monthlyData.avgDailyCalories > 0 ? monthlyData.avgDailyCalories.toLocaleString() : '—'}
+                  </div>
+                  <div className="text-[10px] text-zinc-400 mt-1">{monthlyData.avgDailyProtein}g protein/day</div>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-surface-100/90 border border-surface-border">
+                  <div className="text-[11px] text-zinc-400 font-bold">Net Scale Shift</div>
+                  <div className={`text-xl font-black font-mono mt-1 ${
+                    monthlyData.weightChangeLbs !== null
+                      ? monthlyData.weightChangeLbs <= 0
+                        ? 'text-brand-400'
+                        : 'text-amber-400'
+                      : 'text-zinc-400'
+                  }`}>
+                    {formatDelta(monthlyData.weightChangeLbs)}
+                  </div>
+                  <div className="text-[10px] text-zinc-400 mt-1">Monthly start to end</div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* 4. YEARLY & ALL-TIME */}
+          {activeReportType === 'yearly' && (
+            <div className="space-y-6">
+              {/* Year Navigation */}
+              <div className="p-4 rounded-3xl bg-surface-100/90 border border-surface-border backdrop-blur-xl flex flex-wrap items-center justify-between gap-3">
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => handleShiftReportYear(-1)}
+                    className="p-2 rounded-xl bg-surface-200 hover:bg-surface-300 text-zinc-300 transition-all cursor-pointer"
+                    title="Previous Year"
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                  </button>
+                  <span className="px-4 py-1.5 rounded-xl bg-surface-200 border border-surface-border font-mono text-sm font-black text-foreground">
+                    Year {reportYear}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => handleShiftReportYear(1)}
+                    className="p-2 rounded-xl bg-surface-200 hover:bg-surface-300 text-zinc-300 transition-all cursor-pointer"
+                    title="Next Year"
+                  >
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                </div>
+                <span className="text-xs text-brand-400 font-bold">
+                  Annual Cumulative History
+                </span>
+              </div>
+
+              {/* Annual Insight */}
+              <div className="p-5 md:p-6 rounded-3xl bg-gradient-to-br from-amber-500/10 via-surface-100 to-brand-500/10 border border-amber-500/20 backdrop-blur-xl flex items-start gap-4">
+                <div className="w-10 h-10 rounded-2xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center shrink-0 text-amber-400">
+                  <Trophy className="w-5 h-5" />
+                </div>
+                <div className="space-y-1">
+                  <div className="text-xs font-bold uppercase tracking-wider text-amber-400">Annual Achievement Summary</div>
+                  <p className="text-sm text-foreground leading-relaxed">{yearlyData.insight}</p>
+                </div>
+              </div>
+
+              {/* 5 Annual Lifetime Cards */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+                <div className="p-4 rounded-2xl bg-surface-100/90 border border-surface-border">
+                  <div className="text-[11px] text-zinc-400 font-bold">Volume Lifted</div>
+                  <div className="text-xl font-black font-mono text-brand-400 mt-1">
+                    {formatVolume(yearlyData.totalVolumeLbs)}
+                  </div>
+                  <div className="text-[10px] text-zinc-400 mt-1">Total barbell & dumbbell tonnage</div>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-surface-100/90 border border-surface-border">
+                  <div className="text-[11px] text-zinc-400 font-bold">Total Miles</div>
+                  <div className="text-xl font-black font-mono text-emerald-400 mt-1">
+                    {yearlyData.totalMiles.toLocaleString()} mi
+                  </div>
+                  <div className="text-[10px] text-zinc-400 mt-1">{yearlyData.totalSteps.toLocaleString()} steps</div>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-surface-100/90 border border-surface-border">
+                  <div className="text-[11px] text-zinc-400 font-bold">Active Habit Days</div>
+                  <div className="text-xl font-black font-mono text-foreground mt-1">
+                    {yearlyData.activeDaysCount} days
+                  </div>
+                  <div className="text-[10px] text-zinc-400 mt-1">Recorded in health logs</div>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-surface-100/90 border border-surface-border">
+                  <div className="text-[11px] text-zinc-400 font-bold">Workouts</div>
+                  <div className="text-xl font-black font-mono text-cyan-400 mt-1">
+                    {yearlyData.totalWorkouts} sessions
+                  </div>
+                  <div className="text-[10px] text-zinc-400 mt-1">Gym & bodyweight</div>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-surface-100/90 border border-surface-border">
+                  <div className="text-[11px] text-zinc-400 font-bold">Net Scale Shift</div>
+                  <div className={`text-xl font-black font-mono mt-1 ${
+                    yearlyData.netWeightChangeLbs !== null
+                      ? yearlyData.netWeightChangeLbs <= 0
+                        ? 'text-brand-400'
+                        : 'text-amber-400'
+                      : 'text-zinc-400'
+                  }`}>
+                    {formatDelta(yearlyData.netWeightChangeLbs)}
+                  </div>
+                  <div className="text-[10px] text-zinc-400 mt-1">Year start to current</div>
+                </div>
+              </div>
+
+              {/* 12-Month Grid */}
+              <div className="p-6 rounded-3xl bg-surface-100/90 border border-surface-border backdrop-blur-xl space-y-4">
+                <h3 className="text-sm font-bold text-foreground">12-Month Year Activity Distribution</h3>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+                  {yearlyData.monthsData.map((m) => (
+                    <div key={m.monthName} className="p-3.5 rounded-2xl bg-surface-200/50 border border-surface-border space-y-1 text-center">
+                      <div className="text-xs font-black text-foreground">{m.monthName}</div>
+                      <div className="text-xs font-mono text-brand-400 font-bold">{m.workoutsCount} workouts</div>
+                      <div className="text-[10px] text-zinc-400 font-mono">
+                        {m.avgCalories > 0 ? `${m.avgCalories} kcal` : 'No food logs'}
+                      </div>
+                      <div className="text-[10px] text-emerald-400 font-mono">
+                        {m.stepsCount > 0 ? `${m.stepsCount.toLocaleString()} steps` : '—'}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Weight & Biometrics Tracker Section */}
+      {activeSection === 'weight_tracker' && (
+        <div className="space-y-6 md:space-y-8 animate-fadeIn">
+          {/* Metric Cards Summary */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* Card 1: Current Weight */}
+            <div className="p-5 rounded-3xl bg-surface-100/90 border border-surface-border backdrop-blur-xl flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between text-xs font-semibold text-zinc-400">
               <span>Current Weight</span>
@@ -877,6 +1687,8 @@ export const ProgressTrends: React.FC = () => {
               </div>
             </div>
           </div>
+        </div>
+      )}
         </div>
       )}
 

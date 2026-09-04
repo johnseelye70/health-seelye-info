@@ -67,12 +67,93 @@ interface HealthContextType {
   logFood: (entry: Omit<FoodLogEntry, 'id' | 'created_at' | 'calories' | 'protein_g' | 'carbs_g' | 'fat_g'> & { food: FoodItem }) => string;
   deleteFoodLog: (id: string) => void;
   
-  // Calculated Nutrition State
+  // Calculated Nutrition State (Today & Date-Selectable)
   todayDate: string;
   currentDayFoodLogs: FoodLogEntry[];
   todayMacros: { calories: number; protein: number; carbs: number; fat: number };
   todayRemaining: { calories: number; protein: number; carbs: number; fat: number };
   mealSplitTargets: MealSplitTarget[];
+
+  // Selected Date Navigation for Food Diary & Daily History
+  selectedDate: string;
+  setSelectedDate: (dateStr: string) => void;
+  selectedDayFoodLogs: FoodLogEntry[];
+  selectedDayMacros: { calories: number; protein: number; carbs: number; fat: number };
+  selectedDayRemaining: { calories: number; protein: number; carbs: number; fat: number };
+  copyDayFoodLogs: (fromDateStr: string, toDateStr: string) => number;
+  quickLogCalories: (name: string, calories: number, mealIndex: number, dateStr?: string, protein?: number, carbs?: number, fat?: number) => string;
+
+  // Cross-Referenced Reports & History
+  getDailyReport: (dateStr: string) => {
+    date: string;
+    foodLogs: FoodLogEntry[];
+    macros: { calories: number; protein: number; carbs: number; fat: number };
+    caloriesTarget: number;
+    proteinTarget: number;
+    workouts: WorkoutSessionLog[];
+    totalVolumeLbs: number;
+    totalSets: number;
+    workoutMinutes: number;
+    steps: number;
+    stepMiles: number;
+    stepCalories: number;
+    waterOz: number;
+    waterGoalOz: number;
+    weightKg: number | null;
+  };
+  getWeeklyReport: (endDateStr?: string) => {
+    startDate: string;
+    endDate: string;
+    days: Array<{
+      date: string;
+      calories: number;
+      protein: number;
+      steps: number;
+      waterOz: number;
+      hasWorkout: boolean;
+      weightKg: number | null;
+    }>;
+    avgCalories: number;
+    avgProtein: number;
+    avgSteps: number;
+    totalWorkouts: number;
+    totalVolumeLbs: number;
+    totalWaterOz: number;
+    weightChangeLbs: number | null;
+    adherenceScore: number;
+    insight: string;
+  };
+  getMonthlyReport: (yearMonthStr?: string) => {
+    monthStr: string;
+    totalDays: number;
+    daysLogged: number;
+    avgDailyCalories: number;
+    avgDailyProtein: number;
+    totalSteps: number;
+    totalMiles: number;
+    totalWorkouts: number;
+    totalVolumeLbs: number;
+    startWeightKg: number | null;
+    endWeightKg: number | null;
+    weightChangeLbs: number | null;
+    insight: string;
+  };
+  getYearlyReport: (yearStr?: string) => {
+    yearStr: string;
+    totalWorkouts: number;
+    totalVolumeLbs: number;
+    totalSteps: number;
+    totalMiles: number;
+    activeDaysCount: number;
+    netWeightChangeLbs: number | null;
+    monthsData: Array<{
+      monthName: string;
+      avgCalories: number;
+      workoutsCount: number;
+      stepsCount: number;
+    }>;
+    insight: string;
+  };
   
   // Fasting State
   fastingStatus: FastingStatus;
@@ -226,6 +307,7 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const todayDate = useMemo(() => getLocalDateString(), [getLocalDateString]);
+  const [selectedDate, setSelectedDate] = useState<string>(() => getLocalDateString());
   
   // Real-time ticking for fasting timer
   const [nowTick, setNowTick] = useState<number>(Date.now());
@@ -1063,6 +1145,339 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
       fat: Math.max(0, profile.fat_target_g - todayMacros.fat),
     };
   }, [profile, todayMacros]);
+
+  // Compute Selected Day's Food Logs & Macros (MyFitnessPal date-selectable diary)
+  const selectedDayFoodLogs = useMemo(() => {
+    return foodLogs.filter((log) => log.logged_at === selectedDate);
+  }, [foodLogs, selectedDate]);
+
+  const selectedDayMacros = useMemo(() => {
+    return selectedDayFoodLogs.reduce(
+      (acc, item) => ({
+        calories: Math.round(acc.calories + item.calories),
+        protein: Math.round(acc.protein + item.protein_g),
+        carbs: Math.round(acc.carbs + item.carbs_g),
+        fat: Math.round(acc.fat + item.fat_g),
+      }),
+      { calories: 0, protein: 0, carbs: 0, fat: 0 }
+    );
+  }, [selectedDayFoodLogs]);
+
+  const selectedDayRemaining = useMemo(() => {
+    return {
+      calories: Math.max(0, profile.daily_calorie_target - selectedDayMacros.calories),
+      protein: Math.max(0, profile.protein_target_g - selectedDayMacros.protein),
+      carbs: Math.max(0, profile.carb_target_g - selectedDayMacros.carbs),
+      fat: Math.max(0, profile.fat_target_g - selectedDayMacros.fat),
+    };
+  }, [profile, selectedDayMacros]);
+
+  const copyDayFoodLogs = useCallback((fromDateStr: string, toDateStr: string) => {
+    const logsToCopy = foodLogs.filter((l) => l.logged_at === fromDateStr);
+    if (logsToCopy.length === 0) return 0;
+
+    const newLogs: FoodLogEntry[] = logsToCopy.map((log, idx) => ({
+      ...log,
+      id: `copy-${Date.now()}-${idx}-${Math.random().toString(36).substr(2, 4)}`,
+      logged_at: toDateStr,
+      created_at: new Date().toISOString(),
+    }));
+
+    setFoodLogs((prev) => [...newLogs, ...prev]);
+    return newLogs.length;
+  }, [foodLogs]);
+
+  const quickLogCalories = useCallback((
+    name: string,
+    calories: number,
+    mealIndex: number,
+    dateStr?: string,
+    protein?: number,
+    carbs?: number,
+    fat?: number
+  ) => {
+    const targetDate = dateStr || selectedDate || todayDate;
+    const p = protein ?? Math.round((calories * 0.25) / 4);
+    const c = carbs ?? Math.round((calories * 0.5) / 4);
+    const f = fat ?? Math.round((calories * 0.25) / 9);
+
+    const quickFood: FoodItem = {
+      id: `quick-${Date.now()}`,
+      name: name.trim() || 'Quick Food Log',
+      category: 'grains_carbs',
+      calories_per_100g: calories,
+      protein_per_100g: p,
+      carbs_per_100g: c,
+      fat_per_100g: f,
+      is_gluten_free: false,
+      is_dairy_free: false,
+      serving_size_g: 100,
+      default_unit: 'serving',
+      storage_type: 'pantry_monthly',
+    };
+
+    const newEntry: FoodLogEntry = {
+      id: `log-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
+      user_id: profile.id,
+      food_id: quickFood.id,
+      food_name: quickFood.name,
+      grams_consumed: 100,
+      meal_index: mealIndex,
+      logged_at: targetDate,
+      calories,
+      protein_g: p,
+      carbs_g: c,
+      fat_g: f,
+      created_at: new Date().toISOString(),
+    };
+
+    setFoodLogs((prev) => [newEntry, ...prev]);
+    return newEntry.id;
+  }, [selectedDate, todayDate, profile.id]);
+
+  // Comprehensive Cross-Referenced Reporting Engines
+  const getDailyReport = useCallback((dateStr: string) => {
+    const dayFoods = foodLogs.filter((l) => l.logged_at === dateStr);
+    const macros = dayFoods.reduce(
+      (acc, item) => ({
+        calories: Math.round(acc.calories + item.calories),
+        protein: Math.round(acc.protein + item.protein_g),
+        carbs: Math.round(acc.carbs + item.carbs_g),
+        fat: Math.round(acc.fat + item.fat_g),
+      }),
+      { calories: 0, protein: 0, carbs: 0, fat: 0 }
+    );
+
+    const dayWorkouts = workoutLogs.filter((w) => w.logged_date === dateStr);
+    const totalVolumeLbs = dayWorkouts.reduce((sum, w) => sum + (w.total_volume_lbs || 0), 0);
+    const totalSets = dayWorkouts.reduce((sum, w) => sum + (w.total_sets_completed || 0), 0);
+    const workoutMinutes = dayWorkouts.reduce((sum, w) => sum + (w.duration_minutes || 0), 0);
+
+    const dayStepLogs = stepLogs.filter(
+      (s) => s.logged_at === dateStr || s.logged_at.startsWith(dateStr)
+    );
+    const steps = dayStepLogs.length > 0 ? Math.max(...dayStepLogs.map((s) => s.steps)) : 0;
+    const stepMiles = Number((steps * 0.00045).toFixed(2));
+    const stepCalories = Math.round(steps * 0.04);
+
+    const dayWaterLogs = waterLogs.filter((w) => w.logged_at.startsWith(dateStr));
+    const waterOz = dayWaterLogs.reduce((sum, w) => sum + w.amount_oz, 0);
+
+    const weightLog = weightLogs.find((w) => w.logged_at === dateStr || w.logged_at.startsWith(dateStr));
+
+    return {
+      date: dateStr,
+      foodLogs: dayFoods,
+      macros,
+      caloriesTarget: profile.daily_calorie_target,
+      proteinTarget: profile.protein_target_g,
+      workouts: dayWorkouts,
+      totalVolumeLbs,
+      totalSets,
+      workoutMinutes,
+      steps,
+      stepMiles,
+      stepCalories,
+      waterOz,
+      waterGoalOz,
+      weightKg: weightLog ? weightLog.weight_kg : null,
+    };
+  }, [foodLogs, workoutLogs, stepLogs, waterLogs, weightLogs, profile.daily_calorie_target, profile.protein_target_g, waterGoalOz]);
+
+  const getWeeklyReport = useCallback((endDateStr?: string) => {
+    const targetEnd = endDateStr || selectedDate || todayDate;
+    const endD = new Date(targetEnd + 'T12:00:00');
+    const dayList: string[] = [];
+
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(endD);
+      d.setDate(d.getDate() - i);
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      dayList.push(`${y}-${m}-${day}`);
+    }
+
+    const days = dayList.map((dt) => {
+      const r = getDailyReport(dt);
+      return {
+        date: dt,
+        calories: r.macros.calories,
+        protein: r.macros.protein,
+        steps: r.steps,
+        waterOz: r.waterOz,
+        hasWorkout: r.workouts.length > 0,
+        weightKg: r.weightKg,
+      };
+    });
+
+    const loggedCalDays = days.filter((d) => d.calories > 0);
+    const avgCalories = loggedCalDays.length > 0 ? Math.round(loggedCalDays.reduce((s, d) => s + d.calories, 0) / loggedCalDays.length) : 0;
+    const avgProtein = loggedCalDays.length > 0 ? Math.round(loggedCalDays.reduce((s, d) => s + d.protein, 0) / loggedCalDays.length) : 0;
+    const avgSteps = Math.round(days.reduce((s, d) => s + d.steps, 0) / 7);
+    const totalWorkouts = days.filter((d) => d.hasWorkout).length;
+    const totalVolumeLbs = workoutLogs
+      .filter((w) => dayList.includes(w.logged_date))
+      .reduce((sum, w) => sum + (w.total_volume_lbs || 0), 0);
+    const totalWaterOz = days.reduce((s, d) => s + d.waterOz, 0);
+
+    const weightsWithDate = days.filter((d) => d.weightKg !== null).map((d) => d.weightKg as number);
+    let weightChangeLbs: number | null = null;
+    if (weightsWithDate.length >= 2) {
+      const first = weightsWithDate[0];
+      const last = weightsWithDate[weightsWithDate.length - 1];
+      weightChangeLbs = Number(((last - first) * 2.20462).toFixed(1));
+    }
+
+    let adherencePoints = 0;
+    if (loggedCalDays.length >= 5) adherencePoints += 40;
+    else adherencePoints += loggedCalDays.length * 8;
+    if (totalWorkouts >= 3) adherencePoints += 30;
+    else adherencePoints += totalWorkouts * 10;
+    if (avgSteps >= stepGoal * 0.8) adherencePoints += 30;
+    else adherencePoints += Math.round((avgSteps / (stepGoal || 10000)) * 30);
+
+    const adherenceScore = Math.min(100, Math.max(0, adherencePoints));
+
+    let insight = 'Great start! Log your daily meals and hit your hydration target to establish a reliable baseline.';
+    if (totalWorkouts >= 3 && avgProtein >= profile.protein_target_g * 0.8) {
+      insight = `Outstanding week! You completed ${totalWorkouts} workouts and kept average protein high at ${avgProtein}g. Your muscle recovery and metabolic rate are well primed.`;
+    } else if (avgSteps >= 8000) {
+      insight = `Strong active movement with ${avgSteps.toLocaleString()} daily steps on average. Keep prioritizing consistent protein at every meal.`;
+    } else if (loggedCalDays.length >= 4) {
+      insight = `Consistent food tracking this week! Your average intake was ${avgCalories.toLocaleString()} kcal against your ${profile.daily_calorie_target} kcal goal.`;
+    }
+
+    return {
+      startDate: dayList[0],
+      endDate: dayList[6],
+      days,
+      avgCalories,
+      avgProtein,
+      avgSteps,
+      totalWorkouts,
+      totalVolumeLbs,
+      totalWaterOz,
+      weightChangeLbs,
+      adherenceScore,
+      insight,
+    };
+  }, [selectedDate, todayDate, getDailyReport, workoutLogs, stepGoal, profile.protein_target_g, profile.daily_calorie_target]);
+
+  const getMonthlyReport = useCallback((yearMonthStr?: string) => {
+    const ym = yearMonthStr || (selectedDate || todayDate).substring(0, 7);
+    const [yearNum, monthNum] = ym.split('-').map(Number);
+    const daysInMonth = new Date(yearNum, monthNum, 0).getDate();
+
+    let daysLogged = 0;
+    let totalCals = 0;
+    let totalProt = 0;
+    let totalSteps = 0;
+    const monthWorkouts = workoutLogs.filter((w) => w.logged_date && w.logged_date.startsWith(ym));
+    const totalVolumeLbs = monthWorkouts.reduce((s, w) => s + (w.total_volume_lbs || 0), 0);
+
+    for (let day = 1; day <= daysInMonth; day++) {
+      const dt = `${ym}-${String(day).padStart(2, '0')}`;
+      const dayLogs = foodLogs.filter((l) => l.logged_at === dt);
+      if (dayLogs.length > 0) {
+        daysLogged++;
+        totalCals += dayLogs.reduce((s, l) => s + l.calories, 0);
+        totalProt += dayLogs.reduce((s, l) => s + l.protein_g, 0);
+      }
+      const daySteps = stepLogs.filter((s) => s.logged_at === dt || s.logged_at.startsWith(dt));
+      if (daySteps.length > 0) {
+        totalSteps += Math.max(...daySteps.map((s) => s.steps));
+      }
+    }
+
+    const avgDailyCalories = daysLogged > 0 ? Math.round(totalCals / daysLogged) : 0;
+    const avgDailyProtein = daysLogged > 0 ? Math.round(totalProt / daysLogged) : 0;
+    const totalMiles = Number((totalSteps * 0.00045).toFixed(1));
+
+    const monthWeights = weightLogs
+      .filter((w) => w.logged_at && w.logged_at.startsWith(ym))
+      .sort((a, b) => new Date(a.logged_at).getTime() - new Date(b.logged_at).getTime());
+
+    const startWeightKg = monthWeights.length > 0 ? monthWeights[0].weight_kg : null;
+    const endWeightKg = monthWeights.length > 0 ? monthWeights[monthWeights.length - 1].weight_kg : null;
+    const weightChangeLbs =
+      startWeightKg !== null && endWeightKg !== null
+        ? Number(((endWeightKg - startWeightKg) * 2.20462).toFixed(1))
+        : null;
+
+    let insight = `Logged ${daysLogged} days this month with ${monthWorkouts.length} completed workout sessions.`;
+    if (weightChangeLbs !== null && weightChangeLbs < 0) {
+      insight += ` Down ${Math.abs(weightChangeLbs)} lbs for the month with consistent caloric discipline!`;
+    } else if (totalMiles >= 30) {
+      insight += ` Covered ${totalMiles} total walking miles, showing great overall cardiovascular base.`;
+    }
+
+    return {
+      monthStr: ym,
+      totalDays: daysInMonth,
+      daysLogged,
+      avgDailyCalories,
+      avgDailyProtein,
+      totalSteps,
+      totalMiles,
+      totalWorkouts: monthWorkouts.length,
+      totalVolumeLbs,
+      startWeightKg,
+      endWeightKg,
+      weightChangeLbs,
+      insight,
+    };
+  }, [selectedDate, todayDate, workoutLogs, foodLogs, stepLogs, weightLogs]);
+
+  const getYearlyReport = useCallback((yearStr?: string) => {
+    const yr = yearStr || (selectedDate || todayDate).substring(0, 4);
+    const yrWorkouts = workoutLogs.filter((w) => w.logged_date && w.logged_date.startsWith(yr));
+    const totalVolumeLbs = yrWorkouts.reduce((s, w) => s + (w.total_volume_lbs || 0), 0);
+
+    const yrStepLogs = stepLogs.filter((s) => s.logged_at && s.logged_at.startsWith(yr));
+    const totalSteps = yrStepLogs.reduce((s, entry) => s + entry.steps, 0);
+    const totalMiles = Number((totalSteps * 0.00045).toFixed(1));
+
+    const activeDaysSet = new Set<string>();
+    foodLogs.forEach((l) => { if (l.logged_at && l.logged_at.startsWith(yr)) activeDaysSet.add(l.logged_at); });
+    workoutLogs.forEach((w) => { if (w.logged_date && w.logged_date.startsWith(yr)) activeDaysSet.add(w.logged_date); });
+    stepLogs.forEach((s) => { if (s.logged_at && s.logged_at.startsWith(yr)) activeDaysSet.add(s.logged_at.split('T')[0]); });
+
+    const yrWeights = weightLogs
+      .filter((w) => w.logged_at && w.logged_at.startsWith(yr))
+      .sort((a, b) => new Date(a.logged_at).getTime() - new Date(b.logged_at).getTime());
+
+    const startW = yrWeights.length > 0 ? yrWeights[0].weight_kg : null;
+    const endW = yrWeights.length > 0 ? yrWeights[yrWeights.length - 1].weight_kg : null;
+    const netWeightChangeLbs = startW !== null && endW !== null ? Number(((endW - startW) * 2.20462).toFixed(1)) : null;
+
+    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const monthsData = monthNames.map((name, idx) => {
+      const mStr = `${yr}-${String(idx + 1).padStart(2, '0')}`;
+      const mFoods = foodLogs.filter((l) => l.logged_at && l.logged_at.startsWith(mStr));
+      const mWorkouts = workoutLogs.filter((w) => w.logged_date && w.logged_date.startsWith(mStr));
+      const mSteps = stepLogs.filter((s) => s.logged_at && s.logged_at.startsWith(mStr));
+      const avgCalories = mFoods.length > 0 ? Math.round(mFoods.reduce((s, l) => s + l.calories, 0) / (mFoods.length || 1)) : 0;
+      return {
+        monthName: name,
+        avgCalories,
+        workoutsCount: mWorkouts.length,
+        stepsCount: mSteps.reduce((s, e) => s + e.steps, 0),
+      };
+    });
+
+    return {
+      yearStr: yr,
+      totalWorkouts: yrWorkouts.length,
+      totalVolumeLbs,
+      totalSteps,
+      totalMiles,
+      activeDaysCount: activeDaysSet.size,
+      netWeightChangeLbs,
+      monthsData,
+      insight: `Cumulative annual activity: ${yrWorkouts.length} strength & conditioning sessions, ${totalVolumeLbs.toLocaleString()} lbs lifted, and ${activeDaysSet.size} active habit days logged!`,
+    };
+  }, [selectedDate, todayDate, workoutLogs, stepLogs, foodLogs, weightLogs]);
 
   const toggleUnitPreference = useCallback(() => {
     setProfile((prev) => ({
@@ -2014,6 +2429,17 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
         todayMacros,
         todayRemaining,
         mealSplitTargets,
+        selectedDate,
+        setSelectedDate,
+        selectedDayFoodLogs,
+        selectedDayMacros,
+        selectedDayRemaining,
+        copyDayFoodLogs,
+        quickLogCalories,
+        getDailyReport,
+        getWeeklyReport,
+        getMonthlyReport,
+        getYearlyReport,
         fastingStatus,
         updateFastingProtocol,
         notificationsEnabled,

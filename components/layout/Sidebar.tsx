@@ -52,14 +52,14 @@ export const Sidebar: React.FC = () => {
         { id: 'trends', label: 'Progress & Goals', icon: TrendingUp, color: 'text-accent-cyan', activeBg: 'bg-accent-cyan/15 border-accent-cyan/40 text-accent-cyan', badge: null },
       ] as const)
     : ([
-        { id: 'dashboard', label: 'Command Dashboard', icon: LayoutDashboard, color: 'text-brand-400', activeBg: 'bg-brand-500/15 border-brand-500/40 text-brand-400', badge: null },
+        { id: 'dashboard', label: 'Dashboard Overview', icon: LayoutDashboard, color: 'text-brand-400', activeBg: 'bg-brand-500/15 border-brand-500/40 text-brand-400', badge: null },
         { id: 'planner', label: '90-Day Master Schedule', icon: Calendar, color: 'text-brand-400', activeBg: 'bg-brand-500/15 border-brand-500/40 text-brand-400', badge: 'Forward' },
-        { id: 'nutrition', label: 'Macro Split & Foods', icon: UtensilsCrossed, color: 'text-accent-amber', activeBg: 'bg-accent-amber/15 border-accent-amber/40 text-accent-amber', badge: `${profile.meal_count} Meals` },
-        { id: 'fasting', label: 'Fasting Telemetry', icon: Timer, color: 'text-accent-purple', activeBg: 'bg-accent-purple/15 border-accent-purple/40 text-accent-purple', badge: fastingStatus.isFasting ? 'Fasting' : 'Eating Window' },
-        { id: 'workouts', label: 'Workout Split & Math', icon: Dumbbell, color: 'text-accent-coral', activeBg: 'bg-accent-coral/15 border-accent-coral/40 text-accent-coral', badge: '4-Week' },
+        { id: 'nutrition', label: 'Food Diary & Nutrition', icon: UtensilsCrossed, color: 'text-accent-amber', activeBg: 'bg-accent-amber/15 border-accent-amber/40 text-accent-amber', badge: `${profile.meal_count} Meals` },
+        { id: 'fasting', label: 'Fasting Timer', icon: Timer, color: 'text-accent-purple', activeBg: 'bg-accent-purple/15 border-accent-purple/40 text-accent-purple', badge: fastingStatus.isFasting ? 'Fasting' : 'Eating Window' },
+        { id: 'workouts', label: 'Workouts & Training', icon: Dumbbell, color: 'text-accent-coral', activeBg: 'bg-accent-coral/15 border-accent-coral/40 text-accent-coral', badge: '4-Week' },
         { id: 'grocery', label: 'Shopping List & Pantry', icon: ShoppingCart, color: 'text-accent-emerald', activeBg: 'bg-accent-emerald/15 border-accent-emerald/40 text-accent-emerald', badge: unpurchasedGroceryCount > 0 ? `${unpurchasedGroceryCount}` : 'Auto' },
-        { id: 'trends', label: 'Biometric Analytics', icon: TrendingUp, color: 'text-accent-cyan', activeBg: 'bg-accent-cyan/15 border-accent-cyan/40 text-accent-cyan', badge: null },
-        { id: 'settings', label: 'BMR & System Settings', icon: SlidersHorizontal, color: 'text-indigo-400', activeBg: 'bg-indigo-500/15 border-indigo-500/40 text-indigo-400', badge: null },
+        { id: 'trends', label: 'Reports & Trends', icon: TrendingUp, color: 'text-accent-cyan', activeBg: 'bg-accent-cyan/15 border-accent-cyan/40 text-accent-cyan', badge: null },
+        { id: 'settings', label: 'Profile & Settings', icon: SlidersHorizontal, color: 'text-indigo-400', activeBg: 'bg-indigo-500/15 border-indigo-500/40 text-indigo-400', badge: null },
       ] as const);
 
   return (

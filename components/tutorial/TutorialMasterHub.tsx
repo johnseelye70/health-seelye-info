@@ -22,6 +22,11 @@ import {
   ChevronRight,
   FileText,
   Scale,
+  Clock,
+  Layers,
+  Calendar,
+  BarChart3,
+  Trophy,
 } from 'lucide-react';
 
 type TutorialTrack = 'standard' | 'advanced';
@@ -421,6 +426,32 @@ export const TutorialMasterHub: React.FC = () => {
                     </button>
                   </div>
                 </div>
+
+                {/* Real-World Daily Rhythm Callout */}
+                <div className="p-5 rounded-2xl bg-surface-200/50 border border-surface-border space-y-3">
+                  <h4 className="text-xs font-bold text-foreground uppercase tracking-wider flex items-center gap-2">
+                    <Clock className="w-4 h-4 text-brand-400" />
+                    <span>A Day in the Life: Simple Daily Flow</span>
+                  </h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+                    <div className="p-3 rounded-xl bg-surface-100 border border-surface-border/60 space-y-1">
+                      <div className="font-bold text-cyan-400">1. Morning (7 AM)</div>
+                      <p className="text-zinc-400 text-[11px]">Step on the scale, drink 16 oz water, and see your remaining fasting countdown.</p>
+                    </div>
+                    <div className="p-3 rounded-xl bg-surface-100 border border-surface-border/60 space-y-1">
+                      <div className="font-bold text-brand-400">2. Lunch (12 PM)</div>
+                      <p className="text-zinc-400 text-[11px]">Break your fast with high protein. Log meals in 1 tap or Quick Add.</p>
+                    </div>
+                    <div className="p-3 rounded-xl bg-surface-100 border border-surface-border/60 space-y-1">
+                      <div className="font-bold text-emerald-400">3. Afternoon (5 PM)</div>
+                      <p className="text-zinc-400 text-[11px]">Get your daily walk or gym workout in. Steps sync right from your phone or watch.</p>
+                    </div>
+                    <div className="p-3 rounded-xl bg-surface-100 border border-surface-border/60 space-y-1">
+                      <div className="font-bold text-purple-400">4. Evening (8 PM)</div>
+                      <p className="text-zinc-400 text-[11px]">Finish dinner, start your fasting clock, and review your day's reports.</p>
+                    </div>
+                  </div>
+                </div>
               </div>
             )}
 
@@ -491,6 +522,43 @@ export const TutorialMasterHub: React.FC = () => {
                       <span>Great job! Food is logged and your daily calories and progress rings are updated.</span>
                     </div>
                   )}
+                </div>
+
+                {/* Real-World Scenarios */}
+                <div className="p-5 rounded-2xl bg-surface-200/50 border border-surface-border space-y-3">
+                  <h4 className="text-xs font-bold text-foreground uppercase tracking-wider flex items-center gap-2">
+                    <UtensilsCrossed className="w-4 h-4 text-amber-400" />
+                    <span>Real-Life Scenarios: How to Log in Any Situation</span>
+                  </h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                    <div className="p-3.5 rounded-xl bg-surface-100 border border-surface-border/60 space-y-1.5">
+                      <div className="font-bold text-white flex items-center gap-1.5">
+                        <span>🥗</span>
+                        <span>Eating Out or Fast-Casual</span>
+                      </div>
+                      <p className="text-zinc-300 text-[11px] leading-relaxed">
+                        At Chipotle or a deli? Don't stress weighing grams. Tap <strong>Quick Add</strong>, type "Chipotle Burrito Bowl" and enter ~650 calories. Fast and accurate enough for 95% of results.
+                      </p>
+                    </div>
+                    <div className="p-3.5 rounded-xl bg-surface-100 border border-surface-border/60 space-y-1.5">
+                      <div className="font-bold text-white flex items-center gap-1.5">
+                        <span>⚡</span>
+                        <span>Creature of Habit / Leftovers</span>
+                      </div>
+                      <p className="text-zinc-300 text-[11px] leading-relaxed">
+                        Eat the same Greek yogurt breakfast or dinner leftovers every day? Tap <strong>Copy Yesterday's Meals</strong> to instantly duplicate all items to today in 1 click.
+                      </p>
+                    </div>
+                    <div className="p-3.5 rounded-xl bg-surface-100 border border-surface-border/60 space-y-1.5">
+                      <div className="font-bold text-white flex items-center gap-1.5">
+                        <span>📅</span>
+                        <span>Forgot to Log Yesterday?</span>
+                      </div>
+                      <p className="text-zinc-300 text-[11px] leading-relaxed">
+                        Life gets busy. Simply tap the <strong>&lt; Previous Day</strong> arrow in the Food Diary, enter what you ate, and your weekly reports stay 100% up to date.
+                      </p>
+                    </div>
+                  </div>
                 </div>
               </div>
             )}
@@ -606,6 +674,32 @@ export const TutorialMasterHub: React.FC = () => {
                     </div>
                   </div>
                 </div>
+
+                {/* Practical Step Advice */}
+                <div className="p-5 rounded-2xl bg-surface-200/50 border border-surface-border space-y-3">
+                  <h4 className="text-xs font-bold text-foreground uppercase tracking-wider flex items-center gap-2">
+                    <Footprints className="w-4 h-4 text-emerald-400" />
+                    <span>How to Hit 8,000–10,000 Steps Without Running a Marathon</span>
+                  </h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2.5 text-xs">
+                    <div className="p-3 rounded-xl bg-surface-100 border border-surface-border/60">
+                      <strong className="text-white block mb-0.5">Morning Stroll</strong>
+                      <span className="text-zinc-400 text-[11px]">15-minute neighborhood walk = ~1,800 steps.</span>
+                    </div>
+                    <div className="p-3 rounded-xl bg-surface-100 border border-surface-border/60">
+                      <strong className="text-white block mb-0.5">Phone Call Pacing</strong>
+                      <span className="text-zinc-400 text-[11px]">Stand and pace during calls = ~1,200 steps.</span>
+                    </div>
+                    <div className="p-3 rounded-xl bg-surface-100 border border-surface-border/60">
+                      <strong className="text-white block mb-0.5">Post-Lunch Walk</strong>
+                      <span className="text-zinc-400 text-[11px]">20-minute stroll = ~2,200 steps &amp; lowers blood sugar.</span>
+                    </div>
+                    <div className="p-3 rounded-xl bg-surface-100 border border-surface-border/60">
+                      <strong className="text-white block mb-0.5">Evening Wind Down</strong>
+                      <span className="text-zinc-400 text-[11px]">20 minutes with family/dog = ~2,500 steps.</span>
+                    </div>
+                  </div>
+                </div>
               </div>
             )}
 
@@ -699,6 +793,36 @@ export const TutorialMasterHub: React.FC = () => {
                     </div>
                   </div>
                 </div>
+
+                {/* Realistic Scale Fluctuations */}
+                <div className="p-5 rounded-2xl bg-surface-200/50 border border-surface-border space-y-3">
+                  <h4 className="text-xs font-bold text-foreground uppercase tracking-wider flex items-center gap-2">
+                    <Scale className="w-4 h-4 text-pink-400" />
+                    <span>Why Did the Scale Jump 2 Pounds Overnight? (And Why You Shouldn't Panic)</span>
+                  </h4>
+                  <div className="space-y-2 text-xs text-zinc-300 leading-relaxed">
+                    <p>
+                      A 2-lb spike on the scale does <strong>NOT</strong> mean you gained 2 lbs of fat overnight (gaining 1 lb of fat requires eating 3,500 surplus calories above maintenance!). Here is what really happens:
+                    </p>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-1">
+                      <div className="p-3 rounded-xl bg-surface-100 border border-surface-border/60">
+                        <strong className="text-amber-400 block mb-0.5">🧂 Sodium &amp; Water</strong>
+                        <span className="text-zinc-400 text-[11px]">Salty restaurant foods cause kidneys to temporarily retain water. It flushes out in 24–48 hours.</span>
+                      </div>
+                      <div className="p-3 rounded-xl bg-surface-100 border border-surface-border/60">
+                        <strong className="text-cyan-400 block mb-0.5">🍚 Carbohydrates</strong>
+                        <span className="text-zinc-400 text-[11px]">Each 1g of stored muscle glycogen binds 3g of water. It is cellular fuel in your muscles, not fat.</span>
+                      </div>
+                      <div className="p-3 rounded-xl bg-surface-100 border border-surface-border/60">
+                        <strong className="text-emerald-400 block mb-0.5">🏋️ Lifting Soreness</strong>
+                        <span className="text-zinc-400 text-[11px]">Intense resistance training causes micro-tears that hold healing fluids. This is healthy muscle recovery.</span>
+                      </div>
+                    </div>
+                    <p className="text-[11px] text-brand-400 font-bold pt-1">
+                      💡 <strong>Key takeaway:</strong> Look at your 7-Day and 30-Day Weekly/Monthly Reports under Trends. Long-term rolling trends are what matter, not daily noise.
+                    </p>
+                  </div>
+                </div>
               </div>
             )}
 
@@ -715,6 +839,35 @@ export const TutorialMasterHub: React.FC = () => {
                   <p className="text-xs md:text-sm text-zinc-300 leading-relaxed">
                     You understand everything you need to manage meals, fasting, steps, and grocery lists smoothly every single day.
                   </p>
+                </div>
+
+                {/* Reports Overview Feature Card */}
+                <div className="p-5 rounded-2xl bg-surface-200/50 border border-surface-border space-y-3 text-left max-w-xl mx-auto">
+                  <h4 className="text-xs font-bold text-foreground uppercase tracking-wider flex items-center gap-2">
+                    <BarChart3 className="w-4 h-4 text-brand-400" />
+                    <span>Your Historical Cross-Referenced Reports</span>
+                  </h4>
+                  <p className="text-xs text-zinc-300 leading-relaxed">
+                    Under the <strong>Progress &amp; Trends</strong> tab, you can view your entire journey cross-referenced across nutrition, workouts, walking, hydration, and weight:
+                  </p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs font-mono">
+                    <div className="p-2.5 rounded-xl bg-surface-100 border border-surface-border/60">
+                      <strong className="text-brand-400 block">📅 Daily Report</strong>
+                      <span className="text-[11px] text-zinc-400">Exact food log, workouts, and fluid balance for any date.</span>
+                    </div>
+                    <div className="p-2.5 rounded-xl bg-surface-100 border border-surface-border/60">
+                      <strong className="text-cyan-400 block">🗓️ Weekly Summary</strong>
+                      <span className="text-[11px] text-zinc-400">7-day rolling averages and consistency scores.</span>
+                    </div>
+                    <div className="p-2.5 rounded-xl bg-surface-100 border border-surface-border/60">
+                      <strong className="text-purple-400 block">📆 Monthly Review</strong>
+                      <span className="text-[11px] text-zinc-400">Total miles, workouts, and net scale shift.</span>
+                    </div>
+                    <div className="p-2.5 rounded-xl bg-surface-100 border border-surface-border/60">
+                      <strong className="text-amber-400 block">🏆 Yearly &amp; All-Time</strong>
+                      <span className="text-[11px] text-zinc-400">Lifetime iron tonnage, miles, and active habit days.</span>
+                    </div>
+                  </div>
                 </div>
 
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-4">

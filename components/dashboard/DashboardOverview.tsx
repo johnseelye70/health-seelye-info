@@ -90,44 +90,24 @@ export const DashboardOverview: React.FC = () => {
           <div>
             <div className="flex flex-wrap items-center gap-2 mb-2">
               <span className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-brand-500/20 text-brand-300 border border-brand-500/30 flex items-center gap-1.5">
-                {isStandard ? (
-                  <>
-                    <Sparkles className="w-3.5 h-3.5 text-brand-400" />
-                    <span>DAILY WELLNESS COMPANION</span>
-                  </>
-                ) : (
-                  <>
-                    <Flame className="w-3.5 h-3.5 text-brand-400" />
-                    <span>ADVANCED METRIC ENGINE</span>
-                  </>
-                )}
+                <Sparkles className="w-3.5 h-3.5 text-brand-400" />
+                <span>DAILY HEALTH & FITNESS COMPANION</span>
               </span>
               <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-surface-200 border border-surface-border text-brand-400">
                 {APP_VERSION_SHORT}
               </span>
               <span className="text-zinc-500 text-xs hidden sm:inline">•</span>
               <span className="text-zinc-400 text-xs font-mono">
-                {isStandard ? 'Healthy Balanced Plan' : (profile.goal === 'cut_500' ? '500 kcal Deficit (Fat Oxidation)' : profile.goal.replace('_', ' ').toUpperCase())}
+                {profile.goal === 'cut_500' ? 'Healthy Fat Loss Goal' : profile.goal.replace('_', ' ').toUpperCase()}
               </span>
             </div>
 
             <h1 className="text-2xl md:text-3xl font-black text-foreground tracking-tight">
-              {isStandard ? `Good day, ${firstName}! ✨` : `Welcome back, ${profile.full_name}`}
+              Good day, {firstName}! ✨
             </h1>
             
             <p className="text-zinc-500 dark:text-zinc-400 text-sm mt-1 max-w-xl">
-              {isStandard ? (
-                <>
-                  You have <strong className="text-brand-500 dark:text-brand-400 font-bold">{todayRemaining.calories} calories</strong> remaining today across <strong className="text-foreground">{profile.meal_count} wholesome meals</strong>. Take your time, enjoy your food, and stay hydrated!
-                </>
-              ) : (
-                <>
-                  Your Mifflin-St Jeor TDEE target is configured for{' '}
-                  <strong className="text-foreground">{profile.daily_calorie_target} kcal</strong> across{' '}
-                  <strong className="text-brand-500 dark:text-brand-400 font-bold">{profile.meal_count} scheduled meals</strong> within your{' '}
-                  <strong className="text-accent-teal font-bold">{currentFastingConfig.name}</strong> window.
-                </>
-              )}
+              You have <strong className="text-brand-500 dark:text-brand-400 font-bold">{todayRemaining.calories} calories</strong> remaining today across <strong className="text-foreground">{profile.meal_count} wholesome meals</strong>. Take your time, log as you go, and stay hydrated!
             </p>
           </div>
 
@@ -137,7 +117,7 @@ export const DashboardOverview: React.FC = () => {
               className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-surface-200/90 hover:bg-surface-300 border border-surface-border text-xs font-semibold text-zinc-200 transition-all cursor-pointer"
             >
               <Calendar className="w-4 h-4 text-brand-400" />
-              <span>90-Day Schedule</span>
+              <span>Schedule</span>
             </button>
             <button
               onClick={() => setActiveTab('fasting')}
@@ -156,6 +136,144 @@ export const DashboardOverview: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Today's Step-by-Step Flow (MyFitnessPal / StrongLifts Walkthrough Experience) */}
+      {(() => {
+        const step1Done = todayWaterOz >= 16 || !fastingStatus.isFasting;
+        const step2Done = currentDayFoodLogs.length >= 1;
+        const step3Done = completedExercisesCount >= 1 || todaySteps >= 3000;
+        const step4Done = step1Done && step2Done && step3Done;
+        const completedCount = [step1Done, step2Done, step3Done, step4Done].filter(Boolean).length;
+
+        return (
+          <div className="rounded-3xl bg-surface-100/90 border border-surface-border p-5 md:p-6 backdrop-blur-xl">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
+              <div>
+                <div className="flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-brand-400" />
+                  <h2 className="text-sm font-bold text-foreground uppercase tracking-wider">
+                    Today's Simple Step-by-Step Flow
+                  </h2>
+                </div>
+                <p className="text-xs text-zinc-400 mt-0.5">
+                  Follow these 4 simple steps to stay consistent, reach your daily targets, and build lifelong healthy habits.
+                </p>
+              </div>
+              <div className="flex items-center gap-1.5 text-xs font-mono font-bold text-brand-400 bg-brand-500/10 border border-brand-500/20 px-3 py-1 rounded-full w-fit">
+                <span>{completedCount} of 4 Completed</span>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+              {/* Step 1 */}
+              <div
+                onClick={() => setActiveTab('fasting')}
+                className={`p-4 rounded-2xl border transition-all cursor-pointer ${
+                  step1Done
+                    ? 'bg-emerald-500/10 border-emerald-500/30 hover:border-emerald-500/50'
+                    : 'bg-surface-200/50 border-surface-border hover:border-brand-500/40'
+                }`}
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-[10px] font-bold font-mono px-2 py-0.5 rounded-full bg-surface-300 text-zinc-300">
+                    STEP 1
+                  </span>
+                  {step1Done ? (
+                    <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+                  ) : (
+                    <Circle className="w-5 h-5 text-zinc-500" />
+                  )}
+                </div>
+                <div className="font-bold text-foreground text-sm">Morning Check-In</div>
+                <div className="text-xs text-zinc-400 mt-1">
+                  Check fasting window & drink your first glass of water.
+                </div>
+              </div>
+
+              {/* Step 2 */}
+              <div
+                onClick={() => setActiveTab('nutrition')}
+                className={`p-4 rounded-2xl border transition-all cursor-pointer ${
+                  step2Done
+                    ? 'bg-emerald-500/10 border-emerald-500/30 hover:border-emerald-500/50'
+                    : 'bg-surface-200/50 border-surface-border hover:border-brand-500/40'
+                }`}
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-[10px] font-bold font-mono px-2 py-0.5 rounded-full bg-surface-300 text-zinc-300">
+                    STEP 2
+                  </span>
+                  {step2Done ? (
+                    <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+                  ) : (
+                    <Circle className="w-5 h-5 text-zinc-500" />
+                  )}
+                </div>
+                <div className="font-bold text-foreground text-sm">Log Your Meals</div>
+                <div className="text-xs text-zinc-400 mt-1">
+                  {currentDayFoodLogs.length > 0
+                    ? `${currentDayFoodLogs.length} meals logged (${todayMacros.calories} kcal)`
+                    : 'Track breakfast, lunch, or dinner in your diary.'}
+                </div>
+              </div>
+
+              {/* Step 3 */}
+              <div
+                onClick={() => setActiveTab('workouts')}
+                className={`p-4 rounded-2xl border transition-all cursor-pointer ${
+                  step3Done
+                    ? 'bg-emerald-500/10 border-emerald-500/30 hover:border-emerald-500/50'
+                    : 'bg-surface-200/50 border-surface-border hover:border-brand-500/40'
+                }`}
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-[10px] font-bold font-mono px-2 py-0.5 rounded-full bg-surface-300 text-zinc-300">
+                    STEP 3
+                  </span>
+                  {step3Done ? (
+                    <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+                  ) : (
+                    <Circle className="w-5 h-5 text-zinc-500" />
+                  )}
+                </div>
+                <div className="font-bold text-foreground text-sm">Daily Movement</div>
+                <div className="text-xs text-zinc-400 mt-1">
+                  {completedExercisesCount > 0
+                    ? `${completedExercisesCount} exercises finished`
+                    : todaySteps > 0
+                    ? `${todaySteps.toLocaleString()} steps tracked`
+                    : 'Record your workout or track daily steps.'}
+                </div>
+              </div>
+
+              {/* Step 4 */}
+              <div
+                onClick={() => setActiveTab('trends')}
+                className={`p-4 rounded-2xl border transition-all cursor-pointer ${
+                  step4Done
+                    ? 'bg-emerald-500/10 border-emerald-500/30 hover:border-emerald-500/50'
+                    : 'bg-surface-200/50 border-surface-border hover:border-brand-500/40'
+                }`}
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-[10px] font-bold font-mono px-2 py-0.5 rounded-full bg-surface-300 text-zinc-300">
+                    STEP 4
+                  </span>
+                  {step4Done ? (
+                    <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+                  ) : (
+                    <Circle className="w-5 h-5 text-zinc-500" />
+                  )}
+                </div>
+                <div className="font-bold text-foreground text-sm">Review Your Day</div>
+                <div className="text-xs text-zinc-400 mt-1">
+                  View daily, weekly & monthly reports and celebrate progress.
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Dashboard Body: Standard vs Advanced Mode */}
       {isStandard ? (

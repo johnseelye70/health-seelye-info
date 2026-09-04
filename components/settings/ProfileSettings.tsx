@@ -227,6 +227,20 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'b3.3.0',
+      date: '2026-09-04',
+      title: 'User-Friendly Redesign & Cross-Referenced Historical Reports Hub',
+      changes: [
+        'Added Cross-Referenced Reports Hub: 100% inline Daily, Weekly, Monthly, and Yearly reports cross-referencing nutrition, workout tonnage, walking steps, hydration, and weight trends in one connected view.',
+        'MyFitnessPal-Style Date Navigation: Full calendar & stepper navigation in the Food Diary, allowing users to log, review, and edit meals for past or future dates.',
+        '1-Click "Copy Yesterday\'s Meals": Instantly duplicate previous day meals with a single tap for creatures of habit and meal preppers.',
+        'Quick Add Calorie & Restaurant Entry: Fast logging of restaurant meals (e.g. Chipotle, diners, deli) with automatic calorie and macro estimation.',
+        'Step-by-Step Daily Walkthrough on Dashboard: Clean 4-step morning-to-night guide (Morning Check-In, Food Diary, Daily Movement, Review & Reports) with live interactive status indicators.',
+        'Humanized Tutorial Master Hub: Enriched lessons with practical, real-world examples for dining out, meal prep, office step routines, and scale water weight fluctuation psychology.',
+        'Softened Terminology: Replaced dense technical jargon across navigation, headers, and dashboard with clear, approachable everyday language.',
+      ],
+    },
+    {
       version: 'b3.2.2',
       date: '2026-08-27',
       title: 'Z-Index Foreground Stacking Elevation',

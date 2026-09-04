@@ -25,6 +25,12 @@ import {
   BookOpen,
   ChefHat,
   ShoppingCart,
+  Calendar,
+  ChevronLeft,
+  ChevronRight,
+  Copy,
+  Zap,
+  Clock,
 } from 'lucide-react';
 import { NumberStepper } from '@/components/ui/NumberStepper';
 
@@ -32,10 +38,7 @@ export const MealPlanner: React.FC = () => {
   const {
     profile,
     updateProfile,
-    todayMacros,
-    todayRemaining,
     mealSplitTargets,
-    currentDayFoodLogs,
     foods,
     logFood,
     deleteFoodLog,
@@ -43,7 +46,19 @@ export const MealPlanner: React.FC = () => {
     experienceMode,
     setActiveTab,
     groceryList,
+    selectedDate,
+    setSelectedDate,
+    todayDate,
+    selectedDayFoodLogs,
+    selectedDayMacros,
+    selectedDayRemaining,
+    copyDayFoodLogs,
+    quickLogCalories,
   } = useHealth();
+
+  const currentDayFoodLogs = selectedDayFoodLogs;
+  const todayMacros = selectedDayMacros;
+  const todayRemaining = selectedDayRemaining;
 
   const isSimple = experienceMode === 'standard' || experienceMode === 'tutorial';
   const isImperial = profile.unit_preference === 'imperial';
@@ -118,8 +133,54 @@ export const MealPlanner: React.FC = () => {
       food_name: preset.foodName,
       grams_consumed: preset.grams,
       meal_index: preset.mealIndex,
-      logged_at: new Date().toISOString().split('T')[0],
+      logged_at: selectedDate,
     });
+  };
+
+  // Date navigation helpers (MyFitnessPal-style Day-by-Day logging)
+  const handleShiftDate = (days: number) => {
+    const current = new Date(selectedDate + 'T12:00:00');
+    current.setDate(current.getDate() + days);
+    const y = current.getFullYear();
+    const m = String(current.getMonth() + 1).padStart(2, '0');
+    const d = String(current.getDate()).padStart(2, '0');
+    setSelectedDate(`${y}-${m}-${d}`);
+  };
+
+  const getPreviousDateStr = (dateStr: string) => {
+    const d = new Date(dateStr + 'T12:00:00');
+    d.setDate(d.getDate() - 1);
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const dStr = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${dStr}`;
+  };
+
+  // Quick Add Modal State
+  const [showQuickAddModal, setShowQuickAddModal] = useState<boolean>(false);
+  const [quickAddName, setQuickAddName] = useState<string>('');
+  const [quickAddCalories, setQuickAddCalories] = useState<number>(450);
+  const [quickAddMealIndex, setQuickAddMealIndex] = useState<number>(1);
+  const [copyToast, setCopyToast] = useState<string | null>(null);
+
+  const handleCopyYesterday = () => {
+    const prevDate = getPreviousDateStr(selectedDate);
+    const count = copyDayFoodLogs(prevDate, selectedDate);
+    if (count > 0) {
+      setCopyToast(`Copied ${count} ${count === 1 ? 'meal item' : 'meal items'} from yesterday!`);
+    } else {
+      setCopyToast('No meals found on yesterday to copy.');
+    }
+    setTimeout(() => setCopyToast(null), 3500);
+  };
+
+  const handleQuickAddSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (quickAddCalories <= 0) return;
+    quickLogCalories(quickAddName || 'Quick Meal', Number(quickAddCalories), quickAddMealIndex, selectedDate);
+    setShowQuickAddModal(false);
+    setCopyToast(`Added "${quickAddName || 'Quick Meal'}" (${quickAddCalories} kcal) to ${selectedDate === todayDate ? 'Today' : selectedDate}!`);
+    setTimeout(() => setCopyToast(null), 3500);
   };
 
   // Search & Logging Modal State
@@ -178,7 +239,7 @@ export const MealPlanner: React.FC = () => {
       food_name: selectedFoodForLog.name,
       grams_consumed: Number(gramsToLog),
       meal_index: selectedMealIndex,
-      logged_at: new Date().toISOString().split('T')[0],
+      logged_at: selectedDate,
     });
     setSelectedMealIndex(null);
     setSelectedFoodForLog(null);
@@ -228,18 +289,18 @@ export const MealPlanner: React.FC = () => {
                 ) : (
                   <>
                     <Flame className="w-3.5 h-3.5 text-brand-400" />
-                    <span>PRECISION MACRONUTRIENT ENGINE</span>
+                    <span>DAILY FOOD DIARY & NUTRITION</span>
                   </>
                 )}
               </span>
             </div>
             <h1 className="text-2xl md:text-3xl font-black text-white tracking-tight">
-              {isSimple ? 'Daily Wholesome Meals' : 'Daily Meal Plan & Food Database'}
+              {isSimple ? 'Daily Meals & Nutrition Diary' : 'Daily Food Diary & Macro Targets'}
             </h1>
             <p className="text-zinc-400 text-sm mt-1 max-w-2xl">
               {isSimple
-                ? 'Enjoy nourishing balanced meals, choose from delicious 1-click wholesome plates, and stay energized all day.'
-                : 'Track macro splits, dynamically re-divide targets across 2, 3, or 4 meals, and swap equivalent protein/carb sources in real-time.'}
+                ? 'Enjoy balanced wholesome meals, log food for today or any past date in seconds, and stay energized.'
+                : 'Track your daily calories, protein, and macros, plan ahead, and log your meals for today or any past date.'}
             </p>
           </div>
 
@@ -251,7 +312,7 @@ export const MealPlanner: React.FC = () => {
               className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-2xl bg-surface-200 hover:bg-surface-300 border border-surface-border text-xs font-semibold text-zinc-200 transition-all hover:border-brand-500/40 cursor-pointer"
             >
               <ChefHat className="w-4 h-4 text-brand-400" />
-              <span>{isSimple ? 'Recipes & Ideas' : 'Recipe Engine Matrix'}</span>
+              <span>Recipes & Ideas</span>
             </button>
 
             {/* Quick Access to Shopping List */}
@@ -290,6 +351,96 @@ export const MealPlanner: React.FC = () => {
               </button>
             )}
           </div>
+        </div>
+      </div>
+
+      {/* Toast Notification for Date / Copy Actions */}
+      {copyToast && (
+        <div className="p-3.5 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-xs font-bold flex items-center gap-2 animate-fadeIn shadow-lg">
+          <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-400" />
+          <span>{copyToast}</span>
+        </div>
+      )}
+
+      {/* MyFitnessPal-Style Date Navigation & Quick Actions Bar */}
+      <div className="rounded-2xl bg-surface-100/90 border border-surface-border p-3 sm:p-4 backdrop-blur-xl flex flex-col sm:flex-row items-center justify-between gap-3">
+        {/* Date Selector */}
+        <div className="flex items-center gap-1.5 sm:gap-2 w-full sm:w-auto justify-between sm:justify-start">
+          <button
+            type="button"
+            onClick={() => handleShiftDate(-1)}
+            className="p-2 rounded-xl bg-surface-200 hover:bg-surface-300 text-zinc-300 hover:text-white transition-all cursor-pointer"
+            title="Previous Day"
+          >
+            <ChevronLeft className="w-4 h-4" />
+          </button>
+
+          <div className="relative flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-surface-200/80 border border-surface-border text-center group hover:border-brand-500/50 transition-colors">
+            <Calendar className="w-4 h-4 text-brand-400 shrink-0" />
+            <span className="text-xs sm:text-sm font-bold text-foreground select-none">
+              {selectedDate === todayDate ? (
+                <span className="text-brand-400 font-extrabold mr-1">Today:</span>
+              ) : null}
+              {new Date(selectedDate + 'T12:00:00').toLocaleDateString(undefined, {
+                weekday: 'short',
+                month: 'short',
+                day: 'numeric',
+              })}
+            </span>
+            <input
+              type="date"
+              value={selectedDate}
+              onChange={(e) => e.target.value && setSelectedDate(e.target.value)}
+              className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+              title="Click to jump to any date"
+            />
+          </div>
+
+          <button
+            type="button"
+            onClick={() => handleShiftDate(1)}
+            className="p-2 rounded-xl bg-surface-200 hover:bg-surface-300 text-zinc-300 hover:text-white transition-all cursor-pointer"
+            title="Next Day"
+          >
+            <ChevronRight className="w-4 h-4" />
+          </button>
+
+          {selectedDate !== todayDate && (
+            <button
+              type="button"
+              onClick={() => setSelectedDate(todayDate)}
+              className="ml-1 px-2.5 py-1.5 rounded-xl bg-brand-500/20 text-brand-300 hover:bg-brand-500/30 text-xs font-bold transition-all cursor-pointer border border-brand-500/30"
+            >
+              Today
+            </button>
+          )}
+        </div>
+
+        {/* Quick Actions (Copy Yesterday & Quick Add Calories) */}
+        <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+          <button
+            type="button"
+            onClick={handleCopyYesterday}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-surface-200 hover:bg-surface-300 text-zinc-300 hover:text-white text-xs font-semibold border border-surface-border transition-all cursor-pointer"
+            title="Copy meals from previous day"
+          >
+            <Copy className="w-3.5 h-3.5 text-zinc-400" />
+            <span>Copy Yesterday</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              setQuickAddName('');
+              setQuickAddCalories(450);
+              setQuickAddMealIndex(1);
+              setShowQuickAddModal(true);
+            }}
+            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-brand-500 to-accent-teal hover:from-brand-600 text-zinc-950 text-xs font-bold transition-all shadow-glow cursor-pointer"
+          >
+            <Zap className="w-3.5 h-3.5 stroke-[2.5]" />
+            <span>Quick Add</span>
+          </button>
         </div>
       </div>
 
@@ -991,6 +1142,99 @@ export const MealPlanner: React.FC = () => {
                 className="flex-1 py-2 rounded-xl bg-brand-500 hover:bg-brand-600 text-zinc-950 font-bold text-xs shadow-glow"
               >
                 Save Food
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+
+      {/* Modal: Quick Add Calories / Meal */}
+      {showQuickAddModal && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <form
+            onSubmit={handleQuickAddSubmit}
+            className="w-full max-w-md rounded-3xl bg-surface-100 border border-surface-border p-6 space-y-4 shadow-2xl animate-scaleIn"
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="p-2 rounded-xl bg-brand-500/20 text-brand-400">
+                  <Zap className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-foreground text-base">Quick Add to Food Diary</h3>
+                  <div className="text-[11px] text-brand-400 font-mono">
+                    Target Date: {selectedDate === todayDate ? 'Today' : selectedDate}
+                  </div>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowQuickAddModal(false)}
+                className="p-1 rounded-lg text-zinc-400 hover:text-white"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-3 text-xs">
+              <div>
+                <label className="font-semibold text-zinc-300">Description / Meal Name</label>
+                <input
+                  type="text"
+                  placeholder="e.g. Restaurant Meal, Salmon Roll, Protein Shake"
+                  value={quickAddName}
+                  onChange={(e) => setQuickAddName(e.target.value)}
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-surface-200 border border-surface-border text-foreground mt-1 focus:outline-none focus:border-brand-500 text-xs"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="font-semibold text-zinc-300">Calories (kcal)</label>
+                  <input
+                    type="number"
+                    min={1}
+                    max={5000}
+                    required
+                    value={quickAddCalories}
+                    onChange={(e) => setQuickAddCalories(Number(e.target.value))}
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-surface-200 border border-surface-border text-brand-400 font-mono font-bold mt-1 text-sm focus:outline-none focus:border-brand-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="font-semibold text-zinc-300">Meal Section</label>
+                  <select
+                    value={quickAddMealIndex}
+                    onChange={(e) => setQuickAddMealIndex(Number(e.target.value))}
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-surface-200 border border-surface-border text-foreground mt-1 text-xs focus:outline-none focus:border-brand-500"
+                  >
+                    <option value={1}>Meal 1 (Breakfast)</option>
+                    <option value={2}>Meal 2 (Lunch)</option>
+                    <option value={3}>Meal 3 (Dinner)</option>
+                    <option value={4}>Meal 4 / Snacks</option>
+                  </select>
+                </div>
+              </div>
+
+              <p className="text-[11px] text-zinc-400 leading-relaxed bg-surface-200/50 p-2.5 rounded-xl border border-surface-border">
+                💡 Perfect for restaurant meals, homemade recipes, or quick calorie estimates. We automatically balance protein and carbs based on your target profile.
+              </p>
+            </div>
+
+            <div className="flex gap-2.5 pt-2">
+              <button
+                type="button"
+                onClick={() => setShowQuickAddModal(false)}
+                className="flex-1 py-2.5 rounded-xl bg-surface-200 hover:bg-surface-300 text-xs font-semibold text-zinc-300 transition-colors cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-brand-500 to-accent-teal hover:from-brand-600 text-zinc-950 font-bold text-xs shadow-glow transition-all active:scale-95 cursor-pointer"
+              >
+                Add to Diary
               </button>
             </div>
           </form>
