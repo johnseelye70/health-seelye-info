@@ -762,7 +762,13 @@ export const MealPlanner: React.FC = () => {
                     <div>
                       <div className="text-xs sm:text-sm font-bold text-zinc-200">{log.food_name}</div>
                       <div className="text-[11px] text-zinc-400 mt-0.5">
-                        Meal {log.meal_index} • {log.grams_consumed}g portion
+                        {log.meal_index === 1
+                          ? 'Breakfast (Meal 1)'
+                          : log.meal_index === 2
+                          ? 'Lunch (Meal 2)'
+                          : log.meal_index === 3
+                          ? 'Dinner (Meal 3)'
+                          : `Snacks (Meal ${log.meal_index})`} • {log.grams_consumed}g portion
                       </div>
                     </div>
                     <div className="flex items-center gap-2">

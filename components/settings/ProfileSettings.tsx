@@ -227,6 +227,15 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'b4.8.1',
+      date: '2026-09-04',
+      title: 'Progress Section Meal Slot Indexing Fix & Diary Display Alignment',
+      changes: [
+        'Progress Section Meal Slot Correction: Fixed an off-by-one indexing bug in the Progress Trends day breakdown where 1-indexed meal records (Meal 1 = Breakfast) were mapped using a 0-based offset, causing Breakfast entries to display as Lunch.',
+        'Diary Meal Slot Label Alignment: Enhanced the "Today\'s Meals Eaten" diary list to explicitly display human-readable meal names ("Breakfast (Meal 1)", "Lunch (Meal 2)", "Dinner (Meal 3)") alongside portion amounts.',
+      ],
+    },
+    {
       version: 'b4.8.0',
       date: '2026-09-04',
       title: 'Logged Meal Editing & Custom Meal Builder / Customize Terminology Branding',

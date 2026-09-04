@@ -786,7 +786,13 @@ export const ProgressTrends: React.FC = () => {
                         <div className="space-y-0.5">
                           <div className="flex items-center gap-2">
                             <span className="px-1.5 py-0.5 rounded text-[10px] font-bold uppercase bg-surface-200 text-zinc-400">
-                              {item.meal_index === 0 ? 'Breakfast' : item.meal_index === 1 ? 'Lunch' : item.meal_index === 2 ? 'Dinner' : 'Snacks'}
+                              {item.meal_index === 1 || item.meal_index === 0
+                                ? 'Breakfast'
+                                : item.meal_index === 2
+                                ? 'Lunch'
+                                : item.meal_index === 3
+                                ? 'Dinner'
+                                : 'Snacks'}
                             </span>
                             <span className="font-bold text-foreground">{item.food_name}</span>
                           </div>
