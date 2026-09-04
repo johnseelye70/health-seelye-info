@@ -227,7 +227,7 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
-      version: '4.0.0',
+      version: 'b4.0.0',
       date: '2026-09-04',
       title: 'World-Class Custom Meal Builder, Exhaustive 3.5M+ Food Database & Daily Plan Integration',
       changes: [

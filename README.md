@@ -1,5 +1,5 @@
 # Seelye Family Health — Precision Fitness & Nutrition Application
-**Version: 4.0.0 (Beta 4.0.0)** | **Production Domain: https://health.seelye.info**
+**Version: Beta v4.0.0 (b4.0.0)** | **Production Domain: https://health.seelye.info**
 
 High-performance, dark-mode first athletic health and nutrition platform engineered with Next.js (App Router), TypeScript, Tailwind CSS, Supabase (PostgreSQL), and integrated Wholesome Recipe & Meal Prep Engine.
 
@@ -7,7 +7,7 @@ High-performance, dark-mode first athletic health and nutrition platform enginee
 
 ## ⚡ Key Architectural Modules
 
-### 1. World-Class Custom Meal Builder & Exhaustive Database (v4.0.0)
+### 1. World-Class Custom Meal Builder & Exhaustive Database (Beta v4.0.0)
 - **Interactive Meal Studio:** Assemble custom meals and recipes by adding ingredients with customized quantities and units (`g`, `oz`, `cups`, `tbsp`, `tsp`, `servings`).
 - **Exhaustive Food Database (Local + Global):** Access 1,012 curated whole foods and grocery staples offline, with live integration to 3,500,000+ commercial, branded, and grocery products via Open Food Facts v2 API.
 - **Extensive Nutrition Stats Calculation:** Complete nutritional breakdown including Calories, Protein, Carbohydrates, Fats, Net Impact Carbs, Saturated Fat, Monounsaturated Fat, Polyunsaturated Fat, Trans Fat, Cholesterol, Dietary Fiber, Sugars, Added Sugars, Sodium, Potassium, Calcium, Iron, Magnesium, Zinc, and Vitamins A, C, and D.
