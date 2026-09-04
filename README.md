@@ -1,5 +1,5 @@
 # Seelye Family Health — Precision Fitness & Nutrition Application
-**Version: Beta v4.13.1 (b4.13.1)** | **Production Domain: https://health.seelye.info**
+**Version: Beta v4.13.2 (b4.13.2)** | **Production Domain: https://health.seelye.info**
 
 High-performance, dark-mode first athletic health and nutrition platform engineered with Next.js (App Router), TypeScript, Tailwind CSS, Supabase (PostgreSQL), and integrated Wholesome Recipe & Meal Prep Engine.
 
@@ -7,7 +7,15 @@ High-performance, dark-mode first athletic health and nutrition platform enginee
 
 ## ⚡ Key Architectural Modules
 
-### 1. iOS Safari Storage Quota Resolution & Safe Auth Storage Adapter (Beta v4.13.1)
+### 1. Real-Time Food Log & Calorie Balance Cross-Device Cloud Sync (Beta v4.13.2)
+- **Multi-Device Food Log Bundle Synchronization:** Integrated `food_logs` directly into the `app_sync_bundle` carried across Supabase Auth user metadata (`user_metadata.app_sync_bundle`) and profiles cloud records (`profiles.equipment_inventory.app_sync_bundle`), ensuring food entries logged on laptop synchronize bidirectionally to iPhone in lockstep with hydration water logs.
+- **Immediate Calorie Balance on Mobile:** Eliminated the 0-calorie balance anomaly on iPhone; today's meals and calories calculate and display in real-time across Dashboard and Daily Food Diary.
+- **Triple-Source Non-Destructive Reconciliation:** Reconciles entries from PostgreSQL `public.food_logs`, Auth metadata cloud bundles, and local storage state using unique entry IDs and composite signatures (`date_meal_name_calories`), prioritizing user entries and preventing duplicate or dropped records.
+- **1.5s Auto-Debounced Cloud Sync:** Logging food, updating servings, adding custom meals, and logging hydration water triggers automatic background synchronization to the cloud within 1.5 seconds, eliminating the need for tab blurring or 30-second interval waits.
+- **1-Tap "Sync Cloud" Food Diary Action:** Added an explicit 1-tap "Sync Cloud" button directly into the Daily Food Diary header bar with live spinning animations and toast confirmation banners.
+- **Robust Date Timestamp Normalization:** Normalized date-string parsing with `split('T')[0]` across all diary filters, daily reports, and monthly summaries to guarantee seamless date matching across ISO timestamps and local calendar dates.
+
+### 2. iOS Safari Storage Quota Resolution & Safe Auth Storage Adapter (Beta v4.13.1)
 - **Safari QuotaExceededError Fix:** Removed the static 1,700-item food catalog and generated workout plan splits from `localStorage`, reducing the app state persistence payload by 97% (from ~1.3 MB down to ~30 KB).
 - **Automated Legacy Cache Purge:** Integrated automatic startup sweeper that cleans out legacy app state snapshots (`v1` through `v7`) that were consuming all 5 MB of Safari's local storage limit.
 - **Safe Auth Storage Adapter:** Configured resilient Supabase client storage adapter with automatic fallback to `sessionStorage` and in-memory persistence, ensuring auth token storage never crashes.

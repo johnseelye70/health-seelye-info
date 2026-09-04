@@ -60,6 +60,8 @@ export const MealPlanner: React.FC = () => {
     customMeals,
     logBuiltMealToDiary,
     setEditingMealLog,
+    syncWithCloud,
+    syncStatus,
   } = useHealth();
 
   const [activeNutritionSubTab, setActiveNutritionSubTab] = useState<'diary' | 'builder' | 'database' | 'recipes'>('diary');
@@ -588,8 +590,24 @@ export const MealPlanner: React.FC = () => {
           )}
         </div>
 
-        {/* Quick Actions (Copy Yesterday & Quick Add Calories) */}
+        {/* Quick Actions (Sync Cloud, Copy Yesterday & Quick Add Calories) */}
         <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+          <button
+            type="button"
+            onClick={async () => {
+              await syncWithCloud();
+              setCopyToast('Cloud Sync Complete — Food Diary & Water Up to Date');
+              setTimeout(() => setCopyToast(null), 3000);
+            }}
+            disabled={syncStatus === 'syncing'}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-surface-200 hover:bg-surface-300 text-zinc-300 hover:text-white text-xs font-semibold border border-surface-border transition-all cursor-pointer select-none active:scale-95"
+            title="Sync all food logs & water intake across laptop and iPhone"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${syncStatus === 'syncing' ? 'animate-spin text-brand-400' : 'text-brand-400'}`} />
+            <span className="hidden sm:inline">{syncStatus === 'syncing' ? 'Syncing...' : 'Sync Cloud'}</span>
+            <span className="sm:hidden">{syncStatus === 'syncing' ? '...' : 'Sync'}</span>
+          </button>
+
           <button
             type="button"
             onClick={handleCopyYesterday}

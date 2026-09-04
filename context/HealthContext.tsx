@@ -594,6 +594,7 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
   }, [scheduledPlans]);
 
   const isSyncingRef = useRef<boolean>(false);
+  const syncDebounceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   // Helper to push local profile to cloud safely via UPSERT with onConflict: 'id'
   const pushLocalProfileToCloud = async (client: any, user: any, p: UserProfile) => {
@@ -789,74 +790,17 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
         }
       }
 
-      // B. Food Logs Sync (Merge Cloud & Local Non-Destructively)
-      const { data: cloudFoodLogs } = await (client.from('food_logs') as any)
-        .select('*')
-        .eq('user_id', liveUser.id);
-
-      if (cloudFoodLogs && Array.isArray(cloudFoodLogs)) {
-        const cloudIds = new Set(cloudFoodLogs.map((c: any) => c.id));
-        const currentLocalLogs = foodLogsRef.current;
-        const localOnlyLogs = currentLocalLogs.filter((l) => !cloudIds.has(l.id));
-
-        if (localOnlyLogs.length > 0) {
-          const rowsToInsert = localOnlyLogs.map((l) => ({
-            id: isUuid(l.id) ? l.id : undefined,
-            user_id: liveUser.id,
-            food_id: isUuid(l.food_id) ? l.food_id : null,
-            food_name: l.food_name,
-            grams_consumed: l.grams_consumed,
-            meal_index: l.meal_index,
-            logged_at: l.logged_at,
-            calories: l.calories,
-            protein_g: l.protein_g,
-            carbs_g: l.carbs_g,
-            fat_g: l.fat_g,
-          }));
-          const { data: insertedRows } = await (client.from('food_logs') as any)
-            .insert(rowsToInsert)
-            .select();
-
-          if (insertedRows && Array.isArray(insertedRows)) {
-            insertedRows.forEach((ir: any, idx: number) => {
-              if (localOnlyLogs[idx]) {
-                localOnlyLogs[idx].id = ir.id;
-              }
-            });
-          }
+      // B. Food Logs Cloud Table Fetch (Full Reconciliation in Section E)
+      let cloudFoodLogs: any[] = [];
+      try {
+        const { data: dbFoodData, error: dbFoodErr } = await (client.from('food_logs') as any)
+          .select('*')
+          .eq('user_id', liveUser.id);
+        if (!dbFoodErr && Array.isArray(dbFoodData)) {
+          cloudFoodLogs = dbFoodData;
         }
-
-        const merged: FoodLogEntry[] = [
-          ...cloudFoodLogs.map((c: any) => ({
-            id: c.id,
-            user_id: c.user_id,
-            food_id: c.food_id || c.id,
-            food_name: c.food_name,
-            grams_consumed: Number(c.grams_consumed),
-            meal_index: c.meal_index,
-            logged_at: c.logged_at,
-            calories: Number(c.calories),
-            protein_g: Number(c.protein_g),
-            carbs_g: Number(c.carbs_g),
-            fat_g: Number(c.fat_g),
-            created_at: c.created_at,
-          })),
-          ...localOnlyLogs,
-        ];
-
-        // Non-destructive deduplication by ID and unique meal signature
-        const deduped: FoodLogEntry[] = [];
-        const seen = new Set<string>();
-        for (const entry of merged) {
-          const key = `${entry.logged_at}_${entry.meal_index}_${entry.food_name}_${entry.calories}`;
-          if (!seen.has(entry.id) && !seen.has(key)) {
-            seen.add(entry.id);
-            seen.add(key);
-            deduped.push(entry);
-          }
-        }
-        setFoodLogs(deduped);
-        foodLogsRef.current = deduped;
+      } catch (fErr) {
+        console.warn('Food logs cloud fetch warning:', fErr);
       }
 
       // C. Weight Logs Sync
@@ -1072,7 +1016,7 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
         console.warn('Step logs sync warning:', stepErr);
       }
 
-      // E. Multi-Device App Sync Bundle (Custom Meals, Daily Movements, Hydration Water, Workout Logs, Scheduled Plans)
+      // E. Multi-Device App Sync Bundle (Food Logs, Custom Meals, Daily Movements, Hydration Water, Workout Logs, Scheduled Plans)
       try {
         let cloudBundle: any = liveUser.user_metadata?.app_sync_bundle || null;
         if (!cloudBundle && cloudProfile?.equipment_inventory && typeof cloudProfile.equipment_inventory === 'object') {
@@ -1084,10 +1028,134 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
         const localWaterLogs = waterLogsRef.current || [];
         const localWorkoutLogs = workoutLogsRef.current || [];
         const localScheduledPlans = scheduledPlansRef.current || {};
+        const localFoodLogs = foodLogsRef.current || [];
 
         let hasBundleUpdate = false;
 
-        // 1. Custom Meals Reconciliation
+        // 1. Food Logs Reconciliation (Multi-Device Bundle + Cloud DB)
+        const cloudBundleFoodLogs: FoodLogEntry[] = Array.isArray(cloudBundle?.food_logs) ? cloudBundle.food_logs : [];
+        const foodMap = new Map<string, FoodLogEntry>();
+        const sigMap = new Map<string, string>();
+
+        const makeFoodSignature = (entry: FoodLogEntry): string => {
+          const d = entry.logged_at ? String(entry.logged_at).split('T')[0] : todayDate;
+          const name = (entry.food_name || '').trim().toLowerCase();
+          const cals = Math.round(Number(entry.calories) || 0);
+          const meal = Number(entry.meal_index) || 1;
+          return `${d}_m${meal}_${name}_${cals}`;
+        };
+
+        // Source 1: PostgreSQL Table rows
+        cloudFoodLogs.forEach((c: any) => {
+          if (!c || !c.id) return;
+          const normalized: FoodLogEntry = {
+            id: c.id,
+            user_id: c.user_id || liveUser.id,
+            food_id: c.food_id || c.id,
+            food_name: c.food_name || 'Food Item',
+            grams_consumed: Number(c.grams_consumed) || 100,
+            meal_index: Number(c.meal_index) || 1,
+            logged_at: c.logged_at ? String(c.logged_at).split('T')[0] : todayDate,
+            calories: Number(c.calories) || 0,
+            protein_g: Number(c.protein_g) || 0,
+            carbs_g: Number(c.carbs_g) || 0,
+            fat_g: Number(c.fat_g) || 0,
+            created_at: c.created_at || new Date().toISOString(),
+          };
+          foodMap.set(normalized.id, normalized);
+          sigMap.set(makeFoodSignature(normalized), normalized.id);
+        });
+
+        // Source 2: App Sync Bundle
+        cloudBundleFoodLogs.forEach((cb) => {
+          if (!cb || !cb.id) return;
+          const sig = makeFoodSignature(cb);
+          if (foodMap.has(cb.id)) {
+            const existing = foodMap.get(cb.id)!;
+            if (cb.custom_meal_id && !existing.custom_meal_id) {
+              foodMap.set(cb.id, { ...existing, custom_meal_id: cb.custom_meal_id, custom_meal_data: cb.custom_meal_data, servings_logged: cb.servings_logged });
+            }
+          } else if (sigMap.has(sig)) {
+            const existingId = sigMap.get(sig)!;
+            const existing = foodMap.get(existingId)!;
+            if (cb.custom_meal_id && !existing.custom_meal_id) {
+              foodMap.set(existingId, { ...existing, custom_meal_id: cb.custom_meal_id, custom_meal_data: cb.custom_meal_data, servings_logged: cb.servings_logged });
+            }
+          } else {
+            foodMap.set(cb.id, cb);
+            sigMap.set(sig, cb.id);
+          }
+        });
+
+        // Source 3: Local device food logs
+        localFoodLogs.forEach((l) => {
+          if (!l || !l.id) return;
+          const sig = makeFoodSignature(l);
+          if (!foodMap.has(l.id) && !sigMap.has(sig)) {
+            foodMap.set(l.id, l);
+            sigMap.set(sig, l.id);
+            hasBundleUpdate = true;
+          } else {
+            const existingId = foodMap.has(l.id) ? l.id : sigMap.get(sig)!;
+            const existing = foodMap.get(existingId)!;
+            if (l.custom_meal_id && !existing.custom_meal_id) {
+              foodMap.set(existingId, { ...existing, custom_meal_id: l.custom_meal_id, custom_meal_data: l.custom_meal_data, servings_logged: l.servings_logged });
+              hasBundleUpdate = true;
+            }
+          }
+        });
+
+        const mergedFoodLogs = Array.from(foodMap.values()).sort((a, b) => {
+          const dateComp = (b.logged_at || '').localeCompare(a.logged_at || '');
+          if (dateComp !== 0) return dateComp;
+          return (a.meal_index || 1) - (b.meal_index || 1);
+        });
+
+        setFoodLogs(mergedFoodLogs);
+        foodLogsRef.current = mergedFoodLogs;
+
+        if (localFoodLogs.length > 0 && cloudBundleFoodLogs.length === 0) {
+          hasBundleUpdate = true;
+        }
+
+        // Push any unpersisted rows to PostgreSQL food_logs table in background
+        const cloudDbIds = new Set(cloudFoodLogs.map((c: any) => c.id));
+        const unpersistedDbLogs = mergedFoodLogs.filter((l) => !cloudDbIds.has(l.id));
+        if (unpersistedDbLogs.length > 0) {
+          const rowsToInsert = unpersistedDbLogs.slice(0, 50).map((l) => ({
+            id: isUuid(l.id) ? l.id : undefined,
+            user_id: liveUser.id,
+            food_id: isUuid(l.food_id) ? l.food_id : null,
+            food_name: l.food_name,
+            grams_consumed: Number(l.grams_consumed) || 100,
+            meal_index: Number(l.meal_index) || 1,
+            logged_at: l.logged_at ? String(l.logged_at).split('T')[0] : todayDate,
+            calories: Number(l.calories) || 0,
+            protein_g: Number(l.protein_g) || 0,
+            carbs_g: Number(l.carbs_g) || 0,
+            fat_g: Number(l.fat_g) || 0,
+          }));
+          (client.from('food_logs') as any)
+            .insert(rowsToInsert)
+            .select()
+            .then(({ data: insertedRows }: any) => {
+              if (insertedRows && Array.isArray(insertedRows)) {
+                setFoodLogs((prev) => {
+                  const copy = [...prev];
+                  insertedRows.forEach((ir: any, idx: number) => {
+                    if (unpersistedDbLogs[idx]) {
+                      const match = copy.find((c) => c.id === unpersistedDbLogs[idx].id);
+                      if (match && ir.id) match.id = ir.id;
+                    }
+                  });
+                  return copy;
+                });
+              }
+            })
+            .catch(() => {});
+        }
+
+        // 2. Custom Meals Reconciliation
         const cloudCustomMeals: BuiltCustomMeal[] = Array.isArray(cloudBundle?.custom_meals) ? cloudBundle.custom_meals : [];
         const mealMap = new Map<string, BuiltCustomMeal>();
         cloudCustomMeals.forEach((cm) => {
@@ -1113,7 +1181,7 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
         setCustomMeals(mergedCustomMeals);
         customMealsRef.current = mergedCustomMeals;
 
-        // 2. Simple Movements (Daily Chosen Activities)
+        // 3. Simple Movements (Daily Chosen Activities)
         let mergedMovements = localSimpleMovements;
         const cloudMovements: SimpleMovementActivity[] = Array.isArray(cloudBundle?.simple_movements) ? cloudBundle.simple_movements : [];
         if (cloudMovements.length > 0) {
@@ -1130,7 +1198,7 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
           hasBundleUpdate = true;
         }
 
-        // 3. Water Logs Reconciliation
+        // 4. Water Logs Reconciliation
         const cloudWaterLogs: WaterLogEntry[] = Array.isArray(cloudBundle?.water_logs) ? cloudBundle.water_logs : [];
         const waterMap = new Map<string, WaterLogEntry>();
         cloudWaterLogs.forEach((cw) => {
@@ -1146,7 +1214,7 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
         setWaterLogs(mergedWaterLogs);
         waterLogsRef.current = mergedWaterLogs;
 
-        // 4. Workout Logs Reconciliation
+        // 5. Workout Logs Reconciliation
         const cloudWorkoutLogs: WorkoutSessionLog[] = Array.isArray(cloudBundle?.workout_logs) ? cloudBundle.workout_logs : [];
         const workoutMap = new Map<string, WorkoutSessionLog>();
         cloudWorkoutLogs.forEach((cw) => {
@@ -1162,7 +1230,7 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
         setWorkoutLogs(mergedWorkoutLogs);
         workoutLogsRef.current = mergedWorkoutLogs;
 
-        // 5. Scheduled Plans Reconciliation
+        // 6. Scheduled Plans Reconciliation
         const cloudPlans: Record<string, ScheduledDayPlan> = (cloudBundle?.scheduled_plans && typeof cloudBundle.scheduled_plans === 'object') ? cloudBundle.scheduled_plans : {};
         const mergedPlans = { ...cloudPlans, ...localScheduledPlans };
         if (Object.keys(localScheduledPlans).length > 0) {
@@ -1171,8 +1239,9 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
         setScheduledPlans(mergedPlans);
         scheduledPlansRef.current = mergedPlans;
 
-        // Push bundle if local had additions or cloud was missing bundle
+        // Push bundle if local had additions, cloud was missing bundle, or cloud food_logs was missing
         const updatedBundle = {
+          food_logs: mergedFoodLogs.slice(0, 150),
           custom_meals: mergedCustomMeals,
           simple_movements: mergedMovements,
           water_logs: mergedWaterLogs,
@@ -1181,7 +1250,7 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
           last_bundle_sync: new Date().toISOString(),
         };
 
-        if (hasBundleUpdate || !cloudBundle) {
+        if (hasBundleUpdate || !cloudBundle || !cloudBundle.food_logs) {
           client.auth.updateUser({
             data: {
               app_sync_bundle: updatedBundle,
@@ -1215,6 +1284,15 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
 
   const syncWithCloud = useCallback(async () => {
     await performCloudSync();
+  }, [performCloudSync]);
+
+  const triggerDebouncedSync = useCallback(() => {
+    if (syncDebounceTimerRef.current) {
+      clearTimeout(syncDebounceTimerRef.current);
+    }
+    syncDebounceTimerRef.current = setTimeout(() => {
+      performCloudSync().catch(() => {});
+    }, 1500);
   }, [performCloudSync]);
 
   // 4. Supabase Auth Session Listener (Zero-Loop Stable Lifecycle)
@@ -1432,7 +1510,10 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
 
   // Compute Today's Food Logs & Macros
   const currentDayFoodLogs = useMemo(() => {
-    return foodLogs.filter((log) => log.logged_at === todayDate);
+    return foodLogs.filter((log) => {
+      if (!log.logged_at) return false;
+      return String(log.logged_at).split('T')[0] === todayDate;
+    });
   }, [foodLogs, todayDate]);
 
   const todayMacros = useMemo(() => {
@@ -1458,7 +1539,10 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
 
   // Compute Selected Day's Food Logs & Macros (MyFitnessPal date-selectable diary)
   const selectedDayFoodLogs = useMemo(() => {
-    return foodLogs.filter((log) => log.logged_at === selectedDate);
+    return foodLogs.filter((log) => {
+      if (!log.logged_at) return false;
+      return String(log.logged_at).split('T')[0] === selectedDate;
+    });
   }, [foodLogs, selectedDate]);
 
   const selectedDayMacros = useMemo(() => {
@@ -1483,19 +1567,25 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
   }, [profile, selectedDayMacros]);
 
   const copyDayFoodLogs = useCallback((fromDateStr: string, toDateStr: string) => {
-    const logsToCopy = foodLogs.filter((l) => l.logged_at === fromDateStr);
+    const fromDateOnly = fromDateStr ? fromDateStr.split('T')[0] : '';
+    const toDateOnly = toDateStr ? toDateStr.split('T')[0] : '';
+    const logsToCopy = foodLogs.filter((l) => {
+      if (!l.logged_at) return false;
+      return String(l.logged_at).split('T')[0] === fromDateOnly;
+    });
     if (logsToCopy.length === 0) return 0;
 
     const newLogs: FoodLogEntry[] = logsToCopy.map((log, idx) => ({
       ...log,
       id: `copy-${Date.now()}-${idx}-${Math.random().toString(36).substr(2, 4)}`,
-      logged_at: toDateStr,
+      logged_at: toDateOnly,
       created_at: new Date().toISOString(),
     }));
 
     setFoodLogs((prev) => [...newLogs, ...prev]);
+    triggerDebouncedSync();
     return newLogs.length;
-  }, [foodLogs]);
+  }, [foodLogs, triggerDebouncedSync]);
 
   const quickLogCalories = useCallback((
     name: string,
@@ -1506,7 +1596,7 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
     carbs?: number,
     fat?: number
   ) => {
-    const targetDate = dateStr || selectedDate || todayDate;
+    const targetDate = dateStr ? String(dateStr).split('T')[0] : (selectedDate || todayDate);
     const p = protein ?? Math.round((calories * 0.25) / 4);
     const c = carbs ?? Math.round((calories * 0.5) / 4);
     const f = fat ?? Math.round((calories * 0.25) / 9);
@@ -1542,6 +1632,7 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
     };
 
     setFoodLogs((prev) => [newEntry, ...prev]);
+    triggerDebouncedSync();
 
     const user = authUserRef.current;
     if (supabase && user) {
@@ -1571,17 +1662,18 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
     }
 
     return newEntry.id;
-  }, [selectedDate, todayDate, profile.id]);
+  }, [selectedDate, todayDate, profile.id, triggerDebouncedSync]);
 
   const updateFoodLog = useCallback((id: string, updates: Partial<FoodLogEntry>) => {
     setFoodLogs((prev) =>
       prev.map((log) => (log.id === id ? { ...log, ...updates } : log))
     );
+    triggerDebouncedSync();
     const user = authUserRef.current;
     if (supabase && user && (isUuid(id) || !id.startsWith('log-'))) {
       (supabase.from('food_logs') as any).update(updates).eq('id', id).then(() => {});
     }
-  }, []);
+  }, [triggerDebouncedSync]);
 
   // Custom Meals Management & Diary Integration
   const saveCustomMeal = useCallback((meal: BuiltCustomMeal) => {
@@ -1610,7 +1702,7 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
         logAsSingleItem?: boolean;
       }
     ) => {
-      const targetDate = options.dateStr || selectedDate || todayDate;
+      const targetDate = options.dateStr ? String(options.dateStr).split('T')[0] : (selectedDate || todayDate);
       const servings = Math.max(0.1, options.servings || 1);
       const asSingle = options.logAsSingleItem !== false;
 
@@ -1664,6 +1756,7 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
         };
 
         setFoodLogs((prev) => [newEntry, ...prev]);
+        triggerDebouncedSync();
 
         const user = authUserRef.current;
         if (supabase && user) {
@@ -1720,6 +1813,7 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
         });
 
         setFoodLogs((prev) => [...newLogs, ...prev]);
+        triggerDebouncedSync();
 
         const user = authUserRef.current;
         if (supabase && user && newLogs.length > 0) {
@@ -1756,7 +1850,7 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
         }
       }
     },
-    [profile.id, selectedDate, todayDate, saveCustomMeal]
+    [profile.id, selectedDate, todayDate, saveCustomMeal, triggerDebouncedSync]
   );
 
   const updateBuiltMealInDiary = useCallback(
@@ -1776,7 +1870,7 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
       const totalCarbs = Number((perServing.carbs_g * servings).toFixed(1));
       const totalFat = Number((perServing.fat_g * servings).toFixed(1));
       const totalGrams = Math.round(perServing.total_weight_g * servings) || 100;
-      const targetDate = options.dateStr || selectedDate || todayDate;
+      const targetDate = options.dateStr ? String(options.dateStr).split('T')[0] : (selectedDate || todayDate);
 
       updateFoodLog(logId, {
         food_name: `${meal.name} (${servings === 1 ? '1 serving' : `${servings} servings`})`,
@@ -1793,13 +1887,14 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
       });
 
       saveCustomMeal(meal);
+      triggerDebouncedSync();
     },
-    [updateFoodLog, saveCustomMeal, selectedDate, todayDate]
+    [updateFoodLog, saveCustomMeal, selectedDate, todayDate, triggerDebouncedSync]
   );
 
   // Comprehensive Cross-Referenced Reporting Engines
   const getDailyReport = useCallback((dateStr: string) => {
-    const dayFoods = foodLogs.filter((l) => l.logged_at === dateStr);
+    const dayFoods = foodLogs.filter((l) => (l.logged_at ? String(l.logged_at).split('T')[0] === dateStr : false));
     const macros = dayFoods.reduce(
       (acc, item) => ({
         calories: Math.round(acc.calories + item.calories),
@@ -1940,7 +2035,7 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
 
     for (let day = 1; day <= daysInMonth; day++) {
       const dt = `${ym}-${String(day).padStart(2, '0')}`;
-      const dayLogs = foodLogs.filter((l) => l.logged_at === dt);
+      const dayLogs = foodLogs.filter((l) => (l.logged_at ? String(l.logged_at).split('T')[0] === dt : false));
       if (dayLogs.length > 0) {
         daysLogged++;
         totalCals += dayLogs.reduce((s, l) => s + l.calories, 0);
@@ -2320,6 +2415,7 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
 
       const user = authUserRef.current;
       const currentProf = profileRef.current;
+      const targetDate = logged_at ? String(logged_at).split('T')[0] : new Date().toISOString().split('T')[0];
 
       const newEntry: FoodLogEntry = {
         id: `log-${Date.now()}`,
@@ -2328,7 +2424,7 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
         food_name: food_name || food.name,
         grams_consumed,
         meal_index,
-        logged_at: logged_at || new Date().toISOString().split('T')[0],
+        logged_at: targetDate,
         calories: calculatedCalories,
         protein_g: calculatedProtein,
         carbs_g: calculatedCarbs,
@@ -2337,6 +2433,7 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
       };
 
       setFoodLogs((prev) => [newEntry, ...prev]);
+      triggerDebouncedSync();
 
       if (supabase && user) {
         (supabase.from('food_logs') as any)
@@ -2366,16 +2463,17 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
 
       return newEntry.id;
     },
-    []
+    [triggerDebouncedSync]
   );
 
   const deleteFoodLog = useCallback((id: string) => {
     setFoodLogs((prev) => prev.filter((log) => log.id !== id));
+    triggerDebouncedSync();
     const user = authUserRef.current;
     if (supabase && user && (isUuid(id) || !id.startsWith('log-'))) {
       (supabase.from('food_logs') as any).delete().eq('id', id).then(() => {});
     }
-  }, []);
+  }, [triggerDebouncedSync]);
 
   const toggleEquipment = useCallback((eq: EquipmentType) => {
     setProfile((prev) => {
@@ -2589,11 +2687,13 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
       logged_at: new Date().toISOString(),
     };
     setWaterLogs((prev) => [entry, ...prev]);
-  }, []);
+    triggerDebouncedSync();
+  }, [triggerDebouncedSync]);
 
   const resetTodayWater = useCallback(() => {
     setWaterLogs((prev) => prev.filter((w) => !w.logged_at.startsWith(todayDate)));
-  }, [todayDate]);
+    triggerDebouncedSync();
+  }, [todayDate, triggerDebouncedSync]);
 
   // Step Tracker Engine
   const todaySteps = useMemo(() => {

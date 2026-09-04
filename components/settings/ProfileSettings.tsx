@@ -227,6 +227,19 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'b4.13.2',
+      date: '2026-09-04',
+      title: 'Real-Time Food Log & Calorie Balance Cross-Device Cloud Sync',
+      changes: [
+        'Multi-Device Food Log Bundle Synchronization: Added food_logs into the app_sync_bundle carried inside Supabase Auth user metadata and profiles cloud records, ensuring food entries recorded on laptop synchronize bidirectionally to iPhone just like hydration water logs.',
+        'Immediate Real-Time Calorie Balance on Mobile: Resolved the issue where iPhone showed 0 calories consumed despite food logged on laptop; calorie balance and macro targets now update in real-time on all devices.',
+        'Triple-Source Non-Destructive Reconciliation: Reconciles food logs across Supabase PostgreSQL table, cloud sync bundle, and local device state using unique entry IDs and composite signatures to prevent duplicate or missing logs.',
+        '1.5s Auto-Debounced Cloud Persistence: Food diary entries, custom meal builder logs, quick calories, and hydration water updates trigger immediate background cloud syncing within 1.5 seconds without requiring tab switching.',
+        '1-Tap "Sync Cloud" Food Diary Action: Added an explicit 1-tap "Sync Cloud" button in the Daily Food Diary header bar with live syncing status animations and completion notifications for immediate user control on laptop and iPhone.',
+        'Robust Date Timestamp Normalization: Standardized date matching across diary, reports, and calculations to cleanly match both date-only and ISO timestamp strings.',
+      ],
+    },
+    {
       version: 'b4.13.1',
       date: '2026-09-04',
       title: 'iOS Safari Storage Quota Resolution & Safe Auth Storage Adapter',
