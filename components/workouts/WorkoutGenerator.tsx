@@ -74,6 +74,7 @@ export const WorkoutGenerator: React.FC = () => {
     removeSimpleMovementActivity,
     swapSimpleMovementActivity,
     resetSimpleMovementActivities,
+    loadDefaultSimpleMovementActivities,
     logSteps,
   } = useHealth();
 
@@ -376,8 +377,12 @@ export const WorkoutGenerator: React.FC = () => {
                   </button>
                   <button
                     type="button"
-                    onClick={resetSimpleMovementActivities}
-                    title="Reset to recommended baseline choices"
+                    onClick={() => {
+                      resetSimpleMovementActivities();
+                      setLogToast("Reset today's movements. All chosen movements cleared!");
+                      setTimeout(() => setLogToast(null), 3500);
+                    }}
+                    title="Clear all chosen movements for today"
                     className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-2xl bg-surface-200 hover:bg-surface-300 border border-surface-border text-zinc-400 hover:text-foreground text-xs font-semibold transition-all active:scale-95 cursor-pointer"
                   >
                     <RotateCcw className="w-3.5 h-3.5" />
@@ -403,6 +408,8 @@ export const WorkoutGenerator: React.FC = () => {
                 <p className="text-xs text-zinc-400 mt-0.5">
                   {simpleCompletedCount === simpleTotalCount && simpleTotalCount > 0
                     ? '🎉 Fantastic job! You completed all your chosen movements for today!'
+                    : simpleTotalCount === 0
+                    ? 'No movements chosen yet for today. Pick an activity or pre-made routine below to get started!'
                     : `Active energy burn target: ~${simpleTotalCalories} of ~${simpleTargetCalories} kcal`}
                 </p>
               </div>
@@ -586,108 +593,150 @@ export const WorkoutGenerator: React.FC = () => {
               </button>
             </div>
 
-            <div className="grid grid-cols-1 gap-3.5">
-              {simpleMovementActivities.map((act) => (
-                <div
-                  key={act.id}
-                  className={`p-5 rounded-3xl border backdrop-blur-xl transition-all ${
-                    act.completed
-                      ? 'bg-emerald-500/10 border-emerald-500/30'
-                      : 'bg-surface-100/90 border-surface-border hover:border-accent-coral/40'
-                  }`}
-                >
-                  <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
-                    {/* Activity Info & Checkbox */}
-                    <div className="flex items-start gap-3.5 flex-1">
-                      <button
-                        type="button"
-                        onClick={() => toggleSimpleMovementCompleted(act.id)}
-                        className="mt-0.5 text-zinc-400 hover:text-foreground transition-transform active:scale-90 cursor-pointer"
-                        title={act.completed ? 'Mark incomplete' : 'Mark complete'}
-                      >
-                        {act.completed ? (
-                          <CheckCircle2 className="w-6 h-6 text-emerald-400 fill-emerald-400/20" />
-                        ) : (
-                          <Circle className="w-6 h-6 text-zinc-400 hover:text-accent-coral" />
-                        )}
-                      </button>
+            {simpleMovementActivities.length === 0 ? (
+              <div className="p-8 rounded-3xl bg-surface-100/60 border border-dashed border-surface-border text-center space-y-3 animate-fadeIn">
+                <div className="w-12 h-12 rounded-2xl bg-surface-200 border border-surface-border flex items-center justify-center text-zinc-400 mx-auto">
+                  <Heart className="w-6 h-6 text-accent-coral/60" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-foreground">No Movements Selected for Today</h3>
+                  <p className="text-xs text-zinc-400 mt-1 max-w-md mx-auto">
+                    Your movement list is clear. Choose activities you enjoy doing today, search all 42 pre-made programs, or load the recommended baseline choices.
+                  </p>
+                </div>
+                <div className="flex flex-wrap items-center justify-center gap-2 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => handleOpenPicker()}
+                    className="px-4 py-2 rounded-xl bg-accent-coral hover:bg-rose-600 text-white text-xs font-bold shadow-glow-coral flex items-center gap-1.5 cursor-pointer active:scale-95 transition-all"
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span>Choose / Add Activity</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setActiveSubTab('premade_programs')}
+                    className="px-4 py-2 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-amber-300 text-xs font-bold flex items-center gap-1.5 cursor-pointer active:scale-95 transition-all"
+                  >
+                    <Award className="w-4 h-4 text-amber-400" />
+                    <span>Browse Pre-Made Programs (42)</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      loadDefaultSimpleMovementActivities();
+                      setLogToast('Loaded recommended baseline movement choices!');
+                      setTimeout(() => setLogToast(null), 3500);
+                    }}
+                    className="px-3.5 py-2 rounded-xl bg-surface-200 hover:bg-surface-300 border border-surface-border text-zinc-400 hover:text-foreground text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition-all"
+                  >
+                    <Sparkles className="w-3.5 h-3.5 text-brand-400" />
+                    <span>Load Recommended Baseline</span>
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 gap-3.5">
+                {simpleMovementActivities.map((act) => (
+                  <div
+                    key={act.id}
+                    className={`p-5 rounded-3xl border backdrop-blur-xl transition-all ${
+                      act.completed
+                        ? 'bg-emerald-500/10 border-emerald-500/30'
+                        : 'bg-surface-100/90 border-surface-border hover:border-accent-coral/40'
+                    }`}
+                  >
+                    <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+                      {/* Activity Info & Checkbox */}
+                      <div className="flex items-start gap-3.5 flex-1">
+                        <button
+                          type="button"
+                          onClick={() => toggleSimpleMovementCompleted(act.id)}
+                          className="mt-0.5 text-zinc-400 hover:text-foreground transition-transform active:scale-90 cursor-pointer"
+                          title={act.completed ? 'Mark incomplete' : 'Mark complete'}
+                        >
+                          {act.completed ? (
+                            <CheckCircle2 className="w-6 h-6 text-emerald-400 fill-emerald-400/20" />
+                          ) : (
+                            <Circle className="w-6 h-6 text-zinc-400 hover:text-accent-coral" />
+                          )}
+                        </button>
 
-                      <div className="space-y-1">
-                        <div className="flex flex-wrap items-center gap-2">
-                          <span className="text-xl">{act.icon}</span>
-                          <h3 className={`text-base font-bold ${act.completed ? 'line-through text-zinc-400' : 'text-foreground'}`}>
-                            {act.title}
-                          </h3>
-                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-surface-200 text-zinc-400 border border-surface-border">
-                            {act.category_label}
+                        <div className="space-y-1">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <span className="text-xl">{act.icon}</span>
+                            <h3 className={`text-base font-bold ${act.completed ? 'line-through text-zinc-400' : 'text-foreground'}`}>
+                              {act.title}
+                            </h3>
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-surface-200 text-zinc-400 border border-surface-border">
+                              {act.category_label}
+                            </span>
+                          </div>
+
+                          <p className="text-xs text-zinc-400 leading-relaxed max-w-xl">
+                            {act.description}
+                          </p>
+
+                          {act.benefits && (
+                            <p className="text-[11px] text-zinc-500 italic">
+                              💡 {act.benefits}
+                            </p>
+                          )}
+
+                          {act.premade_program_id && (
+                            <div className="pt-1">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const prog = PREMADE_WORKOUT_PROGRAMS.find((p) => p.id === act.premade_program_id);
+                                  if (prog) {
+                                    const day = prog.schedule.find((d: WorkoutProgramDay) => d.day_number === act.premade_day_number) || prog.schedule[0];
+                                    setActiveSheetDay({ program: prog, day });
+                                  }
+                                }}
+                                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-amber-300 text-xs font-bold transition-all cursor-pointer"
+                              >
+                                <FileText className="w-3.5 h-3.5" />
+                                <span>View Interactive Workout Sheet & Exercises</span>
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Metrics & Action Buttons */}
+                      <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between sm:justify-start gap-3 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-surface-border">
+                        <div className="flex items-center gap-3 text-xs font-mono">
+                          <span className="flex items-center gap-1 font-bold text-foreground bg-surface-200 px-2.5 py-1 rounded-xl border border-surface-border">
+                            <Clock className="w-3.5 h-3.5 text-accent-coral" />
+                            {act.duration_minutes}m
                           </span>
+                          <span className="text-zinc-400">~{act.estimated_calories} kcal</span>
+                          {act.estimated_steps > 0 && (
+                            <span className="text-zinc-400">{act.estimated_steps.toLocaleString()} steps</span>
+                          )}
                         </div>
 
-                        <p className="text-xs text-zinc-400 leading-relaxed max-w-xl">
-                          {act.description}
-                        </p>
+                        <div className="flex items-center gap-1.5">
+                          <button
+                            type="button"
+                            onClick={() => handleLogActivity(act)}
+                            className="px-3 py-1.5 rounded-xl bg-accent-coral/15 hover:bg-accent-coral/25 border border-accent-coral/30 text-accent-coral text-xs font-bold transition-all active:scale-95 cursor-pointer flex items-center gap-1"
+                            title="Log this activity's steps and calories to your daily burn"
+                          >
+                            <Flame className="w-3.5 h-3.5" />
+                            <span>{act.completed ? 'Logged ✓' : 'Log & Burn'}</span>
+                          </button>
 
-                        {act.benefits && (
-                          <p className="text-[11px] text-zinc-500 italic">
-                            💡 {act.benefits}
-                          </p>
-                        )}
+                          <button
+                            type="button"
+                            onClick={() => handleOpenPicker(act.id)}
+                            className="px-2.5 py-1.5 rounded-xl bg-surface-200 hover:bg-surface-300 border border-surface-border text-zinc-400 hover:text-foreground text-xs font-semibold transition-all cursor-pointer"
+                            title="Swap with a different movement choice"
+                          >
+                            <RefreshCw className="w-3.5 h-3.5" />
+                          </button>
 
-                        {act.premade_program_id && (
-                          <div className="pt-1">
-                            <button
-                              type="button"
-                              onClick={() => {
-                                const prog = PREMADE_WORKOUT_PROGRAMS.find((p) => p.id === act.premade_program_id);
-                                if (prog) {
-                                  const day = prog.schedule.find((d: WorkoutProgramDay) => d.day_number === act.premade_day_number) || prog.schedule[0];
-                                  setActiveSheetDay({ program: prog, day });
-                                }
-                              }}
-                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-amber-300 text-xs font-bold transition-all cursor-pointer"
-                            >
-                              <FileText className="w-3.5 h-3.5" />
-                              <span>View Interactive Workout Sheet & Exercises</span>
-                            </button>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Metrics & Action Buttons */}
-                    <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between sm:justify-start gap-3 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-surface-border">
-                      <div className="flex items-center gap-3 text-xs font-mono">
-                        <span className="flex items-center gap-1 font-bold text-foreground bg-surface-200 px-2.5 py-1 rounded-xl border border-surface-border">
-                          <Clock className="w-3.5 h-3.5 text-accent-coral" />
-                          {act.duration_minutes}m
-                        </span>
-                        <span className="text-zinc-400">~{act.estimated_calories} kcal</span>
-                        {act.estimated_steps > 0 && (
-                          <span className="text-zinc-400">{act.estimated_steps.toLocaleString()} steps</span>
-                        )}
-                      </div>
-
-                      <div className="flex items-center gap-1.5">
-                        <button
-                          type="button"
-                          onClick={() => handleLogActivity(act)}
-                          className="px-3 py-1.5 rounded-xl bg-accent-coral/15 hover:bg-accent-coral/25 border border-accent-coral/30 text-accent-coral text-xs font-bold transition-all active:scale-95 cursor-pointer flex items-center gap-1"
-                          title="Log this activity's steps and calories to your daily burn"
-                        >
-                          <Flame className="w-3.5 h-3.5" />
-                          <span>{act.completed ? 'Logged ✓' : 'Log & Burn'}</span>
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={() => handleOpenPicker(act.id)}
-                          className="px-2.5 py-1.5 rounded-xl bg-surface-200 hover:bg-surface-300 border border-surface-border text-zinc-400 hover:text-foreground text-xs font-semibold transition-all cursor-pointer"
-                          title="Swap with a different movement choice"
-                        >
-                          <RefreshCw className="w-3.5 h-3.5" />
-                        </button>
-
-                        {simpleMovementActivities.length > 1 && (
                           <button
                             type="button"
                             onClick={() => removeSimpleMovementActivity(act.id)}
@@ -696,13 +745,13 @@ export const WorkoutGenerator: React.FC = () => {
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                           </button>
-                        )}
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
 
             {/* Add More Movements CTA Card */}
             <div

@@ -1,5 +1,5 @@
 # Seelye Family Health — Precision Fitness & Nutrition Application
-**Version: Beta v4.9.0 (b4.9.0)** | **Production Domain: https://health.seelye.info**
+**Version: Beta v4.9.1 (b4.9.1)** | **Production Domain: https://health.seelye.info**
 
 High-performance, dark-mode first athletic health and nutrition platform engineered with Next.js (App Router), TypeScript, Tailwind CSS, Supabase (PostgreSQL), and integrated Wholesome Recipe & Meal Prep Engine.
 
@@ -7,13 +7,14 @@ High-performance, dark-mode first athletic health and nutrition platform enginee
 
 ## ⚡ Key Architectural Modules
 
-### 1. Pre-Made Programs & Standard Daily Movement Search Integration (Beta v4.9.0)
+### 1. Pre-Made Programs, Standard Movement & Clean Reset (Beta v4.9.1)
 - **Standard Mode Pre-Made Workouts Discovery:** Full search across all 42 master training programs and 180+ daily workout sessions (P90X, StrongLifts 5x5, CrossFit The Girls & Hero WODs, Arnold Golden Six, Insanity, Tai Chi, Concept2 Rowing) directly from the simplified Standard Feel-Good Movement mode.
 - **Clean Sub-Navigation Switcher:** 2-pill toggle ("Daily Movement Choices" & "Pre-Made Programs (42)") allows users in Standard mode to seamlessly enter the rich program browser and interactive worksheets without cluttering their daily tracker.
 - **Inline Quick-Add & Instant Search Card:** Real-time search with matching program previews, key exercise breakdowns, calorie burns, and 1-click popular program chips (P90X, 5x5, Cindy, Arnold, Insanity, Tai Chi, Row 5K) to add structured routines directly to daily movement goals.
 - **Simple Movement Picker Modal Integration:** Merged all 42 pre-made programs and 180+ workout days into the activity picker modal with a dedicated "🏆 Pre-Made Workouts (42+)" filter pill and distinct visual badges.
 - **Interactive Routine Sheet Access:** Logged pre-made workouts display a direct "View Interactive Workout Sheet & Exercises" button in Standard mode, launching full exercise rosters, sets, reps, and printable sheets.
 - **One-Click Library Add:** Added "+ Add to Today" action buttons directly on every program card and day item in the Pre-Made Programs Browser with instant green feedback toast banners.
+- **Clean Reset & Empty Slate UI:** The Standard movement Reset button completely clears all chosen activities from today's plan, removing selected states across the picker and chips, and provides an encouraging empty state with options to pick new activities, browse programs, or load default baselines. Individual items can be removed freely down to an empty list.
 
 ### 2. Custom Meal Builder, In-Place Diary Editing & Food Database (Beta v4.8.0)
 - **Interactive Custom Meal Builder:** Assemble custom meals and recipes by adding ingredients with customized quantities and units (`g`, `oz`, `cups`, `tbsp`, `tsp`, `servings`).

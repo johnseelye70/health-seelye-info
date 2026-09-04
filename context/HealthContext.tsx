@@ -221,6 +221,7 @@ interface HealthContextType {
   removeSimpleMovementActivity: (id: string) => void;
   swapSimpleMovementActivity: (oldId: string, newActivity: SimpleMovementActivity) => void;
   resetSimpleMovementActivities: () => void;
+  loadDefaultSimpleMovementActivities: () => void;
 
   // Pre-Made Programs & Workout Database Query Engine
   workoutLogs: WorkoutSessionLog[];
@@ -415,7 +416,7 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
           if (parsed.stepLogs && Array.isArray(parsed.stepLogs)) {
             loadedStepLogs = parsed.stepLogs.filter((s: StepLogEntry) => !(s.steps === 8 && s.source === 'apple_health'));
           }
-          if (parsed.simpleMovementActivities && Array.isArray(parsed.simpleMovementActivities) && parsed.simpleMovementActivities.length > 0) {
+          if (parsed.simpleMovementActivities && Array.isArray(parsed.simpleMovementActivities)) {
             setSimpleMovementActivities(parsed.simpleMovementActivities);
           }
           if (parsed.scheduledPlans && typeof parsed.scheduledPlans === 'object') {
@@ -2212,6 +2213,10 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const resetSimpleMovementActivities = useCallback(() => {
+    setSimpleMovementActivities([]);
+  }, []);
+
+  const loadDefaultSimpleMovementActivities = useCallback(() => {
     setSimpleMovementActivities(DEFAULT_SIMPLE_DAILY_CHOICES);
   }, []);
 
@@ -2689,6 +2694,7 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
         removeSimpleMovementActivity,
         swapSimpleMovementActivity,
         resetSimpleMovementActivities,
+        loadDefaultSimpleMovementActivities,
 
         workoutLogs,
         saveWorkoutSessionLog,

@@ -527,42 +527,55 @@ export const DashboardOverview: React.FC = () => {
                 </div>
 
                 <div className="space-y-2 pt-1">
-                  {simpleMovementActivities.map((m) => (
-                    <div
-                      key={m.id}
-                      onClick={() => toggleSimpleMovementCompleted(m.id)}
-                      className={`p-3.5 rounded-2xl border flex items-center justify-between cursor-pointer transition-all ${
-                        m.completed
-                          ? 'bg-emerald-500/10 border-emerald-500/30 text-zinc-300'
-                          : 'bg-surface-200/60 border-surface-border hover:border-accent-coral/40 text-foreground'
-                      }`}
-                    >
-                      <div className="flex items-center gap-2.5">
-                        <button
-                          type="button"
-                          className="text-zinc-400 hover:text-foreground shrink-0 cursor-pointer"
-                        >
-                          {m.completed ? (
-                            <CheckCircle2 className="w-5 h-5 text-emerald-400 fill-emerald-400/20" />
-                          ) : (
-                            <Circle className="w-5 h-5 text-zinc-400 hover:text-accent-coral" />
-                          )}
-                        </button>
-                        <div>
-                          <div className={`text-xs font-bold ${m.completed ? 'line-through text-zinc-400' : 'text-foreground'}`}>
-                            {m.icon} {m.title}
-                          </div>
-                          <div className="text-[10px] text-zinc-400 mt-0.5">
-                            {m.duration_minutes}m • ~{m.estimated_calories} kcal
+                  {simpleMovementActivities.length === 0 ? (
+                    <div className="p-4 rounded-2xl bg-surface-200/50 border border-dashed border-surface-border text-center space-y-1.5 py-6">
+                      <p className="text-xs text-zinc-400 font-medium">No movements chosen for today yet.</p>
+                      <button
+                        type="button"
+                        onClick={() => setShowDashboardMovementModal(true)}
+                        className="text-xs text-accent-coral font-bold hover:underline cursor-pointer"
+                      >
+                        + Choose today&apos;s movement
+                      </button>
+                    </div>
+                  ) : (
+                    simpleMovementActivities.map((m) => (
+                      <div
+                        key={m.id}
+                        onClick={() => toggleSimpleMovementCompleted(m.id)}
+                        className={`p-3.5 rounded-2xl border flex items-center justify-between cursor-pointer transition-all ${
+                          m.completed
+                            ? 'bg-emerald-500/10 border-emerald-500/30 text-zinc-300'
+                            : 'bg-surface-200/60 border-surface-border hover:border-accent-coral/40 text-foreground'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2.5">
+                          <button
+                            type="button"
+                            className="text-zinc-400 hover:text-foreground shrink-0 cursor-pointer"
+                          >
+                            {m.completed ? (
+                              <CheckCircle2 className="w-5 h-5 text-emerald-400 fill-emerald-400/20" />
+                            ) : (
+                              <Circle className="w-5 h-5 text-zinc-400 hover:text-accent-coral" />
+                            )}
+                          </button>
+                          <div>
+                            <div className={`text-xs font-bold ${m.completed ? 'line-through text-zinc-400' : 'text-foreground'}`}>
+                              {m.icon} {m.title}
+                            </div>
+                            <div className="text-[10px] text-zinc-400 mt-0.5">
+                              {m.duration_minutes}m • ~{m.estimated_calories} kcal
+                            </div>
                           </div>
                         </div>
-                      </div>
 
-                      <span className="text-[10px] font-bold text-accent-coral shrink-0">
-                        {m.completed ? 'Done ✓' : 'Tap to Complete'}
-                      </span>
-                    </div>
-                  ))}
+                        <span className="text-[10px] font-bold text-accent-coral shrink-0">
+                          {m.completed ? 'Done ✓' : 'Tap to Complete'}
+                        </span>
+                      </div>
+                    ))
+                  )}
                 </div>
 
                 <button

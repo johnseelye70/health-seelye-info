@@ -227,6 +227,17 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'b4.9.1',
+      date: '2026-09-04',
+      title: 'Standard Movement Reset & Clear Workflow Alignment',
+      changes: [
+        'Complete Movement Reset & Clear: Updated the Standard movement Reset action to cleanly clear all chosen movements for the day, ensuring previously selected activities no longer appear in "Your Chosen Movements For Today" or show as selected in the picker/chips.',
+        'Clean Empty Slate UI: Added an encouraging empty state card when all chosen movements are reset or cleared, providing quick 1-click action buttons to add activities, browse pre-made programs, or restore recommended baseline defaults.',
+        'Individual Activity Removal: Removed the minimum 1 item constraint on the activity trash buttons so users can freely delete any chosen activity individually down to an empty slate.',
+        'Persistence Alignment: Corrected local storage restoration logic so an empty array of chosen movements persists cleanly across page reloads instead of resurrecting old default items.',
+      ],
+    },
+    {
       version: 'b4.9.0',
       date: '2026-09-04',
       title: 'Full Pre-Made Workouts Search, Quick-Add & Browser Integration in Standard Movement Mode',
