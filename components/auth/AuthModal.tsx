@@ -119,8 +119,8 @@ export const AuthModal: React.FC = () => {
           </h3>
           <p className="text-xs text-zinc-400 max-w-sm mx-auto">
             {authUser
-              ? 'Your health records, meals, and workout logs are securely synced to the cloud.'
-              : 'Access your nutrition targets, meal logs, and workout split seamlessly across your phone, tablet, and computer.'}
+              ? 'Your health records, meals, and workout logs are securely synced across your laptop and iPhone.'
+              : 'Sign into the same account on both your laptop and iPhone to keep all your meals, targets, and movements in lockstep.'}
           </p>
         </div>
 
@@ -178,7 +178,16 @@ export const AuthModal: React.FC = () => {
           </div>
         ) : (
           /* Authentication Forms */
-          <div className="space-y-5 pt-3">
+          <div className="space-y-4 pt-3">
+            {/* Cross-Device Syncing Advice Banner */}
+            <div className="p-3 rounded-2xl bg-brand-500/10 border border-brand-500/25 text-zinc-300 flex items-start gap-2.5">
+              <Sparkles className="w-4 h-4 text-brand-400 shrink-0 mt-0.5" />
+              <div className="text-[11px] leading-relaxed">
+                <span className="font-semibold text-brand-300">Syncing Laptop to iPhone:</span>{' '}
+                Sign into the <strong className="text-white">exact same email</strong> on your laptop and iPhone. All entries made on either device sync automatically.
+              </div>
+            </div>
+
             {/* Mode Switcher Tabs */}
             {mode !== 'forgot' && (
               <div className="flex p-1 rounded-2xl bg-surface-200 border border-surface-border">

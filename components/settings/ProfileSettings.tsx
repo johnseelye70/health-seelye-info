@@ -227,6 +227,18 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'b4.13.0',
+      date: '2026-09-04',
+      title: 'Full Multi-Device Laptop-to-iPhone Cloud Synchronization Engine',
+      changes: [
+        'PostgreSQL Food Log UUID Resilience: Resolved Postgres error 22P02 by safely sanitizing food_logs.food_id to prevent type mismatches on curated string IDs, and added automatic database UUID capture via .select() to seamlessly link local log entries to cloud database rows.',
+        'Multi-Domain App Sync Bundle: Unified custom built meals & recipes, daily chosen movements, hydration water logs, workout session ledgers, and scheduled plans into an automatic multi-device sync bundle stored in user metadata and profile cloud records.',
+        'iPhone Safari Session Persistence: Configured persistent auth token storage in Supabase client options with auto-refresh and URL detection to maintain authenticated state on iOS Safari.',
+        'Immediate Diary & Meal Cloud Push: Connected logBuiltMealToDiary, updateBuiltMealInDiary, quickLogCalories, and logFood to push immediately to cloud tables with automatic local ID reconciliation.',
+        'Prominent Cross-Device UI Status & Instructions: Upgraded Header with an amber sync status indicator on unauthenticated devices and added clear step-by-step guidance in AuthModal and Settings for syncing between laptop and iPhone.',
+      ],
+    },
+    {
       version: 'b4.12.0',
       date: '2026-09-04',
       title: 'Complete Sam\'s Club Egg Catalog Integration',
@@ -1585,6 +1597,18 @@ export const ProfileSettings: React.FC = () => {
             </span>
           </div>
         </div>
+
+        {!authUser && (
+          <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-200 text-xs flex items-start gap-3">
+            <Smartphone className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+            <div className="space-y-1">
+              <span className="font-bold text-white">Syncing Laptop to iPhone:</span>
+              <p className="text-zinc-300 leading-relaxed text-[11px]">
+                Create an account or sign in with your email on your laptop, then open <strong className="text-white">health.seelye.info</strong> on your iPhone Safari and sign into that exact same email. All your entries, foods, movements, and biometrics will sync instantly.
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* Supabase SQL Database Setup Bar with 1-Click Copy */}
         <div className="pt-3 border-t border-surface-border flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">

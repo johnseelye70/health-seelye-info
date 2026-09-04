@@ -49,6 +49,9 @@ import {
 
 export type SyncStatusType = 'synced' | 'syncing' | 'offline' | 'error' | 'local_only';
 
+export const isUuid = (str?: string | null): boolean =>
+  Boolean(str && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str));
+
 interface HealthContextType {
   profile: UserProfile;
   updateProfile: (updates: Partial<UserProfile>) => void;
@@ -543,6 +546,31 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
     authUserRef.current = authUser;
   }, [authUser]);
 
+  const customMealsRef = useRef<BuiltCustomMeal[]>(customMeals);
+  useEffect(() => {
+    customMealsRef.current = customMeals;
+  }, [customMeals]);
+
+  const simpleMovementsRef = useRef<SimpleMovementActivity[]>(simpleMovementActivities);
+  useEffect(() => {
+    simpleMovementsRef.current = simpleMovementActivities;
+  }, [simpleMovementActivities]);
+
+  const waterLogsRef = useRef<WaterLogEntry[]>(waterLogs);
+  useEffect(() => {
+    waterLogsRef.current = waterLogs;
+  }, [waterLogs]);
+
+  const workoutLogsRef = useRef<WorkoutSessionLog[]>(workoutLogs);
+  useEffect(() => {
+    workoutLogsRef.current = workoutLogs;
+  }, [workoutLogs]);
+
+  const scheduledPlansRef = useRef<Record<string, ScheduledDayPlan>>(scheduledPlans);
+  useEffect(() => {
+    scheduledPlansRef.current = scheduledPlans;
+  }, [scheduledPlans]);
+
   const isSyncingRef = useRef<boolean>(false);
 
   // Helper to push local profile to cloud safely via UPSERT with onConflict: 'id'
@@ -751,9 +779,9 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
 
         if (localOnlyLogs.length > 0) {
           const rowsToInsert = localOnlyLogs.map((l) => ({
-            id: l.id.startsWith('log-') ? undefined : l.id,
+            id: isUuid(l.id) ? l.id : undefined,
             user_id: liveUser.id,
-            food_id: l.food_id,
+            food_id: isUuid(l.food_id) ? l.food_id : null,
             food_name: l.food_name,
             grams_consumed: l.grams_consumed,
             meal_index: l.meal_index,
@@ -763,14 +791,24 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
             carbs_g: l.carbs_g,
             fat_g: l.fat_g,
           }));
-          await (client.from('food_logs') as any).insert(rowsToInsert);
+          const { data: insertedRows } = await (client.from('food_logs') as any)
+            .insert(rowsToInsert)
+            .select();
+
+          if (insertedRows && Array.isArray(insertedRows)) {
+            insertedRows.forEach((ir: any, idx: number) => {
+              if (localOnlyLogs[idx]) {
+                localOnlyLogs[idx].id = ir.id;
+              }
+            });
+          }
         }
 
         const merged: FoodLogEntry[] = [
           ...cloudFoodLogs.map((c: any) => ({
             id: c.id,
             user_id: c.user_id,
-            food_id: c.food_id,
+            food_id: c.food_id || c.id,
             food_name: c.food_name,
             grams_consumed: Number(c.grams_consumed),
             meal_index: c.meal_index,
@@ -783,7 +821,20 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
           })),
           ...localOnlyLogs,
         ];
-        setFoodLogs(merged);
+
+        // Non-destructive deduplication by ID and unique meal signature
+        const deduped: FoodLogEntry[] = [];
+        const seen = new Set<string>();
+        for (const entry of merged) {
+          const key = `${entry.logged_at}_${entry.meal_index}_${entry.food_name}_${entry.calories}`;
+          if (!seen.has(entry.id) && !seen.has(key)) {
+            seen.add(entry.id);
+            seen.add(key);
+            deduped.push(entry);
+          }
+        }
+        setFoodLogs(deduped);
+        foodLogsRef.current = deduped;
       }
 
       // C. Weight Logs Sync
@@ -997,6 +1048,137 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
         }
       } catch (stepErr) {
         console.warn('Step logs sync warning:', stepErr);
+      }
+
+      // E. Multi-Device App Sync Bundle (Custom Meals, Daily Movements, Hydration Water, Workout Logs, Scheduled Plans)
+      try {
+        let cloudBundle: any = liveUser.user_metadata?.app_sync_bundle || null;
+        if (!cloudBundle && cloudProfile?.equipment_inventory && typeof cloudProfile.equipment_inventory === 'object') {
+          cloudBundle = (cloudProfile.equipment_inventory as any).app_sync_bundle || null;
+        }
+
+        const localCustomMeals = customMealsRef.current || [];
+        const localSimpleMovements = simpleMovementsRef.current || [];
+        const localWaterLogs = waterLogsRef.current || [];
+        const localWorkoutLogs = workoutLogsRef.current || [];
+        const localScheduledPlans = scheduledPlansRef.current || {};
+
+        let hasBundleUpdate = false;
+
+        // 1. Custom Meals Reconciliation
+        const cloudCustomMeals: BuiltCustomMeal[] = Array.isArray(cloudBundle?.custom_meals) ? cloudBundle.custom_meals : [];
+        const mealMap = new Map<string, BuiltCustomMeal>();
+        cloudCustomMeals.forEach((cm) => {
+          if (cm && cm.id) mealMap.set(cm.id, cm);
+        });
+        localCustomMeals.forEach((lm) => {
+          if (lm && lm.id) {
+            if (!mealMap.has(lm.id)) {
+              mealMap.set(lm.id, lm);
+              hasBundleUpdate = true;
+            } else {
+              const existing = mealMap.get(lm.id)!;
+              const localTime = lm.created_at ? new Date(lm.created_at).getTime() : 0;
+              const cloudTime = existing.created_at ? new Date(existing.created_at).getTime() : 0;
+              if (localTime > cloudTime) {
+                mealMap.set(lm.id, lm);
+                hasBundleUpdate = true;
+              }
+            }
+          }
+        });
+        const mergedCustomMeals = Array.from(mealMap.values());
+        setCustomMeals(mergedCustomMeals);
+        customMealsRef.current = mergedCustomMeals;
+
+        // 2. Simple Movements (Daily Chosen Activities)
+        let mergedMovements = localSimpleMovements;
+        const cloudMovements: SimpleMovementActivity[] = Array.isArray(cloudBundle?.simple_movements) ? cloudBundle.simple_movements : [];
+        if (cloudMovements.length > 0) {
+          const localCount = localSimpleMovements.length;
+          const cloudCount = cloudMovements.length;
+          if (cloudCount > 0 && localCount === 0) {
+            mergedMovements = cloudMovements;
+            setSimpleMovementActivities(mergedMovements);
+            simpleMovementsRef.current = mergedMovements;
+          } else if (localCount > 0) {
+            hasBundleUpdate = true;
+          }
+        } else if (localSimpleMovements.length > 0) {
+          hasBundleUpdate = true;
+        }
+
+        // 3. Water Logs Reconciliation
+        const cloudWaterLogs: WaterLogEntry[] = Array.isArray(cloudBundle?.water_logs) ? cloudBundle.water_logs : [];
+        const waterMap = new Map<string, WaterLogEntry>();
+        cloudWaterLogs.forEach((cw) => {
+          if (cw && cw.id) waterMap.set(cw.id, cw);
+        });
+        localWaterLogs.forEach((lw) => {
+          if (lw && lw.id && !waterMap.has(lw.id)) {
+            waterMap.set(lw.id, lw);
+            hasBundleUpdate = true;
+          }
+        });
+        const mergedWaterLogs = Array.from(waterMap.values()).sort((a, b) => b.logged_at.localeCompare(a.logged_at));
+        setWaterLogs(mergedWaterLogs);
+        waterLogsRef.current = mergedWaterLogs;
+
+        // 4. Workout Logs Reconciliation
+        const cloudWorkoutLogs: WorkoutSessionLog[] = Array.isArray(cloudBundle?.workout_logs) ? cloudBundle.workout_logs : [];
+        const workoutMap = new Map<string, WorkoutSessionLog>();
+        cloudWorkoutLogs.forEach((cw) => {
+          if (cw && cw.id) workoutMap.set(cw.id, cw);
+        });
+        localWorkoutLogs.forEach((lw) => {
+          if (lw && lw.id && !workoutMap.has(lw.id)) {
+            workoutMap.set(lw.id, lw);
+            hasBundleUpdate = true;
+          }
+        });
+        const mergedWorkoutLogs = Array.from(workoutMap.values());
+        setWorkoutLogs(mergedWorkoutLogs);
+        workoutLogsRef.current = mergedWorkoutLogs;
+
+        // 5. Scheduled Plans Reconciliation
+        const cloudPlans: Record<string, ScheduledDayPlan> = (cloudBundle?.scheduled_plans && typeof cloudBundle.scheduled_plans === 'object') ? cloudBundle.scheduled_plans : {};
+        const mergedPlans = { ...cloudPlans, ...localScheduledPlans };
+        if (Object.keys(localScheduledPlans).length > 0) {
+          hasBundleUpdate = true;
+        }
+        setScheduledPlans(mergedPlans);
+        scheduledPlansRef.current = mergedPlans;
+
+        // Push bundle if local had additions or cloud was missing bundle
+        const updatedBundle = {
+          custom_meals: mergedCustomMeals,
+          simple_movements: mergedMovements,
+          water_logs: mergedWaterLogs,
+          workout_logs: mergedWorkoutLogs,
+          scheduled_plans: mergedPlans,
+          last_bundle_sync: new Date().toISOString(),
+        };
+
+        if (hasBundleUpdate || !cloudBundle) {
+          client.auth.updateUser({
+            data: {
+              app_sync_bundle: updatedBundle,
+            },
+          }).catch(() => {});
+
+          const currentEq = (cloudProfile?.equipment_inventory && typeof cloudProfile.equipment_inventory === 'object')
+            ? cloudProfile.equipment_inventory
+            : {};
+          (client.from('profiles') as any).update({
+            equipment_inventory: {
+              ...currentEq,
+              app_sync_bundle: updatedBundle,
+            },
+            updated_at: new Date().toISOString(),
+          }).eq('id', liveUser.id).catch(() => {});
+        }
+      } catch (bundleErr) {
+        console.warn('App sync bundle warning:', bundleErr);
       }
 
       setSyncStatus('synced');
@@ -1286,6 +1468,34 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
     };
 
     setFoodLogs((prev) => [newEntry, ...prev]);
+
+    const user = authUserRef.current;
+    if (supabase && user) {
+      (supabase.from('food_logs') as any)
+        .insert({
+          user_id: user.id,
+          food_id: null,
+          food_name: newEntry.food_name,
+          grams_consumed: 100,
+          meal_index: mealIndex,
+          logged_at: targetDate,
+          calories,
+          protein_g: p,
+          carbs_g: c,
+          fat_g: f,
+        })
+        .select()
+        .single()
+        .then(({ data }: any) => {
+          if (data?.id) {
+            setFoodLogs((prev) =>
+              prev.map((l) => (l.id === newEntry.id ? { ...l, id: data.id } : l))
+            );
+          }
+        })
+        .catch(() => {});
+    }
+
     return newEntry.id;
   }, [selectedDate, todayDate, profile.id]);
 
@@ -1294,7 +1504,7 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
       prev.map((log) => (log.id === id ? { ...log, ...updates } : log))
     );
     const user = authUserRef.current;
-    if (supabase && user && !id.startsWith('log-')) {
+    if (supabase && user && (isUuid(id) || !id.startsWith('log-'))) {
       (supabase.from('food_logs') as any).update(updates).eq('id', id).then(() => {});
     }
   }, []);
@@ -1380,6 +1590,33 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
         };
 
         setFoodLogs((prev) => [newEntry, ...prev]);
+
+        const user = authUserRef.current;
+        if (supabase && user) {
+          (supabase.from('food_logs') as any)
+            .insert({
+              user_id: user.id,
+              food_id: null,
+              food_name: newEntry.food_name,
+              grams_consumed: totalGrams,
+              meal_index: options.mealIndex,
+              logged_at: targetDate,
+              calories: totalCals,
+              protein_g: totalProt,
+              carbs_g: totalCarbs,
+              fat_g: totalFat,
+            })
+            .select()
+            .single()
+            .then(({ data }: any) => {
+              if (data?.id) {
+                setFoodLogs((prev) =>
+                  prev.map((l) => (l.id === newEntry.id ? { ...l, id: data.id } : l))
+                );
+              }
+            })
+            .catch(() => {});
+        }
       } else {
         const scale = servings / Math.max(1, meal.servings_yield);
         const newLogs: FoodLogEntry[] = meal.ingredients.map((ing, idx) => {
@@ -1409,6 +1646,40 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
         });
 
         setFoodLogs((prev) => [...newLogs, ...prev]);
+
+        const user = authUserRef.current;
+        if (supabase && user && newLogs.length > 0) {
+          const rows = newLogs.map((l) => ({
+            user_id: user.id,
+            food_id: isUuid(l.food_id) ? l.food_id : null,
+            food_name: l.food_name,
+            grams_consumed: l.grams_consumed,
+            meal_index: l.meal_index,
+            logged_at: l.logged_at,
+            calories: l.calories,
+            protein_g: l.protein_g,
+            carbs_g: l.carbs_g,
+            fat_g: l.fat_g,
+          }));
+          (supabase.from('food_logs') as any)
+            .insert(rows)
+            .select()
+            .then(({ data }: any) => {
+              if (data && Array.isArray(data) && data.length === newLogs.length) {
+                setFoodLogs((prev) => {
+                  const updated = [...prev];
+                  newLogs.forEach((nl, idx) => {
+                    const matchIdx = updated.findIndex((u) => u.id === nl.id);
+                    if (matchIdx >= 0 && data[idx]?.id) {
+                      updated[matchIdx] = { ...updated[matchIdx], id: data[idx].id };
+                    }
+                  });
+                  return updated;
+                });
+              }
+            })
+            .catch(() => {});
+        }
       }
     },
     [profile.id, selectedDate, todayDate, saveCustomMeal]
@@ -1997,7 +2268,7 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
         (supabase.from('food_logs') as any)
           .insert({
             user_id: user.id,
-            food_id: food.id,
+            food_id: isUuid(food.id) ? food.id : null,
             food_name: newEntry.food_name,
             grams_consumed,
             meal_index,
@@ -2007,7 +2278,16 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
             carbs_g: calculatedCarbs,
             fat_g: calculatedFat,
           })
-          .then(() => {});
+          .select()
+          .single()
+          .then(({ data }: any) => {
+            if (data?.id) {
+              setFoodLogs((prev) =>
+                prev.map((l) => (l.id === newEntry.id ? { ...l, id: data.id } : l))
+              );
+            }
+          })
+          .catch((err: any) => console.warn('Food log cloud insert warning:', err));
       }
 
       return newEntry.id;
@@ -2018,7 +2298,7 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
   const deleteFoodLog = useCallback((id: string) => {
     setFoodLogs((prev) => prev.filter((log) => log.id !== id));
     const user = authUserRef.current;
-    if (supabase && user && !id.startsWith('log-')) {
+    if (supabase && user && (isUuid(id) || !id.startsWith('log-'))) {
       (supabase.from('food_logs') as any).delete().eq('id', id).then(() => {});
     }
   }, []);

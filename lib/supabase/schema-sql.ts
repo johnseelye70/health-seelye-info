@@ -61,6 +61,12 @@ CREATE TABLE IF NOT EXISTS public.food_logs (
 -- Ensure all columns exist on food_logs
 ALTER TABLE public.food_logs ADD COLUMN IF NOT EXISTS user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE;
 ALTER TABLE public.food_logs ADD COLUMN IF NOT EXISTS food_id TEXT;
+-- Ensure food_id is TEXT (migrating from legacy UUID foreign key if present)
+ALTER TABLE public.food_logs DROP CONSTRAINT IF EXISTS food_logs_food_id_fkey;
+DO $$ BEGIN
+  ALTER TABLE public.food_logs ALTER COLUMN food_id TYPE TEXT;
+EXCEPTION WHEN OTHERS THEN NULL;
+END $$;
 ALTER TABLE public.food_logs ADD COLUMN IF NOT EXISTS food_name TEXT;
 ALTER TABLE public.food_logs ADD COLUMN IF NOT EXISTS grams_consumed NUMERIC;
 ALTER TABLE public.food_logs ADD COLUMN IF NOT EXISTS meal_index INTEGER DEFAULT 1;

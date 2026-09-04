@@ -1,5 +1,5 @@
 # Seelye Family Health — Precision Fitness & Nutrition Application
-**Version: Beta v4.12.0 (b4.12.0)** | **Production Domain: https://health.seelye.info**
+**Version: Beta v4.13.0 (b4.13.0)** | **Production Domain: https://health.seelye.info**
 
 High-performance, dark-mode first athletic health and nutrition platform engineered with Next.js (App Router), TypeScript, Tailwind CSS, Supabase (PostgreSQL), and integrated Wholesome Recipe & Meal Prep Engine.
 
@@ -7,7 +7,15 @@ High-performance, dark-mode first athletic health and nutrition platform enginee
 
 ## ⚡ Key Architectural Modules
 
-### 1. Complete Sam's Club Egg Catalog Integration (Beta v4.12.0)
+### 1. Full Multi-Device Laptop-to-iPhone Cloud Synchronization Engine (Beta v4.13.0)
+- **PostgreSQL UUID & Type Resilience:** Eliminated Postgres error 22P02 (`invalid input syntax for type uuid`) on string food IDs (`da-egg-ks-001`, `pm-chk-001`, etc.) across `food_logs`, ensuring all food entries successfully insert into cloud tables.
+- **Immediate Local-to-Cloud Database ID Mapping:** Switched insert pipelines to use `.select().single()`, updating local client state with the canonical database UUIDs so diary edits, updates, and deletes target cloud rows seamlessly.
+- **Multi-Domain App Sync Bundle:** Unified custom built meals & recipes, daily chosen movements, hydration water logs, workout session ledgers, and scheduled meal plans into an automatic cloud bundle synced via `auth.updateUser` and profile cloud metadata.
+- **iPhone Safari Session Persistence:** Configured persistent session storage in Supabase client options with auto-refresh and URL detection to maintain authenticated state on iOS Safari.
+- **Immediate Diary & Meal Cloud Push:** Connected `logBuiltMealToDiary`, `updateBuiltMealInDiary`, `quickLogCalories`, and `logFood` to push directly to cloud tables with automatic ID reconciliation.
+- **Cross-Device UI Status & Instructions:** Added visual sync status indicators across the top header, an explicit cross-device sync notice in AuthModal, and detailed sync diagnostics in Settings.
+
+### 2. Complete Sam's Club Egg Catalog Integration (Beta v4.12.0)
 - **Member's Mark Fresh Shell Eggs:** Member's Mark Cage-Free Grade AA Large White Eggs (2 Dozen / 24-Pack & 5 Dozen / 60-Count Crate), Cage-Free Large Brown Eggs (24-Pack), Organic Cage-Free Large Brown Eggs (24-Pack), Free Range Large Brown Eggs (24-Pack), and Pasture-Raised Organic Grade A Large Brown Eggs (18-Count / 1.5 Dozen).
 - **Commercial & Prepared Egg Products:** Member's Mark Pasteurized Liquid Real Whole Eggs with Citric Acid, Member's Mark Sous Vide Uncured Bacon & Three Cheese Egg Bites (5-Pack / 10 Bites), and Three Bridges Uncured Bacon & Cheese Egg Bites (8-Pack / 16 Bites).
 - **National Brand Egg Lines at Sam's Club:** Sunny Meadow Grade A Large Eggs (36-Count Case / 2 x 18-Pack), Eggland's Best Cage-Free Large Brown (18-Count), Eggland's Best Organic Large (18-Count), Eggland's Best Large White (30-Count Flat), Eggland's Best Three Cheese Omelets (8-Count), Happy Egg Co. Free Range Large Brown (18-Count), and Vital Farms Pasture-Raised Organic Large (18-Count).

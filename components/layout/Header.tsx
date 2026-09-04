@@ -257,13 +257,13 @@ export const Header: React.FC = () => {
           onClick={() => setShowAuthModal(true)}
           title={
             authUser
-              ? `Signed in as ${authUser.email} (Click to manage sync)`
-              : 'Sign in to sync your data across iPhone, iPad & Computer'
+              ? `Signed in as ${authUser.email} (Cross-Device Sync Active)`
+              : 'Sign in to sync your entries between laptop & iPhone'
           }
           className={`flex items-center justify-center w-8 h-8 sm:w-auto sm:px-3 sm:py-2 rounded-xl border text-xs font-semibold transition-all cursor-pointer shrink-0 ${
             authUser
               ? 'bg-emerald-950/40 border-emerald-500/40 text-emerald-300 hover:bg-emerald-900/50'
-              : 'bg-surface-100 hover:bg-surface-50 border-surface-border text-zinc-300 hover:border-brand-500/40'
+              : 'bg-amber-500/10 hover:bg-amber-500/20 border-amber-500/40 text-amber-300 shadow-sm'
           }`}
         >
           {authUser ? (
@@ -274,8 +274,9 @@ export const Header: React.FC = () => {
             </>
           ) : (
             <>
-              <Cloud className="w-3.5 h-3.5 text-brand-400 shrink-0" />
-              <span className="hidden sm:inline ml-1.5">Sync</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-400 shrink-0 sm:hidden"></span>
+              <Cloud className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+              <span className="hidden sm:inline ml-1.5 font-medium">Sync (Sign In)</span>
             </>
           )}
         </button>
