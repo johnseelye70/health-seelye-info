@@ -227,6 +227,18 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'b4.4.0',
+      date: '2026-09-04',
+      title: 'Store-Brand & Name-Brand Gluten-Free Expansion: Breads, Crackers, and Desserts across Meijer, Walmart, Costco, Sam\'s Club & Aldi',
+      changes: [
+        'Gluten-Free Bread & Bagels: Added 28 gluten-free breads, rolls, and bagels across store brands (liveGfree Aldi Wide Pan White, Whole Grain & Bagels; Meijer GF White & Whole Grain; True Goodness Multigrain; Great Value Walmart GF White & Whole Grain; Member\'s Mark Sam\'s Club GF White Twin Pack; Kirkland Signature Costco GF Multigrain) and premier name brands (Canyon Bakehouse Country White, Mountain White, Brioche, Everything Bagels, English Muffins, Sub Rolls; Schär Artisan Baker White, Multigrain, Deli Sourdough, Ciabatta Rolls, Plain Bagels; Udi\'s Delicious Soft White, Whole Grain, Hamburger Buns, Plain Bagels; BFree Pita Pockets & Baguettes).',
+        'Gluten-Free Crackers & Pretzels: Added 34 gluten-free crackers and pretzel varieties across store brands (liveGfree Sea Salt, Rosemary Multiseed, Cheddar Cheese Bites, Pretzel Twists; True Goodness Meijer Almond Flour Sea Salt & Rosemary, Crispy Rice, Pretzel Twists; Great Value Rice & Multiseed, GF Pretzel Twists, Honey Mustard Pretzel Pieces; Member\'s Mark GF Almond Flour Sea Salt Club Box; Kirkland Signature Organic Rice Crackers) and name brands (Simple Mills Almond Flour Rosemary, Fine Ground Sea Salt, Farmhouse Cheddar, Sun-Dried Tomato Basil; Crunchmaster Multi-Seed Sea Salt, Multi-Grain, Tuscan Peasant, Avocado Toast; Milton\'s Craft Bakers Crispy Sea Salt, Cheddar, Everything; Mary\'s Gone Crackers Everything & Herb; Glutino Original Crackers & Salted Pretzels; Lance GF Peanut Butter & Cheddar Sandwiches; Hu Kitchen Grain-Free Sea Salt).',
+        'Gluten-Free Desserts, Cookies & Baking Mixes: Added 42 gluten-free cookies, sweet snacks, and baking mixes across store brands (liveGfree Chocolate Chip, Double Chocolate Soft Baked, Snickerdoodle, Deluxe Fudge Brownie Mix, Yellow Cake Mix; True Goodness Meijer GF Chocolate Chip Cookies, Cookie Mix, Brownie Mix; Great Value GF Chocolate Chip, Vanilla Creme Sandwiches, Brownie Mix, Chocolate Cake Mix; Member\'s Mark GF Brownie Mix 3-pack) and top national brands (Tate\'s Bake Shop GF Chocolate Chip, Ginger Zinger, Lemon, Double Chocolate; Oreo Gluten Free Chocolate, Double Stuf, Mint, Golden; Sweet Loren\'s Place & Bake Chocolate Chunk, Fudgy Brownie, Sugar Cookie Dough; Simple Mills Sweet Thins Honey Cinnamon & Brownie, Crunchy Choc Chip; King Arthur GF Ultimate Fudge Brownie, Chocolate Cake, Classic Yellow Cake, Chocolate Chip Cookie Mixes; Goodie Girl Mint Slims, Fudge Striped, Birthday Cake; Schär Hazelnut Wafers & Choc O\'s; Partake Foods Chocolate Chip & Birthday Cake; Heavenly Hunks Oatmeal Dark Chocolate Chunks; Universal Bakery Aussie Bites).',
+        'Store Products Database Synchronization: Enhanced store-specific product databases with 63 dedicated gluten-free grocery items spanning Meijer, Walmart, Costco, Sam\'s Club, and Aldi with package sizing, store tag primaries, and smart substitution mappings.',
+        '100% Gluten-Free Tagging & Allergen Auditing: Every added item verified with is_gluten_free: true and is_dairy_free where appropriate, fully searchable within the Custom Meal Builder studio.',
+      ],
+    },
+    {
       version: 'b4.3.0',
       date: '2026-09-04',
       title: 'Store-Brand Product Expansion Across All Major Stores (Meijer, Walmart, Costco, Sam\'s Club & Aldi) + Meijer Sugar-Free Oatmeal',

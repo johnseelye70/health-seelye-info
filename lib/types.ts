@@ -465,6 +465,7 @@ export interface CatalogGroceryItem {
   protein_g?: number;
   carbs_g?: number;
   fat_g?: number;
+  is_gluten_free?: boolean;
   common_substitutes: SmartGrocerySubstitute[];
   icon_emoji?: string;
 }
