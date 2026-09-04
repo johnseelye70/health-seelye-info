@@ -227,6 +227,19 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'b4.13.5',
+      date: '2026-09-04',
+      title: 'Food Diary Cross-Device Sync & Hydration Deletion/Reset Architecture',
+      changes: [
+        'Guaranteed PostgreSQL Profile Upsert: Upgraded cloud profile bundle saving from .update() to .upsert({ onConflict: "id" }), ensuring user profile records and equipment_inventory sync bundles are created and persisted without silent failures.',
+        'Lean Multi-Device Sync Bundle: Stripped redundant nested custom_meal_data from food logs inside the cloud sync bundle, eliminating 4KB Supabase Auth metadata quota exceptions while preserving full recipe structures in custom_meals.',
+        'Water Tombstone & Reset Architecture: Engineered deleted_water_ids tombstones and water_reset_at timestamps that propagate to the cloud, permanently preventing deleted or reset hydration logs from resurrecting upon sync.',
+        'Local Calendar Timestamping for Hydration: Standardized water log timestamps to use local calendar dates (todayDate + local time) rather than UTC toISOString, eliminating evening timezone rollover discrepancies where water logged after 8:00 PM EDT vanished or mapped to tomorrow.',
+        'Clean PostgreSQL Food Logs Batch Insert: Ensured profile row exists prior to food_logs table inserts to satisfy foreign key constraints, omitted client-generated IDs so PostgreSQL generates clean UUIDs, and enforced food_id: null to prevent foreign key errors.',
+        '1-Tap Mobile Header Cloud Sync: Configured the mobile header cloud icon to trigger an immediate 1-tap sync for authenticated users with active spinning status indicators instead of redundantly opening the auth modal.',
+      ],
+    },
+    {
       version: 'b4.13.4',
       date: '2026-09-04',
       title: 'Resolved Cross-Device Sync Race Conditions & Hydration Water Log Deduplication',

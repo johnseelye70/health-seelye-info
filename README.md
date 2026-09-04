@@ -1,5 +1,5 @@
 # Seelye Family Health — Precision Fitness & Nutrition Application
-**Version: Beta v4.13.4 (b4.13.4)** | **Production Domain: https://health.seelye.info**
+**Version: Beta v4.13.5 (b4.13.5)** | **Production Domain: https://health.seelye.info**
 
 High-performance, dark-mode first athletic health and nutrition platform engineered with Next.js (App Router), TypeScript, Tailwind CSS, Supabase (PostgreSQL), and integrated Wholesome Recipe & Meal Prep Engine.
 
@@ -7,7 +7,15 @@ High-performance, dark-mode first athletic health and nutrition platform enginee
 
 ## ⚡ Key Architectural Modules
 
-### 1. Cross-Device Sync Race Condition Elimination & Water Deduplication (Beta v4.13.4)
+### 1. Food Diary Cross-Device Sync & Hydration Deletion/Reset Architecture (Beta v4.13.5)
+- **Guaranteed PostgreSQL Profile Upsert:** Upgraded profile cloud saving from `.update()` to `.upsert({ onConflict: 'id' })`, ensuring profiles records and `equipment_inventory.app_sync_bundle` are reliably created and saved to PostgreSQL regardless of initial row existence.
+- **Lean Multi-Device Sync Bundle:** Stripped bulky redundant nested `custom_meal_data` objects from food logs inside the cloud sync bundle, eliminating 4KB Supabase Auth metadata quota exceptions while preserving full meal blueprints in `custom_meals`.
+- **Water Tombstone & Reset Architecture:** Engineered `deleted_water_ids` tombstones and `water_reset_at` timestamps that propagate to the cloud, permanently preventing deleted or reset hydration logs from resurrecting upon sync.
+- **Local Calendar Timestamping for Hydration:** Standardized water log timestamps to use local calendar dates (`todayDate` + local time) rather than UTC `toISOString`, eliminating evening timezone rollover discrepancies where water logged after 8:00 PM EDT vanished or mapped to tomorrow.
+- **Clean PostgreSQL Food Logs Batch Insert:** Ensured profile row exists prior to `food_logs` table inserts to satisfy foreign key constraints, omitted client-generated IDs so PostgreSQL generates clean UUIDs, and enforced `food_id: null` to prevent foreign key constraint issues.
+- **1-Tap Mobile Header Cloud Sync:** Configured the mobile header cloud icon to trigger an immediate 1-tap sync for authenticated users with active spinning status indicators instead of redundantly opening the auth modal.
+
+### 2. Cross-Device Sync Race Condition Elimination & Water Deduplication (Beta v4.13.4)
 - **Eliminated Destructive Sync Clobbering:** Removed the redundant Section D step sync that was concurrently overwriting `profiles.equipment_inventory` and auth `user_metadata`, ensuring the full `app_sync_bundle` (`food_logs`, `water_logs`, `custom_meals`, `workout_logs`, `scheduled_plans`) persists reliably in PostgreSQL without being wiped out.
 - **Fresh-Device Food Push Guard:** Implemented strict push guards preventing uninitialized secondary devices (like a freshly signed-in iPhone) from overwriting cloud food logs with empty arrays.
 - **Hydration Water Log Deduplication:** Engineered composite signature deduplication (date, oz amount, container, and 5-minute time block) to prevent water logs from duplicating and skewing totals higher when syncing between laptop and iPhone.

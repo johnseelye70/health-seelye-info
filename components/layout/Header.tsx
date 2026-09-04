@@ -41,6 +41,7 @@ export const Header: React.FC = () => {
     authUser,
     setShowAuthModal,
     syncStatus,
+    syncWithCloud,
     groceryList,
   } = useHealth();
 
@@ -254,13 +255,13 @@ export const Header: React.FC = () => {
         {/* Cloud Account & Cross-Device Sync Button (Fixed Mobile Width) */}
         <button
           id="btn-cloud-sync-header"
-          onClick={() => setShowAuthModal(true)}
+          onClick={authUser ? () => syncWithCloud() : () => setShowAuthModal(true)}
           title={
             authUser
-              ? `Signed in as ${authUser.email} (Cross-Device Sync Active)`
+              ? `Signed in as ${authUser.email} (Click to Sync Now)`
               : 'Sign in to sync your entries between laptop & iPhone'
           }
-          className={`flex items-center justify-center w-8 h-8 sm:w-auto sm:px-3 sm:py-2 rounded-xl border text-xs font-semibold transition-all cursor-pointer shrink-0 ${
+          className={`flex items-center justify-center w-8 h-8 sm:w-auto sm:px-3 sm:py-2 rounded-xl border text-xs font-semibold transition-all cursor-pointer shrink-0 active:scale-95 ${
             authUser
               ? 'bg-emerald-950/40 border-emerald-500/40 text-emerald-300 hover:bg-emerald-900/50'
               : 'bg-amber-500/10 hover:bg-amber-500/20 border-amber-500/40 text-amber-300 shadow-sm'
@@ -268,9 +269,11 @@ export const Header: React.FC = () => {
         >
           {authUser ? (
             <>
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0 hidden sm:inline-block"></span>
-              <Cloud className="w-3.5 h-3.5 text-emerald-400 shrink-0 sm:ml-1.5" />
-              <span className="hidden md:inline font-mono text-[11px] ml-1.5">Synced</span>
+              <span className={`w-2 h-2 rounded-full bg-emerald-400 shrink-0 hidden sm:inline-block ${syncStatus === 'syncing' ? 'animate-ping' : 'animate-pulse'}`}></span>
+              <Cloud className={`w-3.5 h-3.5 text-emerald-400 shrink-0 sm:ml-1.5 ${syncStatus === 'syncing' ? 'animate-spin' : ''}`} />
+              <span className="hidden md:inline font-mono text-[11px] ml-1.5">
+                {syncStatus === 'syncing' ? 'Syncing...' : 'Synced'}
+              </span>
             </>
           ) : (
             <>

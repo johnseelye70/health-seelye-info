@@ -306,6 +306,17 @@ interface HealthContextType {
 
 const HealthContext = createContext<HealthContextType | undefined>(undefined);
 
+export const normalizeDateStr = (d?: string | null): string => {
+  if (!d) return '';
+  const s = String(d).trim();
+  if (s.includes('T')) return s.split('T')[0];
+  if (s.includes(' ')) return s.split(' ')[0];
+  return s;
+};
+
+const DELETED_WATER_KEY = 'health_seelye_deleted_water_ids_v1';
+const WATER_RESET_KEY = 'health_seelye_water_reset_at_v1';
+
 const LOCAL_STORAGE_KEY = 'health_seelye_app_state_v8';
 
 export function HealthProvider({ children }: { children: React.ReactNode }) {
@@ -418,6 +429,12 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
           if (parsed.notificationsEnabled !== undefined) setNotificationsEnabled(parsed.notificationsEnabled);
           if (parsed.waterGoalOz) setWaterGoalOz(parsed.waterGoalOz);
           if (parsed.waterLogs && Array.isArray(parsed.waterLogs)) setWaterLogs(parsed.waterLogs);
+          if (parsed.deletedWaterIds && Array.isArray(parsed.deletedWaterIds)) {
+            parsed.deletedWaterIds.forEach((id: string) => deletedWaterIdsRef.current.add(id));
+          }
+          if (parsed.waterResetAt && typeof parsed.waterResetAt === 'string') {
+            waterResetAtRef.current = parsed.waterResetAt;
+          }
           if (parsed.stepGoal) setStepGoal(parsed.stepGoal);
           if (parsed.stepLogs && Array.isArray(parsed.stepLogs)) {
             loadedStepLogs = parsed.stepLogs.filter((s: StepLogEntry) => !(s.steps === 8 && s.source === 'apple_health'));
@@ -435,6 +452,21 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
           setFoods(DEFAULT_FOODS);
           setWorkoutLogs(INITIAL_WORKOUT_LOGS);
         }
+
+        // Secondary fallback load for water tombstones & reset timestamp
+        try {
+          const rawDel = localStorage.getItem(DELETED_WATER_KEY);
+          if (rawDel) {
+            const parsedDel = JSON.parse(rawDel);
+            if (Array.isArray(parsedDel)) {
+              parsedDel.forEach((id: string) => deletedWaterIdsRef.current.add(id));
+            }
+          }
+          const rawReset = localStorage.getItem(WATER_RESET_KEY);
+          if (rawReset && typeof rawReset === 'string') {
+            waterResetAtRef.current = rawReset;
+          }
+        } catch {}
 
         // Direct check for incoming step sync in URL parameters
         try {
@@ -510,6 +542,8 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
           notificationsEnabled,
           waterGoalOz,
           waterLogs,
+          deletedWaterIds: Array.from(deletedWaterIdsRef.current).slice(-200),
+          waterResetAt: waterResetAtRef.current,
           stepGoal,
           stepLogs,
           simpleMovementActivities,
@@ -583,6 +617,9 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     waterLogsRef.current = waterLogs;
   }, [waterLogs]);
+
+  const deletedWaterIdsRef = useRef<Set<string>>(new Set());
+  const waterResetAtRef = useRef<string | null>(null);
 
   const workoutLogsRef = useRef<WorkoutSessionLog[]>(workoutLogs);
   useEffect(() => {
@@ -1026,7 +1063,7 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
         const sigMap = new Map<string, string>();
 
         const makeFoodSignature = (entry: FoodLogEntry): string => {
-          const d = entry.logged_at ? String(entry.logged_at).split('T')[0] : todayDate;
+          const d = normalizeDateStr(entry.logged_at) || todayDate;
           const name = (entry.food_name || '').trim().toLowerCase();
           const cals = Math.round(Number(entry.calories) || 0);
           const meal = Number(entry.meal_index) || 1;
@@ -1043,7 +1080,7 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
             food_name: c.food_name || 'Food Item',
             grams_consumed: Number(c.grams_consumed) || 100,
             meal_index: Number(c.meal_index) || 1,
-            logged_at: c.logged_at ? String(c.logged_at).split('T')[0] : todayDate,
+            logged_at: normalizeDateStr(c.logged_at) || todayDate,
             calories: Number(c.calories) || 0,
             protein_g: Number(c.protein_g) || 0,
             carbs_g: Number(c.carbs_g) || 0,
@@ -1110,18 +1147,25 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
         const cloudDbIds = new Set(cloudFoodLogs.map((c: any) => c.id));
         const unpersistedDbLogs = mergedFoodLogs.filter((l) => !cloudDbIds.has(l.id));
         if (unpersistedDbLogs.length > 0) {
+          // Guarantee profiles row exists first so user_id FK constraint is satisfied
+          await (client.from('profiles') as any).upsert({
+            id: liveUser.id,
+            email: liveUser.email,
+            full_name: liveUser.user_metadata?.full_name || profileRef.current.full_name || 'Athlete',
+            updated_at: new Date().toISOString(),
+          }, { onConflict: 'id' }).catch(() => {});
+
           const rowsToInsert = unpersistedDbLogs.slice(0, 50).map((l) => ({
-            id: isUuid(l.id) ? l.id : undefined,
             user_id: liveUser.id,
-            food_id: isUuid(l.food_id) ? l.food_id : null,
-            food_name: l.food_name || 'Food Item',
-            grams_consumed: Number(l.grams_consumed) || 100,
+            food_id: null,
+            food_name: (l.food_name || 'Food Item').trim(),
+            grams_consumed: Math.max(1, Number(l.grams_consumed) || 100),
             meal_index: Math.max(1, Math.min(6, Number(l.meal_index) || 1)),
-            logged_at: l.logged_at ? String(l.logged_at).split('T')[0] : todayDate,
-            calories: Number(l.calories) || 0,
-            protein_g: Number(l.protein_g) || 0,
-            carbs_g: Number(l.carbs_g) || 0,
-            fat_g: Number(l.fat_g) || 0,
+            logged_at: normalizeDateStr(l.logged_at) || todayDate,
+            calories: Math.max(0, Math.round(Number(l.calories) || 0)),
+            protein_g: Math.max(0, Number(Number(l.protein_g || 0).toFixed(1))),
+            carbs_g: Math.max(0, Number(Number(l.carbs_g || 0).toFixed(1))),
+            fat_g: Math.max(0, Number(Number(l.fat_g || 0).toFixed(1))),
           }));
           try {
             const { data: insertedRows, error: insErr } = await (client.from('food_logs') as any)
@@ -1190,26 +1234,61 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
           hasBundleUpdate = true;
         }
 
-        // 4. Water Logs Reconciliation (with Deduplication by ID & 5-minute time window)
+        // 4. Water Logs Reconciliation (Tombstone-Aware, Reset-Protected & Deduplicated)
         const cloudWaterLogs: WaterLogEntry[] = Array.isArray(cloudBundle?.water_logs) ? cloudBundle.water_logs : [];
-        const waterMap = new Map<string, WaterLogEntry>();
-
-        cloudWaterLogs.forEach((cw) => {
-          if (cw && cw.id) waterMap.set(cw.id, cw);
+        const cloudDeletedIds: string[] = Array.isArray(cloudBundle?.deleted_water_ids) ? cloudBundle.deleted_water_ids : [];
+        cloudDeletedIds.forEach((id) => {
+          if (id && typeof id === 'string') deletedWaterIdsRef.current.add(id);
         });
+        const allDeletedWaterIds = deletedWaterIdsRef.current;
 
+        let effectiveResetAt = waterResetAtRef.current;
+        if (cloudBundle?.water_reset_at) {
+          if (!effectiveResetAt || new Date(cloudBundle.water_reset_at).getTime() > new Date(effectiveResetAt).getTime()) {
+            effectiveResetAt = cloudBundle.water_reset_at;
+            waterResetAtRef.current = effectiveResetAt;
+            if (typeof window !== 'undefined' && effectiveResetAt) {
+              try { localStorage.setItem(WATER_RESET_KEY, effectiveResetAt); } catch {}
+            }
+          }
+        }
+
+        const isWaterKilled = (w: WaterLogEntry) => {
+          if (!w || !w.id) return true;
+          if (allDeletedWaterIds.has(w.id)) return true;
+          if (effectiveResetAt) {
+            const entryDate = normalizeDateStr(w.logged_at);
+            const resetDate = normalizeDateStr(effectiveResetAt);
+            if (entryDate === resetDate) {
+              const entryTime = new Date(w.logged_at).getTime();
+              const resetTime = new Date(effectiveResetAt).getTime();
+              if (!isNaN(entryTime) && !isNaN(resetTime) && entryTime <= resetTime) {
+                return true;
+              }
+            }
+          }
+          return false;
+        };
+
+        const waterMap = new Map<string, WaterLogEntry>();
         const makeWaterSig = (w: WaterLogEntry) => {
-          const d = String(w.logged_at).split('T')[0];
+          const d = normalizeDateStr(w.logged_at);
           const amt = Math.round(Number(w.amount_oz) || 0);
           const time = new Date(w.logged_at).getTime();
           const timeBlock = isNaN(time) ? 0 : Math.floor(time / (5 * 60 * 1000));
           return `${d}_${amt}_${w.container || ''}_${timeBlock}`;
         };
 
-        const cloudWaterSigs = new Set(cloudWaterLogs.map(makeWaterSig));
+        cloudWaterLogs.forEach((cw) => {
+          if (cw && cw.id && !isWaterKilled(cw)) {
+            waterMap.set(cw.id, cw);
+          }
+        });
+
+        const cloudWaterSigs = new Set(Array.from(waterMap.values()).map(makeWaterSig));
 
         localWaterLogs.forEach((lw) => {
-          if (!lw || !lw.id) return;
+          if (!lw || !lw.id || isWaterKilled(lw)) return;
           const sig = makeWaterSig(lw);
           if (!waterMap.has(lw.id) && !cloudWaterSigs.has(sig)) {
             waterMap.set(lw.id, lw);
@@ -1246,12 +1325,31 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
         setScheduledPlans(mergedPlans);
         scheduledPlansRef.current = mergedPlans;
 
-        // Unified Cloud Persistence Bundle
+        // Unified Cloud Persistence Bundle (Lean format: strip custom_meal_data to avoid 4KB quota)
+        const leanFoodLogs = mergedFoodLogs.slice(0, 100).map((l) => ({
+          id: l.id,
+          user_id: liveUser.id,
+          food_id: l.food_id,
+          food_name: l.food_name,
+          grams_consumed: l.grams_consumed,
+          meal_index: l.meal_index,
+          logged_at: normalizeDateStr(l.logged_at) || todayDate,
+          calories: l.calories,
+          protein_g: l.protein_g,
+          carbs_g: l.carbs_g,
+          fat_g: l.fat_g,
+          created_at: l.created_at,
+          custom_meal_id: l.custom_meal_id,
+          servings_logged: l.servings_logged,
+        }));
+
         const updatedBundle = {
-          food_logs: mergedFoodLogs.slice(0, 150),
+          food_logs: leanFoodLogs,
           custom_meals: mergedCustomMeals,
           simple_movements: mergedMovements,
           water_logs: mergedWaterLogs,
+          deleted_water_ids: Array.from(allDeletedWaterIds).slice(-200),
+          water_reset_at: effectiveResetAt,
           workout_logs: mergedWorkoutLogs,
           scheduled_plans: mergedPlans,
           last_bundle_sync: new Date().toISOString(),
@@ -1271,24 +1369,30 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
             app_sync_bundle: updatedBundle,
           };
 
-          // 1. Authoritative PostgreSQL Profile update (no size limits, persistent across all devices)
-          const { error: profUpdateErr } = await (client.from('profiles') as any).update({
+          // 1. Authoritative PostgreSQL Profile upsert (guarantees row exists and persists bundle across all devices)
+          const { error: profUpdateErr } = await (client.from('profiles') as any).upsert({
+            id: liveUser.id,
+            email: liveUser.email,
+            full_name: liveUser.user_metadata?.full_name || cloudProfile?.full_name || profileRef.current.full_name || 'Athlete',
             equipment_inventory: updatedEquipment,
             updated_at: new Date().toISOString(),
-          }).eq('id', liveUser.id);
+          }, { onConflict: 'id' });
           if (profUpdateErr) {
-            console.warn('Profile equipment_inventory cloud update error:', profUpdateErr);
+            console.warn('Profile equipment_inventory cloud upsert error:', profUpdateErr);
           }
 
-          // 2. Auth user metadata backup push
+          // 2. Auth user metadata backup push (safe quota guard)
           try {
-            await client.auth.updateUser({
-              data: {
-                app_sync_bundle: updatedBundle,
-                step_logs: (stepLogsRef.current || []).slice(0, 30),
-                latest_step_sync: new Date().toISOString(),
-              },
-            });
+            const bundleString = JSON.stringify(updatedBundle);
+            if (bundleString.length < 3500) {
+              await client.auth.updateUser({
+                data: {
+                  app_sync_bundle: updatedBundle,
+                  step_logs: (stepLogsRef.current || []).slice(0, 30),
+                  latest_step_sync: new Date().toISOString(),
+                },
+              });
+            }
           } catch (authErr) {
             console.warn('Auth user_metadata update warning:', authErr);
           }
@@ -1537,7 +1641,7 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
   const currentDayFoodLogs = useMemo(() => {
     return foodLogs.filter((log) => {
       if (!log.logged_at) return false;
-      return String(log.logged_at).split('T')[0] === todayDate;
+      return normalizeDateStr(log.logged_at) === todayDate;
     });
   }, [foodLogs, todayDate]);
 
@@ -1566,7 +1670,7 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
   const selectedDayFoodLogs = useMemo(() => {
     return foodLogs.filter((log) => {
       if (!log.logged_at) return false;
-      return String(log.logged_at).split('T')[0] === selectedDate;
+      return normalizeDateStr(log.logged_at) === selectedDate;
     });
   }, [foodLogs, selectedDate]);
 
@@ -1936,7 +2040,7 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
 
   // Comprehensive Cross-Referenced Reporting Engines
   const getDailyReport = useCallback((dateStr: string) => {
-    const dayFoods = foodLogs.filter((l) => (l.logged_at ? String(l.logged_at).split('T')[0] === dateStr : false));
+    const dayFoods = foodLogs.filter((l) => (l.logged_at ? normalizeDateStr(l.logged_at) === dateStr : false));
     const macros = dayFoods.reduce(
       (acc, item) => ({
         calories: Math.round(acc.calories + item.calories),
@@ -1959,7 +2063,7 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
     const stepMiles = Number((steps * 0.00045).toFixed(2));
     const stepCalories = Math.round(steps * 0.04);
 
-    const dayWaterLogs = waterLogs.filter((w) => w.logged_at.startsWith(dateStr));
+    const dayWaterLogs = waterLogs.filter((w) => normalizeDateStr(w.logged_at) === dateStr);
     const waterOz = dayWaterLogs.reduce((sum, w) => sum + w.amount_oz, 0);
 
     const weightLog = weightLogs.find((w) => w.logged_at === dateStr || w.logged_at.startsWith(dateStr));
@@ -2727,16 +2831,18 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
   // Hydration Engine
   const todayWaterOz = useMemo(() => {
     return waterLogs
-      .filter((w) => w.logged_at.startsWith(todayDate))
+      .filter((w) => normalizeDateStr(w.logged_at) === todayDate)
       .reduce((sum, w) => sum + w.amount_oz, 0);
   }, [waterLogs, todayDate]);
 
   const logWaterOz = useCallback((amountOz: number, container?: string) => {
+    const now = new Date();
+    const timeStr = now.toTimeString().split(' ')[0];
     const entry: WaterLogEntry = {
       id: `wtr-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
       amount_oz: amountOz,
       container,
-      logged_at: new Date().toISOString(),
+      logged_at: `${todayDate}T${timeStr}`,
     };
     setWaterLogs((prev) => {
       const updated = [entry, ...prev];
@@ -2744,11 +2850,23 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
       return updated;
     });
     triggerDebouncedSync();
-  }, [triggerDebouncedSync]);
+  }, [todayDate, triggerDebouncedSync]);
 
   const resetTodayWater = useCallback(() => {
+    const nowIso = new Date().toISOString();
+    waterResetAtRef.current = nowIso;
+    if (typeof window !== 'undefined') {
+      try { localStorage.setItem(WATER_RESET_KEY, nowIso); } catch {}
+    }
     setWaterLogs((prev) => {
-      const updated = prev.filter((w) => !w.logged_at.startsWith(todayDate));
+      const todayEntries = prev.filter((w) => normalizeDateStr(w.logged_at) === todayDate);
+      todayEntries.forEach((w) => deletedWaterIdsRef.current.add(w.id));
+      if (typeof window !== 'undefined') {
+        try {
+          localStorage.setItem(DELETED_WATER_KEY, JSON.stringify(Array.from(deletedWaterIdsRef.current).slice(-200)));
+        } catch {}
+      }
+      const updated = prev.filter((w) => normalizeDateStr(w.logged_at) !== todayDate);
       waterLogsRef.current = updated;
       return updated;
     });
@@ -2756,6 +2874,12 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
   }, [todayDate, triggerDebouncedSync]);
 
   const deleteWaterLog = useCallback((id: string) => {
+    deletedWaterIdsRef.current.add(id);
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem(DELETED_WATER_KEY, JSON.stringify(Array.from(deletedWaterIdsRef.current).slice(-200)));
+      } catch {}
+    }
     setWaterLogs((prev) => {
       const updated = prev.filter((w) => w.id !== id);
       waterLogsRef.current = updated;

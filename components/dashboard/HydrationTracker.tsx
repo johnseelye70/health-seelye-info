@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useHealth } from '@/context/HealthContext';
+import { useHealth, normalizeDateStr } from '@/context/HealthContext';
 import {
   Droplets,
   Plus,
@@ -55,7 +55,7 @@ export const HydrationTracker: React.FC = () => {
   const totalLiters = (todayWaterOz * 0.0295735).toFixed(1);
   const goalLiters = (waterGoalOz * 0.0295735).toFixed(1);
 
-  const todayEntries = waterLogs.filter((w) => w.logged_at.startsWith(todayDate));
+  const todayEntries = waterLogs.filter((w) => normalizeDateStr(w.logged_at) === todayDate);
 
   const handleSaveGoal = (newGoal: number) => {
     setWaterGoalOz(newGoal);
