@@ -1,4 +1,5 @@
 import { PreMadeWorkoutProgram } from './types';
+import { SimpleMovementActivity } from './movement-database';
 
 export const PREMADE_WORKOUT_PROGRAMS: PreMadeWorkoutProgram[] = [
   // =========================================================================
@@ -3154,4 +3155,71 @@ export const PREMADE_WORKOUT_PROGRAMS: PreMadeWorkoutProgram[] = [
     ],
   },
 ];
+
+/**
+ * Converts all pre-made programs and their individual workout routines into
+ * standardized SimpleMovementActivity items for Standard/Simple Mode search & selection.
+ */
+export function getPreMadeActivitiesAsSimpleMovements(): SimpleMovementActivity[] {
+  const list: SimpleMovementActivity[] = [];
+
+  for (const prog of PREMADE_WORKOUT_PROGRAMS) {
+    const progShort = prog.title.split('(')[0].replace(/®/g, '').trim();
+
+    // 1. Program Master Entry
+    list.push({
+      id: `premade_prog_${prog.id}`,
+      title: `${progShort} (Complete Master Program)`,
+      category: 'premade',
+      category_label: `Pre-Made • ${prog.creator}`,
+      icon: prog.icon || '🏆',
+      duration_minutes: prog.schedule[0]?.duration_minutes || 45,
+      estimated_calories: Math.round((prog.schedule[0]?.duration_minutes || 45) * 8),
+      estimated_steps: 600,
+      description: prog.description,
+      benefits: `${prog.duration_weeks} Weeks • ${prog.days_per_week} Days/Wk • ${prog.schedule.length} Master Worksheets (${prog.difficulty.toUpperCase()})`,
+      intensity: prog.difficulty === 'beginner' ? 'gentle' : prog.difficulty === 'intermediate' ? 'moderate' : 'energizing',
+      premade_program_id: prog.id,
+      premade_day_number: 1,
+    });
+
+    // 2. Individual Daily Workouts
+    for (const day of prog.schedule) {
+      const isCardio =
+        day.focus.toLowerCase().includes('cardio') ||
+        day.focus.toLowerCase().includes('plyo') ||
+        day.focus.toLowerCase().includes('hiit') ||
+        day.focus.toLowerCase().includes('interval') ||
+        day.focus.toLowerCase().includes('run');
+
+      const isMobility =
+        day.focus.toLowerCase().includes('yoga') ||
+        day.focus.toLowerCase().includes('stretch') ||
+        day.focus.toLowerCase().includes('mobility') ||
+        day.focus.toLowerCase().includes('tai chi') ||
+        day.focus.toLowerCase().includes('recovery');
+
+      const cleanTitle = day.day_title.replace(/^\d+[\.\:\-]\s*/, '').trim();
+
+      list.push({
+        id: `premade_${prog.id}_day_${day.day_number}`,
+        title: `${progShort}: ${cleanTitle}`,
+        category: 'premade',
+        category_label: `Pre-Made • ${prog.creator}`,
+        icon: prog.icon || '⚡',
+        duration_minutes: day.duration_minutes || 45,
+        estimated_calories: Math.round((day.duration_minutes || 45) * (isCardio ? 9 : 7.5)),
+        estimated_steps: isCardio ? 2500 : isMobility ? 300 : 800,
+        description: `${day.focus}. Key exercises: ${day.exercises.slice(0, 4).map((e) => e.name).join(', ')}${day.exercises.length > 4 ? ` (+${day.exercises.length - 4} more)` : ''}.`,
+        benefits: `${day.exercises.length} structured exercises with prescribed sets & reps from ${prog.creator}.`,
+        intensity: isMobility ? 'gentle' : prog.difficulty === 'advanced' ? 'energizing' : 'moderate',
+        premade_program_id: prog.id,
+        premade_day_number: day.day_number,
+      });
+    }
+  }
+
+  return list;
+}
+
 

@@ -1,5 +1,5 @@
 # Seelye Family Health — Precision Fitness & Nutrition Application
-**Version: Beta v4.8.1 (b4.8.1)** | **Production Domain: https://health.seelye.info**
+**Version: Beta v4.9.0 (b4.9.0)** | **Production Domain: https://health.seelye.info**
 
 High-performance, dark-mode first athletic health and nutrition platform engineered with Next.js (App Router), TypeScript, Tailwind CSS, Supabase (PostgreSQL), and integrated Wholesome Recipe & Meal Prep Engine.
 
@@ -7,7 +7,15 @@ High-performance, dark-mode first athletic health and nutrition platform enginee
 
 ## ⚡ Key Architectural Modules
 
-### 1. Custom Meal Builder, In-Place Diary Editing & Food Database (Beta v4.8.0)
+### 1. Pre-Made Programs & Standard Daily Movement Search Integration (Beta v4.9.0)
+- **Standard Mode Pre-Made Workouts Discovery:** Full search across all 42 master training programs and 180+ daily workout sessions (P90X, StrongLifts 5x5, CrossFit The Girls & Hero WODs, Arnold Golden Six, Insanity, Tai Chi, Concept2 Rowing) directly from the simplified Standard Feel-Good Movement mode.
+- **Clean Sub-Navigation Switcher:** 2-pill toggle ("Daily Movement Choices" & "Pre-Made Programs (42)") allows users in Standard mode to seamlessly enter the rich program browser and interactive worksheets without cluttering their daily tracker.
+- **Inline Quick-Add & Instant Search Card:** Real-time search with matching program previews, key exercise breakdowns, calorie burns, and 1-click popular program chips (P90X, 5x5, Cindy, Arnold, Insanity, Tai Chi, Row 5K) to add structured routines directly to daily movement goals.
+- **Simple Movement Picker Modal Integration:** Merged all 42 pre-made programs and 180+ workout days into the activity picker modal with a dedicated "🏆 Pre-Made Workouts (42+)" filter pill and distinct visual badges.
+- **Interactive Routine Sheet Access:** Logged pre-made workouts display a direct "View Interactive Workout Sheet & Exercises" button in Standard mode, launching full exercise rosters, sets, reps, and printable sheets.
+- **One-Click Library Add:** Added "+ Add to Today" action buttons directly on every program card and day item in the Pre-Made Programs Browser with instant green feedback toast banners.
+
+### 2. Custom Meal Builder, In-Place Diary Editing & Food Database (Beta v4.8.0)
 - **Interactive Custom Meal Builder:** Assemble custom meals and recipes by adding ingredients with customized quantities and units (`g`, `oz`, `cups`, `tbsp`, `tsp`, `servings`).
 - **In-Place Logged Meal Editing:** Full round-trip editing for logged diary entries in both Standard mode ("Today's Meals Eaten") and Athlete mode. Edit portions, swap or adjust ingredients, and update the entry in place with recalculated nutrition.
 - **Comprehensive Food Database (Local + Global):** Access 1,300+ curated whole foods, fitness supplements, and brand-name staples across major household brands and top store brands: Meijer, Walmart (Great Value, Equate), Costco (Kirkland Signature), Sam's Club (Member's Mark), and Aldi (Elevation, liveGfree, Millville, Countryside Creamery, L'oven Fresh, Peanut Delight, Specially Selected, Aunt Maple's), with live integration to 3,500,000+ commercial products via Open Food Facts v2 API.

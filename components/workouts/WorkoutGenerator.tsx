@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useHealth } from '@/context/HealthContext';
-import { EquipmentType } from '@/lib/types';
+import { EquipmentType, PreMadeWorkoutProgram, WorkoutProgramDay } from '@/lib/types';
 import { WorkoutPlayer } from './WorkoutPlayer';
 import { HiitTimer } from './HiitTimer';
 import { EquipmentInventoryBrowser } from './EquipmentInventoryBrowser';
@@ -11,10 +11,15 @@ import { PlateInventoryCalculator } from './PlateInventoryCalculator';
 import { PreMadeProgramsBrowser } from './PreMadeProgramsBrowser';
 import { WorkoutHistoryAnalytics } from './WorkoutHistoryAnalytics';
 import { SimpleMovementPickerModal } from './SimpleMovementPickerModal';
+import { WorkoutSheetModal } from './WorkoutSheetModal';
 import {
   SimpleMovementActivity,
   POPULAR_MOVEMENT_CHOICES,
 } from '@/lib/movement-database';
+import {
+  PREMADE_WORKOUT_PROGRAMS,
+  getPreMadeActivitiesAsSimpleMovements,
+} from '@/lib/premade-programs';
 import {
   Dumbbell,
   CheckCircle2,
@@ -44,6 +49,8 @@ import {
   Heart,
   Trash2,
   RefreshCw,
+  Search,
+  X,
 } from 'lucide-react';
 
 export const WorkoutGenerator: React.FC = () => {
@@ -74,6 +81,38 @@ export const WorkoutGenerator: React.FC = () => {
   const [activeSubTab, setActiveSubTab] = useState<
     'routine' | 'premade_programs' | 'workout_database' | 'exercise_db' | 'equipment_db' | 'plate_calc' | 'hiit'
   >('routine');
+
+  // Pre-Made Program & Inline Search State
+  const [premadeInlineSearch, setPremadeInlineSearch] = useState<string>('');
+  const [activeSheetDay, setActiveSheetDay] = useState<{
+    program: PreMadeWorkoutProgram;
+    day: WorkoutProgramDay;
+  } | null>(null);
+
+  const allPreMadeMovements = useMemo(() => getPreMadeActivitiesAsSimpleMovements(), []);
+
+  const filteredPreMadeInline = useMemo(() => {
+    const q = premadeInlineSearch.trim().toLowerCase();
+    if (!q) return [];
+    return allPreMadeMovements
+      .filter(
+        (act) =>
+          act.title.toLowerCase().includes(q) ||
+          act.description.toLowerCase().includes(q) ||
+          act.category_label.toLowerCase().includes(q)
+      )
+      .slice(0, 6);
+  }, [premadeInlineSearch, allPreMadeMovements]);
+
+  const POPULAR_PREMADE_CHIPS = [
+    { label: 'P90X: Chest & Back', id: 'premade_p90x_classic_day_1' },
+    { label: 'StrongLifts 5x5: Workout A', id: 'premade_stronglifts_5x5_day_1' },
+    { label: 'CrossFit: Cindy', id: 'premade_crossfit_the_girls_day_2' },
+    { label: 'Arnold Golden Six', id: 'premade_arnold_golden_six_day_1' },
+    { label: 'Insanity Cardio', id: 'premade_insanity_60day_day_1' },
+    { label: 'Tai Chi Flow', id: 'premade_tai_chi_morning_flow_day_1' },
+    { label: 'Concept2 Row 5K', id: 'premade_concept2_rowing_foundations_day_1' },
+  ];
 
   // Simple Movement Picker State
   const [showPickerModal, setShowPickerModal] = useState<boolean>(false);
@@ -137,6 +176,38 @@ export const WorkoutGenerator: React.FC = () => {
 
   return (
     <div className="space-y-6 animate-fadeIn pb-12">
+      {/* Top Sub-Navigation (Standard / Simple Mode) */}
+      {isSimple && (
+        <div className="p-1.5 rounded-2xl bg-surface-100/90 border border-surface-border backdrop-blur-xl flex items-center gap-2 max-w-md select-none shadow-md">
+          <button
+            type="button"
+            id="simple-tab-routine"
+            onClick={() => setActiveSubTab('routine')}
+            className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              activeSubTab === 'routine'
+                ? 'bg-accent-coral text-white shadow-glow-coral'
+                : 'text-zinc-400 hover:text-white hover:bg-surface-200'
+            }`}
+          >
+            <Heart className="w-4 h-4" />
+            <span>Daily Movement Choices</span>
+          </button>
+          <button
+            type="button"
+            id="simple-tab-premade"
+            onClick={() => setActiveSubTab('premade_programs')}
+            className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              activeSubTab === 'premade_programs'
+                ? 'bg-accent-coral text-white shadow-glow-coral'
+                : 'text-zinc-400 hover:text-white hover:bg-surface-200'
+            }`}
+          >
+            <Award className="w-4 h-4 text-amber-400" />
+            <span>Pre-Made Programs (42)</span>
+          </button>
+        </div>
+      )}
+
       {/* Top Sub-Navigation (Athlete Mode Only) */}
       {!isSimple && (
         <div className="p-2 rounded-2xl bg-surface-100/90 border border-surface-border backdrop-blur-xl flex items-center gap-2 overflow-x-auto no-scrollbar sm:flex-wrap select-none shadow-md">
@@ -244,65 +315,77 @@ export const WorkoutGenerator: React.FC = () => {
           VIEW 1: SIMPLE MODE DAILY MOVEMENT CHOICES ENGINE
           ===================================================================== */}
       {isSimple ? (
-        <div className="space-y-6 animate-fadeIn">
-          {/* Simple Movement Picker Modal Dialog */}
-          <SimpleMovementPickerModal
-            isOpen={showPickerModal}
-            onClose={() => {
-              setShowPickerModal(false);
-              setSwapTargetId(null);
-            }}
-            onSelectActivity={handleSelectActivity}
-            selectedActivityIds={simpleMovementActivities.map((a) => a.id)}
-            swapTargetId={swapTargetId}
-          />
+        activeSubTab === 'premade_programs' ? (
+          <PreMadeProgramsBrowser onBackToMovementChoices={() => setActiveSubTab('routine')} />
+        ) : (
+          <div className="space-y-6 animate-fadeIn">
+            {/* Simple Movement Picker Modal Dialog */}
+            <SimpleMovementPickerModal
+              isOpen={showPickerModal}
+              onClose={() => {
+                setShowPickerModal(false);
+                setSwapTargetId(null);
+              }}
+              onSelectActivity={handleSelectActivity}
+              selectedActivityIds={simpleMovementActivities.map((a) => a.id)}
+              swapTargetId={swapTargetId}
+            />
 
-          {/* Toast Notification */}
-          {logToast && (
-            <div className="p-4 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-xs font-bold flex items-center gap-2 animate-fadeIn shadow-lg">
-              <CheckCircle2 className="w-5 h-5 shrink-0 text-emerald-400" />
-              <span>{logToast}</span>
-            </div>
-          )}
+            {/* Toast Notification */}
+            {logToast && (
+              <div className="p-4 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-xs font-bold flex items-center gap-2 animate-fadeIn shadow-lg">
+                <CheckCircle2 className="w-5 h-5 shrink-0 text-emerald-400" />
+                <span>{logToast}</span>
+              </div>
+            )}
 
-          {/* Simple Header Banner */}
-          <div className="rounded-3xl bg-surface-100/90 border border-surface-border p-6 md:p-8 backdrop-blur-xl">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-              <div>
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-rose-500/15 text-accent-coral border border-rose-500/30">
-                    DAILY FEEL-GOOD MOVEMENT CHOICES
-                  </span>
+            {/* Simple Header Banner */}
+            <div className="rounded-3xl bg-surface-100/90 border border-surface-border p-6 md:p-8 backdrop-blur-xl">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-rose-500/15 text-accent-coral border border-rose-500/30">
+                      DAILY FEEL-GOOD MOVEMENT CHOICES
+                    </span>
+                  </div>
+                  <h1 className="text-2xl md:text-3xl font-black text-foreground tracking-tight">
+                    Daily Feel-Good Movement
+                  </h1>
+                  <p className="text-zinc-400 text-sm mt-1 max-w-2xl">
+                    Choose activities you actually enjoy doing today — walking, stretching, swimming, yoga, or home strength. Pick, swap, or log your movement anytime!
+                  </p>
                 </div>
-                <h1 className="text-2xl md:text-3xl font-black text-foreground tracking-tight">
-                  Daily Feel-Good Movement
-                </h1>
-                <p className="text-zinc-400 text-sm mt-1 max-w-2xl">
-                  Choose activities you actually enjoy doing today — walking, stretching, swimming, yoga, or home strength. Pick, swap, or log your movement anytime!
-                </p>
-              </div>
 
-              <div className="flex flex-wrap items-center gap-2.5">
-                <button
-                  type="button"
-                  onClick={() => handleOpenPicker()}
-                  className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-accent-coral hover:bg-rose-600 text-white text-xs font-bold shadow-glow-coral transition-all active:scale-95 cursor-pointer"
-                >
-                  <Plus className="w-4 h-4" />
-                  <span>Choose / Add Activity</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={resetSimpleMovementActivities}
-                  title="Reset to recommended baseline choices"
-                  className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-2xl bg-surface-200 hover:bg-surface-300 border border-surface-border text-zinc-400 hover:text-foreground text-xs font-semibold transition-all active:scale-95 cursor-pointer"
-                >
-                  <RotateCcw className="w-3.5 h-3.5" />
-                  <span>Reset</span>
-                </button>
+                <div className="flex flex-wrap items-center gap-2.5">
+                  <button
+                    type="button"
+                    id="simple-browse-premade-btn"
+                    onClick={() => setActiveSubTab('premade_programs')}
+                    className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-2xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-amber-300 text-xs font-bold transition-all active:scale-95 cursor-pointer"
+                  >
+                    <Award className="w-3.5 h-3.5 text-amber-400" />
+                    <span>Browse 42 Pre-Made Programs</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleOpenPicker()}
+                    className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-accent-coral hover:bg-rose-600 text-white text-xs font-bold shadow-glow-coral transition-all active:scale-95 cursor-pointer"
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span>Choose / Add Activity</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={resetSimpleMovementActivities}
+                    title="Reset to recommended baseline choices"
+                    className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-2xl bg-surface-200 hover:bg-surface-300 border border-surface-border text-zinc-400 hover:text-foreground text-xs font-semibold transition-all active:scale-95 cursor-pointer"
+                  >
+                    <RotateCcw className="w-3.5 h-3.5" />
+                    <span>Reset</span>
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
 
           {/* Progress Summary Card */}
           <div className="p-6 rounded-3xl bg-surface-100/90 border border-surface-border backdrop-blur-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -337,6 +420,153 @@ export const WorkoutGenerator: React.FC = () => {
                 {simpleTotalCount > 0 ? Math.round((simpleCompletedCount / simpleTotalCount) * 100) : 0}% Completed
               </div>
             </div>
+          </div>
+
+          {/* Quick Search & Add Pre-Made Programs Card */}
+          <div className="p-5 rounded-3xl bg-surface-100/90 border border-surface-border backdrop-blur-xl space-y-3.5">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div className="flex items-center gap-2 flex-wrap">
+                <Award className="w-4 h-4 text-amber-400" />
+                <h3 className="text-sm font-bold text-foreground">
+                  Search & Add Pre-Made Workouts
+                </h3>
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/15 text-amber-300 border border-amber-500/30">
+                  42 Programs • 180+ Workouts
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setActiveSubTab('premade_programs')}
+                className="text-xs text-amber-400 hover:text-amber-300 font-bold flex items-center gap-1 cursor-pointer self-start sm:self-auto"
+              >
+                <span>Open Full Catalog</span>
+                <ChevronRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
+
+            {/* Search Input */}
+            <div className="relative">
+              <Search className="w-4 h-4 text-zinc-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <input
+                type="text"
+                value={premadeInlineSearch}
+                onChange={(e) => setPremadeInlineSearch(e.target.value)}
+                placeholder="Search all workouts (e.g. P90X, StrongLifts 5x5, Cindy, Murph, Arnold, Insanity, Tai Chi)..."
+                className="w-full pl-10 pr-9 py-2.5 rounded-2xl bg-surface-200 border border-surface-border text-foreground text-xs placeholder:text-zinc-500 focus:outline-none focus:border-accent-coral transition-colors"
+              />
+              {premadeInlineSearch && (
+                <button
+                  type="button"
+                  onClick={() => setPremadeInlineSearch('')}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-foreground cursor-pointer"
+                  title="Clear search"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
+
+            {/* Live Search Results if searching */}
+            {premadeInlineSearch.trim().length > 0 ? (
+              <div className="space-y-2 pt-1">
+                <div className="text-[11px] font-bold text-zinc-400">
+                  Matching Pre-Made Workouts ({filteredPreMadeInline.length}):
+                </div>
+                {filteredPreMadeInline.length === 0 ? (
+                  <p className="text-xs text-zinc-500 italic py-2">
+                    No matching pre-made workouts found for &quot;{premadeInlineSearch}&quot;. Try searching for P90X, 5x5, Cindy, Arnold, Yoga, or Row.
+                  </p>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    {filteredPreMadeInline.map((act) => {
+                      const isAlreadyChosen = simpleMovementActivities.some((a) => a.id === act.id);
+                      return (
+                        <div
+                          key={act.id}
+                          className="p-3.5 rounded-2xl bg-surface-200/80 border border-surface-border flex items-start justify-between gap-3"
+                        >
+                          <div className="space-y-1 flex-1 min-w-0">
+                            <div className="flex items-center gap-1.5">
+                              <span className="text-base">{act.icon}</span>
+                              <h4 className="text-xs font-bold text-foreground truncate">{act.title}</h4>
+                            </div>
+                            <p className="text-[11px] text-zinc-400 line-clamp-2 leading-relaxed">
+                              {act.description}
+                            </p>
+                            <div className="text-[10px] font-mono text-zinc-500 flex items-center gap-2 pt-0.5">
+                              <span>{act.duration_minutes}m</span>
+                              <span>•</span>
+                              <span>~{act.estimated_calories} kcal</span>
+                              <span>•</span>
+                              <span className="text-amber-400/90">{act.category_label}</span>
+                            </div>
+                          </div>
+
+                          <button
+                            type="button"
+                            disabled={isAlreadyChosen}
+                            onClick={() => {
+                              addSimpleMovementActivity({ ...act, completed: false });
+                              setLogToast(`Added "${act.title}" to today's movement!`);
+                              setTimeout(() => setLogToast(null), 3500);
+                            }}
+                            className={`px-3 py-1.5 rounded-xl text-xs font-bold shrink-0 transition-all flex items-center gap-1 cursor-pointer ${
+                              isAlreadyChosen
+                                ? 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 cursor-default'
+                                : 'bg-accent-coral hover:bg-rose-600 text-white shadow-glow-coral active:scale-95'
+                            }`}
+                          >
+                            {isAlreadyChosen ? (
+                              <>
+                                <Check className="w-3.5 h-3.5" />
+                                <span>Added</span>
+                              </>
+                            ) : (
+                              <>
+                                <Plus className="w-3.5 h-3.5" />
+                                <span>Add</span>
+                              </>
+                            )}
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            ) : (
+              /* Popular Pre-Made Quick-Add Chips when not searching */
+              <div className="space-y-1.5">
+                <div className="text-[11px] font-bold text-zinc-400">Popular Pre-Made Workouts:</div>
+                <div className="flex flex-wrap items-center gap-1.5">
+                  {POPULAR_PREMADE_CHIPS.map((chip) => {
+                    const matched = allPreMadeMovements.find((m) => m.id === chip.id);
+                    const isChosen = matched && simpleMovementActivities.some((a) => a.id === matched.id);
+                    return (
+                      <button
+                        key={chip.id}
+                        type="button"
+                        onClick={() => {
+                          if (matched && !isChosen) {
+                            addSimpleMovementActivity({ ...matched, completed: false });
+                            setLogToast(`Added "${matched.title}" to today's movement!`);
+                            setTimeout(() => setLogToast(null), 3500);
+                          }
+                        }}
+                        className={`px-2.5 py-1 rounded-xl text-[11px] font-semibold transition-all flex items-center gap-1 cursor-pointer ${
+                          isChosen
+                            ? 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/30'
+                            : 'bg-surface-200 hover:bg-surface-300 border border-surface-border text-zinc-300 hover:text-foreground active:scale-95'
+                        }`}
+                      >
+                        {isChosen ? <Check className="w-3 h-3 text-emerald-400" /> : <Plus className="w-3 h-3 text-amber-400" />}
+                        <span>{chip.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Today's Chosen Movement Activities List */}
@@ -401,6 +631,25 @@ export const WorkoutGenerator: React.FC = () => {
                           <p className="text-[11px] text-zinc-500 italic">
                             💡 {act.benefits}
                           </p>
+                        )}
+
+                        {act.premade_program_id && (
+                          <div className="pt-1">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const prog = PREMADE_WORKOUT_PROGRAMS.find((p) => p.id === act.premade_program_id);
+                                if (prog) {
+                                  const day = prog.schedule.find((d: WorkoutProgramDay) => d.day_number === act.premade_day_number) || prog.schedule[0];
+                                  setActiveSheetDay({ program: prog, day });
+                                }
+                              }}
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-amber-300 text-xs font-bold transition-all cursor-pointer"
+                            >
+                              <FileText className="w-3.5 h-3.5" />
+                              <span>View Interactive Workout Sheet & Exercises</span>
+                            </button>
+                          </div>
                         )}
                       </div>
                     </div>
@@ -506,6 +755,7 @@ export const WorkoutGenerator: React.FC = () => {
             </div>
           </div>
         </div>
+        )
       ) : (
         /* =====================================================================
             ATHLETE MODE: 4-WEEK PERIODIZED SPLIT & ADVANCED SUITE
@@ -712,6 +962,15 @@ export const WorkoutGenerator: React.FC = () => {
             </div>
           )}
         </>
+      )}
+
+      {/* Interactive Workout Sheet Modal */}
+      {activeSheetDay && (
+        <WorkoutSheetModal
+          program={activeSheetDay.program}
+          day={activeSheetDay.day}
+          onClose={() => setActiveSheetDay(null)}
+        />
       )}
     </div>
   );

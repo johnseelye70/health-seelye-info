@@ -1,10 +1,11 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   SimpleMovementActivity,
   POPULAR_MOVEMENT_CHOICES,
 } from '@/lib/movement-database';
+import { getPreMadeActivitiesAsSimpleMovements } from '@/lib/premade-programs';
 import {
   X,
   Plus,
@@ -18,6 +19,7 @@ import {
   Filter,
   Search,
   Dumbbell,
+  Award,
 } from 'lucide-react';
 
 interface SimpleMovementPickerModalProps {
@@ -47,24 +49,42 @@ export const SimpleMovementPickerModal: React.FC<SimpleMovementPickerModalProps>
   const [customIcon, setCustomIcon] = useState<string>('⭐');
   const [customDesc, setCustomDesc] = useState<string>('Personal feel-good movement session.');
 
+  const allAvailableChoices = useMemo(() => {
+    const premades = getPreMadeActivitiesAsSimpleMovements();
+    return [...POPULAR_MOVEMENT_CHOICES, ...premades];
+  }, []);
+
   if (!isOpen) return null;
 
   const categories = [
     { id: 'all', label: 'All Activities' },
+    { id: 'premade', label: '🏆 Pre-Made Workouts (42+)' },
     { id: 'walking', label: '🚶 Walking & Steps' },
     { id: 'mobility', label: '🧘 Mobility & Yoga' },
     { id: 'strength', label: '💪 Strength & Tone' },
     { id: 'cardio_fun', label: '🚴 Active Fun & Cardio' },
   ];
 
-  const filteredChoices = POPULAR_MOVEMENT_CHOICES.filter((item) => {
-    const matchesCat = selectedCategory === 'all' || item.category === selectedCategory;
-    const matchesSearch =
-      searchQuery.trim() === '' ||
-      item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.category_label.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesCat && matchesSearch;
+  const filteredChoices = allAvailableChoices.filter((item) => {
+    const matchesCat =
+      selectedCategory === 'all' ||
+      item.category === selectedCategory ||
+      (selectedCategory === 'premade' && (item.category === 'premade' || item.category_label.toLowerCase().includes('pre-made'))) ||
+      (selectedCategory === 'strength' && (item.category === 'strength' || item.category_label.toLowerCase().includes('5x5') || item.category_label.toLowerCase().includes('strength') || item.category_label.toLowerCase().includes('arnold'))) ||
+      (selectedCategory === 'mobility' && (item.category === 'mobility' || item.category_label.toLowerCase().includes('tai chi') || item.category_label.toLowerCase().includes('mobility'))) ||
+      (selectedCategory === 'cardio_fun' && (item.category === 'cardio_fun' || item.category_label.toLowerCase().includes('crossfit') || item.category_label.toLowerCase().includes('insanity') || item.category_label.toLowerCase().includes('rower')));
+
+    if (!matchesCat) return false;
+
+    if (searchQuery.trim() === '') return true;
+
+    const q = searchQuery.toLowerCase().trim();
+    return (
+      item.title.toLowerCase().includes(q) ||
+      item.description.toLowerCase().includes(q) ||
+      item.category_label.toLowerCase().includes(q) ||
+      (item.benefits && item.benefits.toLowerCase().includes(q))
+    );
   });
 
   const handlePick = (activity: SimpleMovementActivity) => {
@@ -135,7 +155,7 @@ export const SimpleMovementPickerModal: React.FC<SimpleMovementPickerModalProps>
               <Search className="w-4 h-4 text-zinc-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
-                placeholder="Search walks, stretches, yoga, swimming, cycling..."
+                placeholder="Search all workouts & pre-made programs (P90X, 5x5, CrossFit, Cindy, walk, yoga)..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-9 pr-4 py-2 rounded-xl bg-surface-200 border border-surface-border text-xs text-foreground placeholder-zinc-500 focus:outline-none focus:border-brand-500 transition-colors"
@@ -321,11 +341,19 @@ export const SimpleMovementPickerModal: React.FC<SimpleMovementPickerModalProps>
                           </div>
                         </div>
 
-                        {isAlreadySelected && (
-                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-accent-coral/20 text-accent-coral border border-accent-coral/30 shrink-0">
-                            Active
-                          </span>
-                        )}
+                        <div className="flex items-center gap-1.5 shrink-0">
+                          {item.premade_program_id && (
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-amber-500/15 text-amber-300 border border-amber-500/30 flex items-center gap-1">
+                              <Award className="w-3 h-3 text-amber-400" />
+                              <span>Pre-Made</span>
+                            </span>
+                          )}
+                          {isAlreadySelected && (
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-accent-coral/20 text-accent-coral border border-accent-coral/30 shrink-0">
+                              Active
+                            </span>
+                          )}
+                        </div>
                       </div>
 
                       <p className="text-xs text-zinc-400 leading-relaxed pt-1">

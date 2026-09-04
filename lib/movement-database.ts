@@ -1,7 +1,7 @@
 export interface SimpleMovementActivity {
   id: string;
   title: string;
-  category: 'walking' | 'mobility' | 'strength' | 'cardio_fun' | 'custom';
+  category: 'walking' | 'mobility' | 'strength' | 'cardio_fun' | 'premade' | 'custom';
   category_label: string;
   icon: string;
   duration_minutes: number;
@@ -12,6 +12,8 @@ export interface SimpleMovementActivity {
   intensity: 'gentle' | 'moderate' | 'energizing';
   completed?: boolean;
   completed_at?: string;
+  premade_program_id?: string;
+  premade_day_number?: number;
 }
 
 export const POPULAR_MOVEMENT_CHOICES: SimpleMovementActivity[] = [

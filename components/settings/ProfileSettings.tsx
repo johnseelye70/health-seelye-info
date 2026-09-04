@@ -227,6 +227,19 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'b4.9.0',
+      date: '2026-09-04',
+      title: 'Full Pre-Made Workouts Search, Quick-Add & Browser Integration in Standard Movement Mode',
+      changes: [
+        'Standard Mode Pre-Made Workouts Search & Discovery: Enabled full search across all 42 pre-made programs and 180+ workout sessions (P90X, StrongLifts 5x5, CrossFit Benchmarks, Hero WODs, Arnold Golden Six, Insanity, Tai Chi, Concept2) directly from Standard Feel-Good Movement mode.',
+        'Standard Mode Sub-Navigation Toggle: Added a clean 2-pill switcher ("Daily Movement Choices" & "Pre-Made Programs (42)") allowing Standard mode users to easily toggle into the rich program browser without leaving the streamlined interface.',
+        'Search & Quick-Add Shelf: Added an instant inline search card with real-time results and 1-click popular program chips (P90X, 5x5, Cindy, Arnold, Insanity, Tai Chi, Row 5K) to add structured routines directly to daily movement goals.',
+        'Simple Movement Picker Modal Integration: Added a dedicated "🏆 Pre-Made Workouts (42+)" filter pill and merged all pre-made programs into the modal search index with distinct visual badges and calorie/step estimates.',
+        'Interactive Routine Sheet Access: Added "View Interactive Workout Sheet & Exercises" action buttons for chosen pre-made workouts in Standard mode, opening full exercise rosters, sets, reps, and printable sheets.',
+        'One-Click Add from Library: Enhanced the Pre-Made Programs Browser with "+ Add to Today" quick-action buttons on every program card and schedule item, providing instant green feedback banners and smooth return navigation.',
+      ],
+    },
+    {
       version: 'b4.8.1',
       date: '2026-09-04',
       title: 'Progress Section Meal Slot Indexing Fix & Diary Display Alignment',
