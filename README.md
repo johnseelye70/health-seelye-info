@@ -1,5 +1,5 @@
 # Seelye Family Health — Precision Fitness & Nutrition Application
-**Version: Beta v4.4.0 (b4.4.0)** | **Production Domain: https://health.seelye.info**
+**Version: Beta v4.5.0 (b4.5.0)** | **Production Domain: https://health.seelye.info**
 
 High-performance, dark-mode first athletic health and nutrition platform engineered with Next.js (App Router), TypeScript, Tailwind CSS, Supabase (PostgreSQL), and integrated Wholesome Recipe & Meal Prep Engine.
 
@@ -7,10 +7,11 @@ High-performance, dark-mode first athletic health and nutrition platform enginee
 
 ## ⚡ Key Architectural Modules
 
-### 1. World-Class Custom Meal Builder & Exhaustive Database (Beta v4.4.0)
+### 1. World-Class Custom Meal Builder & Exhaustive Database (Beta v4.5.0)
 - **Interactive Meal Studio:** Assemble custom meals and recipes by adding ingredients with customized quantities and units (`g`, `oz`, `cups`, `tbsp`, `tsp`, `servings`).
-- **Exhaustive Food Database (Local + Global):** Access 1,230+ curated whole foods and brand-name staples across major household brands and top store brands: Meijer, Walmart (Great Value), Costco (Kirkland Signature), Sam's Club (Member's Mark), and Aldi (liveGfree, Millville, Countryside Creamery, L'oven Fresh, Peanut Delight, Specially Selected, Aunt Maple's), with live integration to 3,500,000+ commercial products via Open Food Facts v2 API.
-- **Store-Brand & Name-Brand Gluten-Free Parity:** Comprehensive gluten-free coverage across Meijer, Walmart, Costco, Sam's Club, and Aldi for gluten-free breads (liveGfree, Meijer, Great Value, Member's Mark, Kirkland Signature, Canyon Bakehouse, Schär, Udi's, BFree), gluten-free crackers (liveGfree, True Goodness, Great Value, Member's Mark, Kirkland Signature, Simple Mills, Crunchmaster, Milton's, Mary's Gone Crackers, Glutino, Lance), and gluten-free desserts & cookies (Tate's Bake Shop, Oreo Gluten Free, Sweet Loren's, Goodie Girl, Partake, Heavenly Hunks, King Arthur mixes, liveGfree, Great Value, Member's Mark).
+- **Exhaustive Food Database (Local + Global):** Access 1,300+ curated whole foods, fitness supplements, and brand-name staples across major household brands and top store brands: Meijer, Walmart (Great Value, Equate), Costco (Kirkland Signature), Sam's Club (Member's Mark), and Aldi (Elevation, liveGfree, Millville, Countryside Creamery, L'oven Fresh, Peanut Delight, Specially Selected, Aunt Maple's), with live integration to 3,500,000+ commercial products via Open Food Facts v2 API.
+- **Popular Name-Brand Whey Powders:** Complete lineup of top-selling athletic whey powders including Optimum Nutrition Gold Standard 100% Whey (Extreme Milk Chocolate, Double Rich Chocolate, Vanilla Ice Cream, Delicious Strawberry, Cookies & Cream, Mocha Cappuccino, Banana Cream, French Vanilla, 100% Isolate), Dymatize ISO100 Hydrolyzed Whey Isolate (Gourmet Chocolate, Gourmet Vanilla, Fruity Pebbles, Cocoa Pebbles, Peanut Butter, Fudge Brownie, Glazed Donut) & Elite Whey, Ghost 100% Whey (Cereal Milk, Chips Ahoy!, Oreo, Milk Chocolate, Peanut Butter Cereal Milk, Nutter Butter), MuscleTech Nitro-Tech & 100% Grass-Fed, BSN Syntha-6 & Syntha-6 Edge, Isopure Zero Carb & Low Carb WPI, PEScience Select Protein, Rule 1 R1 Protein, Transparent Labs 100% Grass-Fed Isolate, Ryse Loaded, Ascent Native Fuel, Premier Protein, Nutricost, and NOW Sports, plus wholesale store-brand whey powders for Costco, Sam's Club, Walmart (Equate), Meijer, and Aldi (Elevation).
+- **Store-Brand & Name-Brand Gluten-Free Parity:** Comprehensive gluten-free coverage across Meijer, Walmart, Costco, Sam's Club, and Aldi for gluten-free breads, crackers, pretzels, cookies, desserts, and baking mixes.
 - **Store-Brand Parity:** Full store-brand coverage for instant oatmeals (including Meijer Sugar-Free Maple & Brown Sugar), peanut butters, jellies & jams, breads, butters in sticks and tubs for all stores, and sugar-free pancake syrups.
 - **Extensive Nutrition Stats Calculation:** Complete nutritional breakdown including Calories, Protein, Carbohydrates, Fats, Net Impact Carbs, Saturated Fat, Monounsaturated Fat, Polyunsaturated Fat, Trans Fat, Cholesterol, Dietary Fiber, Sugars, Added Sugars, Sodium, Potassium, Calcium, Iron, Magnesium, Zinc, and Vitamins A, C, and D.
 - **Serving Scaler & Yield Switcher:** Toggle between "Per 1 Serving" and "Full Batch" with dynamic yield scaling (1x to 12x).

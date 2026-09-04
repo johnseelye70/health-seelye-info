@@ -227,6 +227,20 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'b4.5.0',
+      date: '2026-09-04',
+      title: 'Popular Name-Brand Whey Powders Addition (Optimum Nutrition Gold Standard Extreme Milk Chocolate & Top Athletic Brands)',
+      changes: [
+        'Optimum Nutrition (ON) Gold Standard 100% Whey: Added Optimum Nutrition Gold Standard Extreme Milk Chocolate (32g scoop, 130 kcal, 24g protein, 4g carbs, 1.5g fat), Double Rich Chocolate, Vanilla Ice Cream, Delicious Strawberry, Cookies & Cream, Mocha Cappuccino, Banana Cream, French Vanilla, and Gold Standard 100% Isolate (Chocolate Bliss & Rich Vanilla).',
+        'Dymatize ISO100 & Elite Whey: Added Dymatize ISO100 Hydrolyzed Whey Isolate (Gourmet Chocolate, Gourmet Vanilla, Fruity Pebbles, Cocoa Pebbles, Peanut Butter, Fudge Brownie, Dunkin\' Glazed Donut) and Dymatize Elite 100% Whey (Rich Chocolate & Smooth Vanilla).',
+        'Ghost 100% Whey Protein: Added Ghost Cereal Milk, Chips Ahoy!, Oreo, Milk Chocolate, Peanut Butter Cereal Milk, and Nutter Butter.',
+        'MuscleTech & BSN: Added MuscleTech Nitro-Tech 100% Whey Gold (Double Rich Chocolate & French Vanilla Cream), 100% Grass-Fed Whey, Nitro-Tech Ripped, and BSN Syntha-6 (Chocolate Milkshake, Vanilla Ice Cream, Strawberry Milkshake, Syntha-6 Edge).',
+        'Pure Isolates & Clean Formulas: Added Isopure Zero Carb & Low Carb (Unflavored, Creamy Vanilla, Dutch Chocolate, Strawberries & Cream), Transparent Labs 100% Grass-Fed Whey Isolate, PEScience Select Protein (Snickerdoodle, Gourmet Vanilla, Chocolate Cupcake, Cake Pop), Rule 1 R1 Protein, Ryse Loaded, Ascent Native Fuel, Nutricost, and NOW Sports.',
+        'Store-Brand & Club Pack Whey: Added Costco Kirkland Signature Complete 100% Whey, Sam\'s Club Member\'s Mark 100% Whey (Chocolate & Vanilla 5 lb tubs), Walmart Equate 100% Whey (Chocolate & Vanilla), Meijer 100% Whey, and Aldi Elevation by Millville 100% Whey.',
+        'Store Database Integration: Added 23 store-brand and name-brand whey protein tubs and bulk bags across Costco, Sam\'s Club, Meijer, Walmart, and Aldi.',
+      ],
+    },
+    {
       version: 'b4.4.0',
       date: '2026-09-04',
       title: 'Store-Brand & Name-Brand Gluten-Free Expansion: Breads, Crackers, and Desserts across Meijer, Walmart, Costco, Sam\'s Club & Aldi',
