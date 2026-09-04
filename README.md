@@ -1,5 +1,5 @@
 # Seelye Family Health — Precision Fitness & Nutrition Application
-**Version: Beta v4.2.0 (b4.2.0)** | **Production Domain: https://health.seelye.info**
+**Version: Beta v4.3.0 (b4.3.0)** | **Production Domain: https://health.seelye.info**
 
 High-performance, dark-mode first athletic health and nutrition platform engineered with Next.js (App Router), TypeScript, Tailwind CSS, Supabase (PostgreSQL), and integrated Wholesome Recipe & Meal Prep Engine.
 
@@ -7,9 +7,10 @@ High-performance, dark-mode first athletic health and nutrition platform enginee
 
 ## ⚡ Key Architectural Modules
 
-### 1. World-Class Custom Meal Builder & Exhaustive Database (Beta v4.2.0)
+### 1. World-Class Custom Meal Builder & Exhaustive Database (Beta v4.3.0)
 - **Interactive Meal Studio:** Assemble custom meals and recipes by adding ingredients with customized quantities and units (`g`, `oz`, `cups`, `tbsp`, `tsp`, `servings`).
-- **Exhaustive Food Database (Local + Global):** Access 1,080+ curated whole foods, major household brands (Quaker, Jif, Skippy, Smucker's, Dave's Killer Bread, Land O'Lakes, Kerrygold, Country Crock, Aldi Countryside Creamery, Mrs. Butterworth's), with live integration to 3,500,000+ commercial products via Open Food Facts v2 API.
+- **Exhaustive Food Database (Local + Global):** Access 1,130+ curated whole foods and brand-name staples across major household brands and top store brands: Meijer, Walmart (Great Value), Costco (Kirkland Signature), Sam's Club (Member's Mark), and Aldi (Millville, Countryside Creamery, L'oven Fresh, Peanut Delight, Specially Selected, Aunt Maple's), with live integration to 3,500,000+ commercial products via Open Food Facts v2 API.
+- **Store-Brand Parity:** Full store-brand coverage for instant oatmeals (including Meijer Sugar-Free Maple & Brown Sugar), peanut butters, jellies & jams, breads, butters in sticks and tubs for all stores, and sugar-free pancake syrups.
 - **Extensive Nutrition Stats Calculation:** Complete nutritional breakdown including Calories, Protein, Carbohydrates, Fats, Net Impact Carbs, Saturated Fat, Monounsaturated Fat, Polyunsaturated Fat, Trans Fat, Cholesterol, Dietary Fiber, Sugars, Added Sugars, Sodium, Potassium, Calcium, Iron, Magnesium, Zinc, and Vitamins A, C, and D.
 - **Serving Scaler & Yield Switcher:** Toggle between "Per 1 Serving" and "Full Batch" with dynamic yield scaling (1x to 12x).
 - **Direct 1-Click Daily Plan Integration:** Log custom meals directly to Breakfast, Lunch, Dinner, or Snacks on Today or any historical date, as a single consolidated item or individual ingredients.

@@ -227,6 +227,21 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'b4.3.0',
+      date: '2026-09-04',
+      title: 'Store-Brand Product Expansion Across All Major Stores (Meijer, Walmart, Costco, Sam\'s Club & Aldi) + Meijer Sugar-Free Oatmeal',
+      changes: [
+        'Meijer Sugar-Free Oatmeal: Added Meijer Sugar Free Instant Oatmeal (Maple & Brown Sugar, 10-pack, 120 kcal, 0g sugar) with full micronutrient breakdown.',
+        'Store-Brand Instant Oatmeals: Added complete store-brand instant oatmeal varieties across Walmart (Great Value Original, Maple & Brown Sugar, Apples & Cinnamon), Sam\'s Club (Member\'s Mark Maple & Brown Sugar), and Costco (Kirkland Signature Organic Whole Grain Oats).',
+        'Store-Brand Peanut Butters: Added store-brand peanut butters for Meijer (Creamy, Crunchy, True Goodness Organic), Walmart (Great Value Creamy & Crunchy), Aldi (Peanut Delight Creamy & Crunchy), Sam\'s Club (Member\'s Mark Creamy 6 lb twin pack), and Costco (Kirkland Signature Organic Creamy).',
+        'Store-Brand Breads: Added store-brand breads for Meijer (100% Whole Wheat & Classic White), Walmart (Great Value Whole Wheat & White), Aldi (L\'oven Fresh Whole Wheat, White & English Muffins), Sam\'s Club (Member\'s Mark Whole Wheat twin pack), and Costco (Kirkland Signature Whole Wheat & Country French Sourdough).',
+        'Store-Brand Butters in Sticks & Tubs for ALL Stores: Added full stick and spreadable tub varieties across Meijer (Salted Sticks, Unsalted Sticks, Canola Oil Tub, Vegetable Oil Spread Tub), Walmart (Great Value Salted Sticks, Unsalted Sticks, Canola Oil Tub, Oil Spread Tub), Sam\'s Club (Member\'s Mark Salted Sticks, Unsalted Sticks, Canola Oil Tub), and Costco (Kirkland Signature Salted Sticks, Unsalted Sticks, New Zealand Grass-Fed Foil Sticks), complementing Aldi Countryside Creamery.',
+        'Store-Brand Jellies, Jams & Preserves: Added store-brand fruit spreads across Meijer (Concord Grape, Strawberry Jam, Sugar-Free Strawberry), Walmart (Great Value Grape Jelly, Strawberry Preserves, Sugar-Free Strawberry), Aldi (Specially Selected Strawberry & Grandessa Grape), Sam\'s Club (Member\'s Mark Organic Strawberry Spread), and Costco (Kirkland Signature Organic Strawberry Spread).',
+        'Store-Brand Sugar-Free Syrups: Added store-brand sugar-free pancake syrups across Meijer, Walmart (Great Value), Aldi (Aunt Maple\'s), and Sam\'s Club (Member\'s Mark).',
+        'Store-Brand Grocery Catalog Synchronization: Fully populated Meijer, Walmart, Costco, Sam\'s Club, and Aldi store catalogs in store-products-database with department tags, package sizes, serving sizes, and smart substitute recommendations.',
+      ],
+    },
+    {
       version: 'b4.2.0',
       date: '2026-09-04',
       title: 'Major Name-Brand Food Catalog Expansion: Oatmeals, Peanut Butters, Jellies & Jams, Breads, Butters (Sticks & Tubs), & Sugar-Free Syrups',
