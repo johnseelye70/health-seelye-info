@@ -40,7 +40,7 @@ import {
   FastingStatus,
 } from '@/lib/macro-calculator';
 import { generateSmartGroceryRequisition } from '@/lib/grocery-database';
-import { isSupabaseConfigured, supabase } from '@/lib/supabase/client';
+import { isSupabaseConfigured, supabase, purgeLegacyLocalStorage } from '@/lib/supabase/client';
 import { normalizeFoodCategory } from '@/lib/food-database';
 import {
   SimpleMovementActivity,
@@ -373,12 +373,12 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (typeof window !== 'undefined') {
       try {
+        purgeLegacyLocalStorage();
+
         const saved =
           localStorage.getItem(LOCAL_STORAGE_KEY) ||
           localStorage.getItem('health_seelye_app_state_v7') ||
-          localStorage.getItem('health_seelye_app_state_v6') ||
-          localStorage.getItem('health_seelye_app_state_v5') ||
-          localStorage.getItem('health_seelye_app_state_v4');
+          localStorage.getItem('health_seelye_app_state_v6');
 
         let loadedStepLogs: StepLogEntry[] = [];
 
@@ -401,7 +401,9 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
             setProfile(prof);
           }
 
-          const customFoods = (parsed.foods && Array.isArray(parsed.foods))
+          const customFoods = Array.isArray(parsed.customFoods)
+            ? parsed.customFoods
+            : (parsed.foods && Array.isArray(parsed.foods))
             ? parsed.foods.filter((f: FoodItem) => f.id.startsWith('cf-') || (!DEFAULT_FOODS.some((df) => df.id === f.id) && !f.id.includes('-v')))
             : [];
           setFoods([...DEFAULT_FOODS, ...customFoods]);
@@ -495,11 +497,11 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (typeof window !== 'undefined') {
       try {
+        const userCustomFoods = foods.filter((f) => f.id.startsWith('cf-'));
         const stateToPersist = {
           profile,
-          foods,
+          customFoods: userCustomFoods,
           foodLogs,
-          workoutPlan,
           groceryList,
           weightLogs,
           workoutLogs,
@@ -513,12 +515,32 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
           scheduledPlans,
           customMeals,
         };
-        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(stateToPersist));
+        try {
+          localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(stateToPersist));
+        } catch (storageErr) {
+          console.warn('Storage quota hit while persisting state, purging legacy storage...', storageErr);
+          purgeLegacyLocalStorage();
+          try {
+            localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(stateToPersist));
+          } catch (secondaryErr) {
+            try {
+              const minimal = {
+                profile,
+                foodLogs: foodLogs.slice(0, 50),
+                weightLogs: weightLogs.slice(0, 30),
+                waterLogs: waterLogs.slice(0, 30),
+                customMeals,
+                simpleMovementActivities,
+              };
+              localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(minimal));
+            } catch {}
+          }
+        }
       } catch (err) {
         console.warn('Failed to persist state:', err);
       }
     }
-  }, [profile, foods, foodLogs, workoutPlan, groceryList, weightLogs, workoutLogs, activeProgramId, notificationsEnabled, waterGoalOz, waterLogs, stepGoal, stepLogs, simpleMovementActivities, scheduledPlans, customMeals]);
+  }, [profile, foods, foodLogs, groceryList, weightLogs, workoutLogs, activeProgramId, notificationsEnabled, waterGoalOz, waterLogs, stepGoal, stepLogs, simpleMovementActivities, scheduledPlans, customMeals]);
 
   // Refs to decouple async synchronization from React state render cycles
   const profileRef = useRef<UserProfile>(profile);
@@ -1263,8 +1285,27 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
   // Auth Methods
   const signInWithPassword = async (email: string, password: string) => {
     if (!supabase) return { error: { message: 'Cloud database not configured' } };
-    const res = await supabase.auth.signInWithPassword({ email, password });
-    if (!res.error && res.data.user) {
+    purgeLegacyLocalStorage();
+    let res: any;
+    try {
+      res = await supabase.auth.signInWithPassword({ email, password });
+    } catch (err: any) {
+      if (/quota/i.test(err?.message || '')) {
+        purgeLegacyLocalStorage();
+        try {
+          res = await supabase.auth.signInWithPassword({ email, password });
+        } catch (retryErr: any) {
+          return { error: retryErr };
+        }
+      } else {
+        return { error: err };
+      }
+    }
+    if (res?.error && /quota/i.test(res.error.message || '')) {
+      purgeLegacyLocalStorage();
+      res = await supabase.auth.signInWithPassword({ email, password });
+    }
+    if (!res.error && res.data?.user) {
       setAuthUser(res.data.user);
       authUserRef.current = res.data.user;
       await performCloudSync(res.data.user);
@@ -1274,16 +1315,49 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
 
   const signUpWithPassword = async (email: string, password: string, fullName?: string) => {
     if (!supabase) return { error: { message: 'Cloud database not configured' } };
+    purgeLegacyLocalStorage();
     const emailRedirectTo = typeof window !== 'undefined' ? `${window.location.origin}/` : 'https://health.seelye.info/';
-    const res = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: { full_name: fullName || (profile.full_name === 'John Seelye' ? 'Athlete' : profile.full_name) || 'Athlete' },
-        emailRedirectTo,
-      },
-    });
-    if (!res.error && res.data.user) {
+    let res: any;
+    try {
+      res = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: { full_name: fullName || (profile.full_name === 'John Seelye' ? 'Athlete' : profile.full_name) || 'Athlete' },
+          emailRedirectTo,
+        },
+      });
+    } catch (err: any) {
+      if (/quota/i.test(err?.message || '')) {
+        purgeLegacyLocalStorage();
+        try {
+          res = await supabase.auth.signUp({
+            email,
+            password,
+            options: {
+              data: { full_name: fullName || (profile.full_name === 'John Seelye' ? 'Athlete' : profile.full_name) || 'Athlete' },
+              emailRedirectTo,
+            },
+          });
+        } catch (retryErr: any) {
+          return { error: retryErr };
+        }
+      } else {
+        return { error: err };
+      }
+    }
+    if (res?.error && /quota/i.test(res.error.message || '')) {
+      purgeLegacyLocalStorage();
+      res = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: { full_name: fullName || (profile.full_name === 'John Seelye' ? 'Athlete' : profile.full_name) || 'Athlete' },
+          emailRedirectTo,
+        },
+      });
+    }
+    if (!res.error && res.data?.user) {
       setAuthUser(res.data.user);
       authUserRef.current = res.data.user;
       setProfile((prev) => ({ ...prev, full_name: fullName || 'Athlete', email }));

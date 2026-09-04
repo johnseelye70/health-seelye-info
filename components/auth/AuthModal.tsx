@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useHealth } from '@/context/HealthContext';
+import { purgeLegacyLocalStorage } from '@/lib/supabase/client';
 import {
   Lock,
   Mail,
@@ -80,6 +81,19 @@ export const AuthModal: React.FC = () => {
         setSuccessMsg('Password reset instructions have been sent to your email.');
       }
     } catch (err: any) {
+      if (/quota/i.test(err?.message || '')) {
+        try {
+          purgeLegacyLocalStorage();
+          if (mode === 'signin') {
+            const { error: retryErr } = await signInWithPassword(email, password);
+            if (!retryErr) {
+              setSuccessMsg('Signed in successfully! Your data is syncing across your devices.');
+              setTimeout(() => setShowAuthModal(false), 1500);
+              return;
+            }
+          }
+        } catch {}
+      }
       setErrorMsg(err.message || 'An unexpected error occurred. Please try again.');
     } finally {
       setLoading(false);

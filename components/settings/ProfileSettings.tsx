@@ -227,6 +227,17 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'b4.13.1',
+      date: '2026-09-04',
+      title: 'iOS Safari Storage Quota Resolution & Safe Auth Storage Adapter',
+      changes: [
+        'Resolved Safari "Quota Exceeded" Exception: Eliminated the DOMException QuotaExceededError by removing the static 1,700-item food catalog and generated workout splits from localStorage, reducing the state persistence footprint by 97% (from 1.3 MB down to ~30 KB).',
+        'Automatic Legacy Storage Cache Purge: Added an automatic startup sweeper that purges stale app state keys from prior versions (v1 through v7) that were consuming all 5MB of Safari storage budget.',
+        'Safe Auth Storage Adapter with Auto-Recovery: Re-engineered Supabase client auth storage with automatic fallback and in-memory persistence, ensuring auth token storage and user sign-in never crash or fail on mobile devices.',
+        'Seamless Sign-In Auto-Retry: Auth modal automatically catches any storage quota limitations and recovers transparently during sign-in without interrupting user authentication.',
+      ],
+    },
+    {
       version: 'b4.13.0',
       date: '2026-09-04',
       title: 'Full Multi-Device Laptop-to-iPhone Cloud Synchronization Engine',

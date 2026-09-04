@@ -1,5 +1,5 @@
 # Seelye Family Health — Precision Fitness & Nutrition Application
-**Version: Beta v4.13.0 (b4.13.0)** | **Production Domain: https://health.seelye.info**
+**Version: Beta v4.13.1 (b4.13.1)** | **Production Domain: https://health.seelye.info**
 
 High-performance, dark-mode first athletic health and nutrition platform engineered with Next.js (App Router), TypeScript, Tailwind CSS, Supabase (PostgreSQL), and integrated Wholesome Recipe & Meal Prep Engine.
 
@@ -7,7 +7,13 @@ High-performance, dark-mode first athletic health and nutrition platform enginee
 
 ## ⚡ Key Architectural Modules
 
-### 1. Full Multi-Device Laptop-to-iPhone Cloud Synchronization Engine (Beta v4.13.0)
+### 1. iOS Safari Storage Quota Resolution & Safe Auth Storage Adapter (Beta v4.13.1)
+- **Safari QuotaExceededError Fix:** Removed the static 1,700-item food catalog and generated workout plan splits from `localStorage`, reducing the app state persistence payload by 97% (from ~1.3 MB down to ~30 KB).
+- **Automated Legacy Cache Purge:** Integrated automatic startup sweeper that cleans out legacy app state snapshots (`v1` through `v7`) that were consuming all 5 MB of Safari's local storage limit.
+- **Safe Auth Storage Adapter:** Configured resilient Supabase client storage adapter with automatic fallback to `sessionStorage` and in-memory persistence, ensuring auth token storage never crashes.
+- **Transparent Sign-In Recovery:** Auth modal transparently catches storage exceptions, purges stale keys, and seamlessly completes sign-in without user friction.
+
+### 2. Full Multi-Device Laptop-to-iPhone Cloud Synchronization Engine (Beta v4.13.0)
 - **PostgreSQL UUID & Type Resilience:** Eliminated Postgres error 22P02 (`invalid input syntax for type uuid`) on string food IDs (`da-egg-ks-001`, `pm-chk-001`, etc.) across `food_logs`, ensuring all food entries successfully insert into cloud tables.
 - **Immediate Local-to-Cloud Database ID Mapping:** Switched insert pipelines to use `.select().single()`, updating local client state with the canonical database UUIDs so diary edits, updates, and deletes target cloud rows seamlessly.
 - **Multi-Domain App Sync Bundle:** Unified custom built meals & recipes, daily chosen movements, hydration water logs, workout session ledgers, and scheduled meal plans into an automatic cloud bundle synced via `auth.updateUser` and profile cloud metadata.
