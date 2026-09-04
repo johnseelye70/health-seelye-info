@@ -25,7 +25,7 @@ export function searchLocalFoods(
   const terms = q.split(/\s+/).filter(Boolean);
   return COMPREHENSIVE_FOOD_DATABASE.filter((food) => {
     if (category !== 'all' && food.category !== category) return false;
-    const target = `${food.name} ${food.sub_category || ''} ${food.category} ${food.swap_group || ''}`.toLowerCase();
+    const target = `${food.name} ${food.brand || ''} ${food.sub_category || ''} ${food.category} ${food.swap_group || ''}`.toLowerCase();
     return terms.every((term) => target.includes(term));
   }).slice(0, limit);
 }

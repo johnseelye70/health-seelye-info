@@ -227,6 +227,16 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'b4.1.0',
+      date: '2026-09-04',
+      title: 'Added Meijer Instant Oatmeal Catalog Expansion & Enhanced Brand Search Matching',
+      changes: [
+        'Added Meijer Instant Oatmeal Varieties: Integrated official Meijer Instant Oatmeal items (Original / Plain 12-pack, Maple & Brown Sugar 10-pack, Apples & Cinnamon 10-pack, Strawberries & Cream 10-pack) with full micronutrient profiles (iron, calcium, sodium, potassium, vitamin A, fiber, healthy fats, sugars).',
+        'Meijer Store Brand Product Alignment: Added Meijer Instant Oatmeal products to the Meijer store-brand grocery catalog with bulk canister and box conversion substitutes.',
+        'Brand-Aware Search Matching: Upgraded local and server-side food search indexes to match brand metadata alongside food titles, enabling fast lookups for store and commercial brands.',
+      ],
+    },
+    {
       version: 'b4.0.0',
       date: '2026-09-04',
       title: 'World-Class Custom Meal Builder, Exhaustive 3.5M+ Food Database & Daily Plan Integration',

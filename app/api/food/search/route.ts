@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
       if (category && category !== 'all' && food.category !== category) {
         return false;
       }
-      const target = `${food.name} ${food.sub_category || ''} ${food.category}`.toLowerCase();
+      const target = `${food.name} ${food.brand || ''} ${food.sub_category || ''} ${food.category}`.toLowerCase();
       return terms.every((term) => target.includes(term));
     });
   } else if (category && category !== 'all') {
