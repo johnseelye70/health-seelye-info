@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
   const includeGlobal = searchParams.get('global') !== 'false';
   const limit = Math.min(60, Math.max(10, Number(searchParams.get('limit')) || 30));
 
-  // 1. Search Local Curated Food Database (1,685 items)
+  // 1. Search Local Curated Food Database (1,709 items)
   let localResults: FoodItem[] = [];
 
   if (query.length > 0) {

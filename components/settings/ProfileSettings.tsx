@@ -227,6 +227,19 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'b4.12.0',
+      date: '2026-09-04',
+      title: 'Complete Sam\'s Club Egg Catalog Integration',
+      changes: [
+        'Member\'s Mark Fresh Shell Eggs: Added Member\'s Mark Cage-Free Grade AA Large White Eggs (2 Dozen / 24-Pack & 5 Dozen / 60-Count Crate), Cage-Free Large Brown Eggs (24-Pack), Organic Cage-Free Large Brown Eggs (24-Pack), Free Range Large Brown Eggs (24-Pack), and Pasture-Raised Organic Grade A Large Brown Eggs (18-Count / 1.5 Dozen).',
+        'Commercial & Prepared Egg Products: Added Member\'s Mark Pasteurized Liquid Real Whole Eggs with Citric Acid, Member\'s Mark Sous Vide Uncured Bacon & Three Cheese Egg Bites (5-Pack / 10 Bites), and Three Bridges Uncured Bacon & Cheese Egg Bites (8-Pack / 16 Bites).',
+        'National Brand Egg Lines at Sam\'s Club: Added Sunny Meadow Grade A Large Eggs (36-Count Case / 2 x 18-Pack), Eggland\'s Best Cage-Free Large Brown (18-Count), Eggland\'s Best Organic Large (18-Count), Eggland\'s Best Large White (30-Count Flat), Eggland\'s Best Three Cheese Omelets (8-Count), Happy Egg Co. Free Range Large Brown (18-Count), and Vital Farms Pasture-Raised Organic Large (18-Count).',
+        'Hard-Boiled Multi-Packs: Added convenient grab-and-go peeled egg multi-packs including Great Day Farms Cage-Free Hard-Boiled (12 x 2-Pack / 24-Count), Snack Attack Cage-Free Hard-Boiled (12 x 2-Pack), The Farmer\'s Hen Free Range Hard-Cooked (12 x 2-Pack), Almark Foods Cage-Free Hard-Cooked (12 x 2-Pack), and Eggland\'s Best Hard-Cooked Peeled Eggs (8-Pack).',
+        'Plant-Based & Alternative Options: Added Just Egg Plant-Based Liquid Scramble (32 oz Club Pack) and Just Egg Plant-Based Folded Patties (Club Pack), plus Bob Evans Liquid Real Whole Eggs (32 oz Club Pack).',
+        'Database Scale: Master Food Database expanded to 1,709 verified items (310 items in Dairy & Eggs; 63 authentic egg items).',
+      ],
+    },
+    {
       version: 'b4.11.0',
       date: '2026-09-04',
       title: 'Preferred Stores Dairy & Greek Yogurt Expansion (Meijer, Walmart, Costco, Sam\'s Club, Aldi & National Brands)',

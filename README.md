@@ -1,5 +1,5 @@
 # Seelye Family Health — Precision Fitness & Nutrition Application
-**Version: Beta v4.11.0 (b4.11.0)** | **Production Domain: https://health.seelye.info**
+**Version: Beta v4.12.0 (b4.12.0)** | **Production Domain: https://health.seelye.info**
 
 High-performance, dark-mode first athletic health and nutrition platform engineered with Next.js (App Router), TypeScript, Tailwind CSS, Supabase (PostgreSQL), and integrated Wholesome Recipe & Meal Prep Engine.
 
@@ -7,7 +7,15 @@ High-performance, dark-mode first athletic health and nutrition platform enginee
 
 ## ⚡ Key Architectural Modules
 
-### 1. Preferred Stores Dairy & Greek Yogurt Expansion (Beta v4.11.0)
+### 1. Complete Sam's Club Egg Catalog Integration (Beta v4.12.0)
+- **Member's Mark Fresh Shell Eggs:** Member's Mark Cage-Free Grade AA Large White Eggs (2 Dozen / 24-Pack & 5 Dozen / 60-Count Crate), Cage-Free Large Brown Eggs (24-Pack), Organic Cage-Free Large Brown Eggs (24-Pack), Free Range Large Brown Eggs (24-Pack), and Pasture-Raised Organic Grade A Large Brown Eggs (18-Count / 1.5 Dozen).
+- **Commercial & Prepared Egg Products:** Member's Mark Pasteurized Liquid Real Whole Eggs with Citric Acid, Member's Mark Sous Vide Uncured Bacon & Three Cheese Egg Bites (5-Pack / 10 Bites), and Three Bridges Uncured Bacon & Cheese Egg Bites (8-Pack / 16 Bites).
+- **National Brand Egg Lines at Sam's Club:** Sunny Meadow Grade A Large Eggs (36-Count Case / 2 x 18-Pack), Eggland's Best Cage-Free Large Brown (18-Count), Eggland's Best Organic Large (18-Count), Eggland's Best Large White (30-Count Flat), Eggland's Best Three Cheese Omelets (8-Count), Happy Egg Co. Free Range Large Brown (18-Count), and Vital Farms Pasture-Raised Organic Large (18-Count).
+- **Hard-Boiled Multi-Packs:** Grab-and-go peeled egg multi-packs including Great Day Farms Cage-Free Hard-Boiled (12 x 2-Pack / 24-Count), Snack Attack Cage-Free Hard-Boiled (12 x 2-Pack), The Farmer's Hen Free Range Hard-Cooked (12 x 2-Pack), Almark Foods Cage-Free Hard-Cooked (12 x 2-Pack), and Eggland's Best Hard-Cooked Peeled Eggs (8-Pack).
+- **Plant-Based & Alternative Options:** Just Egg Plant-Based Liquid Scramble (32 oz Club Pack), Just Egg Plant-Based Folded Patties (Club Pack), and Bob Evans Liquid Real Whole Eggs (32 oz Club Pack).
+- **Database Scale:** Master Food Database expanded to 1,709 verified items (310 items in Dairy & Eggs; 63 authentic egg items).
+
+### 2. Preferred Stores Dairy & Greek Yogurt Expansion (Beta v4.11.0)
 - **Comprehensive Greek Yogurt Catalog (36 Items):** Full fat-percentage spectrum (0% nonfat, 2% lowfat, 4-5% whole milk) and top flavors across Fage Total, Chobani, Dannon Oikos (Triple Zero & Pro 20g/25g), Dannon Light & Fit (12g protein zero-sugar), Siggi's Icelandic Skyr, Two Good (2g sugar), Meijer, Great Value, Kirkland Signature Organic, Member's Mark, Friendly Farms (Aldi), and Simply Nature Organic.
 - **Cottage Cheese Varieties (19 Items):** 4% whole milk, 2% low-fat, nonfat, and whipped curd textures from Good Culture (Organic Whole Milk, 2% Low-Fat, Simply, Whipped), Daisy (4% & 2%), Breakstone's (4% Small Curd, 2%, Multi-Serve), Meijer, Great Value Small Curd, Member's Mark, and Friendly Farms (Aldi).
 - **Dairy Milks Across Preferred Stores (26 Items):** Whole milk, 2% reduced fat, 1% low-fat, skim/fat-free, and lactose-free filtered milk across Fairlife, Horizon Organic, Organic Valley, a2 Milk, Meijer, Great Value, Kirkland Signature, Member's Mark, and Friendly Farms.
