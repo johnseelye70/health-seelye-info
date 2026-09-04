@@ -227,6 +227,19 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'b4.10.0',
+      date: '2026-09-04',
+      title: 'Name Brand Protein Bars, RTD Drinks, Atkins Catalog & Comprehensive Nut Varieties',
+      changes: [
+        'Chef Robert Irvine FitCrunch Bars Integration: Added the full FitCrunch roster including full-size 88g bars, 46g snack-size bars, and protein wafers in all top flavors (Chocolate Peanut Butter, Peanut Butter & Jelly, Chocolate Chip Cookie Dough, Milk & Cookies, Mint Chocolate Chip, Caramel Peanut, Strawberry Strudel, Apple Pie, Lemon Cake).',
+        'Atkins Products Suite: Added the complete Atkins line of low-carb meal bars (Chocolate Peanut Butter, Chocolate Chip Granola, Blueberry Greek Yogurt, Cookie Dough), snack bars (Caramel Chocolate Nut Roll, Lemon, White Chocolate Macadamia), Endulge treats (Caramel Nut Chew, Peanut Butter Cups, Pecan Caramel Mousse), and ready-to-drink shakes (Atkins Plus 30g, Atkins Meal 15g, Iced Coffee shakes).',
+        'Top Brand Protein Bars: Added 86 curated protein bars across Quest Nutrition, Barebells, ONE Brands, Pure Protein, Built Bar & Puffs, Gatorade Whey, CLIF Builder\'s, Met-Rx Big 100, RXBAR, Think!, Kirkland Signature, No Cow, Aloha, Lenny & Larry\'s, and Grenade Carb Killa.',
+        'Ready-to-Drink (RTD) Protein Shakes: Added 51 name brand protein drinks across Fairlife Core Power Elite (42g), Core Power (26g), Fairlife Nutrition Plan (30g), Premier Protein (30g), Muscle Milk (25g, 40g Pro, Zero), Quest RTD, Ensure Max Protein, Boost Max, Orgain Organic & Clean Protein, OWYN 100% Plant-Based (32g Pro Elite), Slate Milk, Ghost RTD, and Shamrock Farms Rockin\' Protein.',
+        'Comprehensive Nut Varieties: Expanded the healthy fats and nuts domain with 43 diverse nut types and preps across Peanuts (Planters salted, honey roasted, dry roasted, Spanish, boiled, Virginia jumbo), Pistachios (Wonderful shelled, lightly salted, sweet chili, salt & pepper), Almonds (Blue Diamond smokehouse, wasabi & soy, habanero BBQ, whole raw, slivered), Walnuts (English, Emerald glazed, chopped), Pecans (Georgia roasted, praline glazed), Cashews (Planters, Kirkland fancy, rosemary olive oil), Pine Nuts (Italian toasted, Siberian wild), Hazelnuts, Macadamias (Mauna Loa), Chestnuts, Deluxe Mixed Nuts, Pili Nuts, and Tiger Nuts.',
+        'Dedicated Sub-Categories & Smart Search: Added new "Protein Bars & Snacks" and "Ready-to-Drink Protein Shakes" sub-categories, enhanced multi-token and singular/plural search matching across the Food Database Browser, Meal Builder, and Food Search API.',
+      ],
+    },
+    {
       version: 'b4.9.1',
       date: '2026-09-04',
       title: 'Standard Movement Reset & Clear Workflow Alignment',

@@ -95,7 +95,7 @@ export const FOOD_CATEGORIES: FoodCategoryMeta[] = [
     name: 'Healthy Fats, Nuts & Seeds',
     shortLabel: 'Nuts & Healthy Fats',
     icon: '🥑',
-    description: 'Avocado, olive oil, almonds, walnuts, peanut butter, chia seeds & flax',
+    description: 'Avocado, olive oil, almonds, walnuts, pecans, pistachios, cashews, pine nuts & seeds',
     accentColor: '#84cc16',
   },
   {
@@ -103,7 +103,7 @@ export const FOOD_CATEGORIES: FoodCategoryMeta[] = [
     name: 'Hydration & Beverages',
     shortLabel: 'Beverages',
     icon: '☕',
-    description: 'Black coffee, green tea, sparkling water, coconut water & electrolytes',
+    description: 'Protein drinks, black coffee, green tea, sparkling water, coconut water & electrolytes',
     accentColor: '#6366f1',
   },
   {
@@ -111,7 +111,7 @@ export const FOOD_CATEGORIES: FoodCategoryMeta[] = [
     name: 'Pantry Staples & Snacks',
     shortLabel: 'Pantry & Snacks',
     icon: '🍯',
-    description: 'Protein powders, rice cakes, honey, hummus, salsa, mustard & spices',
+    description: 'Protein bars, whey powders, rice cakes, honey, hummus, salsa, mustard & spices',
     accentColor: '#a855f7',
   },
 ];
@@ -175,7 +175,7 @@ export const FOOD_SUB_CATEGORIES: FoodSubCategoryMeta[] = [
 
   // 8. Healthy Fats, Nuts & Seeds
   { id: 'avocados_olives', parentId: 'nuts_fats_oils', name: 'Avocados & Olives', icon: '🥑', description: 'Hass avocados, Kalamata olives & fresh guacamole' },
-  { id: 'whole_nuts', parentId: 'nuts_fats_oils', name: 'Whole Tree Nuts', icon: '🥜', description: 'Almonds, walnuts, cashews, pistachios & pecans' },
+  { id: 'whole_nuts', parentId: 'nuts_fats_oils', name: 'Whole Tree Nuts & Peanuts', icon: '🥜', description: 'Almonds, walnuts, cashews, pistachios, pecans, peanuts & pine nuts' },
   { id: 'nut_butters', parentId: 'nuts_fats_oils', name: 'Natural Nut & Seed Butters', icon: '🥜', description: 'Peanut butter, almond butter & tahini' },
   { id: 'super_seeds', parentId: 'nuts_fats_oils', name: 'Super Seeds', icon: '🌻', description: 'Chia seeds, flaxseed meal, pumpkin & hemp seeds' },
   { id: 'healthy_oils', parentId: 'nuts_fats_oils', name: 'Cold-Pressed Oils & Ghee', icon: '🫒', description: 'Extra virgin olive oil, avocado oil & coconut oil' },
@@ -185,9 +185,11 @@ export const FOOD_SUB_CATEGORIES: FoodSubCategoryMeta[] = [
   { id: 'teas_infusions', parentId: 'beverages_hydration', name: 'Teas & Herbal Infusions', icon: '🍵', description: 'Green tea, matcha, black tea & chamomile' },
   { id: 'waters_sparkling', parentId: 'beverages_hydration', name: 'Sparkling & Mineral Waters', icon: '💧', description: 'Sparkling water, seltzer & San Pellegrino' },
   { id: 'functional_hydration', parentId: 'beverages_hydration', name: 'Electrolytes & Coconut Water', icon: '🥥', description: 'Pure coconut water & zero-sugar electrolyte hydrators' },
+  { id: 'protein_drinks', parentId: 'beverages_hydration', name: 'Ready-to-Drink Protein Shakes', icon: '🥤', description: 'Core Power, Premier Protein, Atkins, Muscle Milk & OWYN shakes' },
 
   // 10. Pantry Staples & Snacks
-  { id: 'protein_powders', parentId: 'snacks_pantry', name: 'Protein Powders & RTDs', icon: '🥤', description: '100% Whey isolate, casein & plant protein' },
+  { id: 'protein_powders', parentId: 'snacks_pantry', name: 'Protein Powders & Supplements', icon: '🥤', description: '100% Whey isolate, casein & plant protein' },
+  { id: 'protein_bars', parentId: 'snacks_pantry', name: 'Protein Bars & Snacks', icon: '🍫', description: 'FitCrunch, Atkins, Quest, Barebells, ONE, Built & Pure Protein bars' },
   { id: 'rice_cakes_snacks', parentId: 'snacks_pantry', name: 'Rice Cakes & Crispbreads', icon: '🍘', description: 'Organic plain rice cakes & whole grain crackers' },
   { id: 'condiments_sauces', parentId: 'snacks_pantry', name: 'Sauces, Salsas & Mustards', icon: '🌶️', description: 'Fresh salsa, Dijon mustard, hot sauce & balsamic' },
   { id: 'natural_sweeteners', parentId: 'snacks_pantry', name: 'Natural Honey & Maple Syrup', icon: '🍯', description: 'Raw wildflower honey, pure maple syrup & stevia' },

@@ -26,7 +26,12 @@ export function searchLocalFoods(
   return COMPREHENSIVE_FOOD_DATABASE.filter((food) => {
     if (category !== 'all' && food.category !== category) return false;
     const target = `${food.name} ${food.brand || ''} ${food.sub_category || ''} ${food.category} ${food.swap_group || ''}`.toLowerCase();
-    return terms.every((term) => target.includes(term));
+    return terms.every((term) => {
+      if (target.includes(term)) return true;
+      if (term.endsWith('s') && term.length > 3 && target.includes(term.slice(0, -1))) return true;
+      if (term.endsWith('es') && term.length > 4 && target.includes(term.slice(0, -2))) return true;
+      return false;
+    });
   }).slice(0, limit);
 }
 

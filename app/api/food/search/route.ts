@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
   const includeGlobal = searchParams.get('global') !== 'false';
   const limit = Math.min(60, Math.max(10, Number(searchParams.get('limit')) || 30));
 
-  // 1. Search Local Curated Food Database (1,012 items)
+  // 1. Search Local Curated Food Database (1,498 items)
   let localResults: FoodItem[] = [];
 
   if (query.length > 0) {
@@ -20,8 +20,13 @@ export async function GET(request: NextRequest) {
       if (category && category !== 'all' && food.category !== category) {
         return false;
       }
-      const target = `${food.name} ${food.brand || ''} ${food.sub_category || ''} ${food.category}`.toLowerCase();
-      return terms.every((term) => target.includes(term));
+      const target = `${food.name} ${food.brand || ''} ${food.sub_category || ''} ${food.category} ${food.swap_group || ''}`.toLowerCase();
+      return terms.every((term) => {
+        if (target.includes(term)) return true;
+        if (term.endsWith('s') && term.length > 3 && target.includes(term.slice(0, -1))) return true;
+        if (term.endsWith('es') && term.length > 4 && target.includes(term.slice(0, -2))) return true;
+        return false;
+      });
     });
   } else if (category && category !== 'all') {
     localResults = COMPREHENSIVE_FOOD_DATABASE.filter((f) => f.category === category);

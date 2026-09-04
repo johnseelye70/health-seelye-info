@@ -1,5 +1,5 @@
 # Seelye Family Health — Precision Fitness & Nutrition Application
-**Version: Beta v4.9.1 (b4.9.1)** | **Production Domain: https://health.seelye.info**
+**Version: Beta v4.10.0 (b4.10.0)** | **Production Domain: https://health.seelye.info**
 
 High-performance, dark-mode first athletic health and nutrition platform engineered with Next.js (App Router), TypeScript, Tailwind CSS, Supabase (PostgreSQL), and integrated Wholesome Recipe & Meal Prep Engine.
 
@@ -7,7 +7,15 @@ High-performance, dark-mode first athletic health and nutrition platform enginee
 
 ## ⚡ Key Architectural Modules
 
-### 1. Pre-Made Programs, Standard Movement & Clean Reset (Beta v4.9.1)
+### 1. Name Brand Protein Bars, RTD Drinks, Atkins Suite & Nut Varieties (Beta v4.10.0)
+- **Chef Robert Irvine FitCrunch Bars:** Full roster of authentic FitCrunch products including full-size 88g bars, 46g snack-size bars, and protein wafers in all top flavors: Chocolate Peanut Butter, Peanut Butter & Jelly, Chocolate Chip Cookie Dough, Milk & Cookies, Mint Chocolate Chip, Caramel Peanut, Strawberry Strudel, Apple Pie, and Lemon Cake.
+- **Complete Atkins Products Suite:** Full suite of Atkins low-carb meal bars (Chocolate Peanut Butter, Chocolate Chip Granola, Blueberry Greek Yogurt, Cookie Dough), snack bars (Caramel Chocolate Nut Roll, Lemon, White Chocolate Macadamia, Cranberry Almond), Endulge treats (Caramel Nut Chew, Peanut Butter Cups, Pecan Caramel Mousse, Chocolate Coconut), and ready-to-drink shakes (Atkins Plus 30g, Atkins Meal 15g, Iced Coffee shakes).
+- **Major Name Brand Protein Bars (86 Items):** Top-rated protein bars across Quest Nutrition, Barebells, ONE Brands, Pure Protein, Built Bar & Built Puffs, Gatorade Whey, CLIF Builder's, Met-Rx Big 100 Colossal, RXBAR whole food bars, Think!, Kirkland Signature, No Cow vegan, Aloha, Lenny & Larry's Complete Cookies, and Grenade Carb Killa.
+- **Ready-to-Drink (RTD) Protein Shakes (51 Items):** Ready-to-drink protein drinks across Fairlife Core Power Elite (42g), Core Power (26g), Fairlife Nutrition Plan (30g), Premier Protein (30g), Muscle Milk (25g, 40g Pro, Zero), Quest RTD, Ensure Max Protein, Boost Max, Orgain Organic & Clean Protein, OWYN 100% Plant-Based (32g Pro Elite), Slate Milk, Ghost RTD, and Shamrock Farms Rockin' Protein.
+- **Comprehensive Nut Varieties (43 Items):** Complete representation across Peanuts (Planters salted, honey roasted, dry roasted, Spanish red-skin, southern boiled, Virginia jumbo), Pistachios (Wonderful shelled, lightly salted, sweet chili, salt & pepper), Almonds (Blue Diamond smokehouse, wasabi & soy, habanero BBQ, raw, slivered), Walnuts (English, Emerald glazed, chopped), Pecans (Georgia roasted, praline glazed), Cashews (Planters, Kirkland fancy, rosemary olive oil), Pine Nuts (Italian toasted, Siberian wild), Hazelnuts, Macadamias (Mauna Loa), Chestnuts, Deluxe Mixed Nuts, Pili Nuts, and Tiger Nuts.
+- **Dedicated Sub-Categories & Smart Search:** Introduced "Protein Bars & Snacks" (`protein_bars`) and "Ready-to-Drink Protein Shakes" (`protein_drinks`) sub-categories in the browser, with intelligent multi-term and singular/plural search matching across the Food Database Browser, Custom Meal Builder, and offline/online search APIs.
+
+### 2. Pre-Made Programs, Standard Movement & Clean Reset (Beta v4.9.1)
 - **Standard Mode Pre-Made Workouts Discovery:** Full search across all 42 master training programs and 180+ daily workout sessions (P90X, StrongLifts 5x5, CrossFit The Girls & Hero WODs, Arnold Golden Six, Insanity, Tai Chi, Concept2 Rowing) directly from the simplified Standard Feel-Good Movement mode.
 - **Clean Sub-Navigation Switcher:** 2-pill toggle ("Daily Movement Choices" & "Pre-Made Programs (42)") allows users in Standard mode to seamlessly enter the rich program browser and interactive worksheets without cluttering their daily tracker.
 - **Inline Quick-Add & Instant Search Card:** Real-time search with matching program previews, key exercise breakdowns, calorie burns, and 1-click popular program chips (P90X, 5x5, Cindy, Arnold, Insanity, Tai Chi, Row 5K) to add structured routines directly to daily movement goals.

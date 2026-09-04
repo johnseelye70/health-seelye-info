@@ -271,11 +271,15 @@ export const FoodDatabaseBrowser: React.FC<FoodDatabaseBrowserProps> = ({
 
       // 1. Text Search (Matches globally across food name, category, or sub-category)
       if (searchQuery.trim().length > 0) {
-        const q = searchQuery.toLowerCase().trim();
-        const matchesName = item.name.toLowerCase().includes(q);
-        const matchesCat = itemCat.toLowerCase().includes(q) || item.category.toLowerCase().includes(q);
-        const matchesSub = item.sub_category ? item.sub_category.toLowerCase().includes(q) : false;
-        if (!matchesName && !matchesCat && !matchesSub) return false;
+        const terms = searchQuery.toLowerCase().trim().split(/\s+/).filter(Boolean);
+        const target = `${item.name} ${item.brand || ''} ${itemCat} ${item.category} ${item.sub_category || ''} ${item.swap_group || ''}`.toLowerCase();
+        const matchesQuery = terms.every((term) => {
+          if (target.includes(term)) return true;
+          if (term.endsWith('s') && term.length > 3 && target.includes(term.slice(0, -1))) return true;
+          if (term.endsWith('es') && term.length > 4 && target.includes(term.slice(0, -2))) return true;
+          return false;
+        });
+        if (!matchesQuery) return false;
       } else {
         // 2. Hierarchical Category & Subcategory Filter
         if (selectedCategory && itemCat !== selectedCategory) return false;
