@@ -227,6 +227,15 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'b4.7.0',
+      date: '2026-09-04',
+      title: 'Water & Hydration: ±1 oz Precision Custom Stepper & Standard Mode Parity',
+      changes: [
+        'Advanced Hydration Engine Stepper Precision: Reconfigured the custom amount incrementer step from 4 oz to ±1 oz increments, providing fine-grained logging control.',
+        'Standard Mode Hydration Parity: Added the custom amount incrementer and 1-click log button to the Standard mode Water & Hydration dashboard card alongside existing quick-log cups and bottles.',
+      ],
+    },
+    {
       version: 'b4.6.0',
       date: '2026-09-04',
       title: 'App Terminology Standardization: Clean Meal Builder & Nutrition Interface',

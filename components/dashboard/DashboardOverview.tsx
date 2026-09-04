@@ -32,6 +32,7 @@ import { HydrationTracker } from '@/components/dashboard/HydrationTracker';
 import { StepTracker } from '@/components/dashboard/StepTracker';
 import { RecipeEngine } from '@/components/nutrition/RecipeEngine';
 import { SimpleMovementPickerModal } from '@/components/workouts/SimpleMovementPickerModal';
+import { NumberStepper } from '@/components/ui/NumberStepper';
 
 export const DashboardOverview: React.FC = () => {
   const {
@@ -63,6 +64,7 @@ export const DashboardOverview: React.FC = () => {
   const isStandard = experienceMode === 'standard' || experienceMode === 'tutorial';
   const [showDashboardRecipeModal, setShowDashboardRecipeModal] = useState<boolean>(false);
   const [showDashboardMovementModal, setShowDashboardMovementModal] = useState<boolean>(false);
+  const [standardWaterCustomOz, setStandardWaterCustomOz] = useState<number>(8);
 
   // Find today's workout
   const todayWorkout = workoutPlan.find(
@@ -336,6 +338,7 @@ export const DashboardOverview: React.FC = () => {
               <div className="flex items-center gap-2 pt-1">
                 <button
                   type="button"
+                  id="standard-log-cup-btn"
                   onClick={() => logWaterOz(8, 'Glass')}
                   className="flex-1 py-2 px-3 rounded-xl bg-cyan-500/15 hover:bg-cyan-500/25 border border-cyan-500/30 text-cyan-300 text-xs font-bold transition-all active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer"
                 >
@@ -344,11 +347,40 @@ export const DashboardOverview: React.FC = () => {
                 </button>
                 <button
                   type="button"
+                  id="standard-log-bottle-btn"
                   onClick={() => logWaterOz(16, 'Bottle')}
                   className="flex-1 py-2 px-3 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-500/40 text-cyan-200 text-xs font-bold transition-all active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer"
                 >
                   <Plus className="w-3.5 h-3.5" />
                   <span>+16 oz Bottle</span>
+                </button>
+              </div>
+
+              {/* Custom Stepper Increment */}
+              <div className="pt-2 border-t border-surface-border/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-zinc-400 font-semibold">Custom:</span>
+                  <div className="w-32">
+                    <NumberStepper
+                      id="standard-water-custom-stepper"
+                      value={standardWaterCustomOz}
+                      onChange={(val) => setStandardWaterCustomOz(Math.max(1, val))}
+                      step={1}
+                      min={1}
+                      max={128}
+                      unit="oz"
+                    />
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  id="standard-log-custom-water-btn"
+                  onClick={() => logWaterOz(standardWaterCustomOz, 'Custom')}
+                  className="flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-zinc-950 text-xs font-black shadow-glow transition-all cursor-pointer active:scale-95"
+                >
+                  <Plus className="w-3.5 h-3.5 stroke-[3]" />
+                  <span>+ Log {standardWaterCustomOz} oz</span>
                 </button>
               </div>
             </div>

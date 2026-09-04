@@ -189,9 +189,10 @@ export const HydrationTracker: React.FC = () => {
           <span className="text-xs text-zinc-400 font-semibold">Custom Amount:</span>
           <div className="w-32">
             <NumberStepper
+              id="hydration-custom-stepper"
               value={customOzInput}
               onChange={(val) => setCustomOzInput(Math.max(1, val))}
-              step={4}
+              step={1}
               min={1}
               max={128}
               unit="oz"
@@ -201,6 +202,7 @@ export const HydrationTracker: React.FC = () => {
 
         <button
           type="button"
+          id="hydration-log-custom-btn"
           onClick={() => logWaterOz(customOzInput, 'Custom')}
           className="flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-zinc-950 text-xs font-black shadow-glow transition-all cursor-pointer active:scale-95"
         >
