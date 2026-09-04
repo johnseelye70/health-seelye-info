@@ -76,7 +76,7 @@ export const PreMadeProgramsBrowser: React.FC = () => {
               </span>
             </div>
             <h2 className="text-xl md:text-2xl font-black text-white">
-              World-Class Pre-Made Workout Programs & Daily Tracking Sheets
+              Pre-Made Workout Programs & Daily Tracking Sheets
             </h2>
             <p className="text-xs text-zinc-400 mt-1 max-w-3xl">
               Click on any training program below to open its complete schedule of daily routines, complete interactive worksheets online, save logs to your workout history, or generate clean high-contrast printable sheets.

@@ -251,7 +251,7 @@ export function createMealIngredient(
 }
 
 /**
- * Calculates complete, world-class detailed nutrition facts for an entire meal
+ * Calculates complete, detailed nutrition facts for an entire meal
  * as well as per individual serving.
  */
 export function calculateMealDetailedNutrition(

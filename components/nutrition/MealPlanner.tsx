@@ -400,7 +400,7 @@ export const MealPlanner: React.FC = () => {
           }`}
         >
           <ChefHat className="w-4 h-4" />
-          <span>Custom Meal Builder</span>
+          <span>Meal Builder</span>
           {customMeals.length > 0 && (
             <span className="px-1.5 py-0.2 rounded-full text-[10px] font-mono font-bold bg-zinc-900/40 text-current">
               {customMeals.length}
@@ -569,9 +569,9 @@ export const MealPlanner: React.FC = () => {
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <h3 className="text-base font-bold text-white">Custom Meal Builder</h3>
+                    <h3 className="text-base font-bold text-white">Meal Builder</h3>
                     <span className="text-[10px] px-2 py-0.5 rounded-full bg-brand-500/20 text-brand-300 font-mono font-bold uppercase">
-                      World-Class
+                      Custom Meals
                     </span>
                   </div>
                   <p className="text-xs text-zinc-400 mt-1 leading-relaxed">
@@ -586,7 +586,7 @@ export const MealPlanner: React.FC = () => {
                 className="w-full py-2.5 rounded-2xl bg-gradient-to-r from-brand-500 to-accent-teal hover:from-brand-600 text-zinc-950 font-bold text-xs shadow-glow transition-all active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
               >
                 <ChefHat className="w-4 h-4 stroke-[2.5]" />
-                <span>Build a Custom Meal</span>
+                <span>Build a Meal</span>
               </button>
             </div>
 
@@ -859,7 +859,7 @@ export const MealPlanner: React.FC = () => {
                             setActiveNutritionSubTab('builder');
                           }}
                           className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-brand-500/15 hover:bg-brand-500/25 border border-brand-500/40 text-xs font-bold text-brand-300 transition-all cursor-pointer"
-                          title="Build custom meal with extensive stats"
+                          title="Create custom meal"
                         >
                           <ChefHat className="w-3.5 h-3.5" />
                           <span>Build</span>

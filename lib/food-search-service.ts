@@ -31,9 +31,9 @@ export function searchLocalFoods(
 }
 
 /**
- * Searches both local database and the world-class global Open Food Facts database
+ * Searches both local database and the global Open Food Facts database
  */
-export async function searchExhaustiveFoodDatabase(
+export async function searchFoodDatabase(
   query: string,
   category: FoodCategory | 'all' = 'all',
   includeGlobal = true
@@ -72,3 +72,5 @@ export async function searchExhaustiveFoodDatabase(
     isOnline: false,
   };
 }
+
+export const searchExhaustiveFoodDatabase = searchFoodDatabase;

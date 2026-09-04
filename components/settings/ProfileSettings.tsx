@@ -227,6 +227,17 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'b4.6.0',
+      date: '2026-09-04',
+      title: 'App Terminology Standardization: Clean Meal Builder & Nutrition Interface',
+      changes: [
+        'Meal Builder Title & Header Redesign: Renamed "World-Class Custom Meal Builder" and "EXHAUSTIVE MEAL STUDIO" to clean, industry-standard "Meal Builder" across navigation, tabs, and builder viewports.',
+        'Action & Step Clarity: Standardized step titles to "Step 1: Meal Details" and "Step 2: Search & Add Ingredients", and updated clear actions to "Clear All".',
+        'Nutrition Breakdown Standard: Renamed "Extensive Nutrition Stats" to clean, familiar "Nutrition Breakdown" with FDA / MyFitnessPal style label.',
+        'Approachable Descriptions: Replaced hyperbolic terminology with clear, practical descriptions for custom meal creation, empty states, and database searching.',
+      ],
+    },
+    {
       version: 'b4.5.0',
       date: '2026-09-04',
       title: 'Popular Name-Brand Whey Powders Addition (Optimum Nutrition Gold Standard Extreme Milk Chocolate & Top Athletic Brands)',
@@ -294,11 +305,11 @@ export const ProfileSettings: React.FC = () => {
     {
       version: 'b4.0.0',
       date: '2026-09-04',
-      title: 'World-Class Custom Meal Builder, Exhaustive 3.5M+ Food Database & Daily Plan Integration',
+      title: 'Meal Builder, 3.5M+ Food Database & Daily Plan Integration',
       changes: [
-        'World-Class Custom Meal Builder: Interactive studio allowing users to build custom meals and recipes by adding ingredients from an exhaustive food database with instant live recalculations.',
-        'Exhaustive Food Database (Local + Global): Integrated 1,012 verified whole foods and grocery staples with real-time access to 3,500,000+ commercial, branded, and grocery products via Open Food Facts v2 API.',
-        'Extensive Nutrition Stats Engine: Complete calculation of Calories, Protein, Carbohydrates, Fats, Net Impact Carbs, Saturated Fat, Monounsaturated Fat, Polyunsaturated Fat, Trans Fat, Cholesterol, Dietary Fiber, Sugars, Added Sugars, Sodium, Potassium, Calcium, Iron, Magnesium, Zinc, and Vitamins A, C, and D.',
+        'Meal Builder: Interactive studio allowing users to build custom meals and recipes by adding ingredients from our food database with instant live recalculations.',
+        'Comprehensive Food Database (Local + Global): Integrated 1,012 verified whole foods and grocery staples with real-time access to 3,500,000+ commercial, branded, and grocery products via Open Food Facts v2 API.',
+        'Detailed Nutrition Breakdown: Complete calculation of Calories, Protein, Carbohydrates, Fats, Net Impact Carbs, Saturated Fat, Monounsaturated Fat, Polyunsaturated Fat, Trans Fat, Cholesterol, Dietary Fiber, Sugars, Added Sugars, Sodium, Potassium, Calcium, Iron, Magnesium, Zinc, and Vitamins A, C, and D.',
         'Batch Yield Scaler & Serving Switcher: Toggle seamlessly between "Per 1 Serving" and "Entire Meal Batch" with dynamic yield scaling (1x to 12x).',
         'Direct 1-Click Daily Plan Integration: Log custom built meals directly into Breakfast, Lunch, Dinner, or Snacks on Today or any selected historical date, with single consolidated entry or itemized ingredient breakdown.',
         'Saved Meals Library: Save favorite custom meals to a reusable library with 1-click quick-logging, editing in builder, and cross-device sync.',
