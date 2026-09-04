@@ -227,6 +227,20 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'b4.2.0',
+      date: '2026-09-04',
+      title: 'Major Name-Brand Food Catalog Expansion: Oatmeals, Peanut Butters, Jellies & Jams, Breads, Butters (Sticks & Tubs), & Sugar-Free Syrups',
+      changes: [
+        'Name-Brand Instant Oatmeals: Added Quaker Instant Oatmeal (Original, Maple & Brown Sugar, Apples & Cinnamon, Lower Sugar, Strawberries & Cream), Kodiak Cakes Protein Oatmeal (Maple Brown Sugar, Chocolate Chip), Better Oats 100 Calorie, and Millville (Aldi) Instant Oatmeal.',
+        'Name-Brand Peanut Butters: Added Jif (Creamy, Extra Crunchy, Natural 90%), Skippy (Creamy, Super Chunk, Natural), Peter Pan Creamy, Smucker’s Natural Creamy, Justin’s Classic, and PBfit All-Natural Powdered Peanut Butter (87% less fat).',
+        'Name-Brand Jellies, Jams & Preserves: Added Smucker’s (Concord Grape Jelly, Strawberry Jam, Natural Fruit Spread, Sugar-Free Strawberry & Concord Grape), Bonne Maman Preserves (Strawberry, Four Fruits, Wild Blueberry), Welch’s Concord Grape Jelly, and Polaner All Fruit Strawberry Spread.',
+        'Name-Brand Breads: Added Dave’s Killer Bread (21 Whole Grains, Powerseed, Thin-Sliced 21), Nature’s Own (100% Whole Wheat, Honey Wheat, Butterbread), Sara Lee (Artesano Bakery, Delightful 45-Calorie Whole Wheat), Wonder Bread Classic White, Pepperidge Farm (Farmhouse Hearty White, Whole Grain 100% Wheat), and Thomas’ English Muffins (Original & Light Multi-Grain).',
+        'Name-Brand & Aldi Brand Butters (Sticks & Tubs for All): Added Land O’Lakes (Salted Sticks, Unsalted Sticks, Canola Oil Tub, Light Tub), Kerrygold Pure Irish (Salted Sticks, Unsalted Sticks, Naturally Softer Tub), Country Crock (Original Spread Tub, Plant Butter Sticks & Tub), I Can’t Believe It’s Not Butter! (Original Tub & Sticks, Light Tub), Challenge Dairy (Salted Sticks, Unsalted Sticks, Olive Oil Tub), and Aldi Countryside Creamery (Salted Sticks, Unsalted Sticks, Canola Oil Tub, Homestyle Spread Tub, Pure Irish Sticks & Tub, Plant Based Sticks & Tub).',
+        'Name-Brand Sugar-Free Syrups: Added Mrs. Butterworth’s Sugar Free Thick & Rich, Log Cabin Sugar Free, Cary’s Sugar Free Low Calorie, Walden Farms Calorie Free, ChocZero Sugar Free Maple (Monk Fruit & Prebiotic Fiber), Lakanto Sugar Free Maple (Monk Fruit), Smucker’s Sugar Free Breakfast Syrup, Hungry Jack Sugar Free Butter Flavor, Torani Sugar Free Vanilla, and Jordan’s Skinny Syrups Sugar Free Salted Caramel.',
+        'Store-Brand Requisition Catalog: Aligned all new Aldi Countryside Creamery and Millville products into Aldi store-brand smart grocery lists.',
+      ],
+    },
+    {
       version: 'b4.1.0',
       date: '2026-09-04',
       title: 'Added Meijer Instant Oatmeal Catalog Expansion & Enhanced Brand Search Matching',
