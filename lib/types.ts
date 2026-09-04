@@ -367,6 +367,9 @@ export interface FoodLogEntry {
   carbs_g: number;
   fat_g: number;
   created_at: string;
+  custom_meal_id?: string;
+  custom_meal_data?: BuiltCustomMeal;
+  servings_logged?: number;
 }
 
 export interface ExerciseItem {

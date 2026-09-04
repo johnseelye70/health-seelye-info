@@ -39,6 +39,7 @@ import {
   RotateCcw,
   Sliders,
   Percent,
+  Pencil,
 } from 'lucide-react';
 
 interface MealBuilderProps {
@@ -58,6 +59,9 @@ export const MealBuilder: React.FC<MealBuilderProps> = ({
     saveCustomMeal,
     deleteCustomMeal,
     logBuiltMealToDiary,
+    updateBuiltMealInDiary,
+    editingMealLog,
+    setEditingMealLog,
   } = useHealth();
 
   const isImperial = profile.unit_preference === 'imperial';
@@ -109,6 +113,20 @@ export const MealBuilder: React.FC<MealBuilderProps> = ({
       setLogMealIndex(initialMealIndex);
     }
   }, [initialMealIndex]);
+
+  // Synchronize meal if an existing logged meal was selected for editing
+  useEffect(() => {
+    if (editingMealLog) {
+      setMealName(editingMealLog.meal.name);
+      setMealDescription(editingMealLog.meal.description || '');
+      setMealCategory(editingMealLog.meal.category);
+      setServingsYield(editingMealLog.meal.servings_yield);
+      setIngredients(editingMealLog.meal.ingredients);
+      setLogMealIndex(editingMealLog.mealIndex);
+      setLogTargetDate(editingMealLog.dateStr);
+      setLogServingsCount(editingMealLog.servings);
+    }
+  }, [editingMealLog]);
 
   // Execute Debounced Food Search
   useEffect(() => {
@@ -293,6 +311,57 @@ export const MealBuilder: React.FC<MealBuilderProps> = ({
     });
   };
 
+  // Update an existing logged meal in the food diary
+  const handleUpdateLoggedMeal = () => {
+    if (!editingMealLog) return;
+    if (ingredients.length === 0) {
+      setFeedbackToast({ text: 'Please add at least 1 ingredient before updating.' });
+      setTimeout(() => setFeedbackToast(null), 3000);
+      return;
+    }
+
+    const title = mealName.trim() || editingMealLog.meal.name || 'Custom Built Meal';
+    const updatedMeal: BuiltCustomMeal = {
+      ...editingMealLog.meal,
+      name: title,
+      description: mealDescription.trim(),
+      category: mealCategory,
+      servings_yield: Math.max(1, servingsYield),
+      ingredients,
+      total_nutrition: calculatedNutrition.total,
+      per_serving_nutrition: calculatedNutrition.perServing,
+      updated_at: new Date().toISOString(),
+    };
+
+    updateBuiltMealInDiary(editingMealLog.logId, updatedMeal, {
+      servings: logServingsCount,
+      mealIndex: logMealIndex,
+      dateStr: logTargetDate,
+    });
+
+    const mealLabel =
+      logMealIndex === 1
+        ? 'Breakfast'
+        : logMealIndex === 2
+        ? 'Lunch'
+        : logMealIndex === 3
+        ? 'Dinner'
+        : 'Snacks';
+
+    setFeedbackToast({
+      text: `Updated "${title}" in your Food Diary for ${mealLabel} on ${
+        logTargetDate === todayDate ? 'Today' : logTargetDate
+      }!`,
+      actionLabel: 'View Diary',
+      action: onNavigateToDiary,
+    });
+
+    setEditingMealLog(null);
+    if (onNavigateToDiary) {
+      setTimeout(() => onNavigateToDiary(), 600);
+    }
+  };
+
   const activeDisplayNutrition =
     nutritionViewMode === 'serving'
       ? calculatedNutrition.perServing
@@ -307,7 +376,7 @@ export const MealBuilder: React.FC<MealBuilderProps> = ({
             <div className="flex items-center gap-2 mb-2">
               <span className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-brand-500/20 text-brand-300 border border-brand-500/30 flex items-center gap-1.5">
                 <ChefHat className="w-3.5 h-3.5 text-brand-400" />
-                <span>MEAL BUILDER</span>
+                <span>Customize</span>
               </span>
               <span className="px-2 py-0.5 rounded-full text-[10px] font-mono bg-surface-200 text-zinc-300 border border-surface-border flex items-center gap-1">
                 <Globe className="w-3 h-3 text-accent-cyan" />
@@ -315,7 +384,7 @@ export const MealBuilder: React.FC<MealBuilderProps> = ({
               </span>
             </div>
             <h1 className="text-2xl md:text-3xl font-black text-white tracking-tight">
-              Meal Builder
+              Custom Meal Builder
             </h1>
             <p className="text-zinc-400 text-sm mt-1 max-w-2xl leading-relaxed">
               Create custom meals and recipes by adding ingredients from our food database. Track calories, macros, and full nutrition facts, then log directly to your daily food diary.
@@ -348,6 +417,51 @@ export const MealBuilder: React.FC<MealBuilderProps> = ({
           </div>
         </div>
       </div>
+
+      {/* Active Edit Logged Meal Banner */}
+      {editingMealLog && (
+        <div className="p-4 md:p-5 rounded-3xl bg-amber-500/15 border border-amber-500/40 text-amber-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-lg backdrop-blur-xl animate-fadeIn">
+          <div className="flex items-start sm:items-center gap-3.5">
+            <div className="w-10 h-10 rounded-2xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 shrink-0">
+              <Pencil className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="text-sm font-bold text-amber-100 flex flex-wrap items-center gap-2">
+                <span>Editing Logged Meal: <strong>"{editingMealLog.meal.name}"</strong></span>
+                <span className="text-[11px] font-mono px-2 py-0.5 rounded-full bg-amber-500/25 border border-amber-500/40 text-amber-300 font-semibold">
+                  {editingMealLog.dateStr === todayDate ? 'Today' : editingMealLog.dateStr} • Meal {editingMealLog.mealIndex}
+                </span>
+              </div>
+              <p className="text-xs text-amber-300/80 mt-1">
+                Make adjustments to ingredients or servings below. Updating will modify this entry directly in your Food Diary.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              type="button"
+              id="cancel-edit-logged-meal-btn"
+              onClick={() => {
+                setEditingMealLog(null);
+                if (onNavigateToDiary) onNavigateToDiary();
+              }}
+              className="px-3.5 py-2 rounded-2xl bg-surface-200 hover:bg-surface-300 border border-surface-border text-xs font-semibold text-zinc-300 hover:text-white transition-all cursor-pointer"
+            >
+              Cancel Edit
+            </button>
+            <button
+              type="button"
+              id="save-edit-logged-meal-btn"
+              onClick={handleUpdateLoggedMeal}
+              className="px-4 py-2 rounded-2xl bg-amber-500 hover:bg-amber-400 text-zinc-950 text-xs font-black shadow-glow transition-all cursor-pointer active:scale-95 flex items-center gap-1.5"
+            >
+              <CheckCircle2 className="w-4 h-4" />
+              <span>Update Meal in Diary</span>
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Floating Action Toast */}
       {feedbackToast && (
@@ -1037,12 +1151,22 @@ export const MealBuilder: React.FC<MealBuilderProps> = ({
 
               <button
                 type="button"
-                onClick={handleLogToDiary}
+                id="submit-meal-builder-btn"
+                onClick={editingMealLog ? handleUpdateLoggedMeal : handleLogToDiary}
                 disabled={ingredients.length === 0}
                 className="w-full py-3 rounded-2xl bg-gradient-to-r from-brand-500 to-accent-teal hover:from-brand-600 text-zinc-950 font-black text-sm shadow-glow transition-all active:scale-95 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed mt-2"
               >
-                <Zap className="w-4 h-4 stroke-[3]" />
-                <span>Log Meal to Daily Food Diary</span>
+                {editingMealLog ? (
+                  <>
+                    <CheckCircle2 className="w-4 h-4 stroke-[3]" />
+                    <span>Update Logged Meal in Food Diary</span>
+                  </>
+                ) : (
+                  <>
+                    <Zap className="w-4 h-4 stroke-[3]" />
+                    <span>Log Meal to Daily Food Diary</span>
+                  </>
+                )}
               </button>
             </div>
           </div>

@@ -1,5 +1,5 @@
 # Seelye Family Health — Precision Fitness & Nutrition Application
-**Version: Beta v4.7.0 (b4.7.0)** | **Production Domain: https://health.seelye.info**
+**Version: Beta v4.8.0 (b4.8.0)** | **Production Domain: https://health.seelye.info**
 
 High-performance, dark-mode first athletic health and nutrition platform engineered with Next.js (App Router), TypeScript, Tailwind CSS, Supabase (PostgreSQL), and integrated Wholesome Recipe & Meal Prep Engine.
 
@@ -7,8 +7,9 @@ High-performance, dark-mode first athletic health and nutrition platform enginee
 
 ## ⚡ Key Architectural Modules
 
-### 1. Meal Builder & Comprehensive Food Database (Beta v4.6.0)
-- **Interactive Meal Builder:** Assemble custom meals and recipes by adding ingredients with customized quantities and units (`g`, `oz`, `cups`, `tbsp`, `tsp`, `servings`).
+### 1. Custom Meal Builder, In-Place Diary Editing & Food Database (Beta v4.8.0)
+- **Interactive Custom Meal Builder:** Assemble custom meals and recipes by adding ingredients with customized quantities and units (`g`, `oz`, `cups`, `tbsp`, `tsp`, `servings`).
+- **In-Place Logged Meal Editing:** Full round-trip editing for logged diary entries in both Standard mode ("Today's Meals Eaten") and Athlete mode. Edit portions, swap or adjust ingredients, and update the entry in place with recalculated nutrition.
 - **Comprehensive Food Database (Local + Global):** Access 1,300+ curated whole foods, fitness supplements, and brand-name staples across major household brands and top store brands: Meijer, Walmart (Great Value, Equate), Costco (Kirkland Signature), Sam's Club (Member's Mark), and Aldi (Elevation, liveGfree, Millville, Countryside Creamery, L'oven Fresh, Peanut Delight, Specially Selected, Aunt Maple's), with live integration to 3,500,000+ commercial products via Open Food Facts v2 API.
 - **Popular Name-Brand Whey Powders:** Complete lineup of top-selling athletic whey powders including Optimum Nutrition Gold Standard 100% Whey (Extreme Milk Chocolate, Double Rich Chocolate, Vanilla Ice Cream, Delicious Strawberry, Cookies & Cream, Mocha Cappuccino, Banana Cream, French Vanilla, 100% Isolate), Dymatize ISO100 Hydrolyzed Whey Isolate (Gourmet Chocolate, Gourmet Vanilla, Fruity Pebbles, Cocoa Pebbles, Peanut Butter, Fudge Brownie, Glazed Donut) & Elite Whey, Ghost 100% Whey (Cereal Milk, Chips Ahoy!, Oreo, Milk Chocolate, Peanut Butter Cereal Milk, Nutter Butter), MuscleTech Nitro-Tech & 100% Grass-Fed, BSN Syntha-6 & Syntha-6 Edge, Isopure Zero Carb & Low Carb WPI, PEScience Select Protein, Rule 1 R1 Protein, Transparent Labs 100% Grass-Fed Isolate, Ryse Loaded, Ascent Native Fuel, Premier Protein, Nutricost, and NOW Sports, plus wholesale store-brand whey powders for Costco, Sam's Club, Walmart (Equate), Meijer, and Aldi (Elevation).
 - **Store-Brand & Name-Brand Gluten-Free Parity:** Comprehensive gluten-free coverage across Meijer, Walmart, Costco, Sam's Club, and Aldi for gluten-free breads, crackers, pretzels, cookies, desserts, and baking mixes.

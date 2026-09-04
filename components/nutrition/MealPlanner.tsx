@@ -3,8 +3,9 @@
 import React, { useState } from 'react';
 import { useHealth } from '@/context/HealthContext';
 import { MacroProgressRing } from './MacroProgressRing';
-import { FoodItem } from '@/lib/types';
+import { FoodItem, BuiltCustomMeal, FoodLogEntry, MealIngredient } from '@/lib/types';
 import { calculateSwapEquivalentGrams } from '@/lib/macro-calculator';
+import { calculateMealDetailedNutrition } from '@/lib/nutrition-calculator';
 import { FoodDatabaseBrowser } from './FoodDatabaseBrowser';
 import { RecipeEngine } from './RecipeEngine';
 import { MealBuilder } from './MealBuilder';
@@ -13,6 +14,7 @@ import {
   Search,
   Plus,
   Trash2,
+  Pencil,
   RefreshCw,
   ArrowRightLeft,
   Filter,
@@ -57,10 +59,96 @@ export const MealPlanner: React.FC = () => {
     quickLogCalories,
     customMeals,
     logBuiltMealToDiary,
+    setEditingMealLog,
   } = useHealth();
 
   const [activeNutritionSubTab, setActiveNutritionSubTab] = useState<'diary' | 'builder' | 'database' | 'recipes'>('diary');
   const [builderTargetMealIndex, setBuilderTargetMealIndex] = useState<number>(1);
+
+  // Switch to Custom Meal Builder preloaded with this logged meal for seamless in-place editing
+  const handleEditLoggedMeal = (log: FoodLogEntry) => {
+    let mealToEdit: BuiltCustomMeal;
+
+    const mealCategory: BuiltCustomMeal['category'] =
+      log.meal_index === 1
+        ? 'breakfast'
+        : log.meal_index === 2
+        ? 'lunch'
+        : log.meal_index === 3
+        ? 'dinner'
+        : 'snack';
+
+    if (log.custom_meal_data) {
+      mealToEdit = log.custom_meal_data;
+    } else if (log.custom_meal_id) {
+      const existing = customMeals.find((m) => m.id === log.custom_meal_id);
+      if (existing) {
+        mealToEdit = existing;
+      } else {
+        const singleIng: MealIngredient = {
+          id: 'ing-' + log.id,
+          food_id: log.food_id || 'food-' + log.id,
+          name: log.food_name,
+          category: mealCategory,
+          grams: log.grams_consumed || 100,
+          unit: 'g',
+          quantity: log.grams_consumed || 100,
+          calories: log.calories,
+          protein_g: log.protein_g,
+          carbs_g: log.carbs_g,
+          fat_g: log.fat_g,
+        };
+        const nutrition = calculateMealDetailedNutrition([singleIng], 1);
+        mealToEdit = {
+          id: log.custom_meal_id,
+          name: log.food_name,
+          category: mealCategory,
+          servings_yield: 1,
+          ingredients: [singleIng],
+          total_nutrition: nutrition.total,
+          per_serving_nutrition: nutrition.perServing,
+          created_at: log.created_at,
+          updated_at: log.created_at,
+        };
+      }
+    } else {
+      const singleIng: MealIngredient = {
+        id: 'ing-' + log.id,
+        food_id: log.food_id || 'food-' + log.id,
+        name: log.food_name,
+        category: mealCategory,
+        grams: log.grams_consumed || 100,
+        unit: 'g',
+        quantity: log.grams_consumed || 100,
+        calories: log.calories,
+        protein_g: log.protein_g,
+        carbs_g: log.carbs_g,
+        fat_g: log.fat_g,
+      };
+      const nutrition = calculateMealDetailedNutrition([singleIng], 1);
+      mealToEdit = {
+        id: 'legacy-' + log.id,
+        name: log.food_name,
+        category: mealCategory,
+        servings_yield: 1,
+        ingredients: [singleIng],
+        total_nutrition: nutrition.total,
+        per_serving_nutrition: nutrition.perServing,
+        created_at: log.created_at,
+        updated_at: log.created_at,
+      };
+    }
+
+    setEditingMealLog({
+      logId: log.id,
+      meal: mealToEdit,
+      servings: log.servings_logged || 1,
+      mealIndex: log.meal_index || 1,
+      dateStr: log.logged_at,
+    });
+
+    setActiveNutritionSubTab('builder');
+  };
 
   const currentDayFoodLogs = selectedDayFoodLogs;
   const todayMacros = selectedDayMacros;
@@ -400,7 +488,7 @@ export const MealPlanner: React.FC = () => {
           }`}
         >
           <ChefHat className="w-4 h-4" />
-          <span>Meal Builder</span>
+          <span>Custom Meal Builder</span>
           {customMeals.length > 0 && (
             <span className="px-1.5 py-0.2 rounded-full text-[10px] font-mono font-bold bg-zinc-900/40 text-current">
               {customMeals.length}
@@ -569,9 +657,9 @@ export const MealPlanner: React.FC = () => {
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <h3 className="text-base font-bold text-white">Meal Builder</h3>
+                    <h3 className="text-base font-bold text-white">Custom Meal Builder</h3>
                     <span className="text-[10px] px-2 py-0.5 rounded-full bg-brand-500/20 text-brand-300 font-mono font-bold uppercase">
-                      Custom Meals
+                      Customize
                     </span>
                   </div>
                   <p className="text-xs text-zinc-400 mt-1 leading-relaxed">
@@ -586,7 +674,7 @@ export const MealPlanner: React.FC = () => {
                 className="w-full py-2.5 rounded-2xl bg-gradient-to-r from-brand-500 to-accent-teal hover:from-brand-600 text-zinc-950 font-bold text-xs shadow-glow transition-all active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
               >
                 <ChefHat className="w-4 h-4 stroke-[2.5]" />
-                <span>Build a Meal</span>
+                <span>Build a Custom Meal</span>
               </button>
             </div>
 
@@ -677,14 +765,24 @@ export const MealPlanner: React.FC = () => {
                         Meal {log.meal_index} • {log.grams_consumed}g portion
                       </div>
                     </div>
-                    <div className="flex items-center gap-3">
-                      <span className="text-xs font-mono font-bold text-brand-400">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-mono font-bold text-brand-400 mr-1">
                         +{log.calories} kcal
                       </span>
                       <button
                         type="button"
+                        id={`edit-meal-log-${log.id}`}
+                        onClick={() => handleEditLoggedMeal(log)}
+                        className="text-zinc-400 hover:text-brand-400 p-1.5 rounded-lg hover:bg-surface-300 transition-colors cursor-pointer"
+                        title="Edit meal in Custom Meal Builder"
+                      >
+                        <Pencil className="w-4 h-4" />
+                      </button>
+                      <button
+                        type="button"
+                        id={`delete-meal-log-${log.id}`}
                         onClick={() => deleteFoodLog(log.id)}
-                        className="text-zinc-500 hover:text-rose-400 p-1.5 rounded-lg hover:bg-surface-300 transition-colors"
+                        className="text-zinc-500 hover:text-rose-400 p-1.5 rounded-lg hover:bg-surface-300 transition-colors cursor-pointer"
                         title="Delete entry"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -833,13 +931,26 @@ export const MealPlanner: React.FC = () => {
                                   {log.grams_consumed}g • {log.calories} kcal ({log.protein_g}g P)
                                 </div>
                               </div>
-                              <button
-                                onClick={() => deleteFoodLog(log.id)}
-                                className="text-zinc-500 hover:text-rose-400 p-1 rounded transition-colors"
-                                title="Delete log"
-                              >
-                                <Trash2 className="w-3.5 h-3.5" />
-                              </button>
+                              <div className="flex items-center gap-1 shrink-0">
+                                <button
+                                  type="button"
+                                  id={`edit-athlete-log-${log.id}`}
+                                  onClick={() => handleEditLoggedMeal(log)}
+                                  className="text-zinc-400 hover:text-brand-400 p-1 rounded transition-colors cursor-pointer"
+                                  title="Edit meal in Custom Meal Builder"
+                                >
+                                  <Pencil className="w-3.5 h-3.5" />
+                                </button>
+                                <button
+                                  type="button"
+                                  id={`delete-athlete-log-${log.id}`}
+                                  onClick={() => deleteFoodLog(log.id)}
+                                  className="text-zinc-500 hover:text-rose-400 p-1 rounded transition-colors cursor-pointer"
+                                  title="Delete log"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
                             </div>
                           ))
                         )}

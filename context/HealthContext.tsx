@@ -66,6 +66,7 @@ interface HealthContextType {
   addCustomFood: (food: Omit<FoodItem, 'id'>) => void;
   foodLogs: FoodLogEntry[];
   logFood: (entry: Omit<FoodLogEntry, 'id' | 'created_at' | 'calories' | 'protein_g' | 'carbs_g' | 'fat_g'> & { food: FoodItem }) => string;
+  updateFoodLog: (id: string, updates: Partial<FoodLogEntry>) => void;
   deleteFoodLog: (id: string) => void;
   
   // Calculated Nutrition State (Today & Date-Selectable)
@@ -97,6 +98,31 @@ interface HealthContextType {
       logAsSingleItem?: boolean;
     }
   ) => void;
+  updateBuiltMealInDiary: (
+    logId: string,
+    meal: BuiltCustomMeal,
+    options: {
+      servings: number;
+      mealIndex: number;
+      dateStr?: string;
+    }
+  ) => void;
+  editingMealLog: {
+    logId: string;
+    meal: BuiltCustomMeal;
+    mealIndex: number;
+    dateStr: string;
+    servings: number;
+  } | null;
+  setEditingMealLog: React.Dispatch<
+    React.SetStateAction<{
+      logId: string;
+      meal: BuiltCustomMeal;
+      mealIndex: number;
+      dateStr: string;
+      servings: number;
+    } | null>
+  >;
 
   // Cross-Referenced Reports & History
   getDailyReport: (dateStr: string) => {
@@ -307,6 +333,13 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
   const [simpleMovementActivities, setSimpleMovementActivities] = useState<SimpleMovementActivity[]>(DEFAULT_SIMPLE_DAILY_CHOICES);
   const [scheduledPlans, setScheduledPlans] = useState<Record<string, ScheduledDayPlan>>({});
   const [customMeals, setCustomMeals] = useState<BuiltCustomMeal[]>([]);
+  const [editingMealLog, setEditingMealLog] = useState<{
+    logId: string;
+    meal: BuiltCustomMeal;
+    mealIndex: number;
+    dateStr: string;
+    servings: number;
+  } | null>(null);
 
   // Cloud Auth & Sync States
   const [authUser, setAuthUser] = useState<any | null>(null);
@@ -1255,6 +1288,16 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
     return newEntry.id;
   }, [selectedDate, todayDate, profile.id]);
 
+  const updateFoodLog = useCallback((id: string, updates: Partial<FoodLogEntry>) => {
+    setFoodLogs((prev) =>
+      prev.map((log) => (log.id === id ? { ...log, ...updates } : log))
+    );
+    const user = authUserRef.current;
+    if (supabase && user && !id.startsWith('log-')) {
+      (supabase.from('food_logs') as any).update(updates).eq('id', id).then(() => {});
+    }
+  }, []);
+
   // Custom Meals Management & Diary Integration
   const saveCustomMeal = useCallback((meal: BuiltCustomMeal) => {
     setCustomMeals((prev) => {
@@ -1285,6 +1328,9 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
       const targetDate = options.dateStr || selectedDate || todayDate;
       const servings = Math.max(0.1, options.servings || 1);
       const asSingle = options.logAsSingleItem !== false;
+
+      // Always save or update meal in library
+      saveCustomMeal(meal);
 
       if (asSingle) {
         const perServing = meal.per_serving_nutrition;
@@ -1327,6 +1373,9 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
           carbs_g: totalCarbs,
           fat_g: totalFat,
           created_at: new Date().toISOString(),
+          custom_meal_id: meal.id,
+          custom_meal_data: meal,
+          servings_logged: servings,
         };
 
         setFoodLogs((prev) => [newEntry, ...prev]);
@@ -1352,13 +1401,54 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
             carbs_g: scaledCarbs,
             fat_g: scaledFat,
             created_at: new Date().toISOString(),
+            custom_meal_id: meal.id,
+            custom_meal_data: meal,
+            servings_logged: servings,
           };
         });
 
         setFoodLogs((prev) => [...newLogs, ...prev]);
       }
     },
-    [profile.id, selectedDate, todayDate]
+    [profile.id, selectedDate, todayDate, saveCustomMeal]
+  );
+
+  const updateBuiltMealInDiary = useCallback(
+    (
+      logId: string,
+      meal: BuiltCustomMeal,
+      options: {
+        servings: number;
+        mealIndex: number;
+        dateStr?: string;
+      }
+    ) => {
+      const perServing = meal.per_serving_nutrition;
+      const servings = Math.max(0.1, options.servings || 1);
+      const totalCals = Math.round(perServing.calories * servings);
+      const totalProt = Number((perServing.protein_g * servings).toFixed(1));
+      const totalCarbs = Number((perServing.carbs_g * servings).toFixed(1));
+      const totalFat = Number((perServing.fat_g * servings).toFixed(1));
+      const totalGrams = Math.round(perServing.total_weight_g * servings) || 100;
+      const targetDate = options.dateStr || selectedDate || todayDate;
+
+      updateFoodLog(logId, {
+        food_name: `${meal.name} (${servings === 1 ? '1 serving' : `${servings} servings`})`,
+        grams_consumed: totalGrams,
+        meal_index: options.mealIndex,
+        logged_at: targetDate,
+        calories: totalCals,
+        protein_g: totalProt,
+        carbs_g: totalCarbs,
+        fat_g: totalFat,
+        custom_meal_id: meal.id,
+        custom_meal_data: meal,
+        servings_logged: servings,
+      });
+
+      saveCustomMeal(meal);
+    },
+    [updateFoodLog, saveCustomMeal, selectedDate, todayDate]
   );
 
   // Comprehensive Cross-Referenced Reporting Engines
@@ -2549,6 +2639,7 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
         addCustomFood,
         foodLogs,
         logFood,
+        updateFoodLog,
         deleteFoodLog,
         todayDate,
         currentDayFoodLogs,
@@ -2568,6 +2659,9 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
         saveCustomMeal,
         deleteCustomMeal,
         logBuiltMealToDiary,
+        updateBuiltMealInDiary,
+        editingMealLog,
+        setEditingMealLog,
 
         getDailyReport,
         getWeeklyReport,

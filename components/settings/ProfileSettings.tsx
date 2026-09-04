@@ -227,6 +227,17 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'b4.8.0',
+      date: '2026-09-04',
+      title: 'Logged Meal Editing & Custom Meal Builder / Customize Terminology Branding',
+      changes: [
+        'In-Place Logged Meal Editing: Added edit action buttons to logged meals in "Today\'s Meals Eaten" (Standard mode) and meal cards (Athlete mode), allowing instant corrections or portion adjustments for logged meals.',
+        'Custom Meal Builder Synchronization: Editing a logged meal pre-populates the Custom Meal Builder with all ingredients, portions, date, and meal category. Submitting updates the diary entry in place with live recalculated macros.',
+        'Terminology & Tag Branding Update: Standardized naming to "Custom Meal Builder" across navigation tabs, dashboard action cards, and builder headers, and updated the badge tag above it to "Customize".',
+        'Legacy & Single Food Item Support: Supported seamless editing of both multi-ingredient custom meals and single food log entries with lossless recalculation.',
+      ],
+    },
+    {
       version: 'b4.7.0',
       date: '2026-09-04',
       title: 'Water & Hydration: ±1 oz Precision Custom Stepper & Standard Mode Parity',
