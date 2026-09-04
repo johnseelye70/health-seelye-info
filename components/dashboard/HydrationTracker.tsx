@@ -40,6 +40,7 @@ export const HydrationTracker: React.FC = () => {
     todayWaterOz,
     logWaterOz,
     resetTodayWater,
+    deleteWaterLog,
     todayDate,
     profile,
   } = useHealth();
@@ -338,21 +339,47 @@ export const HydrationTracker: React.FC = () => {
                       </div>
                     </div>
 
-                    <span className="text-xs font-mono text-cyan-400 font-bold">
-                      {(w.amount_oz * 0.0295735).toFixed(2)}L
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-mono text-cyan-400 font-bold">
+                        {(w.amount_oz * 0.0295735).toFixed(2)}L
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => deleteWaterLog(w.id)}
+                        className="p-1 rounded-lg hover:bg-rose-500/20 text-zinc-500 hover:text-rose-400 transition-colors cursor-pointer"
+                        title="Delete this water entry"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
                   </div>
                 ))
               )}
             </div>
 
-            <button
-              type="button"
-              onClick={() => setShowHistoryModal(false)}
-              className="w-full py-2.5 rounded-xl bg-surface-200 hover:bg-surface-300 text-zinc-300 text-xs font-bold cursor-pointer"
-            >
-              Close History
-            </button>
+            <div className="flex items-center gap-2 pt-2 border-t border-surface-border">
+              {todayEntries.length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (window.confirm('Reset all water logged for today back to 0 oz?')) {
+                      resetTodayWater();
+                    }
+                  }}
+                  className="py-2.5 px-3 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 text-xs font-bold transition-colors cursor-pointer flex items-center justify-center gap-1.5"
+                >
+                  <RotateCcw className="w-3.5 h-3.5" />
+                  <span>Reset Today</span>
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={() => setShowHistoryModal(false)}
+                className="flex-1 py-2.5 rounded-xl bg-surface-200 hover:bg-surface-300 text-zinc-300 text-xs font-bold cursor-pointer"
+              >
+                Close History
+              </button>
+            </div>
           </div>
         </div>
       )}

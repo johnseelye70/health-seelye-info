@@ -59,7 +59,7 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
   onClose,
   isModal = true,
 }) => {
-  const { profile, experienceMode, logFood, deleteFoodLog, addGroceryItem, setActiveTab } = useHealth();
+  const { profile, experienceMode, logFood, deleteFoodLog, addGroceryItem, setActiveTab, selectedDate, todayDate } = useHealth();
 
   const isSimple = experienceMode === 'standard' || experienceMode === 'tutorial';
   const isImperial = profile.unit_preference === 'imperial';
@@ -192,7 +192,7 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
       food_name: recipe.title,
       grams_consumed: 100,
       meal_index: mealIndex,
-      logged_at: new Date().toISOString().split('T')[0],
+      logged_at: selectedDate || todayDate,
     });
 
     triggerSuccessFeedback(

@@ -1,5 +1,5 @@
 # Seelye Family Health — Precision Fitness & Nutrition Application
-**Version: Beta v4.13.3 (b4.13.3)** | **Production Domain: https://health.seelye.info**
+**Version: Beta v4.13.4 (b4.13.4)** | **Production Domain: https://health.seelye.info**
 
 High-performance, dark-mode first athletic health and nutrition platform engineered with Next.js (App Router), TypeScript, Tailwind CSS, Supabase (PostgreSQL), and integrated Wholesome Recipe & Meal Prep Engine.
 
@@ -7,7 +7,15 @@ High-performance, dark-mode first athletic health and nutrition platform enginee
 
 ## ⚡ Key Architectural Modules
 
-### 1. Standardized Food Diary Navigation & Quick 1-Tap Sidebar Cloud Sync (Beta v4.13.3)
+### 1. Cross-Device Sync Race Condition Elimination & Water Deduplication (Beta v4.13.4)
+- **Eliminated Destructive Sync Clobbering:** Removed the redundant Section D step sync that was concurrently overwriting `profiles.equipment_inventory` and auth `user_metadata`, ensuring the full `app_sync_bundle` (`food_logs`, `water_logs`, `custom_meals`, `workout_logs`, `scheduled_plans`) persists reliably in PostgreSQL without being wiped out.
+- **Fresh-Device Food Push Guard:** Implemented strict push guards preventing uninitialized secondary devices (like a freshly signed-in iPhone) from overwriting cloud food logs with empty arrays.
+- **Hydration Water Log Deduplication:** Engineered composite signature deduplication (date, oz amount, container, and 5-minute time block) to prevent water logs from duplicating and skewing totals higher when syncing between laptop and iPhone.
+- **Interactive Water Log Deletion & Reset:** Added individual entry delete buttons (trash icon) and a "Reset Today" button in the Hydration History modal so any duplicate or test water taps can be removed in 1 click.
+- **Awaited PostgreSQL Food Log Inserts:** Switched database `food_logs` inserts to fully awaited queries with active error catching, ensuring entries are confirmed in PostgreSQL and primary key UUIDs are linked immediately.
+- **Local Calendar Date Normalization:** Standardized all food and water logging to use local calendar date strings (`selectedDate || todayDate`) instead of UTC `toISOString`, preventing date roll-over discrepancies in evening hours.
+
+### 2. Standardized Food Diary Navigation & Quick 1-Tap Sidebar Cloud Sync (Beta v4.13.3)
 - **Standardized "Food Diary" Tab Label:** Updated the primary nutrition navigation item across the laptop sidebar (`Sidebar.tsx`) and mobile bottom bar (`BottomNav.tsx`) to explicitly display **"Food Diary"** in all experience modes (Standard, Tutorial, and Advanced), eliminating confusion where it was previously titled "Food & Meals" or "Macros".
 - **1-Tap Sidebar Cloud Sync Action:** Added an instant 1-tap `<RefreshCw />` sync button right beside the user authentication status in the laptop sidebar for 1-click synchronization at any time.
 - **Interactive Dashboard Calorie Balance Link:** Connected the Calorie Balance Card and Precision Macro Rings on the main dashboard to navigate directly into the Food Diary (`activeTab === 'nutrition'`).

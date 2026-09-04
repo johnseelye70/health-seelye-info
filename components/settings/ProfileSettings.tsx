@@ -227,6 +227,19 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'b4.13.4',
+      date: '2026-09-04',
+      title: 'Resolved Cross-Device Sync Race Conditions & Hydration Water Log Deduplication',
+      changes: [
+        'Eliminated Destructive Sync Clobbering: Removed the redundant Section D step sync that was concurrently overwriting profiles.equipment_inventory and auth user_metadata, ensuring the full app_sync_bundle (food_logs, water_logs, custom_meals, workout_logs, scheduled_plans) persists reliably in PostgreSQL without being wiped out.',
+        'Fresh-Device Food Push Guard: Implemented strict push guards preventing uninitialized secondary devices (like a freshly signed-in iPhone) from overwriting cloud food logs with empty arrays.',
+        'Hydration Water Log Deduplication: Engineered composite signature deduplication (date, oz amount, container, and 5-minute time block) to prevent water logs from duplicating and skewing totals higher when syncing between laptop and iPhone.',
+        'Interactive Water Log Deletion & Reset: Added individual entry delete buttons (trash icon) and a "Reset Today" button in the Hydration History modal so any duplicate or test water taps can be removed in 1 click.',
+        'Awaited PostgreSQL Food Log Inserts: Switched database food_logs inserts to fully awaited queries with active error catching, ensuring entries are confirmed in PostgreSQL and primary key UUIDs are linked immediately.',
+        'Local Calendar Date Normalization: Standardized all food and water logging to use local calendar date strings (selectedDate || todayDate) instead of UTC toISOString, preventing date roll-over discrepancies in evening hours.',
+      ],
+    },
+    {
       version: 'b4.13.3',
       date: '2026-09-04',
       title: 'Standardized "Food Diary" Navigation & Quick 1-Tap Sidebar Cloud Sync',

@@ -259,6 +259,7 @@ interface HealthContextType {
   todayWaterOz: number;
   logWaterOz: (amountOz: number, container?: string) => void;
   resetTodayWater: () => void;
+  deleteWaterLog: (id: string) => void;
 
   // Step Tracker & Automated Watch / Apple Health Sync
   stepGoal: number;
@@ -996,31 +997,18 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
         if (mergedSteps.length > 0) {
           setLastStepSyncTimestamp(new Date().toISOString());
         }
-
-        if (hasLocalUpdateForCloud || (mergedSteps.length > 0 && (!liveUser.user_metadata?.step_logs || liveUser.user_metadata.step_logs.length !== mergedSteps.length))) {
-          client.auth.updateUser({
-            data: {
-              step_logs: mergedSteps,
-              latest_step_sync: new Date().toISOString(),
-            },
-          }).catch(() => {});
-
-          (client.from('profiles') as any).update({
-            equipment_inventory: {
-              step_logs: mergedSteps,
-            },
-            updated_at: new Date().toISOString(),
-          }).eq('id', liveUser.id).catch(() => {});
-        }
       } catch (stepErr) {
         console.warn('Step logs sync warning:', stepErr);
       }
 
       // E. Multi-Device App Sync Bundle (Food Logs, Custom Meals, Daily Movements, Hydration Water, Workout Logs, Scheduled Plans)
       try {
-        let cloudBundle: any = liveUser.user_metadata?.app_sync_bundle || null;
-        if (!cloudBundle && cloudProfile?.equipment_inventory && typeof cloudProfile.equipment_inventory === 'object') {
+        let cloudBundle: any = null;
+        if (cloudProfile?.equipment_inventory && typeof cloudProfile.equipment_inventory === 'object') {
           cloudBundle = (cloudProfile.equipment_inventory as any).app_sync_bundle || null;
+        }
+        if (!cloudBundle && liveUser.user_metadata?.app_sync_bundle) {
+          cloudBundle = liveUser.user_metadata.app_sync_bundle;
         }
 
         const localCustomMeals = customMealsRef.current || [];
@@ -1118,7 +1106,7 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
           hasBundleUpdate = true;
         }
 
-        // Push any unpersisted rows to PostgreSQL food_logs table in background
+        // Push any unpersisted rows to PostgreSQL food_logs table
         const cloudDbIds = new Set(cloudFoodLogs.map((c: any) => c.id));
         const unpersistedDbLogs = mergedFoodLogs.filter((l) => !cloudDbIds.has(l.id));
         if (unpersistedDbLogs.length > 0) {
@@ -1126,33 +1114,37 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
             id: isUuid(l.id) ? l.id : undefined,
             user_id: liveUser.id,
             food_id: isUuid(l.food_id) ? l.food_id : null,
-            food_name: l.food_name,
+            food_name: l.food_name || 'Food Item',
             grams_consumed: Number(l.grams_consumed) || 100,
-            meal_index: Number(l.meal_index) || 1,
+            meal_index: Math.max(1, Math.min(6, Number(l.meal_index) || 1)),
             logged_at: l.logged_at ? String(l.logged_at).split('T')[0] : todayDate,
             calories: Number(l.calories) || 0,
             protein_g: Number(l.protein_g) || 0,
             carbs_g: Number(l.carbs_g) || 0,
             fat_g: Number(l.fat_g) || 0,
           }));
-          (client.from('food_logs') as any)
-            .insert(rowsToInsert)
-            .select()
-            .then(({ data: insertedRows }: any) => {
-              if (insertedRows && Array.isArray(insertedRows)) {
-                setFoodLogs((prev) => {
-                  const copy = [...prev];
-                  insertedRows.forEach((ir: any, idx: number) => {
-                    if (unpersistedDbLogs[idx]) {
-                      const match = copy.find((c) => c.id === unpersistedDbLogs[idx].id);
-                      if (match && ir.id) match.id = ir.id;
-                    }
-                  });
-                  return copy;
+          try {
+            const { data: insertedRows, error: insErr } = await (client.from('food_logs') as any)
+              .insert(rowsToInsert)
+              .select();
+            if (!insErr && insertedRows && Array.isArray(insertedRows)) {
+              setFoodLogs((prev) => {
+                const copy = [...prev];
+                insertedRows.forEach((ir: any, idx: number) => {
+                  if (unpersistedDbLogs[idx]) {
+                    const match = copy.find((c) => c.id === unpersistedDbLogs[idx].id);
+                    if (match && ir.id) match.id = ir.id;
+                  }
                 });
-              }
-            })
-            .catch(() => {});
+                foodLogsRef.current = copy;
+                return copy;
+              });
+            } else if (insErr) {
+              console.warn('PostgreSQL food_logs insert warning:', insErr);
+            }
+          } catch (dbErr) {
+            console.warn('Food logs DB insert catch:', dbErr);
+          }
         }
 
         // 2. Custom Meals Reconciliation
@@ -1198,18 +1190,33 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
           hasBundleUpdate = true;
         }
 
-        // 4. Water Logs Reconciliation
+        // 4. Water Logs Reconciliation (with Deduplication by ID & 5-minute time window)
         const cloudWaterLogs: WaterLogEntry[] = Array.isArray(cloudBundle?.water_logs) ? cloudBundle.water_logs : [];
         const waterMap = new Map<string, WaterLogEntry>();
+
         cloudWaterLogs.forEach((cw) => {
           if (cw && cw.id) waterMap.set(cw.id, cw);
         });
+
+        const makeWaterSig = (w: WaterLogEntry) => {
+          const d = String(w.logged_at).split('T')[0];
+          const amt = Math.round(Number(w.amount_oz) || 0);
+          const time = new Date(w.logged_at).getTime();
+          const timeBlock = isNaN(time) ? 0 : Math.floor(time / (5 * 60 * 1000));
+          return `${d}_${amt}_${w.container || ''}_${timeBlock}`;
+        };
+
+        const cloudWaterSigs = new Set(cloudWaterLogs.map(makeWaterSig));
+
         localWaterLogs.forEach((lw) => {
-          if (lw && lw.id && !waterMap.has(lw.id)) {
+          if (!lw || !lw.id) return;
+          const sig = makeWaterSig(lw);
+          if (!waterMap.has(lw.id) && !cloudWaterSigs.has(sig)) {
             waterMap.set(lw.id, lw);
             hasBundleUpdate = true;
           }
         });
+
         const mergedWaterLogs = Array.from(waterMap.values()).sort((a, b) => b.logged_at.localeCompare(a.logged_at));
         setWaterLogs(mergedWaterLogs);
         waterLogsRef.current = mergedWaterLogs;
@@ -1239,7 +1246,7 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
         setScheduledPlans(mergedPlans);
         scheduledPlansRef.current = mergedPlans;
 
-        // Push bundle if local had additions, cloud was missing bundle, or cloud food_logs was missing
+        // Unified Cloud Persistence Bundle
         const updatedBundle = {
           food_logs: mergedFoodLogs.slice(0, 150),
           custom_meals: mergedCustomMeals,
@@ -1250,23 +1257,41 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
           last_bundle_sync: new Date().toISOString(),
         };
 
-        if (hasBundleUpdate || !cloudBundle || !cloudBundle.food_logs) {
-          client.auth.updateUser({
-            data: {
-              app_sync_bundle: updatedBundle,
-            },
-          }).catch(() => {});
+        // PUSH GUARD: Fresh or uninitialized devices with 0 local food logs MUST NOT overwrite cloud food logs with empty array
+        const isFreshFoodDevice = localFoodLogs.length === 0 && (cloudBundleFoodLogs.length > 0 || cloudFoodLogs.length > 0);
+        const shouldSaveBundle = (hasBundleUpdate || !cloudBundle || !cloudBundle.food_logs) && !isFreshFoodDevice;
 
+        if (shouldSaveBundle) {
           const currentEq = (cloudProfile?.equipment_inventory && typeof cloudProfile.equipment_inventory === 'object')
             ? cloudProfile.equipment_inventory
             : {};
-          (client.from('profiles') as any).update({
-            equipment_inventory: {
-              ...currentEq,
-              app_sync_bundle: updatedBundle,
-            },
+          const updatedEquipment = {
+            ...currentEq,
+            step_logs: (stepLogsRef.current || []).slice(0, 30),
+            app_sync_bundle: updatedBundle,
+          };
+
+          // 1. Authoritative PostgreSQL Profile update (no size limits, persistent across all devices)
+          const { error: profUpdateErr } = await (client.from('profiles') as any).update({
+            equipment_inventory: updatedEquipment,
             updated_at: new Date().toISOString(),
-          }).eq('id', liveUser.id).catch(() => {});
+          }).eq('id', liveUser.id);
+          if (profUpdateErr) {
+            console.warn('Profile equipment_inventory cloud update error:', profUpdateErr);
+          }
+
+          // 2. Auth user metadata backup push
+          try {
+            await client.auth.updateUser({
+              data: {
+                app_sync_bundle: updatedBundle,
+                step_logs: (stepLogsRef.current || []).slice(0, 30),
+                latest_step_sync: new Date().toISOString(),
+              },
+            });
+          } catch (authErr) {
+            console.warn('Auth user_metadata update warning:', authErr);
+          }
         }
       } catch (bundleErr) {
         console.warn('App sync bundle warning:', bundleErr);
@@ -1631,7 +1656,11 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
       created_at: new Date().toISOString(),
     };
 
-    setFoodLogs((prev) => [newEntry, ...prev]);
+    setFoodLogs((prev) => {
+      const updated = [newEntry, ...prev];
+      foodLogsRef.current = updated;
+      return updated;
+    });
     triggerDebouncedSync();
 
     const user = authUserRef.current;
@@ -1653,9 +1682,11 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
         .single()
         .then(({ data }: any) => {
           if (data?.id) {
-            setFoodLogs((prev) =>
-              prev.map((l) => (l.id === newEntry.id ? { ...l, id: data.id } : l))
-            );
+            setFoodLogs((prev) => {
+              const updated = prev.map((l) => (l.id === newEntry.id ? { ...l, id: data.id } : l));
+              foodLogsRef.current = updated;
+              return updated;
+            });
           }
         })
         .catch(() => {});
@@ -1755,7 +1786,11 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
           servings_logged: servings,
         };
 
-        setFoodLogs((prev) => [newEntry, ...prev]);
+        setFoodLogs((prev) => {
+          const updated = [newEntry, ...prev];
+          foodLogsRef.current = updated;
+          return updated;
+        });
         triggerDebouncedSync();
 
         const user = authUserRef.current;
@@ -1777,9 +1812,11 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
             .single()
             .then(({ data }: any) => {
               if (data?.id) {
-                setFoodLogs((prev) =>
-                  prev.map((l) => (l.id === newEntry.id ? { ...l, id: data.id } : l))
-                );
+                setFoodLogs((prev) => {
+                  const updated = prev.map((l) => (l.id === newEntry.id ? { ...l, id: data.id } : l));
+                  foodLogsRef.current = updated;
+                  return updated;
+                });
               }
             })
             .catch(() => {});
@@ -1812,7 +1849,11 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
           };
         });
 
-        setFoodLogs((prev) => [...newLogs, ...prev]);
+        setFoodLogs((prev) => {
+          const updated = [...newLogs, ...prev];
+          foodLogsRef.current = updated;
+          return updated;
+        });
         triggerDebouncedSync();
 
         const user = authUserRef.current;
@@ -1842,6 +1883,7 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
                       updated[matchIdx] = { ...updated[matchIdx], id: data[idx].id };
                     }
                   });
+                  foodLogsRef.current = updated;
                   return updated;
                 });
               }
@@ -2415,7 +2457,7 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
 
       const user = authUserRef.current;
       const currentProf = profileRef.current;
-      const targetDate = logged_at ? String(logged_at).split('T')[0] : new Date().toISOString().split('T')[0];
+      const targetDate = logged_at ? String(logged_at).split('T')[0] : (selectedDate || todayDate);
 
       const newEntry: FoodLogEntry = {
         id: `log-${Date.now()}`,
@@ -2423,7 +2465,7 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
         food_id: food.id,
         food_name: food_name || food.name,
         grams_consumed,
-        meal_index,
+        meal_index: Math.max(1, Math.min(6, meal_index || 1)),
         logged_at: targetDate,
         calories: calculatedCalories,
         protein_g: calculatedProtein,
@@ -2432,7 +2474,11 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
         created_at: new Date().toISOString(),
       };
 
-      setFoodLogs((prev) => [newEntry, ...prev]);
+      setFoodLogs((prev) => {
+        const updated = [newEntry, ...prev];
+        foodLogsRef.current = updated;
+        return updated;
+      });
       triggerDebouncedSync();
 
       if (supabase && user) {
@@ -2442,7 +2488,7 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
             food_id: isUuid(food.id) ? food.id : null,
             food_name: newEntry.food_name,
             grams_consumed,
-            meal_index,
+            meal_index: newEntry.meal_index,
             logged_at: newEntry.logged_at,
             calories: calculatedCalories,
             protein_g: calculatedProtein,
@@ -2453,9 +2499,11 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
           .single()
           .then(({ data }: any) => {
             if (data?.id) {
-              setFoodLogs((prev) =>
-                prev.map((l) => (l.id === newEntry.id ? { ...l, id: data.id } : l))
-              );
+              setFoodLogs((prev) => {
+                const updated = prev.map((l) => (l.id === newEntry.id ? { ...l, id: data.id } : l));
+                foodLogsRef.current = updated;
+                return updated;
+              });
             }
           })
           .catch((err: any) => console.warn('Food log cloud insert warning:', err));
@@ -2463,11 +2511,15 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
 
       return newEntry.id;
     },
-    [triggerDebouncedSync]
+    [selectedDate, todayDate, triggerDebouncedSync]
   );
 
   const deleteFoodLog = useCallback((id: string) => {
-    setFoodLogs((prev) => prev.filter((log) => log.id !== id));
+    setFoodLogs((prev) => {
+      const updated = prev.filter((log) => log.id !== id);
+      foodLogsRef.current = updated;
+      return updated;
+    });
     triggerDebouncedSync();
     const user = authUserRef.current;
     if (supabase && user && (isUuid(id) || !id.startsWith('log-'))) {
@@ -2686,14 +2738,31 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
       container,
       logged_at: new Date().toISOString(),
     };
-    setWaterLogs((prev) => [entry, ...prev]);
+    setWaterLogs((prev) => {
+      const updated = [entry, ...prev];
+      waterLogsRef.current = updated;
+      return updated;
+    });
     triggerDebouncedSync();
   }, [triggerDebouncedSync]);
 
   const resetTodayWater = useCallback(() => {
-    setWaterLogs((prev) => prev.filter((w) => !w.logged_at.startsWith(todayDate)));
+    setWaterLogs((prev) => {
+      const updated = prev.filter((w) => !w.logged_at.startsWith(todayDate));
+      waterLogsRef.current = updated;
+      return updated;
+    });
     triggerDebouncedSync();
   }, [todayDate, triggerDebouncedSync]);
+
+  const deleteWaterLog = useCallback((id: string) => {
+    setWaterLogs((prev) => {
+      const updated = prev.filter((w) => w.id !== id);
+      waterLogsRef.current = updated;
+      return updated;
+    });
+    triggerDebouncedSync();
+  }, [triggerDebouncedSync]);
 
   // Step Tracker Engine
   const todaySteps = useMemo(() => {
@@ -3178,6 +3247,7 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
         todayWaterOz,
         logWaterOz,
         resetTodayWater,
+        deleteWaterLog,
 
         // Step Tracker & Automated Watch / Apple Health Sync
         stepGoal,
