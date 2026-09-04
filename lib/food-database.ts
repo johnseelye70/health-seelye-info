@@ -55,7 +55,7 @@ export const FOOD_CATEGORIES: FoodCategoryMeta[] = [
     name: 'Eggs, Dairy & Plant Milks',
     shortLabel: 'Eggs & Dairy',
     icon: '🥚',
-    description: 'Whole eggs, egg whites, Greek yogurt, cottage cheese & almond milk',
+    description: 'Whole eggs, egg whites, Greek yogurt, cottage cheese, milk, cheese, sour cream & cream',
     accentColor: '#3b82f6',
   },
   {
@@ -138,8 +138,8 @@ export const FOOD_SUB_CATEGORIES: FoodSubCategoryMeta[] = [
   { id: 'eggs', parentId: 'dairy_eggs', name: 'Whole Eggs & Egg Whites', icon: '🥚', description: 'Pasture eggs, liquid egg whites & boiled eggs' },
   { id: 'greek_yogurt', parentId: 'dairy_eggs', name: 'Greek Yogurt & Skyr', icon: '🥣', description: '0% Nonfat, 2% Low-fat Greek yogurt & Icelandic skyr' },
   { id: 'cottage_cheese', parentId: 'dairy_eggs', name: 'Cottage Cheese', icon: '🥣', description: 'Low-fat 2%, 4% whole milk & nonfat cottage cheese' },
-  { id: 'cheeses', parentId: 'dairy_eggs', name: 'Cheeses & Hard Cheeses', icon: '🧀', description: 'Mozzarella string cheese, cheddar, feta & parmesan' },
-  { id: 'dairy_milks', parentId: 'dairy_eggs', name: 'Dairy & Filtered Milks', icon: '🥛', description: 'Fairlife ultra-filtered skim milk & low-fat milk' },
+  { id: 'cheeses', parentId: 'dairy_eggs', name: 'Cheeses & Hard Cheeses', icon: '🧀', description: 'Cheddar, mozzarella, Swiss, provolone, cream cheese, feta & parmesan' },
+  { id: 'dairy_milks', parentId: 'dairy_eggs', name: 'Dairy & Filtered Milks', icon: '🥛', description: 'Whole, 2%, skim, Fairlife, sour cream, heavy whipping cream & buttermilk' },
   { id: 'plant_milks', parentId: 'dairy_eggs', name: 'Plant-Based Milks', icon: '🥛', description: 'Unsweetened almond milk, oat milk & soy milk' },
 
   // 4. Plant Protein & Legumes

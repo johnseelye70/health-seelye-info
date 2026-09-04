@@ -1,5 +1,5 @@
 # Seelye Family Health — Precision Fitness & Nutrition Application
-**Version: Beta v4.10.0 (b4.10.0)** | **Production Domain: https://health.seelye.info**
+**Version: Beta v4.11.0 (b4.11.0)** | **Production Domain: https://health.seelye.info**
 
 High-performance, dark-mode first athletic health and nutrition platform engineered with Next.js (App Router), TypeScript, Tailwind CSS, Supabase (PostgreSQL), and integrated Wholesome Recipe & Meal Prep Engine.
 
@@ -7,7 +7,17 @@ High-performance, dark-mode first athletic health and nutrition platform enginee
 
 ## ⚡ Key Architectural Modules
 
-### 1. Name Brand Protein Bars, RTD Drinks, Atkins Suite & Nut Varieties (Beta v4.10.0)
+### 1. Preferred Stores Dairy & Greek Yogurt Expansion (Beta v4.11.0)
+- **Comprehensive Greek Yogurt Catalog (36 Items):** Full fat-percentage spectrum (0% nonfat, 2% lowfat, 4-5% whole milk) and top flavors across Fage Total, Chobani, Dannon Oikos (Triple Zero & Pro 20g/25g), Dannon Light & Fit (12g protein zero-sugar), Siggi's Icelandic Skyr, Two Good (2g sugar), Meijer, Great Value, Kirkland Signature Organic, Member's Mark, Friendly Farms (Aldi), and Simply Nature Organic.
+- **Cottage Cheese Varieties (19 Items):** 4% whole milk, 2% low-fat, nonfat, and whipped curd textures from Good Culture (Organic Whole Milk, 2% Low-Fat, Simply, Whipped), Daisy (4% & 2%), Breakstone's (4% Small Curd, 2%, Multi-Serve), Meijer, Great Value Small Curd, Member's Mark, and Friendly Farms (Aldi).
+- **Dairy Milks Across Preferred Stores (26 Items):** Whole milk, 2% reduced fat, 1% low-fat, skim/fat-free, and lactose-free filtered milk across Fairlife, Horizon Organic, Organic Valley, a2 Milk, Meijer, Great Value, Kirkland Signature, Member's Mark, and Friendly Farms.
+- **Eggs, Egg Whites & Pasture-Raised Lines (23 Items):** Pasture-raised certified humane and organic eggs from Vital Farms, Eggland's Best (Omega-3 & Cage-Free), Happy Egg Co., Goldhen (Aldi), Simply Nature Organic Pasture-Raised (Aldi), Meijer Grade A Large & Extra Large, Great Value Large & Cage-Free, Kirkland Signature 2-Dozen Pasture-Raised, and Member's Mark 24-Count Pasture-Raised & 30-Count Trays, plus 100% pasteurized liquid egg white cartons across all 5 stores and Bob Evans.
+- **Cheeses of All Types (61 Items):** Blocks, deli slices, finely shredded bags, snacking strings, and wheels across Sharp Cheddar, Extra Sharp, Medium/Mild Cheddar, Part-Skim Mozzarella, Swiss, Provolone, Pepper Jack, Colby Jack, Creamy Havarti, Muenster, Smoked Gouda, Dubliner/Irish Cheddar, Shredded Parmesan, Crumbled Feta, and French Brie from Kraft, Tillamook, Cabot, Sargento, Kerrygold, BelGioioso, Babybel, Athenos, Frigo, Happy Farms (Aldi), Emporium Selection (Aldi), Meijer, Great Value, Kirkland Signature, and Member's Mark.
+- **Cream Cheese Selection (16 Items):** 8 oz foil bricks, soft spreads, whipped tubs, and 1/3 less fat Neufchâtel from Philadelphia, Tillamook Farmstyle, Happy Farms, Meijer, Great Value, Kirkland Signature, and Member's Mark.
+- **Pure Sour Cream & Heavy Whipping Cream (21 Items):** Pure cultured sour cream and light squeeze options from Daisy, Breakstone's, Meijer, Great Value, Member's Mark, and Friendly Farms, along with Grade A heavy whipping creams (36-40% butterfat) from Land O'Lakes, Horizon Organic, Countryside Creamery, Meijer, Great Value, Kirkland Signature, and Member's Mark.
+- **Total Master Database Growth:** Master Food Database expanded from 1,498 to 1,685 verified, laboratory-accurate items (99 to 286 items in Dairy & Eggs) with seamless multi-token store and brand filtering across all search interfaces.
+
+### 2. Name Brand Protein Bars, RTD Drinks, Atkins Suite & Nut Varieties (Beta v4.10.0)
 - **Chef Robert Irvine FitCrunch Bars:** Full roster of authentic FitCrunch products including full-size 88g bars, 46g snack-size bars, and protein wafers in all top flavors: Chocolate Peanut Butter, Peanut Butter & Jelly, Chocolate Chip Cookie Dough, Milk & Cookies, Mint Chocolate Chip, Caramel Peanut, Strawberry Strudel, Apple Pie, and Lemon Cake.
 - **Complete Atkins Products Suite:** Full suite of Atkins low-carb meal bars (Chocolate Peanut Butter, Chocolate Chip Granola, Blueberry Greek Yogurt, Cookie Dough), snack bars (Caramel Chocolate Nut Roll, Lemon, White Chocolate Macadamia, Cranberry Almond), Endulge treats (Caramel Nut Chew, Peanut Butter Cups, Pecan Caramel Mousse, Chocolate Coconut), and ready-to-drink shakes (Atkins Plus 30g, Atkins Meal 15g, Iced Coffee shakes).
 - **Major Name Brand Protein Bars (86 Items):** Top-rated protein bars across Quest Nutrition, Barebells, ONE Brands, Pure Protein, Built Bar & Built Puffs, Gatorade Whey, CLIF Builder's, Met-Rx Big 100 Colossal, RXBAR whole food bars, Think!, Kirkland Signature, No Cow vegan, Aloha, Lenny & Larry's Complete Cookies, and Grenade Carb Killa.

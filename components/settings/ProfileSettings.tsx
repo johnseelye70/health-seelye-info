@@ -227,6 +227,21 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'b4.11.0',
+      date: '2026-09-04',
+      title: 'Preferred Stores Dairy & Greek Yogurt Expansion (Meijer, Walmart, Costco, Sam\'s Club, Aldi & National Brands)',
+      changes: [
+        'Comprehensive Greek Yogurt Catalog: Added 36 Greek yogurts spanning all fat percentages (0% nonfat, 2% lowfat, 4-5% whole milk) and top flavors across Fage Total, Chobani, Dannon Oikos (Triple Zero & Pro 20g/25g), Dannon Light & Fit (12g protein zero-sugar), Siggi\'s Icelandic Skyr, Two Good (2g sugar), Meijer, Great Value, Kirkland Signature Organic, Member\'s Mark, Friendly Farms (Aldi), and Simply Nature Organic.',
+        'Cottage Cheese Varieties: Added 19 cottage cheeses across 4% whole milk, 2% low-fat, nonfat, and whipped curd textures from Good Culture (Organic Whole Milk, 2% Low-Fat, Simply, Whipped), Daisy (4% & 2%), Breakstone\'s (4% Small Curd, 2%, Multi-Serve), Meijer, Great Value Small Curd, Member\'s Mark, and Friendly Farms (Aldi).',
+        'Dairy Milks Across Preferred Stores: Added 26 dairy milks spanning whole milk, 2% reduced fat, 1% low-fat, skim/fat-free, and lactose-free filtered milk across Fairlife, Horizon Organic, Organic Valley, a2 Milk, Meijer, Great Value, Kirkland Signature, Member\'s Mark, and Friendly Farms.',
+        'Eggs, Egg Whites & Pasture-Raised Lines: Added 23 authentic egg products including pasture-raised certified humane and organic eggs from Vital Farms, Eggland\'s Best (Omega-3 & Cage-Free), Happy Egg Co., Goldhen (Aldi), Simply Nature Organic Pasture-Raised (Aldi), Meijer Grade A Large & Extra Large, Great Value Large & Cage-Free, Kirkland Signature 2-Dozen Pasture-Raised, and Member\'s Mark 24-Count Pasture-Raised & 30-Count Trays, plus 100% pasteurized liquid egg white cartons across all 5 stores and Bob Evans.',
+        'Cheeses of All Types: Added 61 cheeses spanning blocks, deli slices, finely shredded bags, snacking strings, and wheels across Sharp Cheddar, Extra Sharp, Medium/Mild Cheddar, Part-Skim Mozzarella, Swiss, Provolone, Pepper Jack, Colby Jack, Creamy Havarti, Muenster, Smoked Gouda, Dubliner/Irish Cheddar, Shredded Parmesan, Crumbled Feta, and French Brie from Kraft, Tillamook, Cabot, Sargento, Kerrygold, BelGioioso, Babybel, Athenos, Frigo, Happy Farms (Aldi), Emporium Selection (Aldi), Meijer, Great Value, Kirkland Signature, and Member\'s Mark.',
+        'Cream Cheese Selection: Added 16 cream cheese options across 8 oz foil bricks, soft spreads, whipped tubs, and 1/3 less fat Neufchâtel from Philadelphia, Tillamook Farmstyle, Happy Farms, Meijer, Great Value, Kirkland Signature, and Member\'s Mark.',
+        'Pure Sour Cream & Heavy Whipping Cream: Added 13 pure cultured sour cream and light squeeze options from Daisy, Breakstone\'s, Meijer, Great Value, Member\'s Mark, and Friendly Farms, along with 8 Grade A heavy whipping creams (36-40% butterfat) from Land O\'Lakes, Horizon Organic, Countryside Creamery, Meijer, Great Value, Kirkland Signature, and Member\'s Mark.',
+        'Total Master Database Growth: Master Food Database expanded from 1,498 to 1,685 verified, laboratory-accurate items (99 to 286 items in Dairy & Eggs) with seamless multi-token store and brand filtering across all search interfaces.',
+      ],
+    },
+    {
       version: 'b4.10.0',
       date: '2026-09-04',
       title: 'Name Brand Protein Bars, RTD Drinks, Atkins Catalog & Comprehensive Nut Varieties',
