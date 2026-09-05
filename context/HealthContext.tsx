@@ -657,6 +657,7 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
 
   const isSyncingRef = useRef<boolean>(false);
   const syncDebounceTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const lastLocalProfileWriteRef = useRef<number>(0);
 
   // Helper to push local profile to cloud safely via UPSERT with onConflict: 'id'
   const pushLocalProfileToCloud = async (client: any, user: any, p: UserProfile) => {
@@ -700,25 +701,43 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
   // 3. Supabase Cloud Sync Engine (Non-Destructive Reconciliation with Mutex Guard)
   const performCloudSync = useCallback(async (targetUser?: any) => {
     const user = targetUser || authUserRef.current;
-    if (!isSupabaseConfigured || !supabase || !user) return;
+    if (!isSupabaseConfigured || !supabase || !user) {
+      if (!user) setSyncStatus('local_only');
+      return;
+    }
     if (isSyncingRef.current) return; // Prevent concurrent re-entrant executions
 
     isSyncingRef.current = true;
     setSyncStatus('syncing');
 
+    // Hardened Watchdog Timer: Force-clear 'syncing' state if anything hangs after 12 seconds
+    const watchdogTimer = setTimeout(() => {
+      if (isSyncingRef.current) {
+        console.warn('Sync watchdog timeout triggered after 12s');
+        isSyncingRef.current = false;
+        setSyncStatus((prev) => (prev === 'syncing' ? 'synced' : prev));
+      }
+    }, 12000);
+
     try {
       const client = supabase;
 
-      // Always fetch fresh user metadata from server so cross-device updates propagate immediately
+      // Use user metadata; optionally fetch fresh metadata with strict 2.5s timeout (prevents Safari auth hang)
       let liveUser = user;
       try {
-        const { data: freshUserData } = await client.auth.getUser();
+        const fetchUserPromise = client.auth.getUser();
+        const timeoutPromise = new Promise<any>((_, reject) =>
+          setTimeout(() => reject(new Error('User fetch timeout')), 2500)
+        );
+        const { data: freshUserData } = (await Promise.race([fetchUserPromise, timeoutPromise])) as any;
         if (freshUserData?.user) {
           liveUser = freshUserData.user;
           setAuthUser(liveUser);
           authUserRef.current = liveUser;
         }
-      } catch {}
+      } catch {
+        // Fall back gracefully to existing user without blocking sync
+      }
 
       // A. Profile Reconciliation (Strict Zero-Default Guard)
       const { data: cloudProfile, error: profileErr } = await (client.from('profiles') as any)
@@ -1384,7 +1403,9 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
 
         // PUSH GUARD: Fresh or uninitialized devices with 0 local food logs MUST NOT overwrite cloud food logs with empty array
         const isFreshFoodDevice = localFoodLogs.length === 0 && (cloudBundleFoodLogs.length > 0 || cloudFoodLogs.length > 0);
-        const shouldSaveBundle = (hasBundleUpdate || !cloudBundle || !cloudBundle.food_logs || mergedFoodLogs.length > 0 || mergedWaterLogs.length > 0) && !isFreshFoodDevice;
+        
+        // Save bundle ONLY if there was an actual local update or the cloud is missing a bundle
+        const shouldSaveBundle = (hasBundleUpdate || !cloudBundle || !cloudBundle.food_logs) && !isFreshFoodDevice;
 
         if (shouldSaveBundle) {
           const currentEq = (cloudProfile?.equipment_inventory && typeof cloudProfile.equipment_inventory === 'object')
@@ -1396,7 +1417,10 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
             app_sync_bundle: updatedBundle,
           };
 
-          // 1. Authoritative PostgreSQL Profile upsert (guarantees row exists and persists bundle across all devices)
+          // Record timestamp of this local write to ignore self-echo Realtime events
+          lastLocalProfileWriteRef.current = Date.now();
+
+          // Authoritative PostgreSQL Profile upsert (guarantees row exists and persists bundle across all devices)
           const { error: profUpdateErr } = await (client.from('profiles') as any).upsert({
             ...(cloudProfile || {}),
             id: liveUser.id,
@@ -1407,22 +1431,6 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
           }, { onConflict: 'id' });
           if (profUpdateErr) {
             console.warn('Profile equipment_inventory cloud upsert error:', profUpdateErr);
-          }
-
-          // 2. Auth user metadata backup push (safe quota guard)
-          try {
-            const bundleString = JSON.stringify(updatedBundle);
-            if (bundleString.length < 3500) {
-              await client.auth.updateUser({
-                data: {
-                  app_sync_bundle: updatedBundle,
-                  step_logs: (stepLogsRef.current || []).slice(0, 30),
-                  latest_step_sync: new Date().toISOString(),
-                },
-              });
-            }
-          } catch (authErr) {
-            console.warn('Auth user_metadata update warning:', authErr);
           }
         }
       } catch (bundleErr) {
@@ -1435,11 +1443,16 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
       console.warn('Sync error:', err);
       setSyncStatus('error');
     } finally {
+      clearTimeout(watchdogTimer);
       isSyncingRef.current = false;
     }
   }, []);
 
   const syncWithCloud = useCallback(async () => {
+    if (!authUserRef.current) {
+      setShowAuthModal(true);
+      return;
+    }
     await performCloudSync();
   }, [performCloudSync]);
 
@@ -1461,14 +1474,29 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
 
     const client = supabase;
 
+    // Safety timeout for initial auth check (prevents indefinite loading on Safari)
+    const sessionTimeout = setTimeout(() => {
+      setAuthLoading(false);
+    }, 3000);
+
     // Get current session on load
     client.auth.getSession().then(({ data: { session } }) => {
+      clearTimeout(sessionTimeout);
       const user = session?.user || null;
       setAuthUser(user);
+      authUserRef.current = user;
       setAuthLoading(false);
       if (user) {
-        performCloudSync(user);
+        // Defer slightly to ensure components are mounted before initial sync
+        setTimeout(() => {
+          performCloudSync(user).catch(() => {});
+        }, 150);
+      } else {
+        setSyncStatus('local_only');
       }
+    }).catch(() => {
+      clearTimeout(sessionTimeout);
+      setAuthLoading(false);
     });
 
     const {
@@ -1476,16 +1504,23 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
     } = client.auth.onAuthStateChange((event, session) => {
       const user = session?.user || null;
       setAuthUser(user);
+      authUserRef.current = user;
       if (user) {
-        if (event === 'SIGNED_IN' || event === 'INITIAL_SESSION' || event === 'USER_UPDATED') {
-          performCloudSync(user);
+        // Only sync on explicit SIGNED_IN event. Never sync on USER_UPDATED to avoid recursion loops.
+        if (event === 'SIGNED_IN') {
+          setTimeout(() => {
+            performCloudSync(user).catch(() => {});
+          }, 200);
         }
       } else {
         setSyncStatus('local_only');
       }
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      clearTimeout(sessionTimeout);
+      subscription.unsubscribe();
+    };
   }, [performCloudSync]);
 
   // 5. Immediate Auto-Sync on Tab Switch (Food Diary, Dashboard, Fasting, Workouts)
@@ -1516,6 +1551,8 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
             filter: `id=eq.${authUser.id}`,
           },
           () => {
+            // Guard: ignore self-echo events within 4 seconds of local write
+            if (Date.now() - lastLocalProfileWriteRef.current < 4000) return;
             performCloudSync().catch(() => {});
           }
         )
@@ -1528,6 +1565,8 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
             filter: `user_id=eq.${authUser.id}`,
           },
           () => {
+            // Guard: ignore self-echo events within 4 seconds of local write
+            if (Date.now() - lastLocalProfileWriteRef.current < 4000) return;
             performCloudSync().catch(() => {});
           }
         )
@@ -1538,7 +1577,7 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
 
     // B. Lifecycle Events (Tab Focus, App Switch, Screen Unlock)
     const handleLifecycleSync = () => {
-      if (typeof document !== 'undefined' && document.visibilityState === 'visible') {
+      if (typeof document !== 'undefined' && document.visibilityState === 'visible' && !isSyncingRef.current) {
         performCloudSync().catch(() => {});
       }
     };
@@ -1547,12 +1586,12 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
     window.addEventListener('pageshow', handleLifecycleSync);
     document.addEventListener('visibilitychange', handleLifecycleSync);
 
-    // C. Eager Background Interval (every 8 seconds when app is open)
+    // C. Eager Background Interval (every 15 seconds when app is open and visible)
     const interval = setInterval(() => {
-      if (typeof document !== 'undefined' && document.visibilityState === 'visible') {
+      if (typeof document !== 'undefined' && document.visibilityState === 'visible' && !isSyncingRef.current) {
         performCloudSync().catch(() => {});
       }
-    }, 8000);
+    }, 15000);
 
     return () => {
       if (channel) {

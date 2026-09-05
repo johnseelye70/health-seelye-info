@@ -100,6 +100,9 @@ export const supabase = isSupabaseConfigured
         detectSessionInUrl: true,
         storageKey: 'health_seelye_auth_token',
         storage: safeAuthStorage,
+        lock: async (_name: string, _acquireTimeout: number, fn: () => Promise<any>) => {
+          return await fn();
+        },
       },
     })
   : null;

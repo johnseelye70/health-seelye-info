@@ -1,5 +1,5 @@
 # Seelye Family Health — Precision Fitness & Nutrition Application
-**Version: Beta v4.16.0 (b4.16.0)** | **Production Domain: https://health.seelye.info**
+**Version: Beta v4.16.1 (b4.16.1)** | **Production Domain: https://health.seelye.info**
 
 High-performance, dark-mode first athletic health and nutrition platform engineered with Next.js (App Router), TypeScript, Tailwind CSS, Supabase (PostgreSQL), and integrated Wholesome Recipe & Meal Prep Engine.
 
@@ -7,7 +7,14 @@ High-performance, dark-mode first athletic health and nutrition platform enginee
 
 ## ⚡ Key Architectural Modules
 
-### 1. View & Modify Wholesome Recipe Ingredients & Extension of Recipe Studio (Beta v4.16.0)
+### 1. iOS Safari Sync Stability, Web Locks Deadlock Elimination & Infinite Loop Termination (Beta v4.16.1)
+- **Web Locks Deadlock Elimination:** Configured a custom non-blocking lock handler on the Supabase client, completely bypassing WebKit's buggy `navigator.locks.request` API that caused Mobile Safari on iPhone to deadlock and hang indefinitely.
+- **Infinite Auth Loop Termination:** Eliminated redundant `client.auth.updateUser` calls from the cloud sync cycle and decoupled `onAuthStateChange` listeners, terminating the feedback storm where `USER_UPDATED` events re-triggered sync continuously.
+- **Hardened Sync Watchdog:** Added a 12-second safety watchdog and 2.5-second timeout guards on all authentication calls, guaranteeing the UI never gets stuck in a permanent "Syncing..." state on cellular or slow networks.
+- **Realtime Self-Echo Suppression:** Added local write timestamp tracking to Supabase `postgres_changes` channels, preventing a device from endlessly re-syncing with itself after pushing database updates.
+- **Smart Sync Bundle Push Guard:** Corrected `shouldSaveBundle` condition to only push bundles when local updates truly exist or cloud is uninitialized, preventing perpetual identical bundle updates.
+
+### 2. View & Modify Wholesome Recipe Ingredients & Extension of Recipe Studio (Beta v4.16.0)
 - **100% Inline Recipe & Ingredient Customizer:** Tapping into any of the 4 daily wholesome meals or the Chef's smart suggestion expands a comprehensive, zero-modal inline customizer directly within the document stream.
 - **Granular Ingredient Quantity Steppers:** Tailor every ingredient amount individually with `[+]` and `[-]` 0.25x fine steppers, or omit ingredients completely, with live calculated weight (oz/grams) and calorie contributions.
 - **Smart Culinary Ingredient Swaps:** Integrated the authentic culinary swap engine into wholesome meals, allowing users to swap ingredients (e.g. sourdough, Greek yogurt, chicken, egg whites, almond milk) with real-time macro updates and dynamic culinary adjustments.

@@ -227,6 +227,18 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'b4.16.1',
+      date: '2026-09-05',
+      title: 'iOS Safari Sync Stability, Web Locks Deadlock Elimination & Infinite Sync Termination',
+      changes: [
+        'Web Locks Deadlock Elimination: Configured a custom non-blocking lock handler on the Supabase client, completely bypassing WebKit\'s buggy navigator.locks.request API that caused Mobile Safari on iPhone to deadlock and hang indefinitely.',
+        'Infinite Auth Loop Termination: Eliminated redundant client.auth.updateUser calls from the cloud sync cycle and decoupled onAuthStateChange listeners, terminating the feedback storm where USER_UPDATED events re-triggered sync continuously.',
+        'Hardened Sync Watchdog: Added a 12-second safety watchdog and 2.5-second timeout guards on all authentication calls, guaranteeing the UI never gets stuck in a permanent "Syncing..." state on cellular or slow networks.',
+        'Realtime Self-Echo Suppression: Added local write timestamp tracking to Supabase postgres_changes channels, preventing a device from endlessly re-syncing with itself after pushing database updates.',
+        'Smart Sync Bundle Push Guard: Corrected shouldSaveBundle condition to only push bundles when local updates truly exist or cloud is uninitialized, preventing perpetual identical bundle updates.',
+      ],
+    },
+    {
       version: 'b4.16.0',
       date: '2026-09-05',
       title: 'View & Modify Wholesome Recipe Ingredients & Seamless Extension of Recipe Studio',
