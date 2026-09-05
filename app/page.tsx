@@ -22,7 +22,7 @@ export default function HomePage() {
   const { activeTab, experienceMode } = useHealth();
 
   return (
-    <div className="flex min-h-screen bg-background text-foreground relative w-full max-w-full min-w-0 overflow-x-hidden">
+    <div className="flex min-h-screen bg-background text-foreground relative w-full max-w-full min-w-0 overflow-x-hidden overscroll-x-none [touch-action:pan-y]">
       {/* Persistent Responsive Sidebar Navigation (Desktop) */}
       <Sidebar />
 

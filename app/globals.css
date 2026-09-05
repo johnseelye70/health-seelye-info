@@ -76,6 +76,10 @@ html {
   color: var(--text-main);
   font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   -webkit-text-size-adjust: 100%;
+  width: 100%;
+  max-width: 100%;
+  overscroll-behavior-x: none;
+  touch-action: pan-y;
 }
 
 body {
@@ -85,8 +89,12 @@ body {
   margin: 0;
   padding: 0;
   width: 100%;
+  max-width: 100%;
   position: relative;
-  overflow-x: clip;
+  overflow-x: hidden;
+  overscroll-behavior-x: none;
+  touch-action: pan-y;
+  -webkit-touch-callout: none;
 }
 
 /* Subtle Dynamic Ambient Lighting */
@@ -96,9 +104,12 @@ body {
   top: 0;
   left: 0;
   right: 0;
+  width: 100%;
+  max-width: 100%;
   height: 650px;
   background: radial-gradient(circle at 50% -120px, rgba(37, 99, 235, 0.15), rgba(139, 92, 246, 0.08), transparent 70%);
   pointer-events: none;
+  overflow: hidden;
   z-index: 0;
 }
 
@@ -108,9 +119,12 @@ body {
   top: 0;
   left: 0;
   right: 0;
+  width: 100%;
+  max-width: 100%;
   height: 550px;
   background: radial-gradient(circle at 50% -100px, rgba(59, 130, 246, 0.08), rgba(16, 185, 129, 0.05), transparent 70%);
   pointer-events: none;
+  overflow: hidden;
   z-index: 0;
 }
 
@@ -122,6 +136,23 @@ select,
 textarea {
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
+}
+
+/* Form inputs explicitly support user selection and touch callouts */
+input,
+textarea,
+[contenteditable="true"] {
+  -webkit-touch-callout: default;
+  -webkit-user-select: text;
+  user-select: text;
+  touch-action: auto;
+}
+
+/* Inner scrollable horizontal containers support horizontal swipe without page swirling */
+.overflow-x-auto,
+[style*="overflow-x: auto"] {
+  touch-action: pan-x pan-y;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* Safe Area Insets for iPhone X/11/12/13/14/15/16 */

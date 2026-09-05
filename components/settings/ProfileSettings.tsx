@@ -227,6 +227,18 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'b4.13.8',
+      date: '2026-09-05',
+      title: 'Rock-Solid iOS Safari Gesture Stability & Zero Side-to-Side Swirling',
+      changes: [
+        'Locked Viewport Scale & Canvas: Configured Next.js viewport metadata with maximumScale: 1, userScalable: false, and viewportFit: cover, completely stopping iOS Safari from shifting, swirling, or zooming the canvas in 2D space.',
+        'Zero Side-to-Side Motion (touch-action: pan-y): Enforced strict touch-action: pan-y on html, body, and page wrappers, instructing Safari to reject horizontal drag/pan gestures while keeping vertical scrolling 100% natural and fluid.',
+        'Eliminated Elastic Horizontal Rubber-Banding: Added overscroll-behavior-x: none to html and body, permanently terminating Safari\'s side-to-side history bounce and rubber-band elasticity.',
+        'Strict Body Overflow Bounds: Replaced overflow-x: clip with overflow-x: hidden on body and clamped ambient background glow elements within strict 100% boundary width limits with overflow: hidden.',
+        'Touch Callout & Input Protection: Disabled accidental Safari text selection callouts during touch movement with -webkit-touch-callout: none while fully preserving selection and typing across inputs, textareas, and horizontal carousels.',
+      ],
+    },
+    {
       version: 'b4.13.7',
       date: '2026-09-04',
       title: 'Automated Real-Time Cross-Device Background Sync Architecture',
