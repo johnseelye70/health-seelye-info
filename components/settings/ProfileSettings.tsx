@@ -227,6 +227,16 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'b4.13.9',
+      date: '2026-09-05',
+      title: 'Complete Pinch-to-Zoom & Multi-Touch Scale Lockdown for iOS Safari',
+      changes: [
+        'Zero Pinch-to-Zoom: Intercepted WebKit gesturestart, gesturechange, and gestureend events with active preventDefault guards, completely stopping iOS Safari from zooming or scaling when multiple fingers touch the screen.',
+        'Multi-Finger Canvas Pan Elimination: Blocked multi-touch touchmove (e.touches.length > 1), ensuring accidental two-thumb or pinch gestures never shift or distort the UI frame.',
+        'True Native App Feel: Locked the viewport at an unshakeable 1:1 physical scale while keeping standard single-finger vertical scrolling 100% natural and fluid.',
+      ],
+    },
+    {
       version: 'b4.13.8',
       date: '2026-09-05',
       title: 'Rock-Solid iOS Safari Gesture Stability & Zero Side-to-Side Swirling',

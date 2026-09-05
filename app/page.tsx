@@ -21,6 +21,30 @@ import { APP_VERSION_SHORT } from '@/lib/version';
 export default function HomePage() {
   const { activeTab, experienceMode } = useHealth();
 
+  // Enforce zero pinch-to-zoom and rock-solid 1:1 scale on iOS Safari
+  React.useEffect(() => {
+    const handleTouchMove = (e: TouchEvent) => {
+      if (e.touches.length > 1) {
+        e.preventDefault();
+      }
+    };
+    const handleGesture = (e: Event) => {
+      e.preventDefault();
+    };
+
+    document.addEventListener('touchmove', handleTouchMove, { passive: false });
+    document.addEventListener('gesturestart', handleGesture, { passive: false });
+    document.addEventListener('gesturechange', handleGesture, { passive: false });
+    document.addEventListener('gestureend', handleGesture, { passive: false });
+
+    return () => {
+      document.removeEventListener('touchmove', handleTouchMove);
+      document.removeEventListener('gesturestart', handleGesture);
+      document.removeEventListener('gesturechange', handleGesture);
+      document.removeEventListener('gestureend', handleGesture);
+    };
+  }, []);
+
   return (
     <div className="flex min-h-screen bg-background text-foreground relative w-full max-w-full min-w-0 overflow-x-hidden overscroll-x-none [touch-action:pan-y]">
       {/* Persistent Responsive Sidebar Navigation (Desktop) */}

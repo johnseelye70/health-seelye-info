@@ -1,5 +1,5 @@
 # Seelye Family Health — Precision Fitness & Nutrition Application
-**Version: Beta v4.13.8 (b4.13.8)** | **Production Domain: https://health.seelye.info**
+**Version: Beta v4.13.9 (b4.13.9)** | **Production Domain: https://health.seelye.info**
 
 High-performance, dark-mode first athletic health and nutrition platform engineered with Next.js (App Router), TypeScript, Tailwind CSS, Supabase (PostgreSQL), and integrated Wholesome Recipe & Meal Prep Engine.
 
@@ -7,7 +7,12 @@ High-performance, dark-mode first athletic health and nutrition platform enginee
 
 ## ⚡ Key Architectural Modules
 
-### 1. Rock-Solid iOS Safari Gesture Stability & Zero Side-to-Side Swirling (Beta v4.13.8)
+### 1. Complete Pinch-to-Zoom & Multi-Touch Scale Lockdown for iOS Safari (Beta v4.13.9)
+- **Zero Pinch-to-Zoom:** Intercepted WebKit `gesturestart`, `gesturechange`, and `gestureend` events with active `preventDefault` guards, completely stopping iOS Safari from zooming or scaling when multiple fingers touch the screen.
+- **Multi-Finger Canvas Pan Elimination:** Blocked multi-touch `touchmove` (`e.touches.length > 1`), ensuring accidental two-thumb or pinch gestures never shift or distort the UI frame.
+- **True Native App Feel:** Locked the viewport at an unshakeable 1:1 physical scale while keeping standard single-finger vertical scrolling 100% natural and fluid.
+
+### 2. Rock-Solid iOS Safari Gesture Stability & Zero Side-to-Side Swirling (Beta v4.13.8)
 - **Locked Viewport Scale & Canvas:** Configured Next.js viewport metadata with `maximumScale: 1`, `userScalable: false`, and `viewportFit: 'cover'`, completely stopping iOS Safari from shifting, swirling, or zooming the canvas in 2D space.
 - **Zero Side-to-Side Motion (`touch-action: pan-y`):** Enforced strict `touch-action: pan-y` on `html`, `body`, and page wrappers, instructing Safari to reject horizontal drag/pan gestures while keeping vertical scrolling 100% natural and fluid.
 - **Eliminated Elastic Horizontal Rubber-Banding:** Added `overscroll-behavior-x: none` to `html` and `body`, permanently terminating Safari's side-to-side history bounce and rubber-band elasticity.
