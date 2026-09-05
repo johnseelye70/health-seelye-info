@@ -286,6 +286,12 @@ interface HealthContextType {
   isDemoMode: boolean;
   activeTab: AppNavigationTab;
   setActiveTab: (tab: AppNavigationTab) => void;
+  activeGuidedStep: 1 | 2 | 3 | 4 | null;
+  setActiveGuidedStep: (step: 1 | 2 | 3 | 4 | null) => void;
+  startGuidedFlow: (step?: 1 | 2 | 3 | 4) => void;
+  nextGuidedStep: () => void;
+  prevGuidedStep: () => void;
+  exitGuidedFlow: () => void;
   showOnboardingModal: boolean;
   setShowOnboardingModal: (show: boolean) => void;
   resetAllData: () => void;
@@ -354,6 +360,7 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
   });
   
   const [activeTab, setActiveTab] = useState<AppNavigationTab>('dashboard');
+  const [activeGuidedStep, setActiveGuidedStep] = useState<1 | 2 | 3 | 4 | null>(null);
   const [showOnboardingModal, setShowOnboardingModal] = useState<boolean>(false);
   const [notificationsEnabled, setNotificationsEnabled] = useState<boolean>(false);
 
@@ -2862,6 +2869,72 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
     triggerDebouncedSync();
   }, [triggerDebouncedSync]);
 
+  // Step-by-Step Guided Daily Flow (Step 1 -> 2 -> 3 -> 4 -> Dashboard)
+  const startGuidedFlow = useCallback((step: 1 | 2 | 3 | 4 = 1) => {
+    setActiveGuidedStep(step);
+    if (step === 1) setActiveTab('fasting');
+    else if (step === 2) setActiveTab('nutrition');
+    else if (step === 3) setActiveTab('workouts');
+    else if (step === 4) setActiveTab('trends');
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, []);
+
+  const nextGuidedStep = useCallback(() => {
+    setActiveGuidedStep((prev) => {
+      if (prev === 1) {
+        setActiveTab('nutrition');
+        if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
+        return 2;
+      }
+      if (prev === 2) {
+        setActiveTab('workouts');
+        if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
+        return 3;
+      }
+      if (prev === 3) {
+        setActiveTab('trends');
+        if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
+        return 4;
+      }
+      setActiveTab('dashboard');
+      if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
+      return null;
+    });
+  }, []);
+
+  const prevGuidedStep = useCallback(() => {
+    setActiveGuidedStep((prev) => {
+      if (prev === 4) {
+        setActiveTab('workouts');
+        if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
+        return 3;
+      }
+      if (prev === 3) {
+        setActiveTab('nutrition');
+        if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
+        return 2;
+      }
+      if (prev === 2) {
+        setActiveTab('fasting');
+        if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
+        return 1;
+      }
+      setActiveTab('dashboard');
+      if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
+      return null;
+    });
+  }, []);
+
+  const exitGuidedFlow = useCallback(() => {
+    setActiveGuidedStep(null);
+    setActiveTab('dashboard');
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, []);
+
   // Simple Mode Feel-Good Movement Handlers
   const toggleSimpleMovementCompleted = useCallback((id: string) => {
     setSimpleMovementActivities((prev) =>
@@ -3489,6 +3562,12 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
         isDemoMode: !authUser && !isSupabaseConfigured,
         activeTab,
         setActiveTab,
+        activeGuidedStep,
+        setActiveGuidedStep,
+        startGuidedFlow,
+        nextGuidedStep,
+        prevGuidedStep,
+        exitGuidedFlow,
         showOnboardingModal,
         setShowOnboardingModal,
         resetAllData,

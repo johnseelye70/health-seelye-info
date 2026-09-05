@@ -1,5 +1,5 @@
 # Seelye Family Health — Precision Fitness & Nutrition Application
-**Version: Beta v4.13.9 (b4.13.9)** | **Production Domain: https://health.seelye.info**
+**Version: Beta v4.14.0 (b4.14.0)** | **Production Domain: https://health.seelye.info**
 
 High-performance, dark-mode first athletic health and nutrition platform engineered with Next.js (App Router), TypeScript, Tailwind CSS, Supabase (PostgreSQL), and integrated Wholesome Recipe & Meal Prep Engine.
 
@@ -7,7 +7,14 @@ High-performance, dark-mode first athletic health and nutrition platform enginee
 
 ## ⚡ Key Architectural Modules
 
-### 1. Complete Pinch-to-Zoom & Multi-Touch Scale Lockdown for iOS Safari (Beta v4.13.9)
+### 1. Guided Daily Step-by-Step Flow with Forward Progression & Dashboard Completion (Beta v4.14.0)
+- **End-to-End Guided Daily Flow:** Engineered an automated 4-step progression system (Step 1: Morning Check-In $\rightarrow$ Step 2: Log Meals $\rightarrow$ Step 3: Daily Movement $\rightarrow$ Step 4: Review Your Day $\rightarrow$ Dashboard).
+- **Inline Step Navigation Banners:** Added top and bottom inline walkthrough banners on every step page with direct forward buttons ("Continue to Next Step →"), previous step links, and one-tap return to dashboard.
+- **Interactive Progress Track:** Displayed live step pills (1, 2, 3, 4) with instant step jumping and real-time completion checkmarks as fasting, water, meals, and workouts are logged.
+- **Seamless Completion Handoff:** Finishing Step 4 provides a prominent "✓ Daily Flow Complete — Go to Dashboard to Begin Daily Use" button that safely exits guided mode and transitions to regular app usage.
+- **1-Tap Dashboard Launcher:** Added a "Start Today's Flow" launcher button directly inside the Dashboard Step-by-Step section.
+
+### 2. Complete Pinch-to-Zoom & Multi-Touch Scale Lockdown for iOS Safari (Beta v4.13.9)
 - **Zero Pinch-to-Zoom:** Intercepted WebKit `gesturestart`, `gesturechange`, and `gestureend` events with active `preventDefault` guards, completely stopping iOS Safari from zooming or scaling when multiple fingers touch the screen.
 - **Multi-Finger Canvas Pan Elimination:** Blocked multi-touch `touchmove` (`e.touches.length > 1`), ensuring accidental two-thumb or pinch gestures never shift or distort the UI frame.
 - **True Native App Feel:** Locked the viewport at an unshakeable 1:1 physical scale while keeping standard single-finger vertical scrolling 100% natural and fluid.

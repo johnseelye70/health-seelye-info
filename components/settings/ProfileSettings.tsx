@@ -227,6 +227,18 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'b4.14.0',
+      date: '2026-09-05',
+      title: 'Guided Daily Step-by-Step Flow with Forward Progression & Dashboard Completion',
+      changes: [
+        'End-to-End Guided Daily Flow: Engineered an automated 4-step progression system (Step 1: Morning Check-In → Step 2: Log Meals → Step 3: Daily Movement → Step 4: Review Your Day → Dashboard).',
+        'Inline Step Navigation Banners: Added top and bottom inline walkthrough banners on every step page with direct forward buttons ("Continue to Next Step →"), previous step links, and one-tap return to dashboard.',
+        'Interactive Progress Track: Displayed live step pills (1, 2, 3, 4) with instant step jumping and real-time completion checkmarks as fasting, water, meals, and workouts are logged.',
+        'Seamless Completion Handoff: Finishing Step 4 provides a prominent "✓ Daily Flow Complete — Go to Dashboard to Begin Daily Use" button that safely exits guided mode and transitions to regular app usage.',
+        '1-Tap Dashboard Launcher: Added a "Start Today\'s Flow" launcher button directly inside the Dashboard Step-by-Step section.',
+      ],
+    },
+    {
       version: 'b4.13.9',
       date: '2026-09-05',
       title: 'Complete Pinch-to-Zoom & Multi-Touch Scale Lockdown for iOS Safari',

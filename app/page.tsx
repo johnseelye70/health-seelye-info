@@ -16,10 +16,11 @@ import { TutorialMasterHub } from '@/components/tutorial/TutorialMasterHub';
 import { RollingSchedulePlanner } from '@/components/planner/RollingSchedulePlanner';
 import { OnboardingModal } from '@/components/onboarding/OnboardingModal';
 import { AuthModal } from '@/components/auth/AuthModal';
+import { GuidedStepFlowBanner, GuidedStepFlowBottomBar } from '@/components/dashboard/GuidedStepFlowBanner';
 import { APP_VERSION_SHORT } from '@/lib/version';
 
 export default function HomePage() {
-  const { activeTab, experienceMode } = useHealth();
+  const { activeTab, experienceMode, activeGuidedStep } = useHealth();
 
   // Enforce zero pinch-to-zoom and rock-solid 1:1 scale on iOS Safari
   React.useEffect(() => {
@@ -57,6 +58,9 @@ export default function HomePage() {
 
         {/* Dynamic Screen View Content */}
         <main className="flex-1 p-3.5 sm:p-5 md:p-8 max-w-7xl w-full min-w-0 mx-auto overflow-x-hidden">
+          {/* Guided Step-by-Step Flow Banner (Top) */}
+          {activeGuidedStep && <GuidedStepFlowBanner />}
+
           {activeTab === 'dashboard' && (experienceMode === 'tutorial' ? <TutorialMasterHub /> : <DashboardOverview />)}
           {activeTab === 'planner' && <RollingSchedulePlanner />}
           {activeTab === 'nutrition' && <MealPlanner />}
@@ -65,6 +69,9 @@ export default function HomePage() {
           {activeTab === 'grocery' && <GroceryManager />}
           {activeTab === 'trends' && <ProgressTrends />}
           {activeTab === 'settings' && <ProfileSettings />}
+
+          {/* Guided Step-by-Step Flow Completion Bar (Bottom) */}
+          {activeGuidedStep && <GuidedStepFlowBottomBar />}
 
           {/* Mobile View Version Footer (Always visible on iPhone at bottom of document stream) */}
           <footer className="md:hidden text-center pt-8 pb-4 text-xs text-zinc-500 flex flex-col items-center justify-center gap-1 border-t border-surface-border/40 mt-8 select-none">

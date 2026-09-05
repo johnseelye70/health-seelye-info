@@ -29,6 +29,7 @@ import {
   RotateCcw,
   RefreshCw,
   Cloud,
+  Play,
 } from 'lucide-react';
 import { FASTING_CONFIGS } from '@/lib/macro-calculator';
 import { HydrationTracker } from '@/components/dashboard/HydrationTracker';
@@ -48,6 +49,7 @@ export const DashboardOverview: React.FC = () => {
     activeDay,
     toggleExerciseCompleted,
     setActiveTab,
+    startGuidedFlow,
     currentDayFoodLogs,
     mealSplitTargets,
     experienceMode,
@@ -210,15 +212,28 @@ export const DashboardOverview: React.FC = () => {
                   Follow these 4 simple steps to stay consistent, reach your daily targets, and build lifelong healthy habits.
                 </p>
               </div>
-              <div className="flex items-center gap-1.5 text-xs font-mono font-bold text-brand-400 bg-brand-500/10 border border-brand-500/20 px-3 py-1 rounded-full w-fit">
-                <span>{completedCount} of 4 Completed</span>
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    const nextStep = !step1Done ? 1 : !step2Done ? 2 : !step3Done ? 3 : !step4Done ? 4 : 1;
+                    startGuidedFlow(nextStep);
+                  }}
+                  className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold bg-brand-500 hover:bg-brand-400 text-zinc-950 transition-all shadow-md active:scale-95 cursor-pointer"
+                >
+                  <Play className="w-3.5 h-3.5 fill-zinc-950" />
+                  <span>{completedCount === 4 ? 'Review Steps (1-4) →' : `Start Flow (Step ${!step1Done ? 1 : !step2Done ? 2 : !step3Done ? 3 : 4}) →`}</span>
+                </button>
+                <div className="flex items-center gap-1.5 text-xs font-mono font-bold text-brand-400 bg-brand-500/10 border border-brand-500/20 px-3 py-1 rounded-full w-fit">
+                  <span>{completedCount} of 4 Completed</span>
+                </div>
               </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
               {/* Step 1 */}
               <div
-                onClick={() => setActiveTab('fasting')}
+                onClick={() => startGuidedFlow(1)}
                 className={`p-4 rounded-2xl border transition-all cursor-pointer ${
                   step1Done
                     ? 'bg-emerald-500/10 border-emerald-500/30 hover:border-emerald-500/50'
@@ -243,7 +258,7 @@ export const DashboardOverview: React.FC = () => {
 
               {/* Step 2 */}
               <div
-                onClick={() => setActiveTab('nutrition')}
+                onClick={() => startGuidedFlow(2)}
                 className={`p-4 rounded-2xl border transition-all cursor-pointer ${
                   step2Done
                     ? 'bg-emerald-500/10 border-emerald-500/30 hover:border-emerald-500/50'
@@ -270,7 +285,7 @@ export const DashboardOverview: React.FC = () => {
 
               {/* Step 3 */}
               <div
-                onClick={() => setActiveTab('workouts')}
+                onClick={() => startGuidedFlow(3)}
                 className={`p-4 rounded-2xl border transition-all cursor-pointer ${
                   step3Done
                     ? 'bg-emerald-500/10 border-emerald-500/30 hover:border-emerald-500/50'
@@ -299,7 +314,7 @@ export const DashboardOverview: React.FC = () => {
 
               {/* Step 4 */}
               <div
-                onClick={() => setActiveTab('trends')}
+                onClick={() => startGuidedFlow(4)}
                 className={`p-4 rounded-2xl border transition-all cursor-pointer ${
                   step4Done
                     ? 'bg-emerald-500/10 border-emerald-500/30 hover:border-emerald-500/50'
