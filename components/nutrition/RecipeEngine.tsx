@@ -13,6 +13,7 @@ import {
   UnitPreference,
 } from '@/lib/types';
 import { COMPREHENSIVE_RECIPE_DATABASE, RECIPE_SUB_CATEGORIES } from '@/lib/recipe-database';
+import { WHOLESOME_RECIPE_ITEMS } from '@/lib/wholesome-meals';
 import {
   getSmartSwapsForIngredient,
   calculateCustomizedRecipe,
@@ -50,6 +51,8 @@ interface RecipeEngineProps {
   isOpen?: boolean;
   onClose?: () => void;
   isModal?: boolean;
+  initialRecipeId?: string;
+  initialRecipe?: RecipeItem | null;
 }
 
 export type PrintFormat = 'index_card_4x6' | 'standard_letter';
@@ -58,6 +61,8 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
   isOpen = true,
   onClose,
   isModal = true,
+  initialRecipeId,
+  initialRecipe = null,
 }) => {
   const { profile, experienceMode, logFood, deleteFoodLog, addGroceryItem, setActiveTab, selectedDate, todayDate } = useHealth();
 
@@ -76,7 +81,7 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
   const [selectedTargetStore, setSelectedTargetStore] = useState<GroceryStoreTag>('all');
 
   // Selected recipe for 100% Inline Detail View
-  const [selectedRecipeDetail, setSelectedRecipeDetail] = useState<RecipeItem | null>(null);
+  const [selectedRecipeDetail, setSelectedRecipeDetail] = useState<RecipeItem | null>(initialRecipe);
 
   // Dynamic Ingredient Swaps State (keyed by ingredient index in selected recipe)
   const [activeSwaps, setActiveSwaps] = useState<Record<number, RecipeIngredientSwapOption>>({});
@@ -105,10 +110,25 @@ export const RecipeEngine: React.FC<RecipeEngineProps> = ({
     showNutritionLink?: boolean;
   } | null>(null);
 
-  // All combined recipes
+  // All combined recipes with Wholesome Recipes as an extension of the recipe section
   const allRecipes = useMemo(() => {
-    return [...customRecipes, ...COMPREHENSIVE_RECIPE_DATABASE];
+    const combined = [...customRecipes, ...COMPREHENSIVE_RECIPE_DATABASE, ...WHOLESOME_RECIPE_ITEMS];
+    const seen = new Set<string>();
+    return combined.filter((r) => {
+      if (seen.has(r.id)) return false;
+      seen.add(r.id);
+      return true;
+    });
   }, [customRecipes]);
+
+  React.useEffect(() => {
+    if (initialRecipe) {
+      setSelectedRecipeDetail(initialRecipe);
+    } else if (initialRecipeId) {
+      const found = allRecipes.find((r) => r.id === initialRecipeId);
+      if (found) setSelectedRecipeDetail(found);
+    }
+  }, [initialRecipe, initialRecipeId, allRecipes]);
 
   // Available subcategories based on active category
   const availableSubCategories = useMemo(() => {

@@ -1,5 +1,5 @@
 # Seelye Family Health — Precision Fitness & Nutrition Application
-**Version: Beta v4.15.0 (b4.15.0)** | **Production Domain: https://health.seelye.info**
+**Version: Beta v4.16.0 (b4.16.0)** | **Production Domain: https://health.seelye.info**
 
 High-performance, dark-mode first athletic health and nutrition platform engineered with Next.js (App Router), TypeScript, Tailwind CSS, Supabase (PostgreSQL), and integrated Wholesome Recipe & Meal Prep Engine.
 
@@ -7,7 +7,15 @@ High-performance, dark-mode first athletic health and nutrition platform enginee
 
 ## ⚡ Key Architectural Modules
 
-### 1. Daily Randomized 1-Tap Wholesome Meals & Smart Chef Suggestion Engine (Beta v4.15.0)
+### 1. View & Modify Wholesome Recipe Ingredients & Extension of Recipe Studio (Beta v4.16.0)
+- **100% Inline Recipe & Ingredient Customizer:** Tapping into any of the 4 daily wholesome meals or the Chef's smart suggestion expands a comprehensive, zero-modal inline customizer directly within the document stream.
+- **Granular Ingredient Quantity Steppers:** Tailor every ingredient amount individually with `[+]` and `[-]` 0.25x fine steppers, or omit ingredients completely, with live calculated weight (oz/grams) and calorie contributions.
+- **Smart Culinary Ingredient Swaps:** Integrated the authentic culinary swap engine into wholesome meals, allowing users to swap ingredients (e.g. sourdough, Greek yogurt, chicken, egg whites, almond milk) with real-time macro updates and dynamic culinary adjustments.
+- **Live Dynamic Macronutrient Recalculation:** Real-time recalculation of calories, protein, carbs, and healthy fats as portions are scaled (0.5x, 1x, 1.5x, 2x) or ingredients are customized, complete with visual delta badges.
+- **Store-Routed Grocery List Integration:** Added a destination store selector (Aldi, Meijer, Sam's Club, Costco, Walmart, All Stores) and a 1-tap button to sync customized, scaled ingredients straight to the user's active shopping list.
+- **First-Class Recipe Studio Extension:** Merged all 28 wholesome plates into the master recipe database (`WHOLESOME_RECIPE_ITEMS` in `RecipeEngine`), enabling full cross-navigation, print preview index cards, and category filtering across the entire app.
+
+### 2. Daily Randomized 1-Tap Wholesome Meals & Smart Chef Suggestion Engine (Beta v4.15.0)
 - **Daily Meal Rotation:** Built a 28-plate wholesome culinary database (7 Breakfasts, 7 Lunches, 7 Dinners, 7 Snacks) with deterministic daily date hashing, automatically serving up a fresh balanced 4-meal daily menu every morning.
 - **On-Demand Daily Shuffle:** Added an interactive "Shuffle Daily" control that lets users cycle through alternative fresh 4-plate combinations on demand with instant seed advancement.
 - **Context-Aware Smart Chef Suggestions:** Integrated an intelligent recommendation spotlight analyzing the user's local hour (morning breakfast, midday power lunch, evening dinner, late recovery fuel), remaining calorie budget, and fasting status to offer personalized meals with chef rationales.

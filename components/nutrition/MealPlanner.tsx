@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { useHealth } from '@/context/HealthContext';
 import { MacroProgressRing } from './MacroProgressRing';
-import { FoodItem, BuiltCustomMeal, FoodLogEntry, MealIngredient } from '@/lib/types';
+import { FoodItem, BuiltCustomMeal, FoodLogEntry, MealIngredient, RecipeItem } from '@/lib/types';
 import { calculateSwapEquivalentGrams } from '@/lib/macro-calculator';
 import { calculateMealDetailedNutrition } from '@/lib/nutrition-calculator';
 import { FoodDatabaseBrowser } from './FoodDatabaseBrowser';
@@ -213,6 +213,7 @@ export const MealPlanner: React.FC = () => {
   // Search & Logging Modal State
   const [selectedMealIndex, setSelectedMealIndex] = useState<number | null>(null);
   const [showRecipeModal, setShowRecipeModal] = useState<boolean>(false);
+  const [selectedRecipeForModal, setSelectedRecipeForModal] = useState<RecipeItem | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [selectedCategoryFilter, setSelectedCategoryFilter] = useState<string>('all');
   const [selectedFoodForLog, setSelectedFoodForLog] = useState<FoodItem | null>(null);
@@ -734,7 +735,16 @@ export const MealPlanner: React.FC = () => {
           </div>
 
           {/* 1-Tap Wholesome Meals with Daily Rotation & Smart Suggestions */}
-          <WholesomeMealsSection onBrowseRecipes={() => setShowRecipeModal(true)} />
+          <WholesomeMealsSection
+            onBrowseRecipes={() => {
+              setSelectedRecipeForModal(null);
+              setShowRecipeModal(true);
+            }}
+            onOpenRecipe={(recipe) => {
+              setSelectedRecipeForModal(recipe);
+              setShowRecipeModal(true);
+            }}
+          />
 
           {/* Today's Logged Food Items List */}
           <div className="p-6 rounded-3xl bg-surface-100/90 border border-surface-border backdrop-blur-xl space-y-4">
@@ -1508,7 +1518,11 @@ export const MealPlanner: React.FC = () => {
       <RecipeEngine
         isModal={true}
         isOpen={showRecipeModal}
-        onClose={() => setShowRecipeModal(false)}
+        onClose={() => {
+          setShowRecipeModal(false);
+          setSelectedRecipeForModal(null);
+        }}
+        initialRecipe={selectedRecipeForModal}
       />
     </div>
   );

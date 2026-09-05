@@ -227,6 +227,19 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'b4.16.0',
+      date: '2026-09-05',
+      title: 'View & Modify Wholesome Recipe Ingredients & Seamless Extension of Recipe Studio',
+      changes: [
+        '100% Inline Recipe & Ingredient Customizer: Tapping into any of the 4 daily wholesome meals or the Chef\'s smart suggestion expands a comprehensive, zero-modal inline customizer directly within the document stream.',
+        'Granular Ingredient Quantity Steppers: Tailor every ingredient amount individually with [+] and [-] 0.25x fine steppers, or omit ingredients completely, with live calculated weight (oz/grams) and calorie contributions.',
+        'Smart Culinary Ingredient Swaps: Integrated the authentic culinary swap engine into wholesome meals, allowing users to swap ingredients (e.g. sourdough, Greek yogurt, chicken, egg whites, almond milk) with real-time macro updates and dynamic culinary adjustments.',
+        'Live Dynamic Macronutrient Recalculation: Real-time recalculation of calories, protein, carbs, and healthy fats as portions are scaled (0.5x, 1x, 1.5x, 2x) or ingredients are customized, complete with visual delta badges.',
+        'Store-Routed Grocery List Integration: Added a destination store selector (Aldi, Meijer, Sam\'s Club, Costco, Walmart, All Stores) and a 1-tap button to sync customized, scaled ingredients straight to the user\'s active shopping list.',
+        'First-Class Recipe Studio Extension: Merged all 28 wholesome plates into the master recipe database (WHOLESOME_RECIPE_ITEMS in RecipeEngine), enabling full cross-navigation, print preview index cards, and category filtering across the entire app.',
+      ],
+    },
+    {
       version: 'b4.15.0',
       date: '2026-09-05',
       title: 'Daily Randomized 1-Tap Wholesome Meals & Smart Chef Suggestion Engine',

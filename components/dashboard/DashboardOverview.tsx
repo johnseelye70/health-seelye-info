@@ -32,6 +32,7 @@ import {
   Play,
 } from 'lucide-react';
 import { FASTING_CONFIGS } from '@/lib/macro-calculator';
+import { RecipeItem } from '@/lib/types';
 import { HydrationTracker } from '@/components/dashboard/HydrationTracker';
 import { StepTracker } from '@/components/dashboard/StepTracker';
 import { RecipeEngine } from '@/components/nutrition/RecipeEngine';
@@ -75,6 +76,7 @@ export const DashboardOverview: React.FC = () => {
 
   const isStandard = experienceMode === 'standard' || experienceMode === 'tutorial';
   const [showDashboardRecipeModal, setShowDashboardRecipeModal] = useState<boolean>(false);
+  const [selectedDashboardRecipe, setSelectedDashboardRecipe] = useState<RecipeItem | null>(null);
   const [showDashboardMovementModal, setShowDashboardMovementModal] = useState<boolean>(false);
   const [standardWaterCustomOz, setStandardWaterCustomOz] = useState<number>(8);
 
@@ -526,7 +528,16 @@ export const DashboardOverview: React.FC = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Left 2 Columns: 1-Tap Wholesome Meals */}
             <div className="lg:col-span-2 space-y-6">
-              <WholesomeMealsSection onBrowseRecipes={() => setShowDashboardRecipeModal(true)} />
+              <WholesomeMealsSection
+                onBrowseRecipes={() => {
+                  setSelectedDashboardRecipe(null);
+                  setShowDashboardRecipeModal(true);
+                }}
+                onOpenRecipe={(recipe) => {
+                  setSelectedDashboardRecipe(recipe);
+                  setShowDashboardRecipeModal(true);
+                }}
+              />
 
               {/* Eating Schedule Card */}
               <div className="p-6 rounded-3xl bg-surface-100/90 border border-surface-border backdrop-blur-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -957,7 +968,11 @@ export const DashboardOverview: React.FC = () => {
       <RecipeEngine
         isModal={true}
         isOpen={showDashboardRecipeModal}
-        onClose={() => setShowDashboardRecipeModal(false)}
+        onClose={() => {
+          setShowDashboardRecipeModal(false);
+          setSelectedDashboardRecipe(null);
+        }}
+        initialRecipe={selectedDashboardRecipe}
       />
     </div>
   );
