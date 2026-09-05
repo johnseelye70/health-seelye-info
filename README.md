@@ -1,5 +1,5 @@
 # Seelye Family Health — Precision Fitness & Nutrition Application
-**Version: Beta v4.13.6 (b4.13.6)** | **Production Domain: https://health.seelye.info**
+**Version: Beta v4.13.7 (b4.13.7)** | **Production Domain: https://health.seelye.info**
 
 High-performance, dark-mode first athletic health and nutrition platform engineered with Next.js (App Router), TypeScript, Tailwind CSS, Supabase (PostgreSQL), and integrated Wholesome Recipe & Meal Prep Engine.
 
@@ -7,7 +7,14 @@ High-performance, dark-mode first athletic health and nutrition platform enginee
 
 ## ⚡ Key Architectural Modules
 
-### 1. Standard Mode Water Reset & Truthful Cross-Device Sync (Beta v4.13.6)
+### 1. Automated Real-Time Cross-Device Background Sync Architecture (Beta v4.13.7)
+- **Supabase Realtime WebSockets:** Connected live `postgres_changes` channel subscriptions on `public.profiles` and `public.food_logs`. When food, hydration, or meals are logged or updated on one device, the other device automatically syncs within milliseconds without manual intervention.
+- **Sub-Second 400ms Push Debounce:** Reduced cloud write debounce from 1,500ms to 400ms, pushing food entries, water logs, and custom meals to the cloud almost instantaneously.
+- **Immediate Auto-Sync on Tab Navigation:** Navigating between Dashboard, Food Diary, Fasting, and Workouts triggers instant background data reconciliation.
+- **Eager 8-Second Polling & Mobile App Lifecycle Resume:** Dropped visibility fallback polling from 30s to 8s, and added listeners for window focus, pageshow, and screen unlock/visibilitychange on iOS Safari.
+- **Universal Mutation Auto-Sync:** Hooked automated background cloud sync into custom meal creation, meal deletions, and body weight logs alongside food diary and hydration adjustments.
+
+### 2. Standard Mode Water Reset & Truthful Cross-Device Sync (Beta v4.13.6)
 - **Universal Standard Mode Water Reset:** Added prominent, high-contrast `[ ↺ Reset ]` buttons directly to the Standard Mode Water & Hydration card header and an inline `(Reset to 0)` link beside the ounce readout on both iPhone and desktop.
 - **Always-Visible Hydration Engine Reset:** Removed restrictive entry guards so the `[ ↺ Reset Water ]` button is always visible in the card header, quick log containers, and history modal regardless of current count.
 - **Resolved UTC Midnight Water Inflation:** Upgraded `isWaterKilled` to match entries within 36 hours of the reset timestamp, preventing old iPhone local logs from incorrectly merging with cloud logs and skewing water totals higher.

@@ -1442,7 +1442,7 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
     }
     syncDebounceTimerRef.current = setTimeout(() => {
       performCloudSync().catch(() => {});
-    }, 1500);
+    }, 400);
   }, [performCloudSync]);
 
   // 4. Supabase Auth Session Listener (Zero-Loop Stable Lifecycle)
@@ -1481,13 +1481,58 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
     return () => subscription.unsubscribe();
   }, [performCloudSync]);
 
-  // 5. Automatic Cross-Device Poller & Lifecycle Sync (Tab Focus, App Open, Page Visibility)
+  // 5. Immediate Auto-Sync on Tab Switch (Food Diary, Dashboard, Fasting, Workouts)
+  useEffect(() => {
+    if (authUser && isSupabaseConfigured && supabase) {
+      performCloudSync().catch(() => {});
+    }
+  }, [activeTab, authUser, performCloudSync]);
+
+  // 6. Automatic Cross-Device Realtime & Lifecycle Auto-Sync
   useEffect(() => {
     if (!isSupabaseConfigured || !supabase || !authUser) return;
 
+    const client = supabase;
+
+    // A. Sub-Second Realtime WebSocket Subscription
+    // When Laptop updates profiles or food_logs, Supabase Realtime notifies iPhone instantly
+    let channel: any = null;
+    try {
+      channel = client
+        .channel(`sync-realtime:${authUser.id}`)
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'profiles',
+            filter: `id=eq.${authUser.id}`,
+          },
+          () => {
+            performCloudSync().catch(() => {});
+          }
+        )
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'food_logs',
+            filter: `user_id=eq.${authUser.id}`,
+          },
+          () => {
+            performCloudSync().catch(() => {});
+          }
+        )
+        .subscribe();
+    } catch (realtimeErr) {
+      console.warn('Realtime channel subscription error:', realtimeErr);
+    }
+
+    // B. Lifecycle Events (Tab Focus, App Switch, Screen Unlock)
     const handleLifecycleSync = () => {
-      if (document.visibilityState === 'visible') {
-        performCloudSync();
+      if (typeof document !== 'undefined' && document.visibilityState === 'visible') {
+        performCloudSync().catch(() => {});
       }
     };
 
@@ -1495,14 +1540,19 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
     window.addEventListener('pageshow', handleLifecycleSync);
     document.addEventListener('visibilitychange', handleLifecycleSync);
 
-    // Background interval check every 30s
+    // C. Eager Background Interval (every 8 seconds when app is open)
     const interval = setInterval(() => {
-      if (document.visibilityState === 'visible') {
-        performCloudSync();
+      if (typeof document !== 'undefined' && document.visibilityState === 'visible') {
+        performCloudSync().catch(() => {});
       }
-    }, 30000);
+    }, 8000);
 
     return () => {
+      if (channel) {
+        try {
+          client.removeChannel(channel);
+        } catch {}
+      }
       window.removeEventListener('focus', handleLifecycleSync);
       window.removeEventListener('pageshow', handleLifecycleSync);
       document.removeEventListener('visibilitychange', handleLifecycleSync);
@@ -1842,11 +1892,13 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
       }
       return [meal, ...prev];
     });
-  }, []);
+    triggerDebouncedSync();
+  }, [triggerDebouncedSync]);
 
   const deleteCustomMeal = useCallback((id: string) => {
     setCustomMeals((prev) => prev.filter((m) => m.id !== id));
-  }, []);
+    triggerDebouncedSync();
+  }, [triggerDebouncedSync]);
 
   const logBuiltMealToDiary = useCallback(
     (
@@ -2807,7 +2859,8 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
         })
         .then(() => {});
     }
-  }, []);
+    triggerDebouncedSync();
+  }, [triggerDebouncedSync]);
 
   // Simple Mode Feel-Good Movement Handlers
   const toggleSimpleMovementCompleted = useCallback((id: string) => {

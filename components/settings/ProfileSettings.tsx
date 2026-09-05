@@ -227,6 +227,18 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'b4.13.7',
+      date: '2026-09-04',
+      title: 'Automated Real-Time Cross-Device Background Sync Architecture',
+      changes: [
+        'Supabase Realtime WebSockets: Connected live postgres_changes channel subscriptions on public.profiles and public.food_logs. When food or water is logged or updated on one device, the other device automatically syncs within milliseconds without manual intervention.',
+        'Sub-Second 400ms Push Debounce: Reduced cloud write debounce from 1,500ms to 400ms, pushing food entries, water logs, and custom meals to the cloud almost instantaneously.',
+        'Immediate Auto-Sync on Tab Navigation: Navigating between Dashboard, Food Diary, Fasting, and Workouts triggers instant background data reconciliation.',
+        'Eager 8-Second Polling & Mobile App Lifecycle Resume: Dropped visibility fallback polling from 30s to 8s, and added listeners for window focus, pageshow, and screen unlock/visibilitychange on iOS Safari.',
+        'Universal Mutation Auto-Sync: Hooked automated background cloud sync into custom meal creation, meal deletions, and body weight logs alongside food diary and hydration adjustments.',
+      ],
+    },
+    {
       version: 'b4.13.6',
       date: '2026-09-04',
       title: 'Standard Mode Water Reset Buttons & Truthful Cross-Device Sync Status',
