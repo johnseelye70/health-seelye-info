@@ -227,6 +227,18 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'b4.16.3',
+      date: '2026-09-05',
+      title: 'Realtime Ping-Pong Termination, Read-Only Pull Guard & 3s Sync Cooldown',
+      changes: [
+        'Dismantled Realtime WebSocket Ping-Pong Cascade: Removed live PostgreSQL database subscriptions on profiles and food_logs that caused multi-device ping-pong feedback loops and delayed self-echo sync storms on mobile browsers.',
+        'Eliminated Spurious Lifecycle Listeners: Purged high-frequency window focus and pageshow listeners on iOS Safari, restricting lifecycle sync triggers strictly to explicit document visibilitychange resumes.',
+        'Strict Read-Only Pull & Deep Equality Guard: Implemented deep structural JSON comparison across bundle food_logs, water_logs, custom_meals, movements, workout_logs, and scheduled_plans, guaranteeing that pulling data from the cloud never triggers a redundant push back to the cloud.',
+        '3-Second Automated Sync Cooldown Guard: Enforced an unshakeable 3,000ms cooldown timer on all automated sync invocations, completely preventing rapid oscillation between "Syncing..." and "Sync Now".',
+        'Decoupled Auth State Change: Stripped automatic sync triggers from onAuthStateChange, delegating initial synchronization exclusively to getSession on startup and manual user interactions.',
+      ],
+    },
+    {
       version: 'b4.16.2',
       date: '2026-09-05',
       title: 'State-Effect Loop Termination & Tab-Switch Sync Stabilization',

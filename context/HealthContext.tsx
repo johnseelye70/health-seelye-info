@@ -657,8 +657,8 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
 
   const isSyncingRef = useRef<boolean>(false);
   const syncDebounceTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const lastLocalProfileWriteRef = useRef<number>(0);
   const prevTabRef = useRef<string>(activeTab);
+  const lastSyncCompletionRef = useRef<number>(0);
 
   // Helper to push local profile to cloud safely via UPSERT with onConflict: 'id'
   const pushLocalProfileToCloud = async (client: any, user: any, p: UserProfile) => {
@@ -699,14 +699,20 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  // 3. Supabase Cloud Sync Engine (Non-Destructive Reconciliation with Mutex Guard)
-  const performCloudSync = useCallback(async (targetUser?: any) => {
+  // 3. Supabase Cloud Sync Engine (Non-Destructive Reconciliation with Mutex & Cooldown Guard)
+  const performCloudSync = useCallback(async (targetUser?: any, isManual: boolean = false) => {
     const user = targetUser || authUserRef.current;
     if (!isSupabaseConfigured || !supabase || !user) {
       if (!user) setSyncStatus('local_only');
       return;
     }
     if (isSyncingRef.current) return; // Prevent concurrent re-entrant executions
+
+    const now = Date.now();
+    // Enforce a strict 3-second cooldown between consecutive automated sync executions
+    if (!isManual && now - lastSyncCompletionRef.current < 3000) {
+      return;
+    }
 
     isSyncingRef.current = true;
     setSyncStatus('syncing');
@@ -1251,14 +1257,15 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
         let mergedMovements = localSimpleMovements;
         const cloudMovements: SimpleMovementActivity[] = Array.isArray(cloudBundle?.simple_movements) ? cloudBundle.simple_movements : [];
         if (cloudMovements.length > 0) {
-          const localCount = localSimpleMovements.length;
-          const cloudCount = cloudMovements.length;
-          if (cloudCount > 0 && localCount === 0) {
+          if (localSimpleMovements.length === 0) {
             mergedMovements = cloudMovements;
             setSimpleMovementActivities(mergedMovements);
             simpleMovementsRef.current = mergedMovements;
-          } else if (localCount > 0) {
-            hasBundleUpdate = true;
+          } else {
+            const cloudIds = new Set(cloudMovements.map((m) => m.id));
+            if (localSimpleMovements.some((m) => !cloudIds.has(m.id))) {
+              hasBundleUpdate = true;
+            }
           }
         } else if (localSimpleMovements.length > 0) {
           hasBundleUpdate = true;
@@ -1352,7 +1359,8 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
         // 6. Scheduled Plans Reconciliation
         const cloudPlans: Record<string, ScheduledDayPlan> = (cloudBundle?.scheduled_plans && typeof cloudBundle.scheduled_plans === 'object') ? cloudBundle.scheduled_plans : {};
         const mergedPlans = { ...cloudPlans, ...localScheduledPlans };
-        if (Object.keys(localScheduledPlans).length > 0) {
+        const localPlanKeys = Object.keys(localScheduledPlans);
+        if (localPlanKeys.some((k) => !cloudPlans[k])) {
           hasBundleUpdate = true;
         }
         setScheduledPlans(mergedPlans);
@@ -1392,7 +1400,21 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
         const isFreshFoodDevice = localFoodLogs.length === 0 && (cloudBundleFoodLogs.length > 0 || cloudFoodLogs.length > 0);
         
         // Save bundle ONLY if there was an actual local update or the cloud is missing a bundle
-        const shouldSaveBundle = (hasBundleUpdate || !cloudBundle || !cloudBundle.food_logs) && !isFreshFoodDevice;
+        let shouldSaveBundle = (hasBundleUpdate || !cloudBundle) && !isFreshFoodDevice;
+
+        if (shouldSaveBundle && cloudBundle) {
+          // Deep structural check: cancel write if cloud already contains identical data
+          const foodSame = JSON.stringify(updatedBundle.food_logs) === JSON.stringify(cloudBundle.food_logs || []);
+          const waterSame = JSON.stringify(updatedBundle.water_logs) === JSON.stringify(cloudBundle.water_logs || []);
+          const mealsSame = JSON.stringify(updatedBundle.custom_meals) === JSON.stringify(cloudBundle.custom_meals || []);
+          const movesSame = JSON.stringify(updatedBundle.simple_movements) === JSON.stringify(cloudBundle.simple_movements || []);
+          const worksSame = JSON.stringify(updatedBundle.workout_logs) === JSON.stringify(cloudBundle.workout_logs || []);
+          const plansSame = JSON.stringify(updatedBundle.scheduled_plans) === JSON.stringify(cloudBundle.scheduled_plans || {});
+
+          if (foodSame && waterSame && mealsSame && movesSame && worksSame && plansSame) {
+            shouldSaveBundle = false;
+          }
+        }
 
         if (shouldSaveBundle) {
           const currentEq = (cloudProfile?.equipment_inventory && typeof cloudProfile.equipment_inventory === 'object')
@@ -1403,9 +1425,6 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
             step_logs: (stepLogsRef.current || []).slice(0, 30),
             app_sync_bundle: updatedBundle,
           };
-
-          // Record timestamp of this local write to ignore self-echo Realtime events
-          lastLocalProfileWriteRef.current = Date.now();
 
           // Authoritative PostgreSQL Profile upsert (guarantees row exists and persists bundle across all devices)
           const { error: profUpdateErr } = await (client.from('profiles') as any).upsert({
@@ -1432,6 +1451,7 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
     } finally {
       clearTimeout(watchdogTimer);
       isSyncingRef.current = false;
+      lastSyncCompletionRef.current = Date.now();
     }
   }, []);
 
@@ -1440,7 +1460,7 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
       setShowAuthModal(true);
       return;
     }
-    await performCloudSync();
+    await performCloudSync(undefined, true);
   }, [performCloudSync]);
 
   const triggerDebouncedSync = useCallback(() => {
@@ -1492,14 +1512,7 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
       const user = session?.user || null;
       setAuthUser(user);
       authUserRef.current = user;
-      if (user) {
-        // Only sync on explicit SIGNED_IN event. Never sync on USER_UPDATED to avoid recursion loops.
-        if (event === 'SIGNED_IN') {
-          setTimeout(() => {
-            performCloudSync(user).catch(() => {});
-          }, 200);
-        }
-      } else {
+      if (!user) {
         setSyncStatus('local_only');
       }
     });
@@ -1520,82 +1533,28 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [activeTab, performCloudSync]);
 
-  // 6. Automatic Cross-Device Realtime & Lifecycle Auto-Sync
+  // 6. Automatic Cross-Device Lifecycle & Periodic Auto-Sync (Loop-Free Architecture)
   useEffect(() => {
     if (!isSupabaseConfigured || !supabase || !authUser?.id) return;
 
-    const client = supabase;
-
-    // A. Sub-Second Realtime WebSocket Subscription
-    // When Laptop updates profiles or food_logs, Supabase Realtime notifies iPhone instantly
-    let channel: any = null;
-    try {
-      channel = client
-        .channel(`sync-realtime:${authUser.id}`)
-        .on(
-          'postgres_changes',
-          {
-            event: '*',
-            schema: 'public',
-            table: 'profiles',
-            filter: `id=eq.${authUser.id}`,
-          },
-          () => {
-            // Guard: ignore self-echo events within 4 seconds of local write
-            if (Date.now() - lastLocalProfileWriteRef.current < 4000) return;
-            if (!isSyncingRef.current) {
-              performCloudSync().catch(() => {});
-            }
-          }
-        )
-        .on(
-          'postgres_changes',
-          {
-            event: '*',
-            schema: 'public',
-            table: 'food_logs',
-            filter: `user_id=eq.${authUser.id}`,
-          },
-          () => {
-            // Guard: ignore self-echo events within 4 seconds of local write
-            if (Date.now() - lastLocalProfileWriteRef.current < 4000) return;
-            if (!isSyncingRef.current) {
-              performCloudSync().catch(() => {});
-            }
-          }
-        )
-        .subscribe();
-    } catch (realtimeErr) {
-      console.warn('Realtime channel subscription error:', realtimeErr);
-    }
-
-    // B. Lifecycle Events (Tab Focus, App Switch, Screen Unlock)
-    const handleLifecycleSync = () => {
+    // A. Lifecycle Visibility Resume (Screen Unlock, Tab Return)
+    const handleVisibilitySync = () => {
       if (typeof document !== 'undefined' && document.visibilityState === 'visible' && !isSyncingRef.current) {
         performCloudSync().catch(() => {});
       }
     };
 
-    window.addEventListener('focus', handleLifecycleSync);
-    window.addEventListener('pageshow', handleLifecycleSync);
-    document.addEventListener('visibilitychange', handleLifecycleSync);
+    document.addEventListener('visibilitychange', handleVisibilitySync);
 
-    // C. Eager Background Interval (every 15 seconds when app is open and visible)
+    // B. Periodic Background Polling (Every 45 seconds when page is open and active)
     const interval = setInterval(() => {
       if (typeof document !== 'undefined' && document.visibilityState === 'visible' && !isSyncingRef.current) {
         performCloudSync().catch(() => {});
       }
-    }, 15000);
+    }, 45000);
 
     return () => {
-      if (channel) {
-        try {
-          client.removeChannel(channel);
-        } catch {}
-      }
-      window.removeEventListener('focus', handleLifecycleSync);
-      window.removeEventListener('pageshow', handleLifecycleSync);
-      document.removeEventListener('visibilitychange', handleLifecycleSync);
+      document.removeEventListener('visibilitychange', handleVisibilitySync);
       clearInterval(interval);
     };
   }, [authUser?.id, performCloudSync]);

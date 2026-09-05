@@ -1,5 +1,5 @@
 # Seelye Family Health — Precision Fitness & Nutrition Application
-**Version: Beta v4.16.2 (b4.16.2)** | **Production Domain: https://health.seelye.info**
+**Version: Beta v4.16.3 (b4.16.3)** | **Production Domain: https://health.seelye.info**
 
 High-performance, dark-mode first athletic health and nutrition platform engineered with Next.js (App Router), TypeScript, Tailwind CSS, Supabase (PostgreSQL), and integrated Wholesome Recipe & Meal Prep Engine.
 
@@ -7,7 +7,14 @@ High-performance, dark-mode first athletic health and nutrition platform enginee
 
 ## ⚡ Key Architectural Modules
 
-### 1. State-Effect Loop Termination & Tab-Switch Sync Stabilization (Beta v4.16.2)
+### 1. Realtime Ping-Pong Termination, Read-Only Pull Guard & 3s Sync Cooldown (Beta v4.16.3)
+- **Dismantled Realtime WebSocket Ping-Pong Cascade:** Removed live PostgreSQL database subscriptions on `profiles` and `food_logs` that caused multi-device ping-pong feedback loops and delayed self-echo sync storms on mobile browsers.
+- **Eliminated Spurious Lifecycle Listeners:** Purged high-frequency window `focus` and `pageshow` listeners on iOS Safari, restricting lifecycle sync triggers strictly to explicit document `visibilitychange` resumes.
+- **Strict Read-Only Pull & Deep Equality Guard:** Implemented deep structural JSON comparison across bundle `food_logs`, `water_logs`, `custom_meals`, `movements`, `workout_logs`, and `scheduled_plans`, guaranteeing that pulling data from the cloud never triggers a redundant push back to the cloud.
+- **3-Second Automated Sync Cooldown Guard:** Enforced an unshakeable 3,000ms cooldown timer on all automated sync invocations, completely preventing rapid oscillation between "Syncing..." and "Sync Now".
+- **Decoupled Auth State Change:** Stripped automatic sync triggers from `onAuthStateChange`, delegating initial synchronization exclusively to `getSession` on startup and manual user interactions.
+
+### 2. State-Effect Loop Termination & Tab-Switch Sync Stabilization (Beta v4.16.2)
 - **Eliminated Sync-Render Re-Trigger Loop:** Removed user auth re-fetching and state mutation from `performCloudSync`, preventing React state churn from infinitely re-triggering the sync cycle upon completion.
 - **Stabilized Tab-Switch Auto-Sync:** Refactored tab switch synchronization with a persistent previous-tab ref guard, ensuring cloud reconciliation triggers strictly when actively switching tabs rather than on component re-renders.
 - **Decoupled Realtime & Lifecycle Subscriptions:** Stabilized Realtime WebSocket channels to anchor onto static user IDs instead of dynamic object references, preventing channel teardown and resubscribe churn.
