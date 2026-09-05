@@ -62,6 +62,8 @@ export const MealPlanner: React.FC = () => {
     setEditingMealLog,
     syncWithCloud,
     syncStatus,
+    authUser,
+    setShowAuthModal,
   } = useHealth();
 
   const [activeNutritionSubTab, setActiveNutritionSubTab] = useState<'diary' | 'builder' | 'database' | 'recipes'>('diary');
@@ -595,17 +597,21 @@ export const MealPlanner: React.FC = () => {
           <button
             type="button"
             onClick={async () => {
+              if (!authUser) {
+                setShowAuthModal(true);
+                return;
+              }
               await syncWithCloud();
               setCopyToast('Cloud Sync Complete — Food Diary & Water Up to Date');
               setTimeout(() => setCopyToast(null), 3000);
             }}
             disabled={syncStatus === 'syncing'}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-surface-200 hover:bg-surface-300 text-zinc-300 hover:text-white text-xs font-semibold border border-surface-border transition-all cursor-pointer select-none active:scale-95"
-            title="Sync all food logs & water intake across laptop and iPhone"
+            title={authUser ? `Sync all food logs & water with ${authUser.email}` : 'Sign in to sync entries with laptop'}
           >
             <RefreshCw className={`w-3.5 h-3.5 ${syncStatus === 'syncing' ? 'animate-spin text-brand-400' : 'text-brand-400'}`} />
-            <span className="hidden sm:inline">{syncStatus === 'syncing' ? 'Syncing...' : 'Sync Cloud'}</span>
-            <span className="sm:hidden">{syncStatus === 'syncing' ? '...' : 'Sync'}</span>
+            <span className="hidden sm:inline">{syncStatus === 'syncing' ? 'Syncing...' : authUser ? 'Sync Cloud' : 'Sync (Sign In)'}</span>
+            <span className="sm:hidden">{syncStatus === 'syncing' ? '...' : authUser ? 'Sync' : 'Sign In'}</span>
           </button>
 
           <button
@@ -633,6 +639,47 @@ export const MealPlanner: React.FC = () => {
           </button>
         </div>
       </div>
+
+      {/* Account & Sync Status Diagnostic Strip */}
+      {authUser ? (
+        <div className="flex flex-wrap items-center justify-between gap-2 px-4 py-2.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-xs">
+          <div className="flex items-center gap-2">
+            <span className={`w-2 h-2 rounded-full bg-emerald-400 shrink-0 ${syncStatus === 'syncing' ? 'animate-ping' : ''}`} />
+            <span className="text-zinc-300">
+              Signed in as <strong className="text-emerald-300 font-mono">{authUser.email}</strong> • Cross-device food diary sync active
+            </span>
+          </div>
+          <button
+            type="button"
+            onClick={async () => {
+              await syncWithCloud();
+              setCopyToast('Cloud Sync Complete — Food Diary & Water Up to Date');
+              setTimeout(() => setCopyToast(null), 3000);
+            }}
+            disabled={syncStatus === 'syncing'}
+            className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 text-emerald-200 text-xs font-bold transition-all cursor-pointer active:scale-95"
+          >
+            <RefreshCw className={`w-3 h-3 ${syncStatus === 'syncing' ? 'animate-spin' : ''}`} />
+            <span>{syncStatus === 'syncing' ? 'Syncing...' : 'Sync Now'}</span>
+          </button>
+        </div>
+      ) : (
+        <div className="flex flex-wrap items-center justify-between gap-2 px-4 py-2.5 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-xs">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-amber-400 shrink-0 animate-pulse" />
+            <span className="text-amber-300 font-medium">
+              Guest Mode (Local Only) — Sign in to sync your food diary & water between laptop and iPhone.
+            </span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setShowAuthModal(true)}
+            className="px-3 py-1 rounded-xl bg-amber-500 hover:bg-amber-400 text-zinc-950 text-xs font-bold transition-all cursor-pointer shadow-sm active:scale-95"
+          >
+            Sign In to Sync
+          </button>
+        </div>
+      )}
 
       {/* Target Progress: Simple vs Athlete Layout */}
       {isSimple ? (

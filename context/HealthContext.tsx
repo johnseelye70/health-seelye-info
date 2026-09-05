@@ -259,6 +259,7 @@ interface HealthContextType {
   todayWaterOz: number;
   logWaterOz: (amountOz: number, container?: string) => void;
   resetTodayWater: () => void;
+  setTodayWaterOzDirectly: (targetOz: number) => void;
   deleteWaterLog: (id: string) => void;
 
   // Step Tracker & Automated Watch / Apple Health Sync
@@ -312,6 +313,22 @@ export const normalizeDateStr = (d?: string | null): string => {
   if (s.includes('T')) return s.split('T')[0];
   if (s.includes(' ')) return s.split(' ')[0];
   return s;
+};
+
+export const isDateMatch = (dateStr?: string | null, targetDate?: string): boolean => {
+  if (!dateStr || !targetDate) return false;
+  const norm = normalizeDateStr(dateStr);
+  if (norm === targetDate) return true;
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  const localToday = `${year}-${month}-${day}`;
+  const utcToday = now.toISOString().split('T')[0];
+  if (targetDate === localToday && (norm === localToday || norm === utcToday)) {
+    return true;
+  }
+  return false;
 };
 
 const DELETED_WATER_KEY = 'health_seelye_deleted_water_ids_v1';
@@ -1257,14 +1274,17 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
           if (!w || !w.id) return true;
           if (allDeletedWaterIds.has(w.id)) return true;
           if (effectiveResetAt) {
-            const entryDate = normalizeDateStr(w.logged_at);
-            const resetDate = normalizeDateStr(effectiveResetAt);
-            if (entryDate === resetDate) {
-              const entryTime = new Date(w.logged_at).getTime();
-              const resetTime = new Date(effectiveResetAt).getTime();
-              if (!isNaN(entryTime) && !isNaN(resetTime) && entryTime <= resetTime) {
+            const entryTime = new Date(w.logged_at).getTime();
+            const resetTime = new Date(effectiveResetAt).getTime();
+            if (!isNaN(entryTime) && !isNaN(resetTime)) {
+              if (entryTime <= resetTime && (resetTime - entryTime) < 36 * 60 * 60 * 1000) {
                 return true;
               }
+            }
+            const entryDate = normalizeDateStr(w.logged_at);
+            const resetDate = normalizeDateStr(effectiveResetAt);
+            if (isDateMatch(entryDate, resetDate) && !isNaN(entryTime) && !isNaN(resetTime) && entryTime <= resetTime) {
+              return true;
             }
           }
           return false;
@@ -1357,7 +1377,7 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
 
         // PUSH GUARD: Fresh or uninitialized devices with 0 local food logs MUST NOT overwrite cloud food logs with empty array
         const isFreshFoodDevice = localFoodLogs.length === 0 && (cloudBundleFoodLogs.length > 0 || cloudFoodLogs.length > 0);
-        const shouldSaveBundle = (hasBundleUpdate || !cloudBundle || !cloudBundle.food_logs) && !isFreshFoodDevice;
+        const shouldSaveBundle = (hasBundleUpdate || !cloudBundle || !cloudBundle.food_logs || mergedFoodLogs.length > 0 || mergedWaterLogs.length > 0) && !isFreshFoodDevice;
 
         if (shouldSaveBundle) {
           const currentEq = (cloudProfile?.equipment_inventory && typeof cloudProfile.equipment_inventory === 'object')
@@ -1371,8 +1391,9 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
 
           // 1. Authoritative PostgreSQL Profile upsert (guarantees row exists and persists bundle across all devices)
           const { error: profUpdateErr } = await (client.from('profiles') as any).upsert({
+            ...(cloudProfile || {}),
             id: liveUser.id,
-            email: liveUser.email,
+            email: liveUser.email || cloudProfile?.email,
             full_name: liveUser.user_metadata?.full_name || cloudProfile?.full_name || profileRef.current.full_name || 'Athlete',
             equipment_inventory: updatedEquipment,
             updated_at: new Date().toISOString(),
@@ -1641,7 +1662,7 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
   const currentDayFoodLogs = useMemo(() => {
     return foodLogs.filter((log) => {
       if (!log.logged_at) return false;
-      return normalizeDateStr(log.logged_at) === todayDate;
+      return isDateMatch(log.logged_at, todayDate);
     });
   }, [foodLogs, todayDate]);
 
@@ -1670,7 +1691,7 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
   const selectedDayFoodLogs = useMemo(() => {
     return foodLogs.filter((log) => {
       if (!log.logged_at) return false;
-      return normalizeDateStr(log.logged_at) === selectedDate;
+      return isDateMatch(log.logged_at, selectedDate);
     });
   }, [foodLogs, selectedDate]);
 
@@ -2831,7 +2852,7 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
   // Hydration Engine
   const todayWaterOz = useMemo(() => {
     return waterLogs
-      .filter((w) => normalizeDateStr(w.logged_at) === todayDate)
+      .filter((w) => isDateMatch(w.logged_at, todayDate))
       .reduce((sum, w) => sum + w.amount_oz, 0);
   }, [waterLogs, todayDate]);
 
@@ -2854,24 +2875,42 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
 
   const resetTodayWater = useCallback(() => {
     const nowIso = new Date().toISOString();
+    const nowTime = Date.now();
+    const localToday = getLocalDateString();
+    const utcToday = new Date().toISOString().split('T')[0];
+
     waterResetAtRef.current = nowIso;
     if (typeof window !== 'undefined') {
       try { localStorage.setItem(WATER_RESET_KEY, nowIso); } catch {}
     }
     setWaterLogs((prev) => {
-      const todayEntries = prev.filter((w) => normalizeDateStr(w.logged_at) === todayDate);
+      const todayEntries = prev.filter((w) => {
+        const d = normalizeDateStr(w.logged_at);
+        const isMatch = d === localToday || d === utcToday || d === todayDate;
+        const entryTime = new Date(w.logged_at).getTime();
+        const isRecent = !isNaN(entryTime) && (nowTime - entryTime < 24 * 60 * 60 * 1000);
+        return isMatch || isRecent;
+      });
       todayEntries.forEach((w) => deletedWaterIdsRef.current.add(w.id));
       if (typeof window !== 'undefined') {
         try {
           localStorage.setItem(DELETED_WATER_KEY, JSON.stringify(Array.from(deletedWaterIdsRef.current).slice(-200)));
         } catch {}
       }
-      const updated = prev.filter((w) => normalizeDateStr(w.logged_at) !== todayDate);
+      const updated = prev.filter((w) => !todayEntries.some((t) => t.id === w.id));
       waterLogsRef.current = updated;
       return updated;
     });
     triggerDebouncedSync();
-  }, [todayDate, triggerDebouncedSync]);
+  }, [getLocalDateString, todayDate, triggerDebouncedSync]);
+
+  const setTodayWaterOzDirectly = useCallback((targetOz: number) => {
+    const validOz = Math.max(0, Math.round(targetOz));
+    resetTodayWater();
+    if (validOz > 0) {
+      logWaterOz(validOz, 'Manual Set');
+    }
+  }, [resetTodayWater, logWaterOz]);
 
   const deleteWaterLog = useCallback((id: string) => {
     deletedWaterIdsRef.current.add(id);
@@ -3371,6 +3410,7 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
         todayWaterOz,
         logWaterOz,
         resetTodayWater,
+        setTodayWaterOzDirectly,
         deleteWaterLog,
 
         // Step Tracker & Automated Watch / Apple Health Sync

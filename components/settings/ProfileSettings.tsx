@@ -227,6 +227,19 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'b4.13.6',
+      date: '2026-09-04',
+      title: 'Standard Mode Water Reset Buttons & Truthful Cross-Device Sync Status',
+      changes: [
+        'Universal Standard Mode Water Reset: Added prominent, high-contrast [↺ Reset] buttons directly to the Standard Mode Water & Hydration card header and an inline (Reset to 0) link beside the ounce readout on both iPhone and desktop.',
+        'Always-Visible Hydration Engine Reset: Removed restrictive entry guards so the [↺ Reset Water] button is always visible in the card header, quick log containers, and history modal regardless of current count.',
+        'Resolved UTC Midnight Water Inflation: Upgraded isWaterKilled to match entries within 36 hours of the reset timestamp, preventing old iPhone local logs from incorrectly merging with cloud logs and skewing water totals higher.',
+        'Evening Timezone Rollover Food Matching: Implemented isDateMatch across currentDayFoodLogs, selectedDayFoodLogs, and todayWaterOz to seamlessly bridge local EDT calendar dates with UTC cloud timestamps.',
+        'Truthful Sync & Guest Mode Alerts: Replaced false "Sync Complete" toasts with active sign-in modals when unauthenticated, and added real-time account status diagnostic banners showing the active email on Dashboard and Food Diary.',
+        'Guaranteed App Sync Bundle Persistence: Ensured multi-device equipment_inventory sync bundles save whenever records exist without being blocked by stale signature comparisons.',
+      ],
+    },
+    {
       version: 'b4.13.5',
       date: '2026-09-04',
       title: 'Food Diary Cross-Device Sync & Hydration Deletion/Reset Architecture',

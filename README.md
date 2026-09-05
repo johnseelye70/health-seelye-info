@@ -1,5 +1,5 @@
 # Seelye Family Health — Precision Fitness & Nutrition Application
-**Version: Beta v4.13.5 (b4.13.5)** | **Production Domain: https://health.seelye.info**
+**Version: Beta v4.13.6 (b4.13.6)** | **Production Domain: https://health.seelye.info**
 
 High-performance, dark-mode first athletic health and nutrition platform engineered with Next.js (App Router), TypeScript, Tailwind CSS, Supabase (PostgreSQL), and integrated Wholesome Recipe & Meal Prep Engine.
 
@@ -7,7 +7,15 @@ High-performance, dark-mode first athletic health and nutrition platform enginee
 
 ## ⚡ Key Architectural Modules
 
-### 1. Food Diary Cross-Device Sync & Hydration Deletion/Reset Architecture (Beta v4.13.5)
+### 1. Standard Mode Water Reset & Truthful Cross-Device Sync (Beta v4.13.6)
+- **Universal Standard Mode Water Reset:** Added prominent, high-contrast `[ ↺ Reset ]` buttons directly to the Standard Mode Water & Hydration card header and an inline `(Reset to 0)` link beside the ounce readout on both iPhone and desktop.
+- **Always-Visible Hydration Engine Reset:** Removed restrictive entry guards so the `[ ↺ Reset Water ]` button is always visible in the card header, quick log containers, and history modal regardless of current count.
+- **Resolved UTC Midnight Water Inflation:** Upgraded `isWaterKilled` to match entries within 36 hours of the reset timestamp, preventing old iPhone local logs from incorrectly merging with cloud logs and skewing water totals higher.
+- **Evening Timezone Rollover Food Matching:** Implemented `isDateMatch` across `currentDayFoodLogs`, `selectedDayFoodLogs`, and `todayWaterOz` to seamlessly bridge local EDT calendar dates with UTC cloud timestamps.
+- **Truthful Sync & Guest Mode Alerts:** Replaced false "Sync Complete" toasts with active sign-in modals when unauthenticated, and added real-time account status diagnostic banners showing the active email on Dashboard and Food Diary.
+- **Guaranteed App Sync Bundle Persistence:** Ensured multi-device `equipment_inventory` sync bundles save whenever records exist without being blocked by stale signature comparisons.
+
+### 2. Food Diary Cross-Device Sync & Hydration Deletion/Reset Architecture (Beta v4.13.5)
 - **Guaranteed PostgreSQL Profile Upsert:** Upgraded profile cloud saving from `.update()` to `.upsert({ onConflict: 'id' })`, ensuring profiles records and `equipment_inventory.app_sync_bundle` are reliably created and saved to PostgreSQL regardless of initial row existence.
 - **Lean Multi-Device Sync Bundle:** Stripped bulky redundant nested `custom_meal_data` objects from food logs inside the cloud sync bundle, eliminating 4KB Supabase Auth metadata quota exceptions while preserving full meal blueprints in `custom_meals`.
 - **Water Tombstone & Reset Architecture:** Engineered `deleted_water_ids` tombstones and `water_reset_at` timestamps that propagate to the cloud, permanently preventing deleted or reset hydration logs from resurrecting upon sync.

@@ -26,6 +26,9 @@ import {
   ChefHat,
   BookOpen,
   Calendar,
+  RotateCcw,
+  RefreshCw,
+  Cloud,
 } from 'lucide-react';
 import { FASTING_CONFIGS } from '@/lib/macro-calculator';
 import { HydrationTracker } from '@/components/dashboard/HydrationTracker';
@@ -51,6 +54,8 @@ export const DashboardOverview: React.FC = () => {
     waterGoalOz,
     todayWaterOz,
     logWaterOz,
+    resetTodayWater,
+    setTodayWaterOzDirectly,
     stepGoal,
     todaySteps,
     todayStepMiles,
@@ -59,6 +64,10 @@ export const DashboardOverview: React.FC = () => {
     toggleSimpleMovementCompleted,
     addSimpleMovementActivity,
     swapSimpleMovementActivity,
+    syncWithCloud,
+    syncStatus,
+    authUser,
+    setShowAuthModal,
   } = useHealth();
 
   const isStandard = experienceMode === 'standard' || experienceMode === 'tutorial';
@@ -111,6 +120,46 @@ export const DashboardOverview: React.FC = () => {
             <p className="text-zinc-500 dark:text-zinc-400 text-sm mt-1 max-w-xl">
               You have <strong className="text-brand-500 dark:text-brand-400 font-bold">{todayRemaining.calories} calories</strong> remaining today across <strong className="text-foreground">{profile.meal_count} wholesome meals</strong>. Take your time, log as you go, and stay hydrated!
             </p>
+
+            {/* Account Sync Status Diagnostic Badge */}
+            {authUser ? (
+              <div className="mt-3 flex flex-wrap items-center justify-between gap-2 p-2.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs">
+                <div className="flex items-center gap-2">
+                  <span className={`w-2 h-2 rounded-full bg-emerald-400 shrink-0 ${syncStatus === 'syncing' ? 'animate-ping' : ''}`} />
+                  <span>
+                    Synced as <strong className="font-mono text-white">{authUser.email}</strong> • Cross-device sync active
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  id="btn-overview-sync-now"
+                  onClick={() => syncWithCloud()}
+                  disabled={syncStatus === 'syncing'}
+                  className="px-2.5 py-1 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 text-emerald-200 text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 active:scale-95"
+                  title="Sync immediately across laptop & iPhone"
+                >
+                  <RefreshCw className={`w-3 h-3 ${syncStatus === 'syncing' ? 'animate-spin' : ''}`} />
+                  <span>{syncStatus === 'syncing' ? 'Syncing...' : 'Sync Now'}</span>
+                </button>
+              </div>
+            ) : (
+              <div className="mt-3 flex flex-wrap items-center justify-between gap-2 p-2.5 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs">
+                <div className="flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-amber-400 shrink-0 animate-pulse" />
+                  <span>
+                    <strong>Guest Mode (Local Only):</strong> Sign in to sync your food diary & water between laptop and iPhone.
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  id="btn-overview-signin-sync"
+                  onClick={() => setShowAuthModal(true)}
+                  className="px-3 py-1 rounded-xl bg-amber-500 hover:bg-amber-400 text-zinc-950 text-xs font-bold transition-all cursor-pointer shadow-sm active:scale-95"
+                >
+                  Sign In to Sync
+                </button>
+              </div>
+            )}
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
@@ -327,14 +376,45 @@ export const DashboardOverview: React.FC = () => {
             <div className="p-6 rounded-3xl bg-surface-100/90 border border-surface-border backdrop-blur-xl flex flex-col justify-between space-y-4">
               <div className="flex items-center justify-between">
                 <div className="text-xs font-bold text-zinc-400 uppercase tracking-wider">Water & Hydration</div>
-                <div className="w-10 h-10 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
-                  <Droplets className="w-5 h-5 text-accent-cyan fill-accent-cyan/20" />
+                <div className="flex items-center gap-2">
+                  <button
+                    id="btn-standard-reset-water-header"
+                    type="button"
+                    onClick={async () => {
+                      resetTodayWater();
+                      await syncWithCloud();
+                    }}
+                    className="flex items-center gap-1 px-2.5 py-1 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/30 text-rose-300 text-xs font-bold transition-all cursor-pointer select-none active:scale-95 shadow-sm"
+                    title="Reset today's water to 0 oz"
+                  >
+                    <RotateCcw className="w-3.5 h-3.5" />
+                    <span>Reset</span>
+                  </button>
+                  <div className="w-10 h-10 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
+                    <Droplets className="w-5 h-5 text-accent-cyan fill-accent-cyan/20" />
+                  </div>
                 </div>
               </div>
 
               <div>
-                <div className="text-3xl sm:text-4xl font-black font-mono text-accent-cyan">
-                  {todayWaterOz} <span className="text-sm font-medium text-zinc-400">/ {waterGoalOz} oz</span>
+                <div className="flex items-baseline gap-2">
+                  <div className="text-3xl sm:text-4xl font-black font-mono text-accent-cyan">
+                    {todayWaterOz} <span className="text-sm font-medium text-zinc-400">/ {waterGoalOz} oz</span>
+                  </div>
+                  {todayWaterOz > 0 && (
+                    <button
+                      type="button"
+                      id="btn-standard-zero-water"
+                      onClick={async () => {
+                        resetTodayWater();
+                        await syncWithCloud();
+                      }}
+                      className="text-[11px] font-mono text-rose-400 hover:text-rose-300 underline underline-offset-2 cursor-pointer"
+                      title="Reset today's water to 0 oz"
+                    >
+                      (Reset to 0)
+                    </button>
+                  )}
                 </div>
                 <div className="text-xs text-zinc-400 mt-1">
                   ~{Math.round(todayWaterOz / 8)} of {Math.round((waterGoalOz || 96) / 8)} cups enjoyed today
