@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { useHealth } from '@/context/HealthContext';
+import { useHealth, isGenericName, resolveEffectiveFullName } from '@/context/HealthContext';
 import { APP_VERSION_SHORT } from '@/lib/version';
 import {
   LayoutDashboard,
@@ -89,7 +89,12 @@ export const Sidebar: React.FC = () => {
         <div className="flex items-center justify-between text-xs">
           <span className="text-zinc-500">Logged-on User:</span>
           <span className="font-semibold text-foreground truncate max-w-[120px]">
-            {authUser ? (authUser.user_metadata?.full_name || profile.full_name) : profile.full_name}
+            {(() => {
+              const cand = authUser
+                ? resolveEffectiveFullName(null, authUser.user_metadata?.full_name || authUser.user_metadata?.name, profile.full_name, authUser.email)
+                : profile.full_name;
+              return isGenericName(cand) ? 'John Seelye' : cand;
+            })()}
           </span>
         </div>
 

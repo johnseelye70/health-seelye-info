@@ -204,7 +204,7 @@ export const ProfileSettings: React.FC = () => {
   const handleReset = () => {
     resetAllData();
     setForm({
-      full_name: 'Logged-on User',
+      full_name: 'John Seelye',
       email: '',
       age: 35,
       sex: 'male',
@@ -226,6 +226,18 @@ export const ProfileSettings: React.FC = () => {
   };
 
   const changelogHistory = [
+    {
+      version: 'b4.16.4',
+      date: '2026-09-05',
+      title: 'Profile Identity Cloud Reconciliation & Generic Placeholder Resolution',
+      changes: [
+        'Profile Identity Resolution (resolveEffectiveFullName & isGenericName): Added robust placeholder detection to filter out legacy generic values ("Logged-on User", "Athlete", "Friend") across all profile sync channels, resolving authenticated user names from cloud profile, auth metadata, or authenticated email formatting.',
+        'Synchronous profileRef & State Reconciliation: Updated Section A profile adoption to synchronously mutate profileRef.current alongside React state, ensuring subsequent bundle and food log sync passes never overwrite cloud profile data with stale local placeholder values.',
+        'Full Profile Attribute Adoption for Fresh Devices: Refactored profile adoption so unconfigured secondary devices (like iPhone Safari) seamlessly inherit full nutrition targets, goals, meal counts, and fasting protocols from the cloud profile regardless of baseline biometrics.',
+        'Permanent Cloud Placeholder Healing: Added self-healing upsert logic to replace generic placeholder names in Supabase profiles and Auth user_metadata with the user\'s authentic name upon first sync.',
+        'Dashboard & Sidebar Greeting Defense-in-Depth: Updated DashboardOverview greeting and Sidebar identity badge to resolve authentic user names with fallback email formatting, permanently eliminating "Good day, Logged-on!".',
+      ],
+    },
     {
       version: 'b4.16.3',
       date: '2026-09-05',

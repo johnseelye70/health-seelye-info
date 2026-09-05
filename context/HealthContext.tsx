@@ -337,6 +337,66 @@ export const isDateMatch = (dateStr?: string | null, targetDate?: string): boole
   return false;
 };
 
+export const isGenericName = (name?: string | null): boolean => {
+  if (!name) return true;
+  const trimmed = name.trim().toLowerCase();
+  return (
+    trimmed === '' ||
+    trimmed === 'logged-on user' ||
+    trimmed === 'logged on user' ||
+    trimmed === 'logged-on' ||
+    trimmed === 'logged on' ||
+    trimmed === 'logged_on' ||
+    trimmed === 'user' ||
+    trimmed === 'athlete' ||
+    trimmed === 'friend' ||
+    trimmed === 'null' ||
+    trimmed === 'undefined'
+  );
+};
+
+export const formatNameFromEmail = (email?: string | null): string => {
+  if (!email || !email.includes('@')) return 'John Seelye';
+  const prefix = email.split('@')[0].trim();
+  if (!prefix) return 'John Seelye';
+
+  // Check known patterns for John Seelye / domain seelye.info
+  if (/johnseelye/i.test(prefix) || /john\.seelye/i.test(prefix) || /john_seelye/i.test(prefix)) {
+    return 'John Seelye';
+  }
+  if (/^john$/i.test(prefix) || (/john/i.test(prefix) && /seelye/i.test(email))) {
+    return 'John Seelye';
+  }
+  if (/^jseelye$/i.test(prefix) || (/seelye/i.test(prefix) && /john/i.test(email))) {
+    return 'John Seelye';
+  }
+
+  // General email prefix formatting: e.g. "jane.doe" -> "Jane Doe"
+  const cleaned = prefix.replace(/[0-9._-]+/g, ' ').trim();
+  if (cleaned) {
+    return cleaned
+      .split(/\s+/)
+      .map((part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
+      .join(' ');
+  }
+  return prefix.charAt(0).toUpperCase() + prefix.slice(1);
+};
+
+export const resolveEffectiveFullName = (
+  cloudName?: string | null,
+  metaName?: string | null,
+  localName?: string | null,
+  email?: string | null
+): string => {
+  const candidates = [cloudName, metaName, localName];
+  for (const cand of candidates) {
+    if (cand && !isGenericName(cand)) {
+      return cand.trim();
+    }
+  }
+  return formatNameFromEmail(email);
+};
+
 const DELETED_WATER_KEY = 'health_seelye_deleted_water_ids_v1';
 const WATER_RESET_KEY = 'health_seelye_water_reset_at_v1';
 
@@ -668,10 +728,17 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
         !(Number(p.height_cm) === 178 && Number(p.current_weight_kg) === 80 && Number(p.target_weight_kg) === 75)
       );
 
+      const effectiveName = resolveEffectiveFullName(
+        null,
+        user.user_metadata?.full_name || user.user_metadata?.name,
+        p.full_name,
+        user.email || p.email
+      );
+
       const payload = {
         id: user.id,
         email: user.email || p.email,
-        full_name: p.full_name || user.user_metadata?.full_name || 'Athlete',
+        full_name: effectiveName,
         age: p.age || 35,
         height_cm: isConfigured ? Number(p.height_cm) : 0,
         current_weight_kg: isConfigured ? Number(p.current_weight_kg) : 0,
@@ -744,6 +811,15 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
         !(Number(localProf.height_cm) === 178 && Number(localProf.current_weight_kg) === 80 && Number(localProf.target_weight_kg) === 75)
       );
 
+      // Determine authoritative non-generic user name across all sources
+      const candidateMetaName = liveUser.user_metadata?.full_name || liveUser.user_metadata?.name || liveUser.user_metadata?.user_name;
+      const effectiveFullName = resolveEffectiveFullName(
+        cloudProfile?.full_name,
+        candidateMetaName,
+        localProf.full_name,
+        liveUser.email
+      );
+
       if (cloudProfile && !profileErr) {
         const cloudHeight = Number(cloudProfile.height_cm) || 0;
         const cloudWeight = Number(cloudProfile.current_weight_kg) || 0;
@@ -757,93 +833,141 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
 
         if (cloudHasBiometrics && !localHasBiometrics) {
           // Cloud has real biometrics, local device (iPhone/iPad) is fresh/unconfigured.
-          // ADOPT CLOUD BIOMETRICS ON THIS FRESH DEVICE:
-          setProfile((prev) => ({
-            ...prev,
+          // ADOPT CLOUD BIOMETRICS & SETTINGS ON THIS FRESH DEVICE:
+          const updatedProf: UserProfile = {
+            ...localProf,
             id: liveUser.id,
-            email: liveUser.email || cloudProfile.email || prev.email,
-            full_name: cloudProfile.full_name || liveUser.user_metadata?.full_name || prev.full_name || 'Athlete',
-            age: cloudProfile.age ?? prev.age,
+            email: liveUser.email || cloudProfile.email || localProf.email,
+            full_name: effectiveFullName,
+            age: cloudProfile.age ?? localProf.age ?? 35,
             height_cm: cloudHeight,
             current_weight_kg: cloudWeight,
             target_weight_kg: cloudTarget,
             has_configured_biometrics: true,
-            sex: (cloudProfile.sex as any) || prev.sex,
-            activity_level: (cloudProfile.activity_level as any) || prev.activity_level,
-            goal: (cloudProfile.goal as any) || prev.goal,
-            unit_preference: (cloudProfile.unit_preference as any) || prev.unit_preference,
-            daily_calorie_target: cloudProfile.daily_calorie_target || prev.daily_calorie_target,
-            protein_target_g: cloudProfile.protein_target_g || prev.protein_target_g,
-            carb_target_g: cloudProfile.carb_target_g || prev.carb_target_g,
-            fat_target_g: cloudProfile.fat_target_g || prev.fat_target_g,
-            fasting_protocol: (cloudProfile.fasting_protocol as any) || prev.fasting_protocol,
-            fasting_start_time: cloudProfile.fasting_start_time || prev.fasting_start_time,
-            meal_count: cloudProfile.meal_count || prev.meal_count,
-            updated_at: cloudProfile.updated_at || prev.updated_at,
-          }));
+            sex: (cloudProfile.sex as any) || localProf.sex || 'male',
+            activity_level: (cloudProfile.activity_level as any) || localProf.activity_level || 'moderate',
+            goal: (cloudProfile.goal as any) || localProf.goal || 'cut_500',
+            unit_preference: (cloudProfile.unit_preference as any) || localProf.unit_preference || 'imperial',
+            daily_calorie_target: cloudProfile.daily_calorie_target || localProf.daily_calorie_target || 2000,
+            protein_target_g: cloudProfile.protein_target_g || localProf.protein_target_g || 150,
+            carb_target_g: cloudProfile.carb_target_g || localProf.carb_target_g || 200,
+            fat_target_g: cloudProfile.fat_target_g || localProf.fat_target_g || 60,
+            fasting_protocol: (cloudProfile.fasting_protocol as any) || localProf.fasting_protocol || '16_8',
+            fasting_start_time: cloudProfile.fasting_start_time || localProf.fasting_start_time || '20:00',
+            meal_count: cloudProfile.meal_count || localProf.meal_count || 3,
+            updated_at: cloudProfile.updated_at || new Date().toISOString(),
+          };
+          profileRef.current = updatedProf;
+          setProfile(updatedProf);
         } else if (!cloudHasBiometrics && localHasBiometrics) {
           // Local device (Laptop) has real configured biometrics, but cloud was empty.
           // PUSH LOCAL BIOMETRICS TO CLOUD:
-          await pushLocalProfileToCloud(client, liveUser, localProf);
-          setProfile((prev) => ({
-            ...prev,
+          const updatedProf: UserProfile = {
+            ...localProf,
             id: liveUser.id,
-            email: liveUser.email || prev.email,
-          }));
+            email: liveUser.email || localProf.email,
+            full_name: effectiveFullName,
+          };
+          profileRef.current = updatedProf;
+          setProfile(updatedProf);
+          await pushLocalProfileToCloud(client, liveUser, updatedProf);
         } else if (cloudHasBiometrics && localHasBiometrics) {
           // Both have configured biometrics. Compare updated_at timestamps.
           const localTime = localProf.updated_at ? new Date(localProf.updated_at).getTime() : 0;
           const cloudTime = cloudProfile.updated_at ? new Date(cloudProfile.updated_at).getTime() : 0;
 
           if (localTime > cloudTime) {
-            await pushLocalProfileToCloud(client, liveUser, localProf);
-          } else {
-            setProfile((prev) => ({
-              ...prev,
+            const updatedProf: UserProfile = {
+              ...localProf,
               id: liveUser.id,
-              email: liveUser.email || cloudProfile.email || prev.email,
-              full_name: cloudProfile.full_name || liveUser.user_metadata?.full_name || prev.full_name || 'Athlete',
-              age: cloudProfile.age ?? prev.age,
+              email: liveUser.email || localProf.email,
+              full_name: effectiveFullName,
+            };
+            profileRef.current = updatedProf;
+            setProfile(updatedProf);
+            await pushLocalProfileToCloud(client, liveUser, updatedProf);
+          } else {
+            const updatedProf: UserProfile = {
+              ...localProf,
+              id: liveUser.id,
+              email: liveUser.email || cloudProfile.email || localProf.email,
+              full_name: effectiveFullName,
+              age: cloudProfile.age ?? localProf.age ?? 35,
               height_cm: cloudHeight,
               current_weight_kg: cloudWeight,
               target_weight_kg: cloudTarget,
               has_configured_biometrics: true,
-              sex: (cloudProfile.sex as any) || prev.sex,
-              activity_level: (cloudProfile.activity_level as any) || prev.activity_level,
-              goal: (cloudProfile.goal as any) || prev.goal,
-              unit_preference: (cloudProfile.unit_preference as any) || prev.unit_preference,
-              daily_calorie_target: cloudProfile.daily_calorie_target || prev.daily_calorie_target,
-              protein_target_g: cloudProfile.protein_target_g || prev.protein_target_g,
-              carb_target_g: cloudProfile.carb_target_g || prev.carb_target_g,
-              fat_target_g: cloudProfile.fat_target_g || prev.fat_target_g,
-              fasting_protocol: (cloudProfile.fasting_protocol as any) || prev.fasting_protocol,
-              fasting_start_time: cloudProfile.fasting_start_time || prev.fasting_start_time,
-              meal_count: cloudProfile.meal_count || prev.meal_count,
-              updated_at: cloudProfile.updated_at,
-            }));
+              sex: (cloudProfile.sex as any) || localProf.sex || 'male',
+              activity_level: (cloudProfile.activity_level as any) || localProf.activity_level || 'moderate',
+              goal: (cloudProfile.goal as any) || localProf.goal || 'cut_500',
+              unit_preference: (cloudProfile.unit_preference as any) || localProf.unit_preference || 'imperial',
+              daily_calorie_target: cloudProfile.daily_calorie_target || localProf.daily_calorie_target || 2000,
+              protein_target_g: cloudProfile.protein_target_g || localProf.protein_target_g || 150,
+              carb_target_g: cloudProfile.carb_target_g || localProf.carb_target_g || 200,
+              fat_target_g: cloudProfile.fat_target_g || localProf.fat_target_g || 60,
+              fasting_protocol: (cloudProfile.fasting_protocol as any) || localProf.fasting_protocol || '16_8',
+              fasting_start_time: cloudProfile.fasting_start_time || localProf.fasting_start_time || '20:00',
+              meal_count: cloudProfile.meal_count || localProf.meal_count || 3,
+              updated_at: cloudProfile.updated_at || new Date().toISOString(),
+            };
+            profileRef.current = updatedProf;
+            setProfile(updatedProf);
           }
         } else {
-          // Neither has biometrics configured yet -> Strictly keep 0
-          setProfile((prev) => ({
-            ...prev,
+          // Neither has biometrics configured yet -> Strictly keep 0, but adopt non-biometric preferences & targets
+          const updatedProf: UserProfile = {
+            ...localProf,
             id: liveUser.id,
-            email: liveUser.email || prev.email,
-            full_name: cloudProfile.full_name || liveUser.user_metadata?.full_name || prev.full_name || 'Athlete',
+            email: liveUser.email || cloudProfile.email || localProf.email,
+            full_name: effectiveFullName,
+            age: cloudProfile.age ?? localProf.age ?? 35,
             height_cm: 0,
             current_weight_kg: 0,
             target_weight_kg: 0,
             has_configured_biometrics: false,
-          }));
+            sex: (cloudProfile.sex as any) || localProf.sex || 'male',
+            activity_level: (cloudProfile.activity_level as any) || localProf.activity_level || 'moderate',
+            goal: (cloudProfile.goal as any) || localProf.goal || 'cut_500',
+            unit_preference: (cloudProfile.unit_preference as any) || localProf.unit_preference || 'imperial',
+            daily_calorie_target: cloudProfile.daily_calorie_target || localProf.daily_calorie_target || 2000,
+            protein_target_g: cloudProfile.protein_target_g || localProf.protein_target_g || 150,
+            carb_target_g: cloudProfile.carb_target_g || localProf.carb_target_g || 200,
+            fat_target_g: cloudProfile.fat_target_g || localProf.fat_target_g || 60,
+            fasting_protocol: (cloudProfile.fasting_protocol as any) || localProf.fasting_protocol || '16_8',
+            fasting_start_time: cloudProfile.fasting_start_time || localProf.fasting_start_time || '20:00',
+            meal_count: cloudProfile.meal_count || localProf.meal_count || 3,
+            updated_at: cloudProfile.updated_at || new Date().toISOString(),
+          };
+          profileRef.current = updatedProf;
+          setProfile(updatedProf);
+        }
+
+        // Heal cloud profile if it had a generic placeholder name
+        if (isGenericName(cloudProfile.full_name) && !isGenericName(effectiveFullName)) {
+          await (client.from('profiles') as any).upsert({
+            id: liveUser.id,
+            full_name: effectiveFullName,
+            updated_at: new Date().toISOString(),
+          }, { onConflict: 'id' }).catch(() => {});
         }
       } else {
         // Cloud profile row does not exist yet!
+        const updatedProf: UserProfile = {
+          ...localProf,
+          id: liveUser.id,
+          email: liveUser.email || localProf.email,
+          full_name: effectiveFullName,
+        };
+        profileRef.current = updatedProf;
+        setProfile(updatedProf);
+
         if (localHasBiometrics) {
-          await pushLocalProfileToCloud(client, liveUser, localProf);
+          await pushLocalProfileToCloud(client, liveUser, updatedProf);
         } else {
           await (client.from('profiles') as any).upsert({
             id: liveUser.id,
             email: liveUser.email,
-            full_name: liveUser.user_metadata?.full_name || localProf.full_name || 'Athlete',
+            full_name: effectiveFullName,
             age: localProf.age || 35,
             height_cm: 0,
             current_weight_kg: 0,
@@ -862,6 +986,13 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
             updated_at: new Date().toISOString(),
           }, { onConflict: 'id' });
         }
+      }
+
+      // Heal Supabase Auth user_metadata if it is missing a real full_name
+      if (liveUser && isGenericName(candidateMetaName) && !isGenericName(effectiveFullName)) {
+        client.auth.updateUser({
+          data: { full_name: effectiveFullName },
+        }).catch(() => {});
       }
 
       // B. Food Logs Cloud Table Fetch (Full Reconciliation in Section E)
@@ -1184,10 +1315,16 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
         const unpersistedDbLogs = mergedFoodLogs.filter((l) => !cloudDbIds.has(l.id));
         if (unpersistedDbLogs.length > 0) {
           // Guarantee profiles row exists first so user_id FK constraint is satisfied
+          const effectiveName = resolveEffectiveFullName(
+            cloudProfile?.full_name,
+            liveUser.user_metadata?.full_name || liveUser.user_metadata?.name,
+            profileRef.current.full_name,
+            liveUser.email
+          );
           await (client.from('profiles') as any).upsert({
             id: liveUser.id,
             email: liveUser.email,
-            full_name: liveUser.user_metadata?.full_name || profileRef.current.full_name || 'Athlete',
+            full_name: effectiveName,
             updated_at: new Date().toISOString(),
           }, { onConflict: 'id' }).catch(() => {});
 
@@ -1426,12 +1563,19 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
             app_sync_bundle: updatedBundle,
           };
 
+          const effectiveName = resolveEffectiveFullName(
+            cloudProfile?.full_name,
+            liveUser.user_metadata?.full_name || liveUser.user_metadata?.name,
+            profileRef.current.full_name,
+            liveUser.email
+          );
+
           // Authoritative PostgreSQL Profile upsert (guarantees row exists and persists bundle across all devices)
           const { error: profUpdateErr } = await (client.from('profiles') as any).upsert({
             ...(cloudProfile || {}),
             id: liveUser.id,
             email: liveUser.email || cloudProfile?.email,
-            full_name: liveUser.user_metadata?.full_name || cloudProfile?.full_name || profileRef.current.full_name || 'Athlete',
+            full_name: effectiveName,
             equipment_inventory: updatedEquipment,
             updated_at: new Date().toISOString(),
           }, { onConflict: 'id' });
@@ -1594,13 +1738,14 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
     if (!supabase) return { error: { message: 'Cloud database not configured' } };
     purgeLegacyLocalStorage();
     const emailRedirectTo = typeof window !== 'undefined' ? `${window.location.origin}/` : 'https://health.seelye.info/';
+    const initialName = resolveEffectiveFullName(null, fullName, profile.full_name, email);
     let res: any;
     try {
       res = await supabase.auth.signUp({
         email,
         password,
         options: {
-          data: { full_name: fullName || (profile.full_name === 'John Seelye' ? 'Athlete' : profile.full_name) || 'Athlete' },
+          data: { full_name: initialName },
           emailRedirectTo,
         },
       });
@@ -1612,7 +1757,7 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
             email,
             password,
             options: {
-              data: { full_name: fullName || (profile.full_name === 'John Seelye' ? 'Athlete' : profile.full_name) || 'Athlete' },
+              data: { full_name: initialName },
               emailRedirectTo,
             },
           });
@@ -1629,7 +1774,7 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
         email,
         password,
         options: {
-          data: { full_name: fullName || (profile.full_name === 'John Seelye' ? 'Athlete' : profile.full_name) || 'Athlete' },
+          data: { full_name: initialName },
           emailRedirectTo,
         },
       });
@@ -1637,10 +1782,11 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
     if (!res.error && res.data?.user) {
       setAuthUser(res.data.user);
       authUserRef.current = res.data.user;
-      setProfile((prev) => ({ ...prev, full_name: fullName || 'Athlete', email }));
+      setProfile((prev) => ({ ...prev, full_name: initialName, email }));
+      profileRef.current = { ...profileRef.current, full_name: initialName, email };
       await pushLocalProfileToCloud(supabase, res.data.user, {
         ...profileRef.current,
-        full_name: fullName || profileRef.current.full_name || 'Athlete',
+        full_name: initialName,
         email,
       });
       await performCloudSync(res.data.user);

@@ -5,7 +5,7 @@ import { COMPREHENSIVE_FOOD_DATABASE } from './food-database';
 export const INITIAL_PROFILE: UserProfile = {
   id: 'user-01',
   email: '',
-  full_name: 'Logged-on User',
+  full_name: 'John Seelye',
   age: 35,
   height_cm: 0, // Unset until user inputs real biometrics
   current_weight_kg: 0, // Unset until user inputs real biometrics

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useHealth } from '@/context/HealthContext';
+import { useHealth, isGenericName, resolveEffectiveFullName } from '@/context/HealthContext';
 import { APP_VERSION_SHORT } from '@/lib/version';
 import { MacroProgressRing } from '@/components/nutrition/MacroProgressRing';
 import {
@@ -95,7 +95,13 @@ export const DashboardOverview: React.FC = () => {
   const remainingHours = Math.floor(fastingStatus.remainingSeconds / 3600);
   const remainingMins = Math.floor((fastingStatus.remainingSeconds % 3600) / 60);
 
-  const firstName = profile.full_name.split(' ')[0] || 'Friend';
+  const rawName = !isGenericName(profile.full_name)
+    ? profile.full_name
+    : authUser
+    ? resolveEffectiveFullName(null, authUser.user_metadata?.full_name || authUser.user_metadata?.name, null, authUser.email)
+    : 'John Seelye';
+
+  const firstName = rawName.split(' ')[0] || 'John';
 
   return (
     <div className="space-y-6 animate-fadeIn pb-12">

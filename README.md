@@ -1,5 +1,5 @@
 # Seelye Family Health — Precision Fitness & Nutrition Application
-**Version: Beta v4.16.3 (b4.16.3)** | **Production Domain: https://health.seelye.info**
+**Version: Beta v4.16.4 (b4.16.4)** | **Production Domain: https://health.seelye.info**
 
 High-performance, dark-mode first athletic health and nutrition platform engineered with Next.js (App Router), TypeScript, Tailwind CSS, Supabase (PostgreSQL), and integrated Wholesome Recipe & Meal Prep Engine.
 
@@ -7,7 +7,14 @@ High-performance, dark-mode first athletic health and nutrition platform enginee
 
 ## ⚡ Key Architectural Modules
 
-### 1. Realtime Ping-Pong Termination, Read-Only Pull Guard & 3s Sync Cooldown (Beta v4.16.3)
+### 1. Profile Identity Cloud Reconciliation & Generic Placeholder Resolution (Beta v4.16.4)
+- **Profile Identity Resolution (`resolveEffectiveFullName` & `isGenericName`):** Added robust placeholder detection to filter out legacy generic values (`'Logged-on User'`, `'Athlete'`, `'Friend'`) across all profile sync channels, resolving authenticated user names from cloud profile, auth metadata, or authenticated email formatting.
+- **Synchronous `profileRef` & State Reconciliation:** Updated Section A profile adoption to synchronously mutate `profileRef.current` alongside React state, ensuring subsequent bundle and food log sync passes never overwrite cloud profile data with stale local placeholder values.
+- **Full Profile Attribute Adoption for Fresh Devices:** Refactored profile adoption so unconfigured secondary devices (like iPhone Safari) seamlessly inherit full nutrition targets, goals, meal counts, and fasting protocols from the cloud profile regardless of baseline biometrics.
+- **Permanent Cloud Placeholder Healing:** Added self-healing upsert logic to replace generic placeholder names in Supabase `profiles` and Auth `user_metadata` with the user's authentic name upon first sync.
+- **Dashboard & Sidebar Greeting Defense-in-Depth:** Updated DashboardOverview greeting and Sidebar identity badge to resolve authentic user names with fallback email formatting, permanently eliminating "Good day, Logged-on!".
+
+### 2. Realtime Ping-Pong Termination, Read-Only Pull Guard & 3s Sync Cooldown (Beta v4.16.3)
 - **Dismantled Realtime WebSocket Ping-Pong Cascade:** Removed live PostgreSQL database subscriptions on `profiles` and `food_logs` that caused multi-device ping-pong feedback loops and delayed self-echo sync storms on mobile browsers.
 - **Eliminated Spurious Lifecycle Listeners:** Purged high-frequency window `focus` and `pageshow` listeners on iOS Safari, restricting lifecycle sync triggers strictly to explicit document `visibilitychange` resumes.
 - **Strict Read-Only Pull & Deep Equality Guard:** Implemented deep structural JSON comparison across bundle `food_logs`, `water_logs`, `custom_meals`, `movements`, `workout_logs`, and `scheduled_plans`, guaranteeing that pulling data from the cloud never triggers a redundant push back to the cloud.
