@@ -658,6 +658,7 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
   const isSyncingRef = useRef<boolean>(false);
   const syncDebounceTimerRef = useRef<NodeJS.Timeout | null>(null);
   const lastLocalProfileWriteRef = useRef<number>(0);
+  const prevTabRef = useRef<string>(activeTab);
 
   // Helper to push local profile to cloud safely via UPSERT with onConflict: 'id'
   const pushLocalProfileToCloud = async (client: any, user: any, p: UserProfile) => {
@@ -722,22 +723,8 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
     try {
       const client = supabase;
 
-      // Use user metadata; optionally fetch fresh metadata with strict 2.5s timeout (prevents Safari auth hang)
-      let liveUser = user;
-      try {
-        const fetchUserPromise = client.auth.getUser();
-        const timeoutPromise = new Promise<any>((_, reject) =>
-          setTimeout(() => reject(new Error('User fetch timeout')), 2500)
-        );
-        const { data: freshUserData } = (await Promise.race([fetchUserPromise, timeoutPromise])) as any;
-        if (freshUserData?.user) {
-          liveUser = freshUserData.user;
-          setAuthUser(liveUser);
-          authUserRef.current = liveUser;
-        }
-      } catch {
-        // Fall back gracefully to existing user without blocking sync
-      }
+      // Authoritative authenticated user reference (zero state churn or re-render loops)
+      const liveUser = user;
 
       // A. Profile Reconciliation (Strict Zero-Default Guard)
       const { data: cloudProfile, error: profileErr } = await (client.from('profiles') as any)
@@ -1462,7 +1449,7 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
     }
     syncDebounceTimerRef.current = setTimeout(() => {
       performCloudSync().catch(() => {});
-    }, 400);
+    }, 1000);
   }, [performCloudSync]);
 
   // 4. Supabase Auth Session Listener (Zero-Loop Stable Lifecycle)
@@ -1525,14 +1512,17 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
 
   // 5. Immediate Auto-Sync on Tab Switch (Food Diary, Dashboard, Fasting, Workouts)
   useEffect(() => {
-    if (authUser && isSupabaseConfigured && supabase) {
-      performCloudSync().catch(() => {});
+    if (prevTabRef.current !== activeTab) {
+      prevTabRef.current = activeTab;
+      if (authUserRef.current && isSupabaseConfigured && supabase) {
+        performCloudSync().catch(() => {});
+      }
     }
-  }, [activeTab, authUser, performCloudSync]);
+  }, [activeTab, performCloudSync]);
 
   // 6. Automatic Cross-Device Realtime & Lifecycle Auto-Sync
   useEffect(() => {
-    if (!isSupabaseConfigured || !supabase || !authUser) return;
+    if (!isSupabaseConfigured || !supabase || !authUser?.id) return;
 
     const client = supabase;
 
@@ -1553,7 +1543,9 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
           () => {
             // Guard: ignore self-echo events within 4 seconds of local write
             if (Date.now() - lastLocalProfileWriteRef.current < 4000) return;
-            performCloudSync().catch(() => {});
+            if (!isSyncingRef.current) {
+              performCloudSync().catch(() => {});
+            }
           }
         )
         .on(
@@ -1567,7 +1559,9 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
           () => {
             // Guard: ignore self-echo events within 4 seconds of local write
             if (Date.now() - lastLocalProfileWriteRef.current < 4000) return;
-            performCloudSync().catch(() => {});
+            if (!isSyncingRef.current) {
+              performCloudSync().catch(() => {});
+            }
           }
         )
         .subscribe();
@@ -1604,7 +1598,7 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
       document.removeEventListener('visibilitychange', handleLifecycleSync);
       clearInterval(interval);
     };
-  }, [authUser, performCloudSync]);
+  }, [authUser?.id, performCloudSync]);
 
   // Auth Methods
   const signInWithPassword = async (email: string, password: string) => {

@@ -227,6 +227,17 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'b4.16.2',
+      date: '2026-09-05',
+      title: 'State-Effect Loop Termination & Tab-Switch Sync Stabilization',
+      changes: [
+        'Eliminated Sync-Render Re-Trigger Loop: Removed user auth re-fetching and state mutation from performCloudSync, preventing React state churn from infinitely re-triggering the sync cycle upon completion.',
+        'Stabilized Tab-Switch Auto-Sync: Refactored tab switch synchronization with a persistent previous-tab ref guard, ensuring cloud reconciliation triggers strictly when actively switching tabs rather than on component re-renders.',
+        'Decoupled Realtime & Lifecycle Subscriptions: Stabilized Realtime WebSocket channels to anchor onto static user IDs instead of dynamic object references, preventing channel teardown and resubscribe churn.',
+        'Extended Local Write Debounce: Tuned local mutation debouncing to 1,000ms to consolidate rapid writes and prevent sync collision loops.',
+      ],
+    },
+    {
       version: 'b4.16.1',
       date: '2026-09-05',
       title: 'iOS Safari Sync Stability, Web Locks Deadlock Elimination & Infinite Sync Termination',

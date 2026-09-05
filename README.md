@@ -1,5 +1,5 @@
 # Seelye Family Health — Precision Fitness & Nutrition Application
-**Version: Beta v4.16.1 (b4.16.1)** | **Production Domain: https://health.seelye.info**
+**Version: Beta v4.16.2 (b4.16.2)** | **Production Domain: https://health.seelye.info**
 
 High-performance, dark-mode first athletic health and nutrition platform engineered with Next.js (App Router), TypeScript, Tailwind CSS, Supabase (PostgreSQL), and integrated Wholesome Recipe & Meal Prep Engine.
 
@@ -7,7 +7,13 @@ High-performance, dark-mode first athletic health and nutrition platform enginee
 
 ## ⚡ Key Architectural Modules
 
-### 1. iOS Safari Sync Stability, Web Locks Deadlock Elimination & Infinite Loop Termination (Beta v4.16.1)
+### 1. State-Effect Loop Termination & Tab-Switch Sync Stabilization (Beta v4.16.2)
+- **Eliminated Sync-Render Re-Trigger Loop:** Removed user auth re-fetching and state mutation from `performCloudSync`, preventing React state churn from infinitely re-triggering the sync cycle upon completion.
+- **Stabilized Tab-Switch Auto-Sync:** Refactored tab switch synchronization with a persistent previous-tab ref guard, ensuring cloud reconciliation triggers strictly when actively switching tabs rather than on component re-renders.
+- **Decoupled Realtime & Lifecycle Subscriptions:** Stabilized Realtime WebSocket channels to anchor onto static user IDs instead of dynamic object references, preventing channel teardown and resubscribe churn.
+- **Extended Local Write Debounce:** Tuned local mutation debouncing to 1,000ms to consolidate rapid writes and prevent sync collision loops.
+
+### 2. iOS Safari Sync Stability, Web Locks Deadlock Elimination & Infinite Loop Termination (Beta v4.16.1)
 - **Web Locks Deadlock Elimination:** Configured a custom non-blocking lock handler on the Supabase client, completely bypassing WebKit's buggy `navigator.locks.request` API that caused Mobile Safari on iPhone to deadlock and hang indefinitely.
 - **Infinite Auth Loop Termination:** Eliminated redundant `client.auth.updateUser` calls from the cloud sync cycle and decoupled `onAuthStateChange` listeners, terminating the feedback storm where `USER_UPDATED` events re-triggered sync continuously.
 - **Hardened Sync Watchdog:** Added a 12-second safety watchdog and 2.5-second timeout guards on all authentication calls, guaranteeing the UI never gets stuck in a permanent "Syncing..." state on cellular or slow networks.
