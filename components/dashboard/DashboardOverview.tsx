@@ -37,6 +37,7 @@ import { StepTracker } from '@/components/dashboard/StepTracker';
 import { RecipeEngine } from '@/components/nutrition/RecipeEngine';
 import { SimpleMovementPickerModal } from '@/components/workouts/SimpleMovementPickerModal';
 import { NumberStepper } from '@/components/ui/NumberStepper';
+import { WholesomeMealsSection } from '@/components/nutrition/WholesomeMealsSection';
 
 export const DashboardOverview: React.FC = () => {
   const {
@@ -525,54 +526,7 @@ export const DashboardOverview: React.FC = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Left 2 Columns: 1-Tap Wholesome Meals */}
             <div className="lg:col-span-2 space-y-6">
-              <div className="p-6 rounded-3xl bg-surface-100/90 border border-surface-border backdrop-blur-xl space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-2xl bg-brand-500/10 border border-brand-500/20 flex items-center justify-center">
-                      <UtensilsCrossed className="w-5 h-5 text-brand-400" />
-                    </div>
-                    <div>
-                      <h2 className="text-base font-bold text-zinc-100">1-Tap Wholesome Meals</h2>
-                      <p className="text-xs text-zinc-400">Tap to instantly record a wholesome balanced plate</p>
-                    </div>
-                  </div>
-
-                  <button
-                    onClick={() => setShowDashboardRecipeModal(true)}
-                    className="text-xs font-semibold text-brand-400 hover:text-brand-300 flex items-center gap-1 cursor-pointer"
-                  >
-                    <span>Browse All Recipes</span>
-                    <ChevronRight className="w-4 h-4" />
-                  </button>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-                  {[
-                    { id: 'p1', name: '🥣 Oatmeal & Fresh Berries', cals: 350, desc: 'Rolled oats, blueberries & almond butter' },
-                    { id: 'p2', name: '🥗 Grilled Chicken Power Bowl', cals: 520, desc: 'Tender chicken, jasmine rice & broccoli' },
-                    { id: 'p3', name: '🐟 Salmon & Sweet Potato', cals: 580, desc: 'Wild salmon, roasted sweet potato & asparagus' },
-                    { id: 'p4', name: '🍓 Greek Yogurt & Berries', cals: 200, desc: 'Non-fat Greek yogurt with fresh strawberries' },
-                  ].map((meal) => (
-                    <div
-                      key={meal.id}
-                      className="p-4 rounded-2xl bg-surface-200/80 border border-surface-border flex items-center justify-between gap-3 hover:border-brand-500/40 transition-all"
-                    >
-                      <div className="min-w-0">
-                        <div className="text-xs sm:text-sm font-bold text-zinc-100 truncate">{meal.name}</div>
-                        <div className="text-[11px] text-zinc-400 mt-0.5">{meal.desc}</div>
-                        <div className="text-[11px] font-mono font-bold text-brand-400 mt-1">+{meal.cals} kcal</div>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => setActiveTab('nutrition')}
-                        className="px-3 py-1.5 rounded-xl bg-brand-500/15 hover:bg-brand-500 text-brand-300 hover:text-zinc-950 text-xs font-bold transition-all shrink-0 cursor-pointer active:scale-95"
-                      >
-                        + Log
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              </div>
+              <WholesomeMealsSection onBrowseRecipes={() => setShowDashboardRecipeModal(true)} />
 
               {/* Eating Schedule Card */}
               <div className="p-6 rounded-3xl bg-surface-100/90 border border-surface-border backdrop-blur-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">

@@ -9,6 +9,7 @@ import { calculateMealDetailedNutrition } from '@/lib/nutrition-calculator';
 import { FoodDatabaseBrowser } from './FoodDatabaseBrowser';
 import { RecipeEngine } from './RecipeEngine';
 import { MealBuilder } from './MealBuilder';
+import { WholesomeMealsSection } from './WholesomeMealsSection';
 import {
   UtensilsCrossed,
   Search,
@@ -162,78 +163,6 @@ export const MealPlanner: React.FC = () => {
   const isImperial = profile.unit_preference === 'imperial';
   const unpurchasedGroceryCount = groceryList.filter((i) => !i.is_checked && !i.in_pantry).length;
 
-  // 1-Click Wholesome Meal Presets for Simple Mode
-  const WHOLESOME_PRESETS = [
-    {
-      id: 'oats_berries',
-      name: '🥣 Oatmeal & Fresh Blueberries Bowl',
-      desc: 'Rolled oats cooked with pure water, wild blueberries, and a spoon of raw almond butter',
-      cals: 360,
-      mealIndex: 1,
-      foodName: 'Rolled Oats with Blueberries & Almond Butter',
-      grams: 160,
-    },
-    {
-      id: 'chicken_rice_bowl',
-      name: '🥗 Grilled Chicken & Jasmine Rice Power Bowl',
-      desc: 'Tender chicken breast, steamed jasmine rice, and steamed broccoli florets',
-      cals: 520,
-      mealIndex: 2,
-      foodName: 'Grilled Chicken Breast with Rice & Broccoli',
-      grams: 280,
-    },
-    {
-      id: 'yogurt_parfait',
-      name: '🍓 Greek Yogurt & Strawberry Parfait',
-      desc: 'High-protein nonfat plain Greek yogurt with fresh cut strawberries',
-      cals: 190,
-      mealIndex: 3,
-      foodName: 'Nonfat Greek Yogurt with Strawberries',
-      grams: 200,
-    },
-    {
-      id: 'salmon_sweet_potato',
-      name: '🐟 Wild Salmon with Roasted Sweet Potato',
-      desc: 'Oven-baked wild salmon fillet, roasted sweet potato cubes, and grilled asparagus',
-      cals: 560,
-      mealIndex: 3,
-      foodName: 'Wild Alaskan Salmon with Sweet Potato & Asparagus',
-      grams: 320,
-    },
-    {
-      id: 'turkey_toast',
-      name: '🥪 Lean Turkey & Avocado Sourdough',
-      desc: 'Artisan sourdough slice, lean roasted turkey breast, and mashed fresh avocado',
-      cals: 410,
-      mealIndex: 2,
-      foodName: 'Roasted Turkey Breast & Avocado Sourdough Toast',
-      grams: 220,
-    },
-  ];
-
-  const handleLogWholesomePreset = (preset: typeof WHOLESOME_PRESETS[0]) => {
-    logFood({
-      user_id: profile.id,
-      food: {
-        id: `preset-${preset.id}`,
-        name: preset.foodName,
-        category: 'protein',
-        calories_per_100g: Math.round((preset.cals / preset.grams) * 100),
-        protein_per_100g: 15,
-        carbs_per_100g: 20,
-        fat_per_100g: 5,
-        is_gluten_free: true,
-        is_dairy_free: true,
-        serving_size_g: preset.grams,
-        default_unit: 'g',
-        storage_type: 'fresh_weekly',
-      },
-      food_name: preset.foodName,
-      grams_consumed: preset.grams,
-      meal_index: preset.mealIndex,
-      logged_at: selectedDate,
-    });
-  };
 
   // Date navigation helpers (MyFitnessPal-style Day-by-Day logging)
   const handleShiftDate = (days: number) => {
@@ -803,6 +732,9 @@ export const MealPlanner: React.FC = () => {
               </button>
             </div>
           </div>
+
+          {/* 1-Tap Wholesome Meals with Daily Rotation & Smart Suggestions */}
+          <WholesomeMealsSection onBrowseRecipes={() => setShowRecipeModal(true)} />
 
           {/* Today's Logged Food Items List */}
           <div className="p-6 rounded-3xl bg-surface-100/90 border border-surface-border backdrop-blur-xl space-y-4">

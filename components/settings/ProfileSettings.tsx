@@ -227,6 +227,18 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'b4.15.0',
+      date: '2026-09-05',
+      title: 'Daily Randomized 1-Tap Wholesome Meals & Smart Chef Suggestion Engine',
+      changes: [
+        'Daily Meal Rotation: Built a 28-plate wholesome culinary database (7 Breakfasts, 7 Lunches, 7 Dinners, 7 Snacks) with deterministic daily date hashing, automatically serving up a fresh balanced 4-meal daily menu every morning.',
+        'On-Demand Daily Shuffle: Added an interactive "Shuffle Daily" control that lets users cycle through alternative fresh 4-plate combinations on demand with instant seed advancement.',
+        'Context-Aware Smart Chef Suggestions: Integrated an intelligent recommendation spotlight analyzing the user\'s local hour (morning breakfast, midday power lunch, evening dinner, late recovery fuel), remaining calorie budget, and fasting status to offer personalized meals with chef rationales.',
+        'True 1-Tap Instant Logging: Upgraded meal cards to instantly log directly to today\'s food journal via logFood with 3-second emerald confirmation feedback and inline macro updating without leaving the screen.',
+        'Synchronized Dashboard & Nutrition Planner: Integrated the 1-Tap Wholesome Meals engine across both the Today Dashboard and the Step 2 Nutrition Meal Planner.',
+      ],
+    },
+    {
       version: 'b4.14.1',
       date: '2026-09-05',
       title: 'Automatic Viewport Scroll-to-Top on Guided Step Progression',

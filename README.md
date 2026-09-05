@@ -1,5 +1,5 @@
 # Seelye Family Health — Precision Fitness & Nutrition Application
-**Version: Beta v4.14.1 (b4.14.1)** | **Production Domain: https://health.seelye.info**
+**Version: Beta v4.15.0 (b4.15.0)** | **Production Domain: https://health.seelye.info**
 
 High-performance, dark-mode first athletic health and nutrition platform engineered with Next.js (App Router), TypeScript, Tailwind CSS, Supabase (PostgreSQL), and integrated Wholesome Recipe & Meal Prep Engine.
 
@@ -7,7 +7,14 @@ High-performance, dark-mode first athletic health and nutrition platform enginee
 
 ## ⚡ Key Architectural Modules
 
-### 1. Automatic Viewport Scroll-to-Top on Guided Step Progression (Beta v4.14.1)
+### 1. Daily Randomized 1-Tap Wholesome Meals & Smart Chef Suggestion Engine (Beta v4.15.0)
+- **Daily Meal Rotation:** Built a 28-plate wholesome culinary database (7 Breakfasts, 7 Lunches, 7 Dinners, 7 Snacks) with deterministic daily date hashing, automatically serving up a fresh balanced 4-meal daily menu every morning.
+- **On-Demand Daily Shuffle:** Added an interactive "Shuffle Daily" control that lets users cycle through alternative fresh 4-plate combinations on demand with instant seed advancement.
+- **Context-Aware Smart Chef Suggestions:** Integrated an intelligent recommendation spotlight analyzing the user's local hour (morning breakfast, midday power lunch, evening dinner, late recovery fuel), remaining calorie budget, and fasting status to offer personalized meals with chef rationales.
+- **True 1-Tap Instant Logging:** Upgraded meal cards to instantly log directly to today's food journal via `logFood` with 3-second emerald confirmation feedback and inline macro updating without leaving the screen.
+- **Synchronized Dashboard & Nutrition Planner:** Integrated the 1-Tap Wholesome Meals engine across both the Today Dashboard and the Step 2 Nutrition Meal Planner.
+
+### 2. Automatic Viewport Scroll-to-Top on Guided Step Progression (Beta v4.14.1)
 - **Instant Top Viewport Snap:** Engineered an immediate multi-tiered scroll reset (`window.scrollTo(0, 0)`, `documentElement.scrollTop = 0`, and `body.scrollTop = 0`) synchronously, across `requestAnimationFrame`, and on tick timeouts.
 - **Zero Stale Scroll Clamping:** Resolved iOS Safari viewport retention by pairing instant programmatic resets with a reactive layout effect that pins the view to the top whenever active steps or tabs change.
 - **Top & Bottom Bar Synchronization:** Added synchronous scroll resets to both the header banner and the bottom completion bar, guaranteeing a smooth start at the top of every step without manual scrolling.
