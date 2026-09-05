@@ -2870,70 +2870,83 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
   }, [triggerDebouncedSync]);
 
   // Step-by-Step Guided Daily Flow (Step 1 -> 2 -> 3 -> 4 -> Dashboard)
+  const scrollToTopInstant = useCallback(() => {
+    if (typeof window === 'undefined') return;
+    window.scrollTo(0, 0);
+    if (document.documentElement) document.documentElement.scrollTop = 0;
+    if (document.body) document.body.scrollTop = 0;
+    requestAnimationFrame(() => {
+      window.scrollTo(0, 0);
+      if (document.documentElement) document.documentElement.scrollTop = 0;
+      if (document.body) document.body.scrollTop = 0;
+    });
+    setTimeout(() => {
+      window.scrollTo(0, 0);
+      if (document.documentElement) document.documentElement.scrollTop = 0;
+      if (document.body) document.body.scrollTop = 0;
+    }, 40);
+  }, []);
+
   const startGuidedFlow = useCallback((step: 1 | 2 | 3 | 4 = 1) => {
     setActiveGuidedStep(step);
     if (step === 1) setActiveTab('fasting');
     else if (step === 2) setActiveTab('nutrition');
     else if (step === 3) setActiveTab('workouts');
     else if (step === 4) setActiveTab('trends');
-    if (typeof window !== 'undefined') {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-  }, []);
+    scrollToTopInstant();
+  }, [scrollToTopInstant]);
 
   const nextGuidedStep = useCallback(() => {
     setActiveGuidedStep((prev) => {
       if (prev === 1) {
         setActiveTab('nutrition');
-        if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
+        scrollToTopInstant();
         return 2;
       }
       if (prev === 2) {
         setActiveTab('workouts');
-        if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
+        scrollToTopInstant();
         return 3;
       }
       if (prev === 3) {
         setActiveTab('trends');
-        if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
+        scrollToTopInstant();
         return 4;
       }
       setActiveTab('dashboard');
-      if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
+      scrollToTopInstant();
       return null;
     });
-  }, []);
+  }, [scrollToTopInstant]);
 
   const prevGuidedStep = useCallback(() => {
     setActiveGuidedStep((prev) => {
       if (prev === 4) {
         setActiveTab('workouts');
-        if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
+        scrollToTopInstant();
         return 3;
       }
       if (prev === 3) {
         setActiveTab('nutrition');
-        if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
+        scrollToTopInstant();
         return 2;
       }
       if (prev === 2) {
         setActiveTab('fasting');
-        if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
+        scrollToTopInstant();
         return 1;
       }
       setActiveTab('dashboard');
-      if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
+      scrollToTopInstant();
       return null;
     });
-  }, []);
+  }, [scrollToTopInstant]);
 
   const exitGuidedFlow = useCallback(() => {
     setActiveGuidedStep(null);
     setActiveTab('dashboard');
-    if (typeof window !== 'undefined') {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-  }, []);
+    scrollToTopInstant();
+  }, [scrollToTopInstant]);
 
   // Simple Mode Feel-Good Movement Handlers
   const toggleSimpleMovementCompleted = useCallback((id: string) => {

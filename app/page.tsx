@@ -46,6 +46,25 @@ export default function HomePage() {
     };
   }, []);
 
+  // Guarantee immediate scroll-to-top whenever switching tabs or advancing guided steps
+  React.useEffect(() => {
+    if (typeof window === 'undefined') return;
+    window.scrollTo(0, 0);
+    if (document.documentElement) document.documentElement.scrollTop = 0;
+    if (document.body) document.body.scrollTop = 0;
+    requestAnimationFrame(() => {
+      window.scrollTo(0, 0);
+      if (document.documentElement) document.documentElement.scrollTop = 0;
+      if (document.body) document.body.scrollTop = 0;
+    });
+    const timer = setTimeout(() => {
+      window.scrollTo(0, 0);
+      if (document.documentElement) document.documentElement.scrollTop = 0;
+      if (document.body) document.body.scrollTop = 0;
+    }, 40);
+    return () => clearTimeout(timer);
+  }, [activeTab, activeGuidedStep]);
+
   return (
     <div className="flex min-h-screen bg-background text-foreground relative w-full max-w-full min-w-0 overflow-x-hidden overscroll-x-none [touch-action:pan-y]">
       {/* Persistent Responsive Sidebar Navigation (Desktop) */}

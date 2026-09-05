@@ -1,5 +1,5 @@
 # Seelye Family Health — Precision Fitness & Nutrition Application
-**Version: Beta v4.14.0 (b4.14.0)** | **Production Domain: https://health.seelye.info**
+**Version: Beta v4.14.1 (b4.14.1)** | **Production Domain: https://health.seelye.info**
 
 High-performance, dark-mode first athletic health and nutrition platform engineered with Next.js (App Router), TypeScript, Tailwind CSS, Supabase (PostgreSQL), and integrated Wholesome Recipe & Meal Prep Engine.
 
@@ -7,7 +7,12 @@ High-performance, dark-mode first athletic health and nutrition platform enginee
 
 ## ⚡ Key Architectural Modules
 
-### 1. Guided Daily Step-by-Step Flow with Forward Progression & Dashboard Completion (Beta v4.14.0)
+### 1. Automatic Viewport Scroll-to-Top on Guided Step Progression (Beta v4.14.1)
+- **Instant Top Viewport Snap:** Engineered an immediate multi-tiered scroll reset (`window.scrollTo(0, 0)`, `documentElement.scrollTop = 0`, and `body.scrollTop = 0`) synchronously, across `requestAnimationFrame`, and on tick timeouts.
+- **Zero Stale Scroll Clamping:** Resolved iOS Safari viewport retention by pairing instant programmatic resets with a reactive layout effect that pins the view to the top whenever active steps or tabs change.
+- **Top & Bottom Bar Synchronization:** Added synchronous scroll resets to both the header banner and the bottom completion bar, guaranteeing a smooth start at the top of every step without manual scrolling.
+
+### 2. Guided Daily Step-by-Step Flow with Forward Progression & Dashboard Completion (Beta v4.14.0)
 - **End-to-End Guided Daily Flow:** Engineered an automated 4-step progression system (Step 1: Morning Check-In $\rightarrow$ Step 2: Log Meals $\rightarrow$ Step 3: Daily Movement $\rightarrow$ Step 4: Review Your Day $\rightarrow$ Dashboard).
 - **Inline Step Navigation Banners:** Added top and bottom inline walkthrough banners on every step page with direct forward buttons ("Continue to Next Step →"), previous step links, and one-tap return to dashboard.
 - **Interactive Progress Track:** Displayed live step pills (1, 2, 3, 4) with instant step jumping and real-time completion checkmarks as fasting, water, meals, and workouts are logged.

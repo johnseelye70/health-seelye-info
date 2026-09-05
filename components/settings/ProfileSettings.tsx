@@ -227,6 +227,16 @@ export const ProfileSettings: React.FC = () => {
 
   const changelogHistory = [
     {
+      version: 'b4.14.1',
+      date: '2026-09-05',
+      title: 'Automatic Viewport Scroll-to-Top on Guided Step Progression',
+      changes: [
+        'Instant Top Viewport Snap: Engineered an immediate multi-tiered scroll reset (window.scrollTo, documentElement.scrollTop, and body.scrollTop) across step navigation buttons, back links, and progress pills.',
+        'Zero Stale Scroll Clamping: Resolved iOS Safari viewport retention by pairing instant programmatic resets with a reactive layout effect that pins the view to the top whenever active steps or tabs change.',
+        'Top & Bottom Bar Synchronization: Added synchronous scroll resets to both the header banner and the bottom completion bar, guaranteeing a smooth start at the top of every step without manual scrolling.',
+      ],
+    },
+    {
       version: 'b4.14.0',
       date: '2026-09-05',
       title: 'Guided Daily Step-by-Step Flow with Forward Progression & Dashboard Completion',
